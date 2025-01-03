@@ -1,0 +1,11 @@
+
+.spinner-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* O la altura que necesites */
+  }
+  
+  .hidden-spinner {
+    display: none;
+  }

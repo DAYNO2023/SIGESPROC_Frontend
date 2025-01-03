@@ -1,0 +1,517 @@
+<p-toast></p-toast>
+<div class="loader-container" *ngIf="cargando">
+    <div class="loader">
+        <span></span>
+    </div>
+</div>
+<div class="grid" *ngIf="pantallas.get('Index')">
+    <div class="col-12">
+        <div class="card">
+            <h1 class="text-center mt-2">Deducciones</h1>
+            <hr />
+            <div class="grid mt-2">
+                <div class="col-12">
+                    <button
+                        (click)="botonNuevoClick()"
+                        pButton
+                        icon="pi pi-plus"
+                        label="Nuevo"
+                        class="mr-2"
+                    ></button>
+                </div>
+            </div>
+
+            <p-table
+                #tabla
+                [value]="deducciones"
+                styleClass="bac mt-2"
+                [tableStyle]="{ background: '#000' }"
+                responsiveLayout="scroll"
+                [rows]="10"
+                [globalFilterFields]="['empl_DNI', 'empl_Nombre']"
+                [rows]="10"
+                [paginator]="true"
+                [showCurrentPageReport]="true"
+                currentPageReportTemplate="Mostrando {first} al {last} de {totalRecords} entradas"
+                [rowHover]="true"
+                [rowsPerPageOptions]="[10, 25, 50, 100]"
+            >
+                <ng-template pTemplate="caption">
+                    <div
+                        class="flex flex-column md:flex-row md:justify-content-between md:align-items-center"
+                    >
+                        <span class="block mt-2 md:mt-0 p-input-icon-left">
+                            <i style="color: white" class="pi pi-search"></i>
+                            <input
+                                style="color: white"
+                                pInputText
+                                type="text"
+                                (input)="filtrar(tabla, $event)"
+                                placeholder="Buscar..."
+                                class="w-full sm:w-auto"
+                            />
+                        </span>
+                        <div class="registros">
+                            <p-dropdown
+                                [options]="tabla.rowsPerPageOptions"
+                                [(ngModel)]="tabla.rows"
+                                [style]="{ 'margin-right': '5px' }"
+                                [autoWidth]="false"
+                            >
+                            </p-dropdown>
+                            <span
+                                style="
+                                    color: #fff0c6;
+                                    font-weight: 700;
+                                    margin-top: 7px;
+                                "
+                            >
+                                Registros por página
+                            </span>
+                        </div>
+                    </div>
+                </ng-template>
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th
+                            style="color: white; max-width: 500px"
+                            class="text-center"
+                        >
+                            Acciones
+                        </th>
+                        <th
+                            style="color: white"
+                            class="text-center text-primary"
+                            [pSortableColumn]="'codigo'"
+                            class="text-center"
+                        >
+                            <div
+                                class="flex justify-content-center align-items-center"
+                            >
+                                No.
+                                <p-sortIcon [field]="'codigo'"></p-sortIcon>
+                            </div>
+                        </th>
+                        <th
+                            style="color: white"
+                            class="text-center"
+                            *ngFor="let columna of columnas"
+                            [pSortableColumn]="columna.prop"
+                        >
+                            {{ columna.titulo }}
+                            <p-sortIcon field="pren_Id"></p-sortIcon>
+                        </th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage">
+                    <tr>
+                        <td colspan="6" class="text-center">
+                            <!-- <div class="loader-container" *ngIf="cargando">
+                                <div class="loader">
+                                    <span></span>
+                                </div>
+                            </div> -->
+                        </td>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-deduccion>
+                    <tr (click)="seleccionarDeduccion(deduccion)">
+                        <td
+                            class="text-center"
+                            style="width: 10rem; max-width: 10rem"
+                        >
+                            <p-splitButton
+                                label="Acciones"
+                                icon="pi pi-cog"
+                                [model]="items"
+                                appendTo="body"
+                                styleClass="p-button-secondary"
+                                class="custom-splitbutton"
+                            ></p-splitButton>
+                        </td>
+                        <td class="text-center">
+                            <span class="p-column-title">codigo</span>
+                            {{ deduccion.codigo }}
+                        </td>
+                        <ng-container *ngFor="let columna of columnas">
+                            <td
+                                *ngIf="columna.prop !== 'dedu_Porcentaje'"
+                                class="text-center"
+                            >
+                                <span class="p-column-title">{{
+                                    columna.titulo
+                                }}</span>
+                                {{ deduccion[columna.prop] }}
+                            </td>
+                            <td
+                                *ngIf="columna.prop === 'dedu_Porcentaje'"
+                                class="text-right"
+                            >
+                                <span class="p-column-title">{{
+                                    columna.titulo
+                                }}</span>
+                                {{
+                                    deduccion.dedu_EsMontoFijo
+                                        ? (deduccion[columna.prop]
+                                          | currency
+                                              : globalMoneda.getState()
+                                                    .mone_Abreviatura + " ")
+                                        : deduccion[columna.prop].toFixed(2) +
+                                          " %"
+                                }}
+                            </td>
+                        </ng-container>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+    </div>
+</div>
+
+<div class="grid" *ngIf="pantallas.get('Form')">
+    <div class="col-12">
+        <div class="card">
+            <div
+                class="flex justify-content-center align-items-center"
+                style="height: 42px"
+            >
+                <a
+                    (click)="botonRegresarClick()"
+                    pButton
+                    style="
+                        display: inline-flex;
+                        justify-self: start;
+                        max-width: 120px;
+                    "
+                    icon="pi pi-arrow-left"
+                    label="Regresar"
+                    class="mr-2 p-button-link"
+                ></a>
+                <h1
+                    class="text-center mt-4"
+                    style="flex-grow: 1; padding-right: 10%"
+                >
+                    {{ deduccion.dedu_Id ? "Editar" : "Nueva" }} Deducción
+                </h1>
+            </div>
+            <hr />
+            <div class="flex justify-content-between align-items-center">
+                <div class="grid col-12 p-fluid p-formgrid">
+                    <div class="field col-12 md:col-6">
+                        <label for="nombre"
+                            >Descripción
+                            <span
+                                style="color: red"
+                                *ngIf="submitted && !deduccion.dedu_Descripcion"
+                                >*</span
+                            ></label
+                        >
+                        <input
+                            type="text"
+                            pInputText
+                            id="nombre"
+                            maxlength="50"
+                            [(ngModel)]="deduccion.dedu_Descripcion"
+                            required
+                            autofocus
+                            (input)="handleInput($event)"
+                            (paste)="validarPegar($event)"
+                            [ngClass]="{
+                                'ng-invalid ng-dirty':
+                                    (submitted &&
+                                        !deduccion.dedu_Descripcion) ||
+                                    (submitted &&
+                                        deduccion.dedu_Descripcion &&
+                                        !validarDescripcion())
+                            }"
+                        />
+                        <small
+                            class="ng-invalid ng-dirty"
+                            *ngIf="submitted && !deduccion.dedu_Descripcion"
+                            >El campo es requerido.</small
+                        >
+                        <small
+                            class="ng-invalid ng-dirty"
+                            *ngIf="
+                                submitted &&
+                                deduccion.dedu_Descripcion &&
+                                !validarDescripcion()
+                            "
+                            >El campo es inválido.</small
+                        >
+                    </div>
+                    <div class="field col-12 md:col-6">
+                        <label for="nombre"
+                            >Valor
+                            <span
+                                style="color: red"
+                                *ngIf="submitted && !deduccion.dedu_Porcentaje"
+                                >*</span
+                            ></label
+                        >
+                        <p-inputNumber
+                            id="porcentaje"
+                            [(ngModel)]="deduccion.dedu_Porcentaje"
+                            required
+                            mode="decimal"
+                            [max]="999999"
+                            [minFractionDigits]="2"
+                            [maxFractionDigits]="2"
+                            (input)="handleInput($event, 'monto')"
+                            (paste)="validarPegar($event, 'monto')"
+                            [prefix]="
+                                deduccion.dedu_EsMontoFijo
+                                    ? globalMoneda.getState().mone_Abreviatura +
+                                      ' '
+                                    : ''
+                            "
+                            [suffix]="!deduccion.dedu_EsMontoFijo ? ' %' : ''"
+                            autofocus
+                            [ngClass]="{
+                                'ng-invalid ng-dirty':
+                                    (submitted && !deduccion.dedu_Porcentaje) ||
+                                    (submitted &&
+                                        deduccion.dedu_Porcentaje &&
+                                        !validarValor())
+                            }"
+                        />
+                        <small
+                            class="ng-invalid ng-dirty"
+                            *ngIf="submitted && !deduccion.dedu_Porcentaje"
+                            >El campo es requerido.</small
+                        >
+                        <small
+                            class="ng-invalid ng-dirty"
+                            *ngIf="
+                                submitted &&
+                                deduccion.dedu_Porcentaje &&
+                                !validarValor()
+                            "
+                            >El valor de la deducción es inválido.</small
+                        >
+                    </div>
+                </div>
+            </div>
+            <div class="flex justify-content-center align-items-center">
+                <div class="field col-12 md:col-12">
+                    <label for="nombre" class="block">Es monto fijo</label>
+                    <p-inputSwitch
+                        [(ngModel)]="deduccion.dedu_EsMontoFijo"
+                    ></p-inputSwitch>
+                </div>
+            </div>
+            <div class="flex justify-content-end">
+                <div class="formgrid grid">
+                    <div class="field col">
+                        <button
+                            pButton
+                            type="button"
+                            label="Guardar"
+                            (click)="guardar()"
+                            icon="pi pi-save"
+                        ></button>
+                    </div>
+                    <div class="field col">
+                        <button
+                            pButton
+                            type="button"
+                            label="Cancelar"
+                            (click)="botonCancelarClick()"
+                            class="p-button-secondary"
+                            icon="pi pi-times"
+                        ></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="grid" *ngIf="pantallas.get('Detalle')">
+    <div class="col-12">
+        <div class="card">
+            <div
+                class="flex justify-content-start align-items-center"
+                style="height: 42px"
+            >
+                <a
+                    (click)="mostrarPantalla('Index'); nuevo = true"
+                    pButton
+                    style="display: inline-flex; max-width: 120px"
+                    icon="pi pi-arrow-left"
+                    label="Regresar"
+                    class="mr-2 p-button-link"
+                ></a>
+                <h1
+                    class="text-center mt-4"
+                    style="flex-grow: 1; padding-right: 15%"
+                >
+                    Detalle Deducción
+                </h1>
+            </div>
+            <hr />
+            <div class="p-fluid p-formgrid grid">
+                <div
+                    class="field col-12 md:col-4 mb-0"
+                    style="position: relative; height: 10%"
+                >
+                    <div class="field rows mb-0">
+                        <label for="codigo" style="font-weight: 800">No:</label>
+                    </div>
+                    <div class="field rows mb-0">
+                        <label for="codigo">{{ deduccion["codigo"] }}</label>
+                    </div>
+                </div>
+                <div
+                    class="field col-12 md:col-4 mb-0"
+                    style="position: relative; height: 10%"
+                >
+                    <div class="field rows mb-0">
+                        <label for="codigo" style="font-weight: 800"
+                            >Descripción:</label
+                        >
+                    </div>
+                    <div class="field rows mb-0">
+                        <label for="codigo">{{
+                            deduccion["dedu_Descripcion"]
+                        }}</label>
+                    </div>
+                </div>
+                <div
+                    class="field col-12 md:col-4 mb-0"
+                    style="position: relative; height: 10%"
+                >
+                    <div class="field rows mb-0">
+                        <label for="dedu_Porcentaje" style="font-weight: 800"
+                            >Valor:</label
+                        >
+                    </div>
+                    <div class="field rows mb-0">
+                        <label
+                            for="dedu_Porcentaje"
+                            *ngIf="deduccion.dedu_EsMontoFijo"
+                            >{{
+                                deduccion.dedu_Porcentaje
+                                    | currency
+                                        : globalMoneda.getState()
+                                              .mone_Abreviatura + " "
+                            }}</label
+                        >
+                        <label
+                            for="dedu_Porcentaje"
+                            *ngIf="!deduccion.dedu_EsMontoFijo"
+                            >{{ deduccion.dedu_Porcentaje }} %</label
+                        >
+                    </div>
+                </div>
+            </div>
+            <div style="position: relative; top: -10px">
+                <div class="card-title">
+                    <h1>Auditoría</h1>
+                </div>
+                <p-table
+                    [value]="tablaVacia"
+                    styleClass=" mt-2"
+                    [tableStyle]="{ background: '#000' }"
+                >
+                    <ng-template pTemplate="header">
+                        <tr>
+                            <th
+                                style="
+                                    width: 200px;
+                                    font-weight: 800;
+                                    color: white;
+                                "
+                            >
+                                Acción
+                            </th>
+                            <th
+                                style="
+                                    width: 200px;
+                                    font-weight: 800;
+                                    color: white;
+                                "
+                            >
+                                Usuario
+                            </th>
+                            <th
+                                style="
+                                    width: 200px;
+                                    font-weight: 800;
+                                    color: white;
+                                "
+                            >
+                                Fecha
+                            </th>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-transaction>
+                        <tr>
+                            <td style="width: 200px">Creado</td>
+                            <td style="width: 200px">
+                                {{ deduccion.usuaCreacion }}
+                            </td>
+                            <td style="width: 200px">
+                                {{ deduccion.fechaCreacion }}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="width: 200px">Modificado</td>
+                            <td style="width: 200px">
+                                {{ deduccion.usuaModificacion }}
+                            </td>
+                            <td style="width: 200px">
+                                {{ deduccion.fechaModificacion }}
+                            </td>
+                        </tr>
+                    </ng-template>
+                </p-table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<p-dialog
+    [(visible)]="mostrarModalConfirmacion"
+    header="Confirmación"
+    [modal]="true"
+    [style]="{ width: '450px' }"
+>
+    <div class="flex align-items-center justify-content-center">
+        <i
+            [class]="
+                this.pantallas.get('Form')
+                    ? 'pi pi-pencil mr-3'
+                    : 'pi pi-exclamation-triangle mr-3'
+            "
+            style="font-size: 2rem"
+        ></i>
+        <span *ngIf="mostrarModalConfirmacion"
+            >¿Está seguro de
+            {{ this.pantallas.get("Form") ? "editar" : "eliminar" }} la
+            deducción
+            <span style="font-weight: 600">{{
+                deduccion.dedu_Descripcion
+            }}</span
+            >?</span
+        >
+    </div>
+    <ng-template pTemplate="footer">
+        <button
+            pButton
+            pRipple
+            [icon]="this.pantallas.get('Form') ? 'pi pi-pencil' : 'pi pi-trash'"
+            class="p-button-primary"
+            [label]="this.pantallas.get('Form') ? 'Aceptar' : 'Eliminar'"
+            (click)="this.pantallas.get('Form') ? insertarEditar() : eliminar()"
+        ></button>
+        <button
+            pButton
+            pRipple
+            icon="pi pi-times"
+            class="p-button-outlined p-button-primary"
+            label="Cancelar"
+            (click)="mostrarModalConfirmacion = false"
+        ></button>
+    </ng-template>
+</p-dialog>

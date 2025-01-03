@@ -1,0 +1,1941 @@
+<p-toast></p-toast>
+<div *ngIf="empleadoService.cargando" class="loader-container">
+    <div class="loader">
+        <span></span>
+    </div>
+  </div>
+<div class="grid" *ngIf="empleadoService.pantallas.get('Index')">
+    <div class="col-12">
+        <div class="card">
+            <h1 class="text-center mt-2">Colaboradores</h1>
+            <hr />
+            <div class="grid mt-2">
+                <div class="col-12">
+                    <button
+                        (click)="botonNuevoClick()"
+                        pButton
+                        icon="pi pi-plus"
+                        label="Nuevo"
+                        class="mr-2"
+                    ></button>
+                </div>
+            </div>
+            <!-- Datatable de colaboradores  -->
+            <p-table
+                #tabla
+                [value]="empleadoService.empleados"
+                styleClass="bac mt-2"
+                [tableStyle]="{ background: '#000' }"
+                responsiveLayout="scroll"
+                [rows]="10"
+                [globalFilterFields]="[
+                    'codigo',
+                    'empl_DNI',
+                    'empl_Nombre',
+                    'empl_Apellido',
+                    'empl_Telefono',
+                    'fechaNacimiento',
+                    'cargo',
+                    'frecuencia',
+                    'empl_Salario',
+                ]"
+                [rows]="10"
+                [paginator]="true"
+                [showCurrentPageReport]="true"
+                currentPageReportTemplate="Mostrando {first} al {last} de {totalRecords} entradas"
+                [rowHover]="true"
+                [rowsPerPageOptions]="[10, 25, 50, 100]"
+            >
+                <!-- Opciones de la tabla -->
+                <ng-template pTemplate="caption">
+                    <div
+                        class="flex flex-column md:flex-row md:justify-content-between md:align-items-center"
+                    >
+                        <span class="block mt-2 md:mt-0 p-input-icon-left">
+                            <i style="color: white" class="pi pi-search"></i>
+                            <input
+                                style="color: white"
+                                pInputText
+                                type="text"
+                                (input)="filtrar(tabla, $event)"
+                                placeholder="Buscar..."
+                                class="w-full sm:w-auto"
+                            />
+                        </span>
+                        <div class="registros">
+                            <p-dropdown
+                                [options]="tabla.rowsPerPageOptions"
+                                [(ngModel)]="tabla.rows"
+                                [style]="{ 'margin-right': '5px' }"
+                                [autoWidth]="false"
+                            >
+                            </p-dropdown>
+                            <span
+                                style="
+                                    color: #fff0c6;
+                                    font-weight: 700;
+                                    margin-top: 7px;
+                                "
+                            >
+                                Registros por página
+                            </span>
+                        </div>
+                    </div>
+                </ng-template>
+                <!-- Encabezado de la tabla -->
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th style="color: white" class="text-center">
+                            Acciones
+                        </th>
+                        <th
+                            style="color: white"
+                            class="text-center"
+                            [pSortableColumn]="'codigo'"
+                        >
+                            <div
+                                class="flex justify-content-center align-items-center"
+                            >
+                                No.
+                                <p-sortIcon [field]="'codigo'"></p-sortIcon>
+                            </div>
+                        </th>
+                        <th
+                            style="color: white; min-width: 100px"
+                            class="text-center"
+                            [pSortableColumn]="'empl_Estado'"
+                        >
+                            <div
+                                class="flex justify-content-center align-items-center"
+                            >
+                                Activo/Inactivo
+                                <p-sortIcon
+                                    [field]="'empl_Estado'"
+                                ></p-sortIcon>
+                            </div>
+                        </th>
+                        <ng-container *ngFor="let columna of columnas">
+                            <th
+                                *ngIf="columna.prop !== 'empl_Sexo' &&
+                                    columna.prop !== 'estadoCivil' &&
+                                    columna.prop !== 'estado' &&
+                                    columna.prop !== 'ciudad' &&
+                                    columna.prop !== 'banco' &&
+                                    columna.prop !== 'empl_NoBancario' &&
+                                    columna.prop !== 'empl_Prestaciones' &&
+                                    columna.prop !== 'empl_OtrasRemuneraciones' &&
+                                    columna.prop !== 'empl_CorreoElectronico'"
+                                [style.color]="'white'"
+                                class="text-center"
+                                [pSortableColumn]="columna.prop"
+                            >
+                                <div
+                                    class="flex justify-content-center align-items-center"
+                                >
+                                    {{ columna.titulo }}
+                                    <p-sortIcon [field]="columna.prop"></p-sortIcon>
+                                </div>
+                            </th>
+                        </ng-container>
+                        <th style="color: white" class="text-center">
+                            <div
+                                class="flex justify-content-center align-items-center"
+                            >
+                                Fotografía
+                            </div>
+                        </th>
+                    </tr>
+                </ng-template>
+
+                
+                <ng-template pTemplate="body" let-empleado>
+                    <!-- Cuando le da click a un tr que seleccione el empleado  -->
+                    <tr (click)="seleccionarEmpleado(empleado)">
+                        <!-- Opciones luego de seleccionar un empleado -->
+                        <td class="text-center">
+                            <p-splitButton
+                                label="Acciones"
+                                icon="pi pi-cog"
+                                [model]="items"
+                                appendTo="body"
+                                styleClass="p-button-secondary"
+                                class="custom-splitbutton"
+                            ></p-splitButton>
+                        </td>
+                        <!-- Columna del código del empleado (sólo es un número autoincremental, no es un Id) -->
+                        <td class="text-center">
+                            <span class="p-column-title">codigo</span>
+                            {{ empleado.codigo }}
+                        </td>
+                        <!-- Columna del estado del empleado -->
+                        <td class="text-center">
+                            <span class="p-column-title">empl_Estado</span>
+                            <span
+                                [class]="
+                                    empleado.empl_Estado
+                                        ? 'pi pi-lock-open'
+                                        : 'pi pi-lock'
+                                "
+                                [style]="
+                                    empleado.empl_Estado
+                                        ? 'font-size: 1.5rem; color: green;'
+                                        : 'font-size: 1.5rem; color: red;'
+                                "
+                            ></span>
+                        </td>
+                        <!-- Ciclo por cada columna/propiedad del empleado -->
+                        <ng-container *ngFor="let columna of columnas">
+                            <td
+                                *ngIf="columna.prop !== 'empl_Salario' &&
+                                    columna.prop !== 'empl_Sexo' &&
+                                    columna.prop !== 'estadoCivil' &&
+                                    columna.prop !== 'estado' &&
+                                    columna.prop !== 'ciudad' &&
+                                    columna.prop !== 'banco' &&
+                                    columna.prop !== 'empl_NoBancario' &&
+                                    columna.prop !== 'empl_Prestaciones' &&
+                                    columna.prop !== 'empl_OtrasRemuneraciones' &&
+                                    columna.prop !== 'empl_CorreoElectronico'"
+                                class="text-center"
+                            >
+                                <span class="p-column-title">{{
+                                    columna.titulo
+                                }}</span>
+                                {{ empleado[columna.prop] }}
+                            </td>
+                            <td
+                                *ngIf="
+                                    columna.prop === 'empl_Salario'
+                                "
+                                style="min-width: 160px; text-align: right"
+                            >
+                                <span class="p-column-title">{{
+                                    columna.titulo
+                                }}</span>
+                                {{
+                                    empleado[columna.prop]
+                                        | currency
+                                            : globalMoneda.getState()
+                                                  .mone_Abreviatura + " "
+                                }}
+                            </td>
+                        </ng-container>
+                        <!-- Imagen del empleado -->
+                        <td class="text-center">
+                            <span class="p-column-title">empl_Imagen</span>
+                            <span>{{ empl_Imagen }}</span>
+                            <img
+                                *ngIf="empleado.empl_Imagen"
+                                [src]="
+                                    sanitizarUrl(
+                                        empleadoService.BaseUrl +
+                                            empleado.empl_Imagen
+                                    )
+                                "
+                                style="height: 70px"
+                            />
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+    </div>
+</div>
+<!-- Formulario -->
+<div
+    class="flex justify-content-center"
+    *ngIf="empleadoService.pantallas.get('Form')"
+>
+    <div class="p-fluid p-grid card" style="width: 100%">
+        <div class="flex justify-content-center align-items-center">
+            <!-- Botón que retorna al Index -->
+            <a
+                (click)="botonRegresarClick()"
+                pButton
+                style="
+                    display: inline-flex;
+                    justify-self: start;
+                    max-width: 120px;
+                "
+                icon="pi pi-arrow-left"
+                label="Regresar"
+                class="p-button-link"
+            ></a>
+            <h1
+                class="text-center mt-2"
+                style="flex-grow: 1; padding-right: 10%"
+            >
+                {{
+                    empleadoService.empleado.empl_Id
+                        ? "Editar Colaborador"
+                        : "Nuevo Colaborador"
+                }}
+            </h1>
+        </div>
+        <!-- Se divide en tabs -->
+        <p-tabView class="mt-2" [(activeIndex)]="empleadoService.tabActual">
+            <!-- Formulario de datos generales -->
+            <p-tabPanel header="Datos Generales">
+                <app-empleado-info></app-empleado-info>
+            </p-tabPanel>
+            <!-- Datatable de las deducciones del empleado-->
+            <p-tabPanel
+                header="Deducciones"
+                [disabled]="empleadoService.tabDeduccionesBloqueado"
+            >
+                <p-table
+                    #tablaDeducciones
+                    [value]="empleadoService.deducciones"
+                    styleClass="bac mt-2"
+                    [tableStyle]="{ background: '#000' }"
+                    responsiveLayout="scroll"
+                    [rows]="10"
+                    [globalFilterFields]="[
+                        'codigo',
+                        'dedu_Descripcion',
+                        'dedu_Porcentaje'
+                    ]"
+                    [rows]="10"
+                    [paginator]="true"
+                    [showCurrentPageReport]="true"
+                    currentPageReportTemplate="Mostrando {first} al {last} de {totalRecords} entradas"
+                    [rowHover]="true"
+                    [rowsPerPageOptions]="[10, 25, 50, 100]"
+                >
+                    <!-- Opciones del datatable de deducciones -->
+                    <ng-template pTemplate="caption">
+                        <div
+                            class="flex flex-column md:flex-row md:justify-content-between md:align-items-center"
+                        >
+                            <span class="block mt-2 md:mt-0 p-input-icon-left">
+                                <i
+                                    style="color: white"
+                                    class="pi pi-search"
+                                ></i>
+                                <input
+                                    style="color: white"
+                                    pInputText
+                                    type="text"
+                                    (input)="filtrar(tablaDeducciones, $event)"
+                                    placeholder="Buscar..."
+                                    class="w-full sm:w-auto"
+                                />
+                            </span>
+                            <div class="registros">
+                                <p-dropdown
+                                    [options]="
+                                        tablaDeducciones.rowsPerPageOptions
+                                    "
+                                    [(ngModel)]="tablaDeducciones.rows"
+                                    [style]="{ 'margin-right': '5px' }"
+                                    [autoWidth]="false"
+                                >
+                                </p-dropdown>
+                                <span
+                                    style="
+                                        color: #fff0c6;
+                                        font-weight: 700;
+                                        margin-top: 7px;
+                                        min-width: 150px;
+                                    "
+                                >
+                                    Registros por página
+                                </span>
+                            </div>
+                        </div>
+                    </ng-template>
+                    <ng-template pTemplate="header">
+                        <tr>
+                            <th style="color: white" class="text-center">
+                                Selección
+                            </th>
+                            <th
+                                style="color: white"
+                                class="text-center"
+                                *ngFor="let columna of columnasDeducciones"
+                                [pSortableColumn]="columna.prop"
+                            >
+                                {{ columna.titulo }}
+                                <p-sortIcon [field]="columna.prop"></p-sortIcon>
+                            </th>
+                        </tr>
+                    </ng-template>
+                    <!-- Cuerpo del datatable de deducciones -->
+                    <ng-template pTemplate="body" let-deduccion>
+                        <tr>
+                            <!-- Checkbox para asignar la de deducción al empleado -->
+                            <td
+                                class="text-center"
+                                style="width: 10rem; max-width: 10rem"
+                            >
+                                <p-checkbox
+                                    name="deduc"
+                                    [(ngModel)]="idsDeduccionesDelEmpleado"
+                                    [value]="deduccion.dedu_Id"
+                                    (click)="handleCheckbox(deduccion)"
+                                ></p-checkbox>
+                            </td>
+                            <!-- Ciclo de las columnas/propiedades de las deducciones -->
+                            <ng-container
+                                *ngFor="let columna of columnasDeducciones"
+                            >
+                                <td
+                                    *ngIf="columna.prop !== 'dedu_Porcentaje'"
+                                    class="text-center"
+                                >
+                                    <span class="p-column-title">{{
+                                        columna.titulo
+                                    }}</span>
+                                    {{ deduccion[columna.prop] }}
+                                </td>
+                                <td
+                                    *ngIf="columna.prop === 'dedu_Porcentaje'"
+                                    class="text-center"
+                                >
+                                    <span class="p-column-title">{{
+                                        columna.titulo
+                                    }}</span>
+                                    <button
+                                        pButton
+                                        type="button"
+                                        [pTooltip]="
+                                            deduccion.dedu_EsMontoFijo
+                                                ? 'Cambiar a Porcentaje'
+                                                : 'Cambiar a Monto Fijo'
+                                        "
+                                        tooltipPosition="top"
+                                        style="
+                                            max-width: 140px;
+                                            margin-right: 10px;
+                                        "
+                                        class="p-button-primary"
+                                        (click)="
+                                            deduccion.dedu_EsMontoFijo =
+                                                !deduccion.dedu_EsMontoFijo;
+                                            botonCambiarSiEsMontoFijoClick(
+                                                deduccion
+                                            )
+                                        "
+                                        [icon]="
+                                            deduccion.dedu_EsMontoFijo
+                                                ? 'pi pi-money-bill'
+                                                : 'pi pi-percentage'
+                                        "
+                                    ></button>
+                                    <p-inputNumber
+                                        style="max-width: 120px"
+                                        id="inputMonto"
+                                        [(ngModel)]="deduccion.dedu_Porcentaje"
+                                        (onBlur)="
+                                            valorDeduccionOnBlur(deduccion)
+                                        "
+                                        mode="decimal"
+                                        [minFractionDigits]="2"
+                                        [maxFractionDigits]="2"
+                                        [prefix]="
+                                            deduccion.dedu_EsMontoFijo
+                                                ? globalMoneda.getState()
+                                                      .mone_Abreviatura + ' '
+                                                : ''
+                                        "
+                                        [suffix]="
+                                            deduccion.dedu_EsMontoFijo
+                                                ? ''
+                                                : ' %'
+                                        "
+                                        [ngClass]="{
+                                            'ng-invalid ng-dirty':
+                                                blurred &&
+                                                !deduccion.dedu_Porcentaje
+                                        }"
+                                    />
+                                    <small
+                                        style="color: red"
+                                        class="ng-dirty ng-invalid"
+                                        *ngIf="
+                                            blurred &&
+                                            !deduccion.dedu_Porcentaje
+                                        "
+                                        >El campo es requerido.</small
+                                    >
+                                </td>
+                            </ng-container>
+                        </tr>
+                    </ng-template>
+                </p-table>
+                <div class="formgrid grid" *ngIf="mostrarMsjLimite">
+                    <div class="field col" *ngIf="tieneInteres"></div>
+                    <div
+                        class="field col text-primary"
+                        style="font-size: smaller"
+                    >
+                        <div>
+                            El salario del colaborador es de:
+                            {{
+                                this.empleadoService.empleado.empl_Salario
+                                    | currency
+                                        : globalMoneda.getState()
+                                              .mone_Abreviatura + " "
+                            }}
+                        </div>
+                        <div>
+                            Las deducciones del colaborador suman:
+                            {{
+                                this.calcularSumaDeDeducciones()
+                                    | currency
+                                        : globalMoneda.getState()
+                                              .mone_Abreviatura + " "
+                            }}.
+                        </div>
+                        <div>
+                            Las cuotas de los préstamos en proceso suman:
+                            {{
+                                sumaDeCuotasDePrestamosPendientes
+                                    | currency
+                                        : globalMoneda.getState()
+                                              .mone_Abreviatura + " "
+                            }}.
+                        </div>
+                        <div>
+                            La capacidad de pago del colaborador es de:
+                            {{
+                                capacidadDePagoPorCuota
+                                    | currency
+                                        : globalMoneda.getState()
+                                              .mone_Abreviatura + " "
+                            }}.
+                        </div>
+                    </div>
+                </div>
+                <div
+                    class="flex justify-content-end w-100 mb-3"
+                    *ngIf="empleadoService.empleado.empl_Id"
+                >
+                    <button
+                        pButton
+                        type="button"
+                        style="max-width: 150px"
+                        s
+                        label="Guardar"
+                        (click)="botonGuardarDeduccionesClick()"
+                        icon="pi pi-save"
+                    ></button>
+                </div>
+                <div class="flex justify-content-between w-100">
+                    <!-- Botón que retorna al formulario de datos generales -->
+                    <button
+                        pButton
+                        type="button"
+                        label="Anterior"
+                        style="max-width: 150px"
+                        class="p-button-secondary"
+                        (click)="empleadoService.tabActual = 0"
+                        icon="pi pi-arrow-left"
+                    ></button>
+                    <!-- Botón que muestra el formulario de préstamos si está editando el empleado,
+                      sino, crea el registro del nuevo empleado -->
+                    <button
+                        pButton
+                        type="button"
+                        style="max-width: 150px"
+                        [label]="
+                            empleadoService.empleado.empl_Id
+                                ? 'Siguiente'
+                                : 'Guardar'
+                        "
+                        (click)="botonDeduccionesClick()"
+                        [icon]="
+                            empleadoService.empleado.empl_Id
+                                ? 'pi pi-arrow-right'
+                                : 'pi pi-save'
+                        "
+                    ></button>
+                </div>
+            </p-tabPanel>
+            <!-- Pantalla de préstamos -->
+            <p-tabPanel
+                header="Préstamos"
+                *ngIf="empleadoService.empleado.empl_Id"
+            >
+                <!-- Formulario de préstamos -->
+                <app-form-prestamo
+                    *ngIf="this.empleadoService.empleado.empl_Id"
+                    [empl_Id]="this.empleadoService.empleado.empl_Id"
+                ></app-form-prestamo>
+                <div
+                    class="flex justify-content-start w-100"
+                    *ngIf="empleadoService.empleado.empl_Id"
+                >
+                    <!-- Botón que retorna a la pantalla de deducciones -->
+                    <button
+                        pButton
+                        type="button"
+                        label="Anterior"
+                        style="max-width: 150px"
+                        class="p-button-secondary"
+                        (click)="empleadoService.tabActual = 1"
+                        icon="pi pi-arrow-left"
+                    ></button>
+                </div>
+            </p-tabPanel>
+        </p-tabView>
+    </div>
+</div>
+<!-- Pantalla de Detalle -->
+<div class="grid" *ngIf="empleadoService.pantallas.get('Detalle')">
+    <div class="col-12">
+        <div class="card">
+            <div class="flex justify-content-start align-items-center mb-4">
+                <!-- Anchor que retorna al Index -->
+                <a
+                    (click)="empleadoService.mostrarPantalla('Index')"
+                    pButton
+                    style="
+                        display: inline-flex;
+                        justify-self: start;
+                        max-width: 120px;
+                    "
+                    icon="pi pi-arrow-left"
+                    label="Regresar"
+                    class="mr-2 p-button-link"
+                ></a>
+                <h1
+                    class="text-center mt-2"
+                    style="flex-grow: 1; padding-right: 10%"
+                >
+                    Detalle Colaborador
+                </h1>
+            </div>
+            <hr />
+            <div class="p-fluid p-formgrid grid">
+                <div
+                    class="p-fluid p-formgrid grid"
+                    style="flex-grow: 1; padding-left: 10px; padding-top: 10px"
+                >
+                    <!-- Código del empleado -->
+                    <div
+                        class="field col-12 md:col-4 mb-0"
+                        style="position: relative; height: 10%; min-width: 50%"
+                    >
+                        <div class="field rows mb-0">
+                            <label for="codigo" style="font-weight: 800"
+                                >No:</label
+                            >
+                        </div>
+                        <div class="field rows mb-0">
+                            <label for="codigo">{{
+                                empleadoService.empleado["codigo"]
+                            }}</label>
+                        </div>
+                    </div>
+                    <!-- Nombre del empleado -->
+                    <div
+                        class="field col-12 md:col-4 mb-0"
+                        style="position: relative; height: 10%; min-width: 50%"
+                    >
+                        <div class="field rows mb-0">
+                            <label for="empl_Nombre" style="font-weight: 800"
+                                >Nombre:</label
+                            >
+                        </div>
+                        <div class="field rows mb-0">
+                            <label for="empl_Nombre">{{
+                                empleadoService.empleado["empl_Nombre"]
+                            }}</label>
+                        </div>
+                    </div>
+                    <!-- Apellido del empleado -->
+                    <div
+                        class="field col-12 md:col-4 mb-0"
+                        style="position: relative; height: 10%; min-width: 50%"
+                    >
+                        <div class="field rows mb-0">
+                            <label for="empl_Nombre" style="font-weight: 800"
+                                >Apellido:</label
+                            >
+                        </div>
+                        <div class="field rows mb-0">
+                            <label for="empl_Nombre">{{
+                                empleadoService.empleado["empl_Apellido"]
+                            }}</label>
+                        </div>
+                    </div>
+                    <!-- DNI del empleado -->
+                    <div
+                        class="field col-12 md:col-4 mb-0"
+                        style="position: relative; height: 10%; min-width: 50%"
+                    >
+                        <div class="field rows mb-0">
+                            <label for="empl_Nombre" style="font-weight: 800"
+                                >DNI:</label
+                            >
+                        </div>
+                        <div class="field rows mb-0">
+                            <label for="empl_Nombre">{{
+                                empleadoService.empleado["empl_DNI"]
+                            }}</label>
+                        </div>
+                    </div>
+                </div>
+                <!-- Fotografía del empleado -->
+                <div style="min-width: 33.5%">
+                    <div
+                        class="field col-12 md:col-4 mb-0"
+                        style="position: relative; height: 10%"
+                    >
+                        <div class="field rows mb-0">
+                            <label for="codigo" style="font-weight: 800"
+                                >Fotografía:</label
+                            >
+                        </div>
+                        <div class="field rows mb-0">
+                            <img
+                                style="max-height: 160px"
+                                *ngIf="empleadoService.empleado.empl_Imagen"
+                                [src]="
+                                    sanitizarUrl(
+                                        empleadoService.BaseUrl +
+                                            empleadoService.empleado.empl_Imagen
+                                    )
+                                "
+                            />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Ciclo de las propiedas del empleado -->
+            <div class="p-fluid p-formgrid grid">
+                <ng-container *ngFor="let columna of columnas">
+                    <!-- Al salario se le aplica el formato de lempiras -->
+                    <div
+                        *ngIf="
+                            columna.prop === 'empl_Salario' ||
+                            columna.prop === 'empl_Prestaciones' ||
+                            columna.prop === 'empl_OtrasRemuneraciones'
+                        "
+                        class="field col-12 md:col-4 mb-0"
+                        style="position: relative; height: 10%"
+                    >
+                        <div class="field rows mb-0">
+                            <label
+                                for="{{ columna.titulo }}"
+                                style="font-weight: 800"
+                                >{{ columna.titulo }}:</label
+                            >
+                        </div>
+                        <div class="field rows mb-0">
+                            <label
+                                for="{{ columna.titulo }}"
+                                style="text-align: right"
+                                >{{
+                                    empleadoService.empleado[columna.prop]
+                                        | currency
+                                            : globalMoneda.getState()
+                                                  .mone_Abreviatura + " "
+                                }}</label
+                            >
+                        </div>
+                    </div>
+                    <!-- Si es una propiedad que ya incluimos anteriormente que no se muestre en pantalla -->
+                    <div
+                        *ngIf="
+                            columna.prop !== 'empl_Nombre' &&
+                            columna.prop !== 'empl_Apellido' &&
+                            columna.prop !== 'empl_Salario' &&
+                            columna.prop !== 'empl_Prestaciones' &&
+                            columna.prop !== 'empl_OtrasRemuneraciones' &&
+                            columna.prop !== 'empl_DNI'
+                        "
+                        class="field col-12 md:col-4 mb-0"
+                        style="position: relative; height: 10%"
+                    >
+                        <div class="field rows mb-0">
+                            <label
+                                for="{{ columna.titulo }}"
+                                style="font-weight: 800"
+                                >{{ columna.titulo }}:</label
+                            >
+                        </div>
+                        <div class="field rows mb-0">
+                            <label for="{{ columna.titulo }}">{{
+                                empleadoService.empleado[columna.prop]
+                            }}</label>
+                        </div>
+                    </div>
+                </ng-container>
+            </div>
+            <div
+                class="p-fluid p-formgrid grid"
+                *ngIf="
+                    empleadoService.empleado.empl_Estado &&
+                    empleadoService.empleado.empl_ObservacionInactivar
+                "
+            >
+                <div
+                    class="field col-12 md:col-4 mb-0"
+                    style="position: relative; height: 10%"
+                >
+                    <div class="field rows mb-0">
+                        <label style="font-weight: 800"
+                            >Observación por reingreso:
+                        </label>
+                    </div>
+                    <div class="field rows mb-0">
+                        <label>{{
+                            empleadoService.empleado["empl_ObservacionActivar"]
+                        }}</label>
+                    </div>
+                </div>
+            </div>
+            <div
+                class="p-fluid p-formgrid grid"
+                *ngIf="empleadoService.empleado.empl_ObservacionInactivar"
+            >
+                <div
+                    class="field col-12 md:col-4 mb-0"
+                    style="position: relative; height: 10%"
+                >
+                    <div class="field rows mb-0">
+                        <label style="font-weight: 800"
+                            >Observación por salida:
+                        </label>
+                    </div>
+                    <div class="field rows mb-0">
+                        <label>{{
+                            empleadoService.empleado[
+                                "empl_ObservacionInactivar"
+                            ]
+                        }}</label>
+                    </div>
+                </div>
+            </div>
+            <!-- Tabla de deducciones que tiene el empleado -->
+            <div
+                style="position: relative; top: -20px"
+                *ngIf="deduccionesDetalle.length > 0"
+            >
+                <div class="card-title mt-6">
+                    <h1>Deducciones</h1>
+                </div>
+                <p-table
+                    [value]="deduccionesDetalle"
+                    styleClass=" mt-2"
+                    [tableStyle]="{ background: '#000' }"
+                >
+                    <ng-template pTemplate="header">
+                        <tr>
+                            <th
+                                style="
+                                    width: 200px;
+                                    font-weight: 800;
+                                    color: white;
+                                "
+                                *ngFor="let columna of columnasDeducciones"
+                            >
+                                {{ columna.titulo }}
+                            </th>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-deduccion>
+                        <tr>
+                            <ng-container
+                                *ngFor="let columna of columnasDeducciones"
+                            >
+                                <td *ngIf="columna.prop !== 'dedu_Porcentaje'">
+                                    <span class="p-column-title">{{
+                                        columna.titulo
+                                    }}</span>
+                                    {{ deduccion[columna.prop] }}
+                                </td>
+                                <td
+                                    *ngIf="columna.prop === 'dedu_Porcentaje'"
+                                    style="width: 200px"
+                                >
+                                    <span class="p-column-title">{{
+                                        columna.titulo
+                                    }}</span>
+                                    {{
+                                        deduccion.dedu_EsMontoFijo
+                                            ? (deduccion[columna.prop]
+                                              | currency
+                                                  : globalMoneda.getState()
+                                                        .mone_Abreviatura + " ")
+                                            : deduccion[columna.prop].toFixed(
+                                                  2
+                                              ) + " %"
+                                    }}
+                                </td>
+                            </ng-container>
+                        </tr>
+                    </ng-template>
+                </p-table>
+            </div>
+            <!-- Tabla de Auditoría -->
+            <div style="position: relative; top: -20px">
+                <div class="card-title mt-6">
+                    <h1>Auditoría</h1>
+                </div>
+                <p-table
+                    [value]="tablaVacia"
+                    styleClass=" mt-2"
+                    [tableStyle]="{ background: '#000' }"
+                >
+                    <ng-template pTemplate="header">
+                        <tr>
+                            <th
+                                style="
+                                    width: 200px;
+                                    font-weight: 800;
+                                    color: white;
+                                "
+                            >
+                                Acción
+                            </th>
+                            <th
+                                style="
+                                    width: 200px;
+                                    font-weight: 800;
+                                    color: white;
+                                "
+                            >
+                                Usuario
+                            </th>
+                            <th
+                                style="
+                                    width: 200px;
+                                    font-weight: 800;
+                                    color: white;
+                                "
+                            >
+                                Fecha
+                            </th>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-transaction>
+                        <tr>
+                            <td style="width: 200px">Creado</td>
+                            <td style="width: 200px">
+                                {{ empleadoService.empleado.usuaCreacion }}
+                            </td>
+                            <td style="width: 200px">
+                                {{ empleadoService.empleado.fechaCreacion }}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="width: 200px">Modificado</td>
+                            <td style="width: 200px">
+                                {{ empleadoService.empleado.usuaModificacion }}
+                            </td>
+                            <td style="width: 200px">
+                                {{ empleadoService.empleado.fechaModificacion }}
+                            </td>
+                        </tr>
+                    </ng-template>
+                </p-table>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Pantalla de Historial de pagos del empleado -->
+<div class="grid" *ngIf="empleadoService.pantallas.get('Historial')">
+    <div class="col-12">
+        <div class="card" style="min-height: 75vh">
+            <div class="flex justify-content-center align-items-center mb-4">
+                <!-- Botón que retorna al Index -->
+                <!-- Botón que muestra el Historial de pago, 
+                    sólo se muestra cuando se está previsualizando la impresión del Historial -->
+                <a
+                    (click)="botonRegresarClick()"
+                    pButton
+                    style="
+                        display: inline-flex;
+                        justify-self: start;
+                        max-width: 120px;
+                    "
+                    icon="pi pi-arrow-left"
+                    label="Regresar"
+                    class="p-button-link"
+                ></a>
+                <h1
+                    class="text-center mt-2"
+                    style="flex-grow: 1; padding-right: 10%"
+                >
+                    Historial de pago de
+                    {{
+                        empleadoService.empleado.empl_Nombre +
+                            " " +
+                            empleadoService.empleado.empl_Apellido
+                    }}
+                </h1>
+            </div>
+            <hr />
+            <!-- Datatable del Historial de pagos del empleado -->
+            <p-table
+                *ngIf="!isRegresarVisible"
+                #tablaHistorial
+                [value]="historialDePago"
+                [tableStyle]="{ background: '#000' }"
+                responsiveLayout="scroll"
+                [rows]="10"
+                [globalFilterFields]="[
+                    'codigo',
+                    'plan_NumNomina',
+                    'nombreCompleto',
+                    'cargo',
+                    'frecuencia',
+                    'empl_Salario',
+                    'totalDeducido',
+                    'totalPrestamos',
+                    'plde_SueldoNeto',
+                ]"
+                [rows]="10"
+                [paginator]="true"
+                dataKey="codigo"
+                [expandedRowKeys]="expandedRows"
+                [showCurrentPageReport]="true"
+                currentPageReportTemplate="Mostrando {first} al {last} de {totalRecords} entradas"
+                [rowHover]="true"
+                [rowsPerPageOptions]="[10, 25, 50, 100]"
+            >
+                <!-- Opciones de la tabla -->
+                <ng-template pTemplate="caption">
+                    <div
+                        class="flex flex-column md:flex-row md:justify-content-between md:align-items-center"
+                    >
+                        <span class="block mt-2 md:mt-0 p-input-icon-left">
+                            <i style="color: white" class="pi pi-search"></i>
+                            <input
+                                style="color: white"
+                                pInputText
+                                type="text"
+                                (input)="filtrar(tablaHistorial, $event)"
+                                placeholder="Buscar..."
+                                class="w-full sm:w-auto"
+                            />
+                        </span>
+                        <div class="registros">
+                            <p-dropdown
+                                [options]="tablaHistorial.rowsPerPageOptions"
+                                [(ngModel)]="tablaHistorial.rows"
+                                [style]="{ 'margin-right': '5px' }"
+                                [autoWidth]="false"
+                            >
+                            </p-dropdown>
+                            <span
+                                style="
+                                    color: #fff0c6;
+                                    font-weight: 700;
+                                    margin-top: 7px;
+                                "
+                            >
+                                Registros por página
+                            </span>
+                        </div>
+                    </div>
+                </ng-template>
+                <!-- Encabezado de la tabla -->
+                <ng-template pTemplate="header">
+                    <tr>
+                        <!-- <th style="width: 3rem; max-width: 3rem"></th> -->
+                        <th
+                            style="color: white"
+                            class="text-center"
+                            *ngFor="let columna of columnasHistorial"
+                            [pSortableColumn]="columna.prop"
+                        >
+                            <div
+                                class="flex justify-content-center align-items-center"
+                            >
+                                {{ columna.titulo }}
+                                <p-sortIcon [field]="columna.prop"></p-sortIcon>
+                            </div>
+                        </th>
+                    </tr>
+                </ng-template>
+                <!--Cuerpo del datatable-->
+                <ng-template
+                    pTemplate="body"
+                    let-registroHistorial
+                    let-expanded="expanded"
+                >
+                    <tr (click)="seleccionarPlanilla(registroHistorial.plan_Id)">
+                        <!-- <td>
+                            <p-splitButton
+                                label="Acciones"
+                                icon="pi pi-cog"
+                                [model]="itemsHistorial"
+                                appendTo="body"
+                                styleClass="p-button-secondary"
+                                class="custom-splitbutton"
+                            ></p-splitButton>
+                        </td> -->
+                        <ng-container
+                            *ngFor="let columna of columnasHistorial"
+                        >
+                            <td
+                                style="color: white;"
+                                class="text-center text-primary"
+                                *ngIf="columna.prop !== 'empl_Salario' &&
+                                    columna.prop !== 'totalDeducido' &&
+                                    columna.prop !== 'totalPrestamos' &&
+                                    columna.prop !== 'plde_SueldoNeto'"
+                            >
+                                {{ registroHistorial[columna.prop] }}
+                            </td>
+                            <td
+                                style="color: white; min-width: 160px;"
+                                class="text-right text-primary"
+                                *ngIf="columna.prop === 'empl_Salario' ||
+                                    columna.prop === 'totalDeducido' ||
+                                    columna.prop === 'totalPrestamos' ||
+                                    columna.prop === 'plde_SueldoNeto'"
+                            >
+                                {{ registroHistorial[columna.prop] | currency
+                                    : globalMoneda.getState()
+                                    .mone_Abreviatura + " " }}
+                            </td>
+                        </ng-container>
+                    </tr>
+                </ng-template>
+                <!-- Filas hijas que muestran las actividades del proyecto -->
+                <!-- <ng-template pTemplate="rowexpansion" let-proyecto>
+                    <tr>
+                        <td colspan="7">
+                            <div class="p-3">
+                                <p-table
+                                    [tableStyle]="{ background: '#000' }"
+                                    [value]="proyecto.actividadesPorEtapa"
+                                    dataKey="acti_Id"
+                                    responsiveLayout="scroll"
+                                >
+                                    <ng-template pTemplate="header">
+                                        <tr>
+                                            <th
+                                                style="color: white"
+                                                class="text-center"
+                                                *ngFor="
+                                                    let columna of columnasActividades
+                                                "
+                                                [pSortableColumn]="columna.prop"
+                                            >
+                                                {{ columna.titulo }}
+                                                <p-sortIcon
+                                                    [field]="columna.prop"
+                                                ></p-sortIcon>
+                                            </th>
+                                        </tr>
+                                    </ng-template>
+                                    <ng-template pTemplate="body" let-actividad>
+                                        <tr>
+                                            <td
+                                                style="color: white"
+                                                class="text-center"
+                                                *ngFor="
+                                                    let columna of columnasActividades
+                                                "
+                                            >
+                                                {{ actividad[columna.prop] }}
+                                            </td>
+                                        </tr>
+                                    </ng-template>
+                                    <ng-template pTemplate="emptymessage">
+                                        <tr>
+                                            <td
+                                                colspan="6"
+                                                style="color: white"
+                                                class="text-center"
+                                            >
+                                                No hay actividades en esta
+                                                etapa.
+                                            </td>
+                                        </tr>
+                                    </ng-template>
+                                </p-table>
+                            </div>
+                        </td>
+                    </tr>
+                </ng-template> -->
+            </p-table>
+            <!-- Previsualizador de impresión -->
+            <div
+                id="pdfContainer"
+                [ngClass]="{ 'pdf-container-active': isPdfVisible }"
+            ></div>
+            <!-- Botón para mostrar la previsualización de la impresión -->
+            <div
+                class="flex justify-content-end w-100"
+                *ngIf="!isRegresarVisible"
+            >
+                <button
+                    pButton
+                    type="button"
+                    label="Imprimir"
+                    style="max-width: 150px"
+                    class="p-button-primary"
+                    (click)="mostrarPrevisualizacion()"
+                    icon="pi pi-print"
+                ></button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- PLANILLA COLABORADORES INTERNOS -->
+<div class="grid" *ngIf="empleadoService.pantallas.get('Planilla')">
+    <div class="col-12">
+        <div class="card">
+            <div class="flex" style="width: 100%; margin: 0 auto; display: flex; align-items: center;">
+                <div style="width: 20%; display: flex; align-items: center; height: 12.5%;">
+                    <button (click)="empleadoService.mostrarPantalla('Historial');" class="p-button-link" pButton pRipple type="button" label="Regresar" icon="pi pi-arrow-left" style="box-shadow: none !important"></button>
+                </div>
+                <div style="flex-grow: 1; display: flex; justify-content: center; align-items: center;">
+                    <h1 class="text-center mt-2">Planilla</h1>
+                </div>
+                <div style="width: 20%;"></div> <!-- Empty div to balance the space on the right -->
+            </div>
+            <hr>
+
+            <!-- <div *ngIf="loading3" class="loader-container">
+                <div class="loader"></div>
+            </div> -->
+              
+            <!--Fin loader-->
+
+            
+            <!-- Tabla con clase personalizada para bordes -->
+             <!-- #region  REGION DE PLANILLA Madian -->
+             <!-- *ngIf="!isRegresarVisible" -->
+            <p-table
+                #dt
+                [value]="listadoplanilla"
+                styleClass="mt-2 bordered-table"
+                responsiveLayout="scroll"
+                [rows]="10"
+                [globalFilterFields]="[
+                    'empl_Id',
+                    'empl_Nombre',
+                    'cargo',
+                    'frecuencia',
+                    'totalDevenagado',
+                    'sueldoTotal',
+                    'salarioDiario',
+                    'empl_Salario',
+                    'totalPrestamos',
+                    'sueldoTotal',
+                    '{{dedu.dedu_Descripcion}}'
+
+                ]"
+                [paginator]="true"
+                [showCurrentPageReport]="true"
+                currentPageReportTemplate="Mostrando {first} al {last} de {totalRecords} entradas"
+                [rowHover]="true" 
+                [rowsPerPageOptions]="[10,25,50,100]"
+            >
+                <ng-template pTemplate="caption">
+                    <div
+                        class="flex flex-column md:flex-row md:justify-content-between md:align-items-center"
+                    >
+                        <span class="block mt-2 md:mt-0 p-input-icon-left">
+                            <i style="color: white" class="pi pi-search"></i>
+                            <input
+                                style="color: white"
+                                pInputText
+                                type="text"
+                                (input)="onGlobalFilter(dt, $event)"
+                                placeholder="Buscar..."
+                                class="w-full sm:w-auto"
+                            />
+                        </span>
+                        <div class="registros">
+                            <p-dropdown [options]="dt.rowsPerPageOptions" [(ngModel)]="dt.rows" [style]="{ 'margin-right': '5px' }"  [autoWidth]="false"></p-dropdown>
+        
+                            <span style="color: #FFF0C6; font-weight: 700; margin-top: 7px;"> Registros por página</span>
+                        </div>
+                    </div>
+                </ng-template>
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th
+                            rowspan="2"
+                            style="
+                                vertical-align: middle;
+                                text-align: center;
+                                border: 1px solid #fff0c6;
+                                color: #fff0c6;
+                            "
+                            pSortableColumn="Acciones"
+                            class="text-center"
+                        >
+                            Acciones
+                        </th>
+                        <th
+                            rowspan="2"
+                            style="
+                                vertical-align: middle;
+                                text-align: center;
+                                border: 1px solid #fff0c6;
+                                color: #fff0c6;
+                            "
+                            pSortableColumn="empl_Id"
+                            class="text-center"
+                        >
+                            No.
+                        </th>
+                        <th
+                            rowspan="2"
+                            style="
+                                vertical-align: middle;
+                                text-align: center;
+                                border: 1px solid #fff0c6;
+                                color: #fff0c6;
+                            "
+                            pSortableColumn="empl_Nombre"
+                            class="text-center"
+                        >
+                            Nombre Completo
+                        </th>
+                        <th
+                            rowspan="2"
+                            style="
+                                vertical-align: middle;
+                                text-align: center;
+                                border: 1px solid #fff0c6;
+                                color: #fff0c6;
+                            "
+                            pSortableColumn="cargo"
+                            class="text-center"
+                        >
+                            Cargo
+                        </th>
+                        <th
+                            rowspan="2"
+                            style="
+                                vertical-align: middle;
+                                text-align: center;
+                                border: 1px solid #fff0c6;
+                                color: #fff0c6;
+                            "
+                            pSortableColumn="frecuencia"
+                            class="text-center"
+                        >
+                            Frecuencia
+                        </th>
+                        <th
+                            colspan="2"
+                            style="border: 1px solid #fff0c6; color: #fff0c6"
+                            class="text-center"
+                        >
+                            Salario
+                        </th>
+                        <th
+                            rowspan="2"
+                            style="
+                                vertical-align: middle;
+                                text-align: center;
+                                border: 1px solid #fff0c6;
+                                color: #fff0c6;
+                            "
+                            pSortableColumn="totalDevenagado"
+                            class="text-center"
+                        >
+                            Total Devengado
+                        </th>
+                        <th
+                            [attr.colspan]="numDeducciones"
+                            style="border: 1px solid #fff0c6; color: #fff0c6"
+                            class="text-center"
+                        >
+                            Deducciones
+                        </th>
+                        <th
+                            rowspan="2"
+                            style="
+                                vertical-align: middle;
+                                text-align: center;
+                                border: 1px solid #fff0c6;
+                                color: #fff0c6;
+                            "
+                            pSortableColumn="sueldoTotal"
+                            class="text-center"
+                        >
+                            Total Salario
+                        </th>
+                    </tr>
+
+                    <tr>
+                        <th
+                            style="border: 1px solid #fff0c6; color: #fff0c6"
+                            class="text-center" pSortableColumn="salarioDiario"
+                        >
+                            Diario
+                        </th>
+                        <th
+                            style="border: 1px solid #fff0c6; color: #fff0c6"
+                            class="text-center" pSortableColumn="empl_Salario"
+                        >
+                            Ordinario
+                        </th>
+                        <th
+                            style="border: 1px solid #fff0c6; color: #fff0c6"
+                            class="text-center"  pSortableColumn="{{dedu.dedu_Descripcion}}"
+                            *ngFor="let dedu of deduccion"
+                        >
+                            {{ dedu.dedu_Descripcion }}
+                        </th>
+                        <th
+                        style="border: 1px solid #fff0c6; color: #fff0c6"
+                        class="text-center"  pSortableColumn="totalPrestamos"
+                    >
+                        Préstamos
+                    </th>
+                    </tr>
+                </ng-template>
+
+                <!--Inicio loader-->
+                <!-- <ng-template pTemplate="emptymessage">
+                    <tr>
+                        <td [attr.colspan]="totalColumnas" class="text-center">
+                            <div class="loader-container" *ngIf="loading">
+                                <div class="loader"></div>
+                            </div>
+                        </td>
+                    </tr>
+                </ng-template> -->
+                <!--Fin loader-->
+
+
+                <ng-template pTemplate="body" let-planilla>
+                    <tr (click)="selectPlanilla(planilla)">
+                        <td
+                            class="text-center"
+                            style="
+                                width: 5%;
+                                min-width: 10rem;
+                                border: 1px solid #fff0c6;
+                                text-align: center;
+                                color: #868c9b;
+                            "
+                        >
+                        <p-splitButton
+                        label="Acciones"
+                        icon="pi pi-cog"
+                        [model]="itemsPlanilla"
+                        appendTo="body"
+                        styleClass="p-button-secondary"
+                        class="custom-splitbutton"
+                        ></p-splitButton>
+                        </td>
+                        <td
+                            style="
+                                border: 1px solid #fff0c6;
+                                text-align: center;
+                                color: #868c9b;
+                                white-space: nowrap;
+                            "
+                        >
+                            {{ planilla.codigo }}
+                        </td>
+                        <td
+                            style="
+                                border: 1px solid #fff0c6;
+                                text-align: center;
+                                color: #868c9b;
+                                white-space: nowrap;
+                            "
+                        >
+                            {{
+                                planilla.empl_Nombre +
+                                    " " +
+                                    planilla.empl_Apellido
+                            }}
+                        </td>
+                        <td
+                            style="
+                                border: 1px solid #fff0c6;
+                                text-align: center;
+                                color: #868c9b;
+                                white-space: nowrap;
+                            "
+                        >
+                            {{ planilla.cargo }}
+                        </td>
+                        <td
+                            style="
+                                border: 1px solid #fff0c6;
+                                text-align: center;
+                                color: #868c9b;
+                                white-space: nowrap;
+                            "
+                        >
+                            {{ planilla.frecuencia }}
+                        </td>
+                        <td
+                        style="
+                            border: 1px solid #fff0c6;
+                            text-align: end;
+                            color: #868c9b;
+                            white-space: nowrap;
+                        "
+                    >
+                        {{globalmoneda.getState().mone_Abreviatura}} {{ ((planilla.empl_Salario / planilla.frec_NumeroDias) | number: "1.2-2") }}
+                    </td>
+                    <td
+                        style="
+                            border: 1px solid #fff0c6;
+                            text-align: end;
+                            color: #868c9b;
+                            white-space: nowrap;
+                        "
+                    >
+                        {{globalmoneda.getState().mone_Abreviatura}} {{ planilla.empl_Salario | number: "1.2-2" }} 
+                    </td>
+                    <td
+                        style="
+                            border: 1px solid #fff0c6;
+                            text-align: end;
+                            color: #868c9b;
+                            white-space: nowrap;
+                        "
+                    >
+                        {{globalmoneda.getState().mone_Abreviatura}} {{ planilla.empl_Salario | number: "1.2-2"}}
+                    </td>
+                    <td
+                        style="
+                            border: 1px solid #fff0c6;
+                            text-align: end;
+                            color: #868c9b;
+                            white-space: nowrap;
+                        "
+                        *ngFor="let plan of planilla.deducciones"
+                    >
+                        {{globalmoneda.getState().mone_Abreviatura}} {{ plan.totalPorDeduccion | number: "1.2-2"}}
+                    </td>
+                    <td
+                        style="
+                            border: 1px solid #fff0c6;
+                            text-align: end;
+                            color: #868c9b;
+                            white-space: nowrap;
+                        "
+                    >
+                        {{globalmoneda.getState().mone_Abreviatura}} {{ planilla.totalPrestamos | number: "1.2-2"}}
+                    </td>
+                    <td
+                        style="
+                            border: 1px solid #fff0c6;
+                            text-align: end;
+                            color: #868c9b;
+                            white-space: nowrap;
+                        "
+                    >   
+                        {{globalmoneda.getState().mone_Abreviatura}} {{ (planilla.empl_Salario - (planilla.totalPrestamos + (planilla.deducciones?.[0]?.totalDeducido ?? 0)))| number: "1.2-2" }}
+                    </td>
+                    
+                    </tr>
+                </ng-template>
+            </p-table>
+
+            <div
+                id="pdfContainerPlanilla"
+                [ngClass]="{ 'pdf-container-active': isPdfVisible }"
+            ></div>
+            <div
+                *ngIf="!isRegresarPlanillaVisible"
+                style="display: flex; justify-content: end; gap: 20px"
+            >
+                <button
+                    pButton
+                    type="button"
+                    label="Imprimir"
+                    style="max-width: 150px"
+                    class="p-button-primary"
+                    (click)="mostrarPrevisualizacion()"
+                    icon="pi pi-print"
+                ></button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- PLANILLA COLABORADORES INTERNOS -->
+<!-- MODAL DEDUCCIONES COLABORADORES INTERNOS -->
+<div class="grid" *ngIf="empleadoService.pantallas.get('DeduccionesInterno')">
+    <div class="col-12">
+        <div class="card">
+            <div class="flex" style="width: 100%; margin: 0 auto; display: flex; align-items: center;">
+                <div style="width: 20%; display: flex; align-items: center; height: 12.5%;">
+                    <button (click)="empleadoService.mostrarPantalla('Planilla');" class="p-button-link" pButton pRipple type="button" label="Regresar" icon="pi pi-arrow-left" style="box-shadow: none !important"></button>
+                </div>
+                <div style="flex-grow: 1; display: flex; justify-content: center; align-items: center;">
+                    <h1 class="text-center mt-2">Deducciones Colaborador</h1>
+                </div>
+                <div style="width: 20%;"></div> <!-- Empty div to balance the space on the right -->
+            </div>
+            <hr />
+            <div class="p-fluid p-formgrid grid" style="margin-left: 3%">
+                <div
+                    class="field col-12 md:col-12"
+                    style="
+                        position: relative;
+                        height: 10%;
+                        margin-block-end: -1%;
+                        margin-top: 2%;
+                    "
+                >
+                    <div class="field rows">
+                        <label
+                            for="Codigo"
+                            style="
+                                font-weight: 800;
+                                color: #fff0c6;
+                                font-size: x-large;
+                            "
+                            >Colaborador -
+                            <span>{{
+                                empl_Nombre + " " + empl_Apellido
+                            }}</span></label
+                        >
+                    </div>
+                </div>
+                <div
+                    class="field col-12 md:col-12"
+                    style="
+                        position: relative;
+                        height: 10%;
+                        display: flex;
+                        flex-wrap: wrap;
+                    "
+                >
+                    <div
+                        class="field rows"
+                        style="
+                            width: 50%;
+                            display: flex;
+                            justify-content: space-between;
+                        "
+                        *ngFor="let dedu of empleadosFiltradorDeducciones[0].deducciones"
+                    >
+                        <label for="Codigo" style="font-weight: 800"
+                            >{{
+                                dedu.dedu_Descripcion +
+                                    " - " +
+                                    dedu.dedu_Porcentaje +
+                                    "%"
+                            }}
+                            : </label
+                        ><label
+                            class="text-primary"
+                            style="
+                                flex-grow: 1;
+                                font-weight: 800;
+                                max-width: 240px;
+                            "
+                            >{{this.globalmoneda.getState().mone_Abreviatura}} {{ dedu.totalPorDeduccion.toFixed(2) }}</label
+                        >
+                    </div>
+                </div>
+
+                <div
+                    class="field col-12 md:col-12"
+                    style="
+                        position: relative;
+                        height: 10%;
+                        margin-top: 2%;
+                        padding-right: 50px;
+                    "
+                >
+                    <div
+                        class="field rows"
+                        style="display: flex; justify-content: end"
+                    >
+                        <label for="Codigo" style="font-weight: 800"
+                            >Salario Base:
+                            <span
+                                class="text-primary"
+                                style="padding-left: 20px"
+                            >
+                            {{this.globalmoneda.getState().mone_Abreviatura}} 
+                                {{
+                                    !salariobase
+                                        ? salariobasePlanilla.toFixed(2)
+                                        : salariobase.toFixed(2)
+                                }}
+                            </span>
+                        </label>
+                    </div>
+                    <div
+                        class="field rows"
+                        style="display: flex; justify-content: end"
+                    >
+                        <label for="Codigo" style="font-weight: 800"
+                            >Total Deducido:
+                            <span class="text-primary"
+                                >{{this.globalmoneda.getState().mone_Abreviatura}}  {{ totalDeducido.toFixed(2) }}</span
+                            >
+                        </label>
+                    </div>
+                    <div
+                        class="field rows"
+                        style="display: flex; justify-content: end"
+                    >
+                        <label for="Codigo" style="font-weight: 800"
+                            >Sueldo Total:
+                            <span
+                                class="text-primary"
+                                style="padding-left: 20px"
+                                >{{this.globalmoneda.getState().mone_Abreviatura}} 
+                                {{ salariobase.toFixed(2) - totalDeducido}}</span
+                            >
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div
+                style="
+                    display: flex;
+                    justify-content: flex-end;
+                    margin-top: 1rem;
+                    grid-gap: 5px;
+                    padding-right: 30px;
+                "
+            >
+            </div>
+        </div>
+    </div>
+</div>
+<!-- MODAL DEDUCCIONES COLABORADORES INTERNOS -->
+
+<!-- Modal de confirmación a la hora de Activar o Desactivar un Empleado -->
+<p-dialog
+    [(visible)]="mostrarModalActivacion"
+    header="Confirmación"
+    [modal]="true"
+    [style]="{ width: '450px' }"
+>
+    <div class="flex align-items-center justify-content-center">
+        <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+        <span *ngIf="mostrarModalActivacion"
+            >¿Está seguro de
+            {{
+                empleadoService.empleado.empl_Estado ? "desactivar" : "activar"
+            }}
+            el empleado
+            <span style="font-weight: 600">
+                {{
+                    empleadoService.empleado.empl_Nombre +
+                        " " +
+                        empleadoService.empleado.empl_Apellido
+                }}
+            </span>
+            ?</span
+        >
+    </div>
+    <div class="formgrid grid">
+        <div
+            class="field col"
+            style="display: grid; margin-top: 1rem; margin-bottom: 0"
+            *ngIf="!empleadoService.empleado.empl_Estado"
+        >
+            <label for="observacionActivar"
+                >Observación
+                <span
+                    style="color: red"
+                    *ngIf="
+                        submittedEmpl_Estado &&
+                        !empleadoService.empleado.empl_ObservacionActivar
+                    "
+                    >*</span
+                ></label
+            >
+            <input
+                type="text"
+                pInputText
+                id="observacionActivar"
+                [(ngModel)]="empleadoService.empleado.empl_ObservacionActivar"
+                required
+                pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]*"
+                (keypress)="soloLetrasKeypress($event)"
+                autofocus
+                [ngClass]="{
+                    'ng-invalid ng-dirty':
+                        (submittedEmpl_Estado &&
+                            !empleadoService.empleado
+                                .empl_ObservacionActivar) ||
+                        (submittedEmpl_Estado &&
+                            empleadoService.empleado.empl_ObservacionActivar &&
+                            !validarObservacionActivar())
+                }"
+            />
+            <small
+                style="color: red"
+                class="ng-dirty ng-invalid"
+                *ngIf="
+                    submittedEmpl_Estado &&
+                    !empleadoService.empleado.empl_ObservacionActivar
+                "
+                >El campo es requerido.</small
+            >
+            <small
+                style="color: red"
+                class="ng-dirty ng-invalid"
+                *ngIf="
+                    submittedEmpl_Estado &&
+                    empleadoService.empleado.empl_ObservacionActivar &&
+                    !validarObservacionActivar()
+                "
+                >El campo es inválido.</small
+            >
+        </div>
+        <div
+            class="field col"
+            style="display: grid; margin-top: 1rem; margin-bottom: 0"
+            *ngIf="empleadoService.empleado.empl_Estado"
+        >
+            <label for="observacionDesactivar"
+                >Observación
+                <span
+                    style="color: red"
+                    *ngIf="
+                        submittedEmpl_Estado &&
+                        !empleadoService.empleado.empl_ObservacionInactivar
+                    "
+                    >*</span
+                ></label
+            >
+            <input
+                type="text"
+                pInputText
+                id="observacionDesactivar"
+                [(ngModel)]="empleadoService.empleado.empl_ObservacionInactivar"
+                required
+                pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]*"
+                (keypress)="soloLetrasKeypress($event)"
+                autofocus
+                [ngClass]="{
+                    'ng-invalid ng-dirty':
+                        (submittedEmpl_Estado &&
+                            !empleadoService.empleado
+                                .empl_ObservacionInactivar) ||
+                        (submittedEmpl_Estado &&
+                            empleadoService.empleado
+                                .empl_ObservacionInactivar &&
+                            !validarObservacionInactivar())
+                }"
+            />
+            <small
+                style="color: red"
+                class="ng-dirty ng-invalid"
+                *ngIf="
+                    submittedEmpl_Estado &&
+                    !empleadoService.empleado.empl_ObservacionInactivar
+                "
+                >El campo es requerido.</small
+            >
+            <small
+                style="color: red"
+                class="ng-dirty ng-invalid"
+                *ngIf="
+                    submittedEmpl_Estado &&
+                    empleadoService.empleado.empl_ObservacionInactivar &&
+                    !validarObservacionInactivar()
+                "
+                >El campo es inválido.</small
+            >
+        </div>
+    </div>
+    <div class="formgrid grid" *ngIf="empleadoService.empleado.empl_Estado">
+        <div
+            class="field col"
+            style="
+                display: grid;
+                margin-top: 1rem;
+                margin-bottom: 0;
+                max-width: 50%;
+            "
+        >
+            <label for="inputPrestaciones">Prestaciones</label>
+            <p-inputNumber
+                id="inputPrestaciones"
+                [(ngModel)]="empleadoService.empleado.empl_Prestaciones"
+                mode="decimal"
+                [minFractionDigits]="2"
+                [maxFractionDigits]="2"
+                [prefix]="globalMoneda.getState().mone_Abreviatura + ' '"
+            />
+        </div>
+        <div
+            class="field col"
+            style="
+                display: grid;
+                margin-top: 1rem;
+                margin-bottom: 0;
+                max-width: 50%;
+            "
+        >
+            <label for="inputOtrasRemuneraciones">Otras remuneraciones</label>
+            <p-inputNumber
+                id="inputOtrasRemuneraciones"
+                [(ngModel)]="empleadoService.empleado.empl_OtrasRemuneraciones"
+                mode="decimal"
+                [minFractionDigits]="2"
+                [maxFractionDigits]="2"
+                [prefix]="globalMoneda.getState().mone_Abreviatura + ' '"
+            />
+        </div>
+    </div>
+    <ng-template pTemplate="footer">
+        <!-- Botón de confirmación para activar o desactivar un empleado -->
+        <button
+            pButton
+            pRipple
+            icon="pi pi-check"
+            class="p-button-primary"
+            label="Aceptar"
+            (click)="desactivarOactivarClick()"
+        ></button>
+        <!-- Botón para cerrar el modal -->
+        <button
+            pButton
+            pRipple
+            icon="pi pi-times"
+            class="p-button-outlined p-button-primary"
+            label="Cancelar"
+            (click)="mostrarModalActivacion = false"
+        ></button>
+    </ng-template>
+</p-dialog>
+<p-dialog
+    [(visible)]="mostrarModalEditarDeducciones"
+    header="Confirmación"
+    [modal]="true"
+    [style]="{ width: '450px' }"
+>
+    <div class="flex align-items-center justify-content-center">
+        <i class="pi pi-pencil mr-3" style="font-size: 2rem"></i>
+        <span *ngIf="mostrarModalEditarDeducciones"
+            >¿Está seguro de editar las deducciones del colaborador
+            <span style="font-weight: 600">{{
+                this.empleadoService.empleado.empl_Nombre +
+                    " " +
+                    this.empleadoService.empleado.empl_Apellido
+            }}</span>
+            ?</span
+        >
+    </div>
+    <ng-template pTemplate="footer">
+        <button
+            pButton
+            pRipple
+            icon="pi pi-pencil"
+            class="p-button-primary"
+            label="Aceptar"
+            (click)="guardarDeducciones()"
+        ></button>
+        <button
+            pButton
+            pRipple
+            icon="pi pi-times"
+            class="p-button-outlined p-button-primary"
+            label="Cancelar"
+            (click)="mostrarModalEditarDeducciones = false"
+        ></button>
+    </ng-template>
+</p-dialog>

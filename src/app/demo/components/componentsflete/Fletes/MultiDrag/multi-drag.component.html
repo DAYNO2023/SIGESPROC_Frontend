@@ -1,0 +1,24 @@
+<div class="drop-list" cdkDropList [class.item-dragging]="dragging" (cdkDropListDropped)="droppedIntoList($event)">
+	<div *ngFor="let item of items; let index = index" class="item" [class.selected]="isSelected(index)" cdkDrag
+		(cdkDragStarted)="dragStarted($event, index)" (cdkDragEnded)="dragEnded()" (cdkDragDropped)="dropped($event)"
+		(click)="select($event, index)">
+		<div *ngIf="!dragging || !isSelected(index)">
+			<ng-container *ngTemplateOutlet="templateRef; context: { $implicit: item, item: item, index: index }">
+			</ng-container>
+
+
+		</div>
+
+		<div *cdkDragPreview>
+			<div class="select-item-drag-preview float-left">
+				{{ selections.length || 1 }}
+			</div>
+
+			<div *ngFor="let sel of selections">
+				<ng-container
+					*ngTemplateOutlet="templateRef; context: { $implicit: items[sel], item: sel, index: index }">
+				</ng-container>
+			</div>
+		</div>
+	</div>
+</div>

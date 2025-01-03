@@ -1,0 +1,112 @@
+.container {
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.8); /* Fondo semi-transparente oscuro */
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6); /* Sombra sutil */
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+}
+
+.col-6 {
+  width: 48%;
+}
+
+h3 {
+  color: #fff;
+  text-align: center;
+  margin-bottom: 10px; /* Reduce el margen inferior */
+}
+
+.insumos-list {
+  max-height: 400px;
+  overflow-y: auto;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.9);
+  padding: 10px; /* Reduce el padding */
+}
+
+.item {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 5px;
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 5px; /* Reduce el padding */
+  margin-bottom: 5px; /* Reduce el margen inferior */
+  color: #fff;
+  transition: background-color 0.3s, box-shadow 0.3s;
+  font-size: 0.9em; /* Reduce el tamaño de fuente */
+}
+
+.item p {
+  margin: 3px 0; /* Reduce los márgenes */
+}
+
+.item:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 2px 6px rgba(255, 255, 255, 0.2);
+}
+
+.item.selected {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+.button-container {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+button {
+  padding: 8px 16px; /* Reduce el padding */
+  border: none;
+  border-radius: 5px;
+  color: #fff;
+  background-color: #f0ad4e; /* Botones color amarillo */
+  transition: background-color 0.3s;
+}
+
+button:hover {
+  background-color: #d9534f;
+}
+
+.error {
+  color: red;
+  font-size: 0.8em; /* Reduce el tamaño de fuente */
+  margin-top: 5px;
+}
+
+.drop-list {
+  min-height: 200px;
+  width: 100%;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(255, 255, 255, 0.1);
+  background-color: rgba(0, 0, 0, 0.9);
+  overflow-y: scroll;
+  padding: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.select-item-drag-preview {
+  background-color: rgba(255, 255, 255, 0.8);
+  color: #333;
+  font-weight: bold;
+  border: 2px solid #666;
+  border-radius: 50%;
+  display: inline-block;
+  width: 30px;
+  line-height: 30px;
+  text-align: center;
+}
+
+.cdk-drop-list-dragging .cdk-drag {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+  color: #fff;
+}
+
+.item-dragging .item.selected:not(.cdk-drag-placeholder) {
+  opacity: 0.3;
+  color: #fff;
+}

@@ -1,0 +1,340 @@
+<body>
+    <section>
+        <div class="box">
+            <div class="square" style="--i: 0"></div>
+            <div class="square" style="--i: 1"></div>
+            <div class="square" style="--i: 2"></div>
+            <div class="square" style="--i: 3"></div>
+            <div class="square" style="--i: 4"></div>
+            <div class="square" style="--i: 5"></div>
+
+            <div class="login">
+                <div class="ladoIzquierdo">
+                    <img
+                        src="../../../../../assets/layout/images/logo-sigesproc.png"
+                        alt=""
+                        class="logo"
+                    />
+                </div>
+                <div
+                    class="container"
+                    style="padding: 5%; width: 26em"
+                    *ngIf="formLogin"
+                >
+                    <div class="form">
+                        <!-- Ajustar ancho del contenedor -->
+                        <div class="logotitulo">
+                            <h2 class="title">Inicio de sesión</h2>
+                        </div>
+                        <form action="">
+                            <div class="inputBx">
+                                <input
+                                    maxlength="80"
+                                    type="text"
+                                    name="usuario"
+                                    required="required"
+                                    [(ngModel)]="usuario"
+                                    (ngModelChange)="onChangeUsuario($event)"
+                                    style="width: 85%"
+                                />
+                                <!-- Ajustar ancho del input -->
+                                <span>Usuario</span>
+                                <i
+                                    style="margin-left: 50%"
+                                    class="pi pi-user"
+                                ></i>
+                                <small
+                                    style="left: -53%; position: relative"
+                                    class="ng-invalid ng-dirty"
+                                    [style]="clase1"
+                                    >El campo es requerido.</small
+                                >
+                            </div>
+                            <div class="inputBx password">
+                                <input
+                                    id="password-input"
+                                    type="password"
+                                    name="password"
+                                    required="required"
+                                    [(ngModel)]="clave"
+                                    (ngModelChange)="onChangeClave($event)"
+                                    style="width: 85%"
+                                />
+                                <!-- Ajustar ancho del input -->
+                                <span>Contraseña</span>
+                                <i
+                                    style="margin-left: 50%"
+                                    class="pi pi-key"
+                                ></i>
+                                <small
+                                    style="left: -53%; position: relative"
+                                    class="ng-invalid ng-dirty"
+                                    [style]="clase2"
+                                    >El campo es requerido.</small
+                                >
+                            </div>
+                            <p>
+                                <a
+                                    class="forget"
+                                    (click)="
+                                        formLogin = false;
+                                        formReestablecerClave = true
+                                    "
+                                    >Olvidaste tu contraseña?</a
+                                >
+                            </p>
+                            <small class="ng-invalid ng-dirty" [style]="clase3"
+                                >Credenciales inválidas</small
+                            >
+
+                            <div
+                                class="inputBx boton"
+                                style="display: flex; align-items: center"
+                            >
+                                <button
+                                    style="margin-right: 15%"
+                                    class="button-24"
+                                    (click)="Login()"
+                                    role="button"
+                                >
+                                    Entrar
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div
+                    class="container"
+                    style="padding: 5%; width: 26em"
+                    *ngIf="formReestablecerClave"
+                >
+                    <div class="form">
+                        <div class="logotitulo">
+                            <h2
+                                style="width: 10%; margin-block-end: 13%"
+                                class="reestablecer"
+                            >
+                                Reestablecer Contraseña
+                            </h2>
+                        </div>
+                        <form action="">
+                            <div class="inputBx">
+                                <input
+                                    type="text"
+                                    maxlength="80"
+                                    name="usuario"
+                                    required="required"
+                                    [(ngModel)]="usuario"
+                                    (ngModelChange)="onChangeUsuario($event)"
+                                    style="width: 85%"
+                                />
+                                <span>Usuario</span>
+                                <i
+                                    style="margin-left: 50%"
+                                    class="pi pi-user"
+                                ></i>
+                                <small
+                                    class="ng-invalid ng-dirty"
+                                    style="
+                                        color: red;
+                                        left: -53%;
+                                        position: relative;
+                                    "
+                                    *ngIf="usuarioValidarClave"
+                                    >El campo es requerido.</small
+                                >
+                            </div>
+                            <small
+                                class="ng-invalid ng-dirty"
+                                style="color: red; font-size: 110%"
+                                *ngIf="usuarioInvalidoClave"
+                                >Usuario inválido.</small
+                            >
+                            <div
+                                class="inputBx boton"
+                                style="display: flex; align-items: center"
+                            >
+                                <a
+                                    (click)="volver()"
+                                    pButton
+                                    style="margin-right: auto; color: black"
+                                    icon="pi pi-arrow-left"
+                                    label="Regresar"
+                                    class="p-button-link"
+                                ></a>
+                                <button
+                                    class="button-24"
+                                    style="
+                                        margin-right: 15%;
+                                        width: 40%;
+                                        white-space: normal;
+                                        text-align: center;
+                                    "
+                                    (click)="ReestablecerClave()"
+                                    role="button"
+                                >
+                                    Enviar Código
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div
+                    class="container"
+                    style="padding: 5%; width: 26em"
+                    *ngIf="formCodigo"
+                >
+                    <div class="form">
+                        <div class="logotitulo">
+                            <h2 class="title">Verificar Código</h2>
+                        </div>
+                        <form action="">
+                            <div class="inputBx">
+                                <input
+                                    type="text"
+                                    name="usuario"
+                                    required="required"
+                                    [(ngModel)]="codigo"
+                                    (ngModelChange)="onChangeUsuario($event)"
+                                    style="width: 85%"
+                                />
+                                <span>Código</span>
+                                <i
+                                    style="margin-left: 50%"
+                                    class="pi pi-user"
+                                ></i>
+                                <small
+                                    class="ng-invalid ng-dirty"
+                                    style="left: -53%; position: relative"
+                                    [style]="clase4"
+                                    >El campo es requerido.</small
+                                >
+                            </div>
+                            <small
+                                class="ng-invalid ng-dirty"
+                                style="left: 1%; position: relative"
+                                [style]="clase5"
+                                >Codigo inválido.</small
+                            >
+                            <div
+                                class="inputBx boton"
+                                style="display: flex; align-items: center"
+                            >
+                                <a
+                                    (click)="volver()"
+                                    pButton
+                                    style="margin-right: auto; color: black"
+                                    icon="pi pi-arrow-left"
+                                    label="Regresar"
+                                    class="p-button-link"
+                                ></a>
+                                <button
+                                    class="btn-codigo"
+                                    style="width: 35%; margin-right: 15%"
+                                    (click)="VerificarCodigo()"
+                                    role="button"
+                                >
+                                    Verificar
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div
+                    class="container"
+                    style="padding: 5%; width: 26em"
+                    *ngIf="formNuevasContras"
+                >
+                    <div class="form">
+                        <div class="logotitulo">
+                            <h2 class="title">Nueva Contraseña</h2>
+                        </div>
+                        <form action="">
+                            <div class="inputBx">
+                                <input
+                                    type="text"
+                                    name="usuario"
+                                    required="required"
+                                    [(ngModel)]="nuevaContra"
+                                    pTooltip="La contraseña debe tener al menos 8 caracteres en total, incluyendo al menos 1 número, 1 letra mayúscula y 1 carácter especial."
+                                    tooltipPosition="right"
+                                    (ngModelChange)="onChangeUsuario($event)"
+                                    style="width: 85%"
+                                />
+                                <span>Contraseña</span>
+                                <i
+                                    style="margin-left: 50%"
+                                    class="pi pi-user"
+                                ></i>
+                                <small
+                                    style="left: -53%; position: relative"
+                                    class="ng-invalid ng-dirty"
+                                    [style]="clase6"
+                                    >{{ vContra }}</small
+                                >
+                            </div>
+                            <div class="inputBx password">
+                                <input
+                                    id="password-input"
+                                    type="password"
+                                    name="text"
+                                    required="required"
+                                    [(ngModel)]="confimarNuevaContra"
+                                    (ngModelChange)="onChangeClave($event)"
+                                    style="width: 85%"
+                                />
+                                <span>Confirmar Contraseña</span>
+                                <i
+                                    style="margin-left: 50%"
+                                    class="pi pi-key"
+                                ></i>
+                                <small
+                                    style="left: -53%; position: relative"
+                                    class="ng-invalid ng-dirty"
+                                    [style]="clase7"
+                                    >El campo es requerido.</small
+                                >
+                            </div>
+                            <small
+                                class="ng-invalid ng-dirty"
+                                style="margin-inline-end: 1.5%"
+                                [style]="clase8"
+                                >Las contraseñas no coinciden.</small
+                            >
+
+                            <div
+                                class="inputBx boton"
+                                style="display: flex; align-items: center"
+                            >
+                                <a
+                                    (click)="volver()"
+                                    pButton
+                                    style="margin-right: auto; color: black"
+                                    icon="pi pi-arrow-left"
+                                    label="Regresar"
+                                    class="p-button-link"
+                                ></a>
+                                <button
+                                    class="button-24"
+                                    style="margin-right: 15%; padding: 10px"
+                                    (click)="NuevaContra()"
+                                    role="button"
+                                >
+                                    Actualizar
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <div id="content">
+        <h1></h1>
+        <p></p>
+    </div>
+    <div id="outerCraneContainer"></div>
+</body>

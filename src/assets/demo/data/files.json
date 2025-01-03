@@ -1,0 +1,315 @@
+{
+    "data": [
+        {
+            "key": "1000",
+            "label": "SIGESPROC",
+            "data": "Documents Folder",
+            "icon": "pi pi-fw pi-inbox",
+            "children": [
+                
+                {
+                "key": "1001",
+                "label": "Acceso",
+                "data": "Work Folder",
+                "icon": "pi pi-fw pi-cog",
+                "children": [ { "key": "2", "label": "Roles", "icon": "pi pi-fw pi-file"},{ "key": "5", "label": "Usuarios", "icon": "pi pi-fw pi-file" }]
+            },
+            {
+                "key": "1007",
+                "label": "Bienes Raíces",
+                "data": "Work Folder",
+                "icon": "pi pi-fw pi-cog",
+                "children": [{ "key": "44", "label": "Agentes de Bienes Raíces", "icon": "pi pi-fw pi-file" },{ "key": "45", "label": "Bienes Raíces", "icon": "pi pi-fw pi-file" },{ "key": "47", "label": "Empresas Bienes Raíces", "icon": "pi pi-fw pi-file" },{ "key": "49", "label": "Terrenos", "icon": "pi pi-fw pi-file" },{ "key": "122", "label": "Tipos de Documentos", "icon": "pi pi-fw pi-file" },{ "key": "48", "label": "Venta de Bienes Raíces", "icon": "pi pi-fw pi-file" }]
+            },
+            
+            {
+                "key": "1006",
+                "label": "Fletes",
+                "data": "Work Folder",
+                "icon": "pi pi-fw pi-cog",
+                "children": [{ "key": "7", "label": "Fletes", "icon": "pi pi-fw pi-file" }]
+            },
+            {
+                "key": "1002",
+                "label": "Generales",
+                "data": "Work Folder",
+                "icon": "pi pi-fw pi-cog",
+                "children": [{ "key": "8", "label": "Bancos", "icon": "pi pi-fw pi-file" },{ "key": "9", "label": "Cargos", "icon": "pi pi-fw pi-file" },{ "key": "1", "label": "Ciudades", "icon": "pi pi-fw pi-file" },{ "key": "10", "label": "Clientes", "icon": "pi pi-fw pi-file" },{ "key": "11", "label": "Colaboradores", "icon": "pi pi-fw pi-file" },{ "key": "89", "label": "Estados", "icon": "pi pi-fw pi-file" },{ "key": "12", "label": "Estados Civiles", "icon": "pi pi-fw pi-file" },{ "key": "91", "label": "Impuesto", "icon": "pi pi-fw pi-file" },{ "key": "14", "label": "Monedas", "icon": "pi pi-fw pi-file" },{ "key": "15", "label": "Niveles", "icon": "pi pi-fw pi-file" },{ "key": "16", "label": "Países", "icon": "pi pi-fw pi-file" },{ "key": "149", "label": "Tipos de proyecto", "icon": "pi pi-fw pi-file" },{ "key": "19", "label": "Tasas de Cambio", "icon": "pi pi-fw pi-file" },{ "key": "20", "label": "Unidades de Medida", "icon": "pi pi-fw pi-file" }]
+            }, 
+             {
+                "key": "1004",
+                "label": "Insumos",
+                "data": "Work Folder",
+                "icon": "pi pi-fw pi-cog",
+                "children": [{ "key": "21", "label": "Bodegas", "icon": "pi pi-fw pi-file" },{ "key": "35", "label": "Categorías", "icon": "pi pi-fw pi-file" }, { "key": "24", "label": "Cotizaciones", "icon": "pi pi-fw pi-file" },{ "key": "25", "label": "Insumos", "icon": "pi pi-fw pi-file" },{ "key": "26", "label": "Maquinarias", "icon": "pi pi-fw pi-file" },{ "key": "27", "label": "Materiales", "icon": "pi pi-fw pi-file" },{ "key": "22", "label": "Órdenes de compra", "icon": "pi pi-fw pi-file" }, { "key": "28", "label": "Proveedores", "icon": "pi pi-fw pi-file" },{ "key": "18", "label": "Sub Categorías", "icon": "pi pi-fw pi-file" }]
+            },
+            {
+                "key": "1005",
+                "label": "Planillas",
+                "data": "Work Folder",
+                "icon": "pi pi-fw pi-cog",
+                "children": [{ "key": "29", "label": "Categorías Viáticos", "icon": "pi pi-fw pi-file" },{ "key": "93", "label": "Costos Por Actividad", "icon": "pi pi-fw pi-file" },{ "key": "30", "label": "Deducciones", "icon": "pi pi-fw pi-file" },{ "key": "31", "label": "Frecuencias", "icon": "pi pi-fw pi-file" },{ "key": "32", "label": "Planillas", "icon": "pi pi-fw pi-file" },{ "key": "95", "label": "Préstamos", "icon": "pi pi-fw pi-file" },{ "key": "33", "label": "Viáticos", "icon": "pi pi-fw pi-file" }]
+            },
+            {
+                "key": "1003",
+                "label": "Seguimiento de proyectos",
+                "data": "Work Folder",
+                "icon": "pi pi-fw pi-cog",
+                "children": [{ "key": "34", "label": "Actividades", "icon": "pi pi-fw pi-file" },{ "key": "117", "label": "Controles de calidad", "icon": "pi pi-fw pi-file" },{ "key": "39", "label": "Etapas", "icon": "pi pi-fw pi-file" },{ "key": "36", "label": "Equipos de Seguridad", "icon": "pi pi-fw pi-file" }, { "key": "37", "label": "Estados de Proyecto", "icon": "pi pi-fw pi-file" },{ "key": "124", "label": "Gestiones Adicionales", "icon": "pi pi-fw pi-file" },{ "key": "124", "label": "Incidentes", "icon": "pi pi-fw pi-file" },{ "key": "123", "label": "Notificaciones", "icon": "pi pi-fw pi-file" },{ "key": "41", "label": "Presupuestos", "icon": "pi pi-fw pi-file" },{ "key": "43", "label": "Proyectos", "icon": "pi pi-fw pi-file" }]
+            },   {
+              "key": "1030",
+              "label": "Gráficos",
+              "data": "Work Folder",
+              "icon": "pi pi-fw pi-cog",
+              "children": [{  "key": "1040",
+              "label": "Bienes Raíces",
+              "icon": "pi pi-fw pi-file",
+              "children": [
+                {
+                  "key": "137",
+                  "label": "Total Procesos Venta",
+                  "icon": "pi pi-fw pi-file"
+                },
+                {
+                  "key": "132",
+                  "label": "Ventas Bienes Raices Mensuales",
+                  "icon": "pi pi-fw pi-file"
+                }, 
+                {
+                  "key": "133",
+                  "label": "Ventas por Agente",
+                  "icon": "pi pi-fw pi-file"
+                },{
+                  "key": "134",
+                  "label": "Ventas Terrenos Mensuales",
+                  "icon": "pi pi-fw pi-file"
+                }
+              ]
+            }, {  "key": "1041",
+            "label": "Fletes",
+            "icon": "pi pi-fw pi-file",
+            "children": [
+              {
+                "key": "136",
+                "label": "Fletes Asociados a Proyectos",
+                "icon": "pi pi-fw pi-file"
+              }, {
+                "key": "135",
+                "label": "Incidentes Mensuales",
+                "icon": "pi pi-fw pi-file"
+              }, {
+                "key": "127",
+                "label": "Lugares mas Enviados Fletes",
+                "icon": "pi pi-fw pi-file"
+              }
+            ]
+          },{  "key": "1042",
+          "label": "Insumos",
+          "icon": "pi pi-fw pi-file",
+          "children": [
+            {
+              "key": "126",
+              "label": "Proveedores mas Comprados",
+              "icon": "pi pi-fw pi-file"
+            },  
+            {
+              "key": "139",
+              "label": "Total de Compras",
+              "icon": "pi pi-fw pi-file"
+            },
+            {
+              "key": "121",
+              "label": "Ubicación más Enviada al Comprar",
+              "icon": "pi pi-fw pi-file"
+            }
+          ]
+        }, {  "key": "1043",
+        "label": "Planillas",
+        "icon": "pi pi-fw pi-file",
+        "children": [
+          {
+            "key": "128",
+            "label": "Bancos mas acreditados",
+            "icon": "pi pi-fw pi-file"
+          },
+          {
+            "key": "131",
+            "label": "Pagos por Jefe de Obra",
+            "icon": "pi pi-fw pi-file"
+          },
+          {
+            "key": "138",
+            "label": "Total Nomina Anual",
+            "icon": "pi pi-fw pi-file"
+          }
+        ]
+      }, {  "key": "1044",
+      "label": "Seguimiento de proyectos",
+      "icon": "pi pi-fw pi-file",
+      "children": [
+        
+        {
+          "key": "145",
+          "label": "Incidencias de proyectos por mes",
+          "icon": "pi pi-fw pi-file"
+        },
+        {
+          "key": "146",
+          "label": "Proyectos con mayor costo por fecha",
+          "icon": "pi pi-fw pi-file"
+        },
+        {
+          "key": "148",
+          "label": "Proyectos en ejecución por departamento",
+          "icon": "pi pi-fw pi-file"
+        }
+      ]
+    }
+          ]
+          },
+            {
+                "key": "1020",
+                "label": "Reportes",
+                "data": "Work Folder",
+                "icon": "pi pi-fw pi-cog",
+                "children": [{  "key": "1008",
+                "label": "Bienes Raíces",
+                "icon": "pi pi-fw pi-file",
+                "children": [
+                  {
+                    "key": "101",
+                    "label": "Reporte Empresa Bien raíz",
+                    "icon": "pi pi-fw pi-file"
+                  },
+                  {
+                    "key": "103",
+                    "label": "Reporte Terreno",
+                    "icon": "pi pi-fw pi-file"
+                  }, 
+                  {
+                    "key": "102",
+                    "label": "Reporte Terreno Proyecto",
+                    "icon": "pi pi-fw pi-file"
+                  },{
+                    "key": "113",
+                    "label": "Reporte Proceso de venta",
+                    "icon": "pi pi-fw pi-file"
+                  }
+                ]
+              },
+              {  "key": "1009",
+              "label": "Fletes",
+              "icon": "pi pi-fw pi-file",
+              "children": [
+                {
+                  "key": "97",
+                  "label": "Reporte Flete",
+                  "icon": "pi pi-fw pi-file"
+                }, {
+                  "key": "112",
+                  "label": "Reporte Fletes Comparación",
+                  "icon": "pi pi-fw pi-file"
+                }, {
+                  "key": "115",
+                  "label": "Reporte Fletes insumo por actividad",
+                  "icon": "pi pi-fw pi-file"
+                },
+                {
+                  "key": "114",
+                  "label": "Reporte Fletes llegada",
+                  "icon": "pi pi-fw pi-file"
+                }
+              ]
+            },
+            {  "key": "1010",
+            "label": "Insumos",
+            "icon": "pi pi-fw pi-file",
+            "children": [
+              {
+                "key": "99",
+                "label": "Reporte Compra",
+                "icon": "pi pi-fw pi-file"
+              },  
+              {
+                "key": "108",
+                "label": "Reporte Comparativo Producto",
+                "icon": "pi pi-fw pi-file"
+              },
+              {
+                "key": "109",
+                "label": "Reporte Compra Pendiente",
+                "icon": "pi pi-fw pi-file"
+              }, {
+                "key": "111",
+                "label": "Reporte compra por Ubicación",
+                "icon": "pi pi-fw pi-file"
+              }, 
+              {
+                "key": "98",
+                "label": "Reporte Cotización",
+                "icon": "pi pi-fw pi-file"
+              },
+              {
+                "key": "104",
+                "label": "Reporte de Cotizacion Por rango precio",
+                "icon": "pi pi-fw pi-file"
+              },
+              {
+                "key": "105",
+                "label": "Reporte de Insumo a Bodega",
+                "icon": "pi pi-fw pi-file"
+              }, {
+                "key": "106",
+                "label": "Reporte de Insumo a Proyecto",
+                "icon": "pi pi-fw pi-file"
+              },
+             {
+                "key": "116",
+                "label": "Reporte Insumos Último Precio",
+                "icon": "pi pi-fw pi-file"
+              }
+            ]
+          }, {  "key": "1011",
+          "label": "Planillas",
+          "icon": "pi pi-fw pi-file",
+          "children": [
+            {
+              "key": "96",
+              "label": "Reporte Colaborador",
+              "icon": "pi pi-fw pi-file"
+            },
+            {
+              "key": "107",
+              "label": "Reporte Historial de pagos",
+              "icon": "pi pi-fw pi-file"
+            }
+          ]
+        }, {  "key": "1012",
+        "label": "Seguimiento de proyectos",
+        "icon": "pi pi-fw pi-file",
+        "children": [
+          
+          {
+            "key": "144",
+            "label": "Reporte Articulos de Actividades",
+            "icon": "pi pi-fw pi-file"
+          },
+          {
+            "key": "110",
+            "label": "Reporte Progreso de actividades",
+            "icon": "pi pi-fw pi-file"
+          },
+          {
+            "key": "100",
+            "label": "Reporte Proyecto",
+            "icon": "pi pi-fw pi-file"
+          }
+        ]
+      }
+                            ]
+            }
+          
+        ]
+        }
+    ]
+}

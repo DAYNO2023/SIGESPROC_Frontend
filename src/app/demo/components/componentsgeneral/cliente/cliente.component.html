@@ -1,0 +1,488 @@
+<p-toast></p-toast>
+
+<div class="loader-container" *ngIf="loading">
+    <div class="loader">
+        <span></span>
+    </div>
+  </div>
+
+<!--Inicio del index-->
+<div class="grid" *ngIf="Index">
+    <div class="col-12">
+        <div class="card">
+            <h1 class="text-center mt-2">Clientes</h1>
+            <hr>
+            <div class="grid mt-2">
+                <div class="col-12">
+                    <button (click)="CrearCliente()" pButton icon="pi pi-plus" label="Nuevo" class="mr-2 ml-2"></button>
+                </div>
+            </div>
+
+            <p-table #dt [value]="clientes" styleClass="mt-2" responsiveLayout="scroll" [rows]="10"
+                [globalFilterFields]="['clie_DNI','clie_Nombre', 'clie_Apellido', 'clie_CorreoElectronico']"
+                [tableStyle]="{ background: '#000' }" [paginator]="true" [showCurrentPageReport]="true"
+                currentPageReportTemplate="Mostrando {first} al {last} de {totalRecords} entradas" [rowHover]="true"
+                [rowsPerPageOptions]="[10,25,50,100]">
+                <ng-template pTemplate="caption">
+                    <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+                        <span class="block mt-2 md:mt-0 p-input-icon-left">
+                            <i style="color: white;" class="pi pi-search"></i>
+                            <input style="color: white;" pInputText type="text" (input)="onGlobalFilter(dt, $event)"
+                                placeholder="Buscar..." class="w-full sm:w-auto" />
+                        </span>
+
+                        <div class="registros">
+                            <p-dropdown [options]="dt.rowsPerPageOptions" [(ngModel)]="dt.rows"
+                                [style]="{ 'margin-right': '5px' }" [autoWidth]="false"></p-dropdown>
+
+                            <span style="color: #FFF0C6; font-weight: 700; margin-top: 7px;"> Registros por
+                                página</span>
+                        </div>
+                    </div>
+                </ng-template>
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th style="color: white;" class="text-center">Acciones</th>
+                        <th style="color: white;" pSortableColumn="clie_Id" class="text-center">No.
+                            <p-sortIcon field="clie_Id"></p-sortIcon>
+                        </th>
+                        <th style="color: white;" pSortableColumn="clie_DNI" class="text-center">DNI
+                            <p-sortIcon field="clie_DNI"></p-sortIcon>
+                        </th>
+                        <th style="color: white;" pSortableColumn="clie_Nombre" class="text-center">Nombre
+                            <p-sortIcon field="clie_Nombre"></p-sortIcon>
+                        </th>
+                        <th style="color: white;" pSortableColumn="clie_Apellido" class="text-center">Apellido
+                            <p-sortIcon field="clie_Apellido"></p-sortIcon>
+                        </th>
+                        <th style="color: white;" pSortableColumn="clie_CorreoElectronico" class="text-center">Correo
+                            Electrónico
+                            <p-sortIcon field="clie_CorreoElectronico"></p-sortIcon>
+                        </th>
+                        <th style="color: white;" pSortableColumn="clie_Tipo" class="text-center">
+                            Tipo de Cliente
+                            <p-sortIcon field="clie_Tipo"></p-sortIcon>
+                        </th>
+                    </tr>
+                </ng-template>
+
+                <ng-template pTemplate="emptymessage">
+                    <tr>
+                      <td colspan="6" class="text-center">
+                       
+                      </td>
+                    </tr>
+                  </ng-template>
+                  
+                <ng-template pTemplate="body" let-cliente>
+                    <tr (click)="selectCliente(cliente)">
+                        <td class="text-center">
+                            <p-splitButton label="Acciones" icon="pi pi-cog" [model]="items"
+                                styleClass="p-button-secondary" appendTo="body"
+                                class="custom-splitbutton"></p-splitButton>
+                        </td>
+                        <td class="text-center">{{cliente.codigo}}</td>
+                        <td class="text-center">{{cliente.clie_DNI}}</td>
+                        <td class="text-center">{{cliente.clie_Nombre}}</td>
+                        <td class="text-center">{{cliente.clie_Apellido}}</td>
+                        <td class="text-center">{{cliente.clie_CorreoElectronico}}</td>
+                        <td class="text-center">
+                            {{ cliente.clie_Tipo === 'B' ? 'Bien Raíz' : cliente.clie_Tipo === 'P' ? 'Proyecto' :
+                            cliente.clie_Tipo === 'A' ? 'Ambos' : 'N/D' }}
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+    </div>
+</div>
+<!--Fin del index-->
+
+<!--Inicio del formulario-->
+<div class="grid" *ngIf="Create">
+    <div class="col-12">
+        <div class="card">
+            <div class="flex" style="width: 100%; margin: 0 auto; display: flex; align-items: center; height: 42px;">
+                <!-- Contenedor del Botón Regresar -->
+                <div style="width: 20%; display: flex; align-items: center; height: 12.5%;">
+                    <button (click)="CerrarCliente()" pButton pRipple type="button" class="p-button-link" label="Regresar" icon="pi pi-arrow-left" style="box-shadow: none !important"></button>
+                </div>
+            
+                <!-- Contenedor del Título -->
+                <div style="flex-grow: 1; display: flex; justify-content: center; align-items: center;">
+                    <h1 class="text-center mt-4">{{ titulo }}</h1>
+                </div>
+                
+                <div style="width: 20%;"></div> <!-- Empty div to balance the space on the right -->
+            </div>
+            <hr>
+            <form [formGroup]="form" class="p-fluid grid" (ngSubmit)="onSave()">
+                <div class="field col-12 md:col-6">
+                    <label for="clie_DNI">DNI&nbsp;</label><small style="display:inline-block;"
+                        class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['clie_DNI'].invalid"
+                        style="color: red !important;">*</small>
+                    <input id="clie_DNI" pInputText formControlName="clie_DNI" (keypress)="ValidarDNI($event)" (input)="handleInput($event,'clie_DNI')"
+                        [ngClass]="{'ng-invalid ng-dirty': submitted && form.controls['clie_DNI'].invalid}" />
+
+                    <small *ngIf="submitted && form.controls['clie_DNI'].invalid" class="p-error"
+                        style="color: red !important;">El campo es
+                        requerido.</small>
+                </div>
+                <div class="field col-12 md:col-6">
+                    <label for="clie_Nombre">Nombre &nbsp;</label><small style="display:inline-block;"
+                        class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['clie_Nombre'].invalid"
+                        style="color: red !important;" >*</small>
+                    <input id="clie_Nombre" pInputText formControlName="clie_Nombre"
+                        [ngClass]="{'ng-invalid ng-dirty': submitted && form.controls['clie_Nombre'].invalid}" (input)="handleInput($event,'clie_Nombre')" />
+                    <small *ngIf="submitted && form.controls['clie_Nombre'].invalid" class="p-error"
+                        style="color: red !important;">El campo es requerido.</small>
+                </div>
+                <div class="field col-12 md:col-6">
+                    <label for="clie_Apellido">Apellido &nbsp;</label><small style="display:inline-block;"
+                        class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['clie_Apellido'].invalid"
+                        style="color: red !important;">*</small>
+                    <input id="clie_Apellido" pInputText formControlName="clie_Apellido"
+                        [ngClass]="{'ng-invalid ng-dirty': submitted && form.controls['clie_Apellido'].invalid}" (input)="handleInput($event , 'clie_Apellido')"/>
+                    <small *ngIf="submitted && form.controls['clie_Apellido'].invalid" class="p-error"
+                        style="color: red !important;">El campo es requerido.</small>
+                </div>      
+                <div class="field col-12 md:col-6">
+                    <label for="clie_CorreoElectronico">Correo Electrónico &nbsp;</label><small
+                        style="display:inline-block;" class="ng-dirty ng-invalid"
+                        *ngIf="submitted && form.controls['clie_CorreoElectronico'].invalid"
+                        style="color: red !important;">*</small>
+                    <input id="clie_CorreoElectronico" pInputText formControlName="clie_CorreoElectronico"
+                        [ngClass]="{'ng-invalid ng-dirty': submitted && form.controls['clie_CorreoElectronico'].invalid}" 
+                       (input)="handleInputespacial($event,'clie_CorreoElectronico')"  />
+                    <small *ngIf="submitted && form.controls['clie_CorreoElectronico'].invalid" class="p-error"
+                        style="color: red !important;">El campo es requerido.</small>
+                </div>
+                <div class="field col-12 md:col-6">
+                    <label for="clie_Telefono">Teléfono &nbsp;</label><small style="display:inline-block;"
+                        class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['clie_Telefono'].invalid"
+                        style="color: red !important;">*</small>
+                    <input id="clie_Telefono" pInputText formControlName="clie_Telefono"
+                        (keypress)="ValidarNumeroDeTelefono($event)"
+                        (input)="handleInputnumber($event,'clie_Telefono')"
+                        [ngClass]="{'ng-invalid ng-dirty': submitted && form.controls['clie_Telefono'].invalid}" />
+                    <small *ngIf="submitted && form.controls['clie_Telefono'].invalid" class="p-error"
+                        style="color: red !important;"> El campo es requerido.</small>
+                </div>
+                <div class="field col-12 md:col-6">
+                    <label for="clie_FechaNacimiento">Fecha de Nacimiento &nbsp; </label><small
+                        style="display:inline-block;" class="ng-dirty ng-invalid"
+                        *ngIf="submitted && form.controls['clie_FechaNacimiento'].invalid"
+                        style="color: red !important;">*</small>
+                    <p-calendar id="clie_FechaNacimiento" formControlName="clie_FechaNacimiento"
+                        [ngClass]="{'ng-invalid ng-dirty': submitted && form.controls['clie_FechaNacimiento'].invalid}"
+                        [showIcon]="true" [minDate]="minDate" ></p-calendar>
+                    <small *ngIf="submitted && form.controls['clie_FechaNacimiento'].invalid" class="p-error"
+                        style="color: red !important;">El campo es requerido.</small>
+                </div>
+                <div class="field col-12 md:col-6">
+                    <label for="clie_Sexo">Sexo &nbsp;</label><small style="display:inline-block;"
+                        class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['clie_Sexo'].invalid"
+                        style="color: red !important;">*</small>
+                    <div>
+                        <p-radioButton name="clie_Sexo" value="M" formControlName="clie_Sexo" label="Masculino"
+                            style="margin-right: 20px;"></p-radioButton>
+                        <p-radioButton name="clie_Sexo" value="F" formControlName="clie_Sexo"
+                            label="Femenino"></p-radioButton>
+                    </div>
+                    <small *ngIf="submitted && form.controls['clie_Sexo'].invalid" class="p-error"
+                        style="color: red !important;">El campo es requerido</small>
+                </div>
+                <div class="field col-12 md:col-6">
+                    <label for="clie_Tipo">Tipo de Cliente &nbsp;</label><small style="display:inline-block;"
+                        class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['clie_Tipo'].invalid"
+                        style="color: red !important;">*</small>
+                    <div>
+                        <p-radioButton name="clie_Tipo" value="B" formControlName="clie_Tipo" label="Bien Raíz"
+                            [checked]="form.get('clie_Tipo')?.value === 'B'"
+                            style="margin-right: 20px;"></p-radioButton>
+                        <p-radioButton name="clie_Tipo" value="P" formControlName="clie_Tipo" label="Proyecto"
+                            [checked]="form.get('clie_Tipo')?.value === 'P'"></p-radioButton>
+                        <p-radioButton name="clie_Tipo" value="A" formControlName="clie_Tipo" label="Ambos"
+                            [checked]="form.get('clie_Tipo')?.value === 'A'" style="margin-left: 20px;"></p-radioButton>
+                    </div>
+                    <small *ngIf="submitted && form.controls['clie_Tipo'].invalid" class="p-error"
+                        style="color: red !important;">El campo es requerido.</small>
+                </div>
+                <div class="field col-12 md:col-6">
+                    <label for="clie_DireccionExacta">Dirección Exacta &nbsp;</label><small
+                        style="display:inline-block;" class="ng-dirty ng-invalid"
+                        *ngIf="submitted && form.controls['clie_DireccionExacta'].invalid"
+                        style="color: red !important;">*</small>
+                    <input id="clie_DireccionExacta" pInputText formControlName="clie_DireccionExacta"
+                        [ngClass]="{'ng-invalid ng-dirty': submitted && form.controls['clie_DireccionExacta'].invalid}" (input)="allowOnlyAlphanumeric($event)"/>
+                    <small *ngIf="submitted && form.controls['clie_DireccionExacta'].invalid" class="p-error"
+                        style="color: red !important;">El campo es requerido.</small>
+                </div>
+                <div class="field col-12 md:col-6">
+                    <label>País &nbsp;</label><small style="display:inline-block;" class="ng-dirty ng-invalid"
+                        *ngIf="submitted && form.controls['pais_Nombre'].invalid"
+                        style="color: red !important;">*</small>
+                    <p-autoComplete formControlName="pais_Nombre" [suggestions]="paisfill"
+                        (completeMethod)="filterPais($event)" (onSelect)="onCountryChange($event)" field="pais_Nombre"
+                        placeholder="Seleccione un país" [dropdown]="true"
+                        [ngClass]="{'ng-invalid ng-dirty': submitted && form.controls['pais_Nombre'].invalid || notFound}" />
+
+                    <small class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['pais_Nombre'].invalid"
+                        style="color: red !important;">El campo es requerido.</small>
+
+                        <small class="ng-dirty ng-invalid" *ngIf="notFound && !form.controls['pais_Nombre'].invalid"
+                        style="color: red !important;">Opción no encontrada.</small>
+
+
+                </div>
+
+                <div class="field col-12 md:col-6">
+                    <label>Estado &nbsp;</label><small style="display:inline-block;" class="ng-dirty ng-invalid"
+                        *ngIf="submitted && form.controls['esta_Nombre'].invalid"
+                        style="color: red !important;">*</small>
+                    <p-autoComplete formControlName="esta_Nombre" [suggestions]="estadofill"
+                        (completeMethod)="filterEstado($event)" (onSelect)="onStateChange($event)" field="esta_Nombre"
+                        placeholder="Seleccione un estado" [dropdown]="true"
+                        [ngClass]="{'ng-invalid ng-dirty': submitted && form.controls['esta_Nombre'].invalid || notFound1}" />
+
+                    <small class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['esta_Nombre'].invalid"
+                        style="color: red !important;">El campo es requerido.</small>
+
+                        <small class="ng-dirty ng-invalid" *ngIf="notFound1 && !form.controls['esta_Nombre'].invalid"
+                        style="color: red !important;">Opción no encontrada.</small>
+
+
+                </div>
+
+                <div class="field col-12 md:col-6">
+                    <label>Ciudad &nbsp;</label><small style="display:inline-block;" class="ng-dirty ng-invalid"
+                        *ngIf="submitted && form.controls['ciud_Descripcion'].invalid"
+                        style="color: red !important;">*</small>
+                    <p-autoComplete formControlName="ciud_Descripcion" [suggestions]="ciudadfill"
+                        (completeMethod)="filterCiudad($event)" (onSelect)="onCitySelect($event)"
+                        field="ciud_Descripcion" placeholder="Seleccione una ciudad" [dropdown]="true"
+                        [ngClass]="{'ng-invalid ng-dirty': submitted && form.controls['ciud_Descripcion'].invalid || notFound2}" />
+
+                    <small class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['ciud_Descripcion'].invalid"
+                        style="color: red !important;">El campo es requerido.</small>
+
+                        <small class="ng-dirty ng-invalid" *ngIf="notFound2 && !form.controls['ciud_Descripcion'].invalid"
+                        style="color: red !important;">Opción no encontrada.</small>
+
+
+                </div>
+                <div class="field col-12 md:col-6">
+                    <label for="civi_Id">Estado Civil &nbsp;</label><small style="display:inline-block;"
+                        class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['civi_Id'].invalid"
+                        style="color: red !important;">*</small>
+                    <!--Inicio del DropDown de Estados Civiles-->
+
+                    <p-dropdown formControlName="civi_Id" [options]="civiles" optionLabel="civi_Descripcion"
+                        optionValue="civi_Id" placeholder="Seleccione un estado"
+                        [ngClass]="{'ng-invalid ng-dirty': submitted && form.controls['civi_Id'].invalid}"></p-dropdown>
+                    <!--FIn del DropDown de Estados Civiles-->
+
+                    <small class="ng-dirty ng-invalid" *ngIf="notFound && !form.controls['civi_Id'].invalid"
+                    style="color: red !important;">Opción no encontrada.</small>
+
+                    <small *ngIf="submitted && form.controls['civi_Id'].invalid" class="p-error"
+                        style="color: red !important;">El campo es requerido.</small>
+                </div>
+            </form>
+            <div style="display: flex; justify-content: end;">
+                <button (click)="Guardar()" pButton pRipple type="button" label="Guardar" icon="pi pi-save"></button>
+                <button (click)="CerrarCliente()" pButton pRipple type="button" label="Cancelar" icon="pi pi-times"
+                    class="ml-2 p-button-secondary"></button>
+            </div>
+        </div>
+    </div>
+</div>
+<!--Fin del formulario-->
+
+<!--Inicio del detalle-->
+<div class="grid" *ngIf="Detail">
+    <div class="col-12">
+        <div class="card">
+            <div class="d-flex justify-content-start align-items-center mb-4 mt-2">
+                <!-- Contenedor del Botón Regresar -->
+                <div style="margin-bottom: -39px;">
+                    <button (click)="CerrarCliente()" pButton pRipple type="button" class="p-button-link"
+                        label="Regresar" icon="pi pi-arrow-left"></button>
+                </div>
+
+                <!-- Contenedor del Título -->
+                <div class="mx-auto" style="    margin-left: 16px;">
+                    <h1 class="text-center mt-2">{{ titulo }}</h1>
+                </div>
+                <hr>
+                <div class="p-fluid p-formgrid grid">
+                    <!-- Primera columna -->
+                    <div class="grid" style="
+                margin-left: 10px;
+                margin-top: 10px;
+            ">
+                        <div class="field col-12 md:col-4">
+                            <div class="field rows">
+                                <label for="Codigo" style="font-weight: 800;">No:</label>
+                            </div>
+                            <div class="field rows">
+                                <label for="Codigo">{{ detalle_clie_Id }}</label>
+                            </div>
+                        </div>
+                        <div class="field col-12 md:col-4">
+                            <div class="field rows">
+                                <label for="Municipio" style="font-weight: 800;">DNI:</label>
+                            </div>
+                            <div class="field rows">
+                                <label for="Municipio">{{ detalle_clie_DNI }}</label>
+                            </div>
+                        </div>
+                        <div class="field col-12 md:col-4">
+                            <div class="field rows">
+                                <label for="Municipio" style="font-weight: 800;">Nombre:</label>
+                            </div>
+                            <div class="field rows">
+                                <label for="Municipio">{{ detalle_clie_Nombre }}</label>
+                            </div>
+                        </div>
+                        <div class="field col-12 md:col-4">
+                            <div class="field rows">
+                                <label for="Municipio" style="font-weight: 800;">Apellido:</label>
+                            </div>
+                            <div class="field rows">
+                                <label for="Municipio">{{ detalle_clie_Apellido }}</label>
+                            </div>
+                        </div>
+                        <div class="field col-12 md:col-4">
+                            <div class="field rows">
+                                <label for="Codigo" style="font-weight: 800;">Correo Electrónico:</label>
+                            </div>
+                            <div class="field rows">
+                                <label for="Codigo">{{ detalle_clie_CorreoElectronico }}</label>
+                            </div>
+                        </div>
+                        <div class="field col-12 md:col-4">
+                            <div class="field rows">
+                                <label for="Municipio" style="font-weight: 800;">Número de teléfono:</label>
+                            </div>
+                            <div class="field rows">
+                                <label for="Municipio">{{ detalle_clie_Telefono }}</label>
+                            </div>
+                        </div>
+                        <div class="field col-12 md:col-4">
+                            <div class="field rows">
+                                <label for="Municipio" style="font-weight: 800;">Fecha de Nacimiento:</label>
+                            </div>
+                            <div class="field rows">
+                                <label for="Municipio">{{ detalle_clie_FechaNacimiento | date:'yyyy/MM/dd' }}</label>
+                            </div>
+                        </div>
+                        <div class="field col-12 md:col-4">
+                            <div class="field rows">
+                                <label for="Municipio" style="font-weight: 800;">Sexo:</label>
+                            </div>
+                            <div class="field rows">
+                                <label for="Municipio">{{ detalle_clie_Sexo === 'M' ? 'Masculino' : detalle_clie_Sexo
+                                    === 'F' ? 'Femenino' : 'N/D'}}</label>
+                            </div>
+                        </div>
+                        <div class="field col-12 md:col-4">
+                            <div class="field rows">
+                                <label for="Municipio" style="font-weight: 800;">Tipo de Cliente:</label>
+                            </div>
+                            <div class="field rows">
+                                <label for="Municipio">{{ detalle_clie_Tipo === 'B' ? 'Bien Raíz' : detalle_clie_Tipo
+                                    === 'P' ? 'Proyecto' : detalle_clie_Tipo === 'A' ? 'Ambos' : 'N/D' }}</label>
+                            </div>
+                        </div>
+                        <div class="field col-12 md:col-4">
+                            <div class="field rows">
+                                <label for="Municipio" style="font-weight: 800;">Dirección Exacta:</label>
+                            </div>
+                            <div class="field rows">
+                                <label for="Municipio">{{ detalle_clie_DireccionExacta }}</label>
+                            </div>
+                        </div>
+                        <div class="field col-12 md:col-4">
+                            <div class="field rows">
+                                <label for="Municipio" style="font-weight: 800;">Ciudad:</label>
+                            </div>
+                            <div class="field rows">
+                                <label for="Municipio">{{ detalle_ciud_Descripcion }}</label>
+                            </div>
+                        </div>
+                        <div class="field col-12 md:col-4">
+                            <div class="field rows">
+                                <label for="Municipio" style="font-weight: 800;">Estado Civil:</label>
+                            </div>
+                            <div class="field rows">
+                                <label for="Municipio">{{ detalle_civi_Descripcion }}</label>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div style="position: relative;top:-20px;">
+                    <div class="card-title">
+                        <h1>Auditoría</h1>
+                    </div>
+                    <p-table [value]="Datos" styleClass=" mt-2">
+                        <ng-template pTemplate="header">
+                            <tr>
+                                <th style="width:200px; font-weight: bold;">Acción</th>
+                                <th style="width:200px; font-weight: bold;">Usuario</th>
+                                <th style="width:200px; font-weight: bold;">Fecha</th>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-transaction>
+                            <tr>
+                                <td style="width:200px;">Creado</td>
+                                <td style="width:200px">{{ detalle_usua_Creacion }}</td>
+                                <td style="width:200px">{{ detalle_clie_FechaCreacion | date:'yyyy/MM/dd'}}</td>
+                            </tr>
+                            <tr>
+                                <td style="width:200px;">Modificado</td>
+                                <td style="width:200px">{{ detalle_usua_Modificacion }}</td>
+                                <td style="width:200px">{{ detalle_clie_FechaModificacion | date:'yyyy/MM/dd' }}</td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--Fin del detalle-->
+
+<!--Inicio del Modal de confirmacion-->
+<p-dialog [(visible)]="Delete" header="Confirmación" [modal]="true" [style]="{width:'450px'}">
+    <div class="flex align-items-center justify-content-center">
+        <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+        <span>¿Está seguro de eliminar el cliente <span
+                style="font-weight: 600;">{{detalle_clie_Nombre}}</span>?</span>
+    </div>
+    <ng-template pTemplate="footer">
+        <button pButton pRipple icon="pi pi-trash" class=" p-button-primary" label="Eliminar"
+            (click)="EliminarCliente()"></button>
+        <button pButton pRipple icon="pi pi-times" class="p-button-outlined p-button-primary" label="Cancelar"
+            (click)="Delete = false"></button>
+    </ng-template>
+</p-dialog>
+<!--Fin del Modal de confirmacion-->
+
+
+<!--Inicio del Modal para guardar-->
+<p-dialog [(visible)]="modalConfirmacion" header="Confirmación" [modal]="true" [style]="{width:'450px'}">
+    <div class="flex align-items-center justify-content-center">
+        <i class="pi pi-pencil mr-3" style="font-size: 2rem"></i>
+        <span>¿Está seguro que deseas editar el cliente <span style="font-weight: 600;">{{form.value.clie_Nombre + ' ' + form.value.clie_Apellido}}</span>?</span>
+    </div>
+    <ng-template pTemplate="footer">
+        <button pButton pRipple icon="pi pi-pencil" class=" p-button-primary" label="Aceptar"
+            (click)="Guardar()"></button>
+        <button pButton pRipple icon="pi pi-times" class="p-button-outlined p-button-primary" label="Cancelar"
+            (click)="modalConfirmacion = false"></button>
+    </ng-template>
+</p-dialog>
+<!--Fin del Modal para guardar-->

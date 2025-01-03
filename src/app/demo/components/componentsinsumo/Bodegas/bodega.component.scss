@@ -1,0 +1,88 @@
+
+.editable, .actual {
+    display: block;
+    margin-bottom: 10px;
+    word-wrap: break-word;
+  }
+
+  .editable {
+    border: 1px solid #ccc;
+    padding: 5px;
+    border-radius: 3px;
+    cursor: text;
+  }
+
+
+
+  ::ng-deep .custom-splitbutton .p-splitbutton-defaultbutton {
+    display: none; /* Oculta el botón izquierdo */
+}
+
+::ng-deep .custom-splitbutton .p-splitbutton-menubutton {
+    width: 133.73px;
+    height: 29.49px;
+    display: flex;
+    align-items: center;
+    padding: 0.5rem;
+    border-radius: 5px;
+    position: relative;
+}
+
+::ng-deep .custom-splitbutton .p-splitbutton-menubutton .p-button-label {
+    display: flex;
+    align-items: center;
+}
+
+::ng-deep .custom-splitbutton .p-splitbutton-menubutton::before {
+    content: '\e94a   Acciones ';
+    font-family: 'PrimeIcons', sans-serif;
+    font-size: 1rem;
+    display: inline-flex;
+    font-weight: 550;
+    align-items: center;
+    margin-right: 17px;
+}
+
+/* Añadir el icono de engranaje a la izquierda del texto */
+::ng-deep .custom-splitbutton .p-splitbutton-menubutton::before {
+    position: relative;
+}
+
+
+::ng-deep .custom-splitbutton .p-splitbutton-menubutton .p-button-icon-right .p-icon-wrapper{
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    margin-left: 0;
+}
+
+
+
+
+  #search-box {
+    background-color: white;
+    color: black;
+    border-radius: 3px;
+    border: 1px solid transparent;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    box-sizing: border-box;
+    font-family: Roboto;
+    font-size: 16px;
+    font-weight: 300;
+    height: 32px;
+    margin-top: 10px;
+    margin-left: 10px;
+    outline: none;
+    padding: 0 11px 0 13px;
+    text-overflow: ellipsis;
+    width: 300px;
+  }
+
+  #search-box:focus {
+    border-color: #4d90fe;
+  }
+
+  .pac-container {
+    z-index: 1051 !important;
+  }

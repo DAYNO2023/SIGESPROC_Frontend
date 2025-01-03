@@ -1,0 +1,471 @@
+
+<div #gantt_here class="gantt-chart"></div>
+
+<div class="loader-container" *ngIf="loading">
+    <div class="loader">
+        <span></span>
+    </div>
+</div>
+
+<!--etapa  -->
+<p-dialog
+    [(visible)]="mostrarModalEtapa"
+    [modal]="true"
+    [header]="actualizando ? 'Actualizar Etapa' : 'Nueva Etapa'"
+>
+    <!-- <ng-template pTemplate="header">
+    <div class="p-d-flex p-jc-center p-ai-center" style="width: 100%;">
+      <h1 class="text-center" style="margin: 0; font-size: 2em;">Nueva Etapa</h1>
+    </div>
+  </ng-template> -->
+    <div class="flex align-items-center justify-content-center">
+        <form [formGroup]="formEtapa" class="p-fluid p-formgrid col-12">
+            <div class="grid">
+                <div class="col-6">
+                    <div class="field">
+                        <label>Etapa <small
+                            class="p-error ng-dirty ng-invalid"
+                            *ngIf="
+                                submitEtapa &&
+                                formEtapa.get('etapa')?.invalid
+                            "
+                            style="color: red !important"
+                        >*</small></label>
+                        <p-autoComplete
+                            formControlName="etapa"
+                            (completeMethod)="filtrarEtapas($event)"
+                            [suggestions]="etapasFiltradas"
+                            (onSelect)="seleccionarEtapa($event)"
+                            [dropdown]="true"
+                            appendTo="body"
+                            placeholder="Seleccione una etapa"
+                            field="etap_Descripcion"
+                            [ngClass]="{
+                                'ng-invalid ng-dirty':
+                                    submitEtapa &&
+                                    formEtapa.controls['etapa'].invalid
+                            }"
+                        >
+                        </p-autoComplete>
+                        <small
+                            class="p-error ng-dirty ng-invalid"
+                            *ngIf="
+                                submitEtapa && formEtapa.get('etapa')?.invalid
+                            "
+                            style="color: red !important"
+                        >
+                        {{errorEtapa}}
+                        </small>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="field">
+                        <label>Encargado <small
+                            class="p-error ng-dirty ng-invalid"
+                            *ngIf="
+                                submitEtapa &&
+                                formEtapa.get('encargado')?.invalid
+                            "
+                            style="color: red !important"
+                        >*</small></label>
+                        <p-autoComplete
+                            formControlName="encargado"
+                            (completeMethod)="filtrarTodosMenosJefes($event)"
+                            [suggestions]="empleadosFiltrados"
+                            (onSelect)="seleccionarEncargado($event)"
+                            [dropdown]="true"
+                            appendTo="body"
+                            placeholder="Seleccione un encargado"
+                            field="empleado"
+                            [ngClass]="{
+                                'ng-invalid ng-dirty':
+                                    submitEtapa &&
+                                    formEtapa.controls['encargado'].invalid
+                            }"
+                        >
+                        </p-autoComplete>
+                        <small
+                            class="p-error ng-dirty ng-invalid"
+                            *ngIf="
+                                submitEtapa &&
+                                formEtapa.get('encargado')?.invalid
+                            "
+                            style="color: red !important"
+                        >
+                        {{errorEncargado}}
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <ng-template pTemplate="footer">
+        <button
+            pButton
+            pRipple
+            icon="pi pi-save"
+            class="p-button-primary"
+            label="Guardar"
+            (click)="showConfirm('etapa')"
+        ></button>
+        <button
+            pButton
+            pRipple
+            icon="pi pi-times"
+            class="p-button-outlined p-button-primary"
+            label="Cancelar"
+            (click)="cancelarEtapa()"
+        ></button>
+    </ng-template>
+</p-dialog>
+
+<!-- Modal Crear actividades -->
+<p-dialog
+    [(visible)]="mostrarModalActividad"
+    [modal]="true"
+    [style]="{ width: '700px' }"
+    [header]="actualizando ? 'Actualizar Actividad' : 'Nueva Actividad'"
+>
+    <!-- <ng-template pTemplate="header">
+    <div class="p-d-flex p-jc-center p-ai-center" style="width: 100%;">
+      <h1 class="text-center" style="margin: 0; font-size: 2em;">Nueva Etapa</h1>
+    </div>
+  </ng-template> -->
+    <div class="flex align-items-center justify-content-center">
+        <form [formGroup]="formActividad" class="p-fluid p-formgrid col-12">
+            <div class="grid">
+                <div class="col-6">
+                    <div class="field">
+                        <label for="actividad">Actividad <small
+                            class="p-error ng-dirty ng-invalid"
+                            *ngIf="
+                                submitACtividad &&
+                                formActividad.get('actividad')?.invalid
+                            "
+                            style="color: red !important"
+                        >*</small></label>
+                        <p-autoComplete
+                            inputId="actividad"
+                            formControlName="actividad"
+                            field="acti_Descripcion"
+                            (completeMethod)="filtrarActividad($event)"
+                            [suggestions]="actividadesFiltradas"
+                            (onSelect)="onSelectActividad($event)"
+                            [dropdown]="true"
+                            appendTo="body"
+                            [ngClass]="{
+                                'ng-invalid ng-dirty':
+                                    submitACtividad &&
+                                    formActividad.controls['actividad'].invalid
+                            }"
+                        ></p-autoComplete>
+                        <small
+                            class="p-error ng-dirty ng-invalid"
+                            *ngIf="
+                                submitACtividad &&
+                                formActividad.get('actividad')?.invalid
+                            "
+                            style="color: red !important"
+                        >
+                        {{errorActividad}}
+                        </small>
+                    </div>
+                    <div class="field">
+                        <label for="fechaInicio">Fecha Inicio <small
+                            class="p-error ng-dirty ng-invalid"
+                            *ngIf="
+                                submitACtividad &&
+                                formActividad.get('fechaInicio')?.invalid
+                            "
+                            style="color: red !important"
+                        >*</small></label>
+                        <p-calendar
+                            id="fechaInicio"
+                            formControlName="fechaInicio"
+                            [showIcon]="true"
+                            dateFormat="dd/mm/yy"
+                            [showTime]="false"
+                            appendTo="body"
+                            [minDate]="minDate"
+                            [maxDate]="maxDate"
+                            [ngClass]="{
+                                'ng-invalid ng-dirty':
+                                    submitACtividad &&
+                                    formActividad.get('fechaInicio')?.invalid
+                            }"
+                        ></p-calendar>
+                        <small
+                            class="p-error ng-dirty ng-invalid"
+                            *ngIf="
+                                submitACtividad &&
+                                formActividad.get('fechaInicio')?.invalid
+                            "
+                            style="color: red !important"
+                        >
+                            El campo es requerido.
+                        </small>
+                    </div>
+                    <!--    -->
+                    <div class="field">
+                        <label for="cantidad">Cantidad <small
+                            class="p-error ng-dirty ng-invalid"
+                            *ngIf="
+                                submitACtividad &&
+                                formActividad.get('cantidad')?.invalid
+                            "
+                            style="color: red !important"
+                        >*</small></label>
+                        <input
+                            type="number"
+                            pInputText
+                            formControlName="cantidad"
+                            min="1" step="1" pattern="^[1-9]\d*$"
+
+                            [ngClass]="{
+                                'ng-invalid ng-dirty':
+                                    submitACtividad &&
+                                    formActividad.controls['cantidad'].invalid
+                            }"
+                        />
+                        <small
+                            class="p-error ng-dirty ng-invalid"
+                            *ngIf="
+                                submitACtividad &&
+                                formActividad.get('cantidad')?.invalid
+                            "
+                            style="color: red !important"
+                        >
+                        El campo es requerido.
+                        </small>
+                    </div>
+                    <!--  -->
+                </div>
+                <div class="col-6">
+                    <div class="field">
+                        <label for="encargado">Encargado <small
+                            class="p-error ng-dirty ng-invalid"
+                            *ngIf="
+                                submitACtividad &&
+                                formActividad.get('encargado')?.invalid
+                            "
+                            style="color: red !important"
+                        >*</small></label>
+                        <p-autoComplete
+                            inputId="encargado"
+                            formControlName="encargado"
+                            field="empleado"
+                            (completeMethod)="filtrarJefeCuadrilla($event)"
+                            [suggestions]="empleadosFiltrados"
+                            [dropdown]="true"
+                            appendTo="body"
+                            [ngClass]="{
+                                'ng-invalid ng-dirty':
+                                    submitACtividad &&
+                                    formActividad.controls['encargado'].invalid
+                            }"
+                        ></p-autoComplete>
+                        <small
+                            class="p-error ng-dirty ng-invalid"
+                            *ngIf="
+                                submitACtividad &&
+                                formActividad.get('encargado')?.invalid
+                            "
+                            style="color: red !important"
+                        >
+                        {{errorEncargado}}
+                        </small>
+                    </div>
+                    <div class="field">
+                        <label for="fechaFin">Fecha Fin <small
+                            class="p-error ng-dirty ng-invalid"
+                            *ngIf="
+                                submitACtividad &&
+                                formActividad.get('actividad')?.invalid
+                            "
+                            style="color: red !important"
+                        >*</small></label>
+                        <p-calendar
+                            id="fechaFin"
+                            formControlName="fechaFin"
+                            [showIcon]="true"
+                            dateFormat="dd/mm/yy"
+                            [showTime]="false"
+                            appendTo="body"
+                            [minDate]="minDate"
+                            [maxDate]="maxDate"
+                            [ngClass]="{
+                                'ng-invalid ng-dirty':
+                                    (submitACtividad &&
+                                    formActividad.controls['fechaFin'].invalid) || (submitACtividad && this.formActividad.value['fechaFin'] < this.formActividad.value['fechaInicio'])
+                            }"
+                        ></p-calendar>
+                        <small
+                            class="p-error ng-dirty ng-invalid"
+                            *ngIf="
+                                submitACtividad &&
+                                formActividad.get('fechaFin')?.invalid
+                            "
+                            style="color: red !important"
+                        >
+                        El campo es requerido.
+                        </small>
+                        <small
+                            class="p-error ng-dirty ng-invalid"
+                            *ngIf="
+                                submitACtividad &&
+                                this.formActividad.value['fechaFin'] < this.formActividad.value['fechaInicio']
+                            "
+                            style="color: red !important"
+                        >
+                            La fecha fin no puede ser menor
+                        </small>
+                    </div>
+                    <div class="field">
+                        <label for="unidadMedida">Unidad de Medida <small
+                            class="p-error ng-dirty ng-invalid"
+                            *ngIf="
+                                submitACtividad &&
+                                formActividad.get('unidadMedida')?.invalid
+                            "
+                            style="color: red !important"
+                        >*</small></label>
+                        <p-autoComplete
+                            inputId="unidadMedida"
+                            formControlName="unidadMedida"
+                            field="unme_Nombre"
+                            (completeMethod)="filtrarUnidades($event)"
+                            (onSelect)="onSelectUnidad($event)"
+                            [suggestions]="unidadesFiltradas"
+                            [dropdown]="true"
+                            appendTo="body"
+                            [ngClass]="{
+                                'ng-invalid ng-dirty':
+                                    submitACtividad &&
+                                    formActividad.controls['unidadMedida']
+                                        .invalid
+                            }"
+                        ></p-autoComplete>
+                        <small
+                            class="p-error ng-dirty ng-invalid"
+                            *ngIf="
+                                submitACtividad &&
+                                formActividad.get('unidadMedida')?.invalid
+                            "
+                            style="color: red !important"
+                        >
+                        {{errorUnidadMedida}}
+                        </small>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="field">
+                        <label for="observaciones">Observaciones</label>
+                        <textarea
+                            id="observaciones"
+                            pInputTextarea [autoResize]="true"
+                            formControlName="observaciones"
+                            rows="3"
+                            cols="20"
+                            [autoResize]="true"
+                            [maxlength]="300"
+                        ></textarea>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <ng-template pTemplate="footer">
+        <button
+            pButton
+            pRipple
+            icon="pi pi-save"
+            class="p-button-primary"
+            label="Guardar"
+            (click)="showConfirm('actividad')"
+        ></button>
+        <button
+            pButton
+            pRipple
+            icon="pi pi-times"
+            class="p-button-outlined p-button-primary"
+            label="Cancelar"
+            (click)="cancelarActividad()"
+        ></button>
+    </ng-template>
+</p-dialog>
+
+<!-- Modal eliminar -->
+<p-dialog
+    [(visible)]="mostrarModalEliminar"
+    header="Confirmación"
+    [modal]="true"
+    [style]="{ width: '450px' }"
+>
+    <div class="flex align-items-center justify-content-center">
+        <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+        <span *ngIf="tasksSelected.length == 1"
+            >¿Está seguro de eliminar la
+            {{ taskSelected.parent == 0 ? "etapa" : "actividad" }}
+            <span style="font-weight: 600">{{ taskSelected.text }}</span
+            >?</span
+        >
+        <span *ngIf="tasksSelected.length > 1"
+            >¿Está seguro de eliminar {{ tasksSelected.length }}
+            <span style="font-weight: 600">etapas/actividades</span>?</span
+        >
+    </div>
+    <ng-template pTemplate="footer">
+        <button
+            pButton
+            pRipple
+            icon="pi pi-trash"
+            class="p-button-primary"
+            label="Eliminar"
+            (click)="confirmarEliminar()"
+        ></button>
+        <button
+            pButton
+            pRipple
+            icon="pi pi-times"
+            class="p-button-outlined p-button-primary"
+            label="Cancelar"
+            (click)="cancelarEliminar()"
+        ></button>
+    </ng-template>
+</p-dialog>
+
+<!-- Modal confirmacion -->
+<p-dialog
+    [(visible)]="mostrarModalConfirmar"
+    header="Confirmación"
+    [modal]="true"
+    [style]="{ width: '450px' }"
+>
+    <div class="flex align-items-center justify-content-center">
+        <i class="pi pi-pencil mr-3" style="font-size: 2rem"></i>
+        <span
+            >¿Está seguro de actualizar la
+            {{ dblClickTask.parent == 0 ? "etapa" : "actividad" }}
+            <span style="font-weight: 600">{{ dblClickTask.text }}</span
+            >?</span
+        >
+    </div>
+    <ng-template pTemplate="footer">
+        <button
+            pButton
+            pRipple
+            icon="pi pi-pencil"
+            class="p-button-primary"
+            label="Aceptar"
+            (click)="aceptarConfirmar()"
+        ></button>
+        <button
+            pButton
+            pRipple
+            icon="pi pi-times"
+            class="p-button-outlined p-button-primary"
+            label="Cancelar"
+            (click)="cancelarConfirmar()"
+        ></button>
+    </ng-template>
+</p-dialog>

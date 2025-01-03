@@ -1,0 +1,270 @@
+<!-- Titulo Accion -->
+<div class="flex flex-column mb-4">
+    <h2>{{selectedDocumento.length > 0 ? 'Documento' : documento?.docu_Id ? 'Editar Documento' : 'Nuevo Documento' }}</h2>
+</div>
+
+<!-- Formulario Documento -->
+<div *ngIf="!detalleDocumento" class="flex flex-wrap justify-content-center" style="gap: 15px;">
+    <!-- Campos -->
+    <div class="flex flex-column flex-wrap" style="width: 49%;">
+        <div class="field">
+            <label for="clie_NombreCompleto">Tipo de Documento
+                <small class="ng-dirty ng-invalid" *ngIf="submitted && !documento.docu_TipoDescripcion">*</small>
+            </label>
+            <p-autoComplete [(ngModel)]="documento.docu_TipoDescripcion" [suggestions]="filteredTiposDocumento"
+             (completeMethod)="filterTipoDocumento($event)" [dropdown]="true" (input)="allowOnlyAlphanumeric($event)"
+             (keydown)="ValidarTextoNumeros($event)" (ngModelChange)="onSelectTipoDocumento()"
+            [ngClass]="{'ng-invalid ng-dirty' : submitted && (!documento.docu_TipoDescripcion || isOptionTipoDocumentoNotFound) }">
+            </p-autoComplete>
+            <small class="ng-dirty ng-invalid" *ngIf="submitted && !documento.docu_TipoDescripcion">El campo es requerido.</small>
+            <small class="ng-dirty ng-invalid" *ngIf="submitted && isOptionTipoDocumentoNotFound && documento.docu_TipoDescripcion">Opción no encontrada.</small>
+        </div>
+        <div class="field">
+            <label for="geri_Descripcion">Descripción del documento
+                <small class="ng-dirty ng-invalid" *ngIf="submitted && !documento.docu_Descripcion">*</small>
+            </label>
+            <textarea rows="2" cols="10" pInputTextarea [autoResize]="true"
+            id="geri_Descripcion" [(ngModel)]="documento.docu_Descripcion" [maxLength]="100"
+            autofocus [ngClass]="{'ng-invalid ng-dirty' : submitted && !documento.docu_Descripcion}"></textarea>
+            <small class="ng-dirty ng-invalid" *ngIf="submitted && !documento.docu_Descripcion">El campo es requerido.</small>
+       </div>
+       <div class="field">
+            <label for="proy_FechaInicio">Fecha del Documento
+                <small class="ng-dirty ng-invalid" *ngIf="submitted && !documento.docu_Fecha">*</small>
+            </label>
+            <p-calendar  [showIcon]="true" dateFormat="dd/mm/yy" id="geri_Fecha"
+            [(ngModel)]="documento.docu_Fecha" autofocus [minDate]="defaultDatabaseDate"
+            [ngClass]="{'ng-invalid ng-dirty' : submitted && !documento.docu_Fecha}"></p-calendar>
+            <small class="ng-dirty ng-invalid" *ngIf="submitted && !documento.docu_Fecha">El campo es requerido.</small>
+        </div>
+        <div *ngIf="documento.docu_TipoDescripcion == 'Contrato de Empleado'" class="field">
+            <label for="empl_NombreCompleto">Mandante
+                <small class="ng-dirty ng-invalid" *ngIf="submitted && !documento.empl_NombreCompleto">*</small>
+            </label>
+            <p-autoComplete [(ngModel)]="documento.empl_NombreCompleto" [suggestions]="filteredEmpleados"
+            (completeMethod)="filterEmpleados($event)" [dropdown]="true" autofocus (input)="allowOnlyAlphanumeric($event)"
+            (keydown)="ValidarTextoNumeros($event)" (ngModelChange)="onSelectEmpleado()"
+            [ngClass]="{'ng-invalid ng-dirty' : submitted && (!documento.empl_NombreCompleto || isOptionEmpleadoNotFound) && documento.docu_TipoDescripcion == 'Contrato de Empleado'}">
+            </p-autoComplete>
+            <small class="ng-dirty ng-invalid"
+            *ngIf="submitted && !documento.empl_NombreCompleto && documento.docu_TipoDescripcion == 'Contrato de Empleado'">El campo es requerido.</small>
+            <small class="ng-dirty ng-invalid" *ngIf="submitted && isOptionEmpleadoNotFound && documento.empl_NombreCompleto && documento.docu_TipoDescripcion == 'Contrato de Empleado'">Opción no encontrada.</small>
+        </div>
+    </div>
+
+    <!-- Uploader -->
+    <div class="field" style="width: 49%">
+        <p-fileUpload
+            id="p-fileupload"
+            #fileUploader
+            name="demo[]"
+            (onSelect)="onImageSelect($event)"
+            [customUpload]="true"
+            [multiple]="false"
+            chooseLabel="Subir"
+            [showUploadButton]="false"
+            [showCancelButton]="false"
+            [auto]="true"
+            class="w-full"
+            [ngClass]="{'ng-invalid ng-dirty' : submitted && (!filePreview || filePreview === 'Archivo no aceptado.')}">
+            <ng-template pTemplate="content">
+                <div class="flex justify-content-center align-items-center">
+                    <div class="image-upload-container">
+                        <div *ngIf="file || filePreview" >
+                            <div class="h-full flex flex-column justify-content-center align-items-center" >
+                                <img *ngIf="!(fileType === 'application/pdf' || fileType === 'text/plain')" [src]="filePreview"
+                                [alt]="file?.name || documento.docu_Descripcion" class="mb-3"
+                                width="250" [preview]="true" class="image-preview"/>
+                                <iframe *ngIf="(fileType === 'application/pdf' || fileType === 'text/plain')" [src]="filePreview"  style="width: 100%; height: 300px;" class="mb-3" frameborder="0"></iframe>
+                                <div class="flex justify-content-center align-items-center" style="gap: 10px;">
+                                    <span class="text-900">{{ file?.name || documento.docu_Descripcion }}</span>
+                                    <!-- <span class="text-600">{{ file?.size / 1000 || fileSize | number }} KB</span> -->
+                                    <button type="button" (click)="removeFile(file)" class="p-button rounded">
+                                        <i class="pi pi-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div (click)="chooseFile()" style="cursor: pointer;" class="h-full p-7 flex flex-column justify-content-center align-items-center " *ngIf="!file && !filePreview">
+                            <i class="pi pi-upload text-900 text-2xl mb-3"></i>
+                            <span class="font-bold text-900 text-xl mb-3">Subir Documento</span>
+                        </div>
+                    </div>
+                </div>
+            </ng-template>
+        </p-fileUpload>
+        <small class="ng-dirty ng-invalid" *ngIf="submitted && !filePreview">El campo es requerido.</small>
+    </div>
+
+</div>
+
+<!-- Botones -->
+<div *ngIf="!detalleDocumento" class="flex justify-content-end mb-4">
+    <div class="flex flex-row" style="gap: 10px;">
+        <button #guardarButton pButton pRipple type="button" label="Guardar" icon="pi pi-save" (click)="guardarDocumento()"></button>
+        <button (click)="buttonLimpiar()" class="p-button-secondary" pButton pRipple type="button" label="Limpiar" icon="pi pi-trash"></button>
+    </div>
+</div>
+
+<!-- Tabla de listar Documento -->
+<p-table *ngIf="!detalleDocumento" #dt [value]="documentos" [columns]="cols" responsiveLayout="scroll" [rows]="10"
+[globalFilterFields]="['row','docu_Descripcion']" [paginator]="true" [showCurrentPageReport]="true"
+currentPageReportTemplate="Mostrando {first} al {last} de {totalRecords} entradas" selectionMode="multiple" [rowHover]="true" dataKey="id"
+[rowsPerPageOptions]="[10,25,50,100]">
+    <!-- Encabezado de tabla -->
+    <ng-template pTemplate="caption">
+        <div class="flex">
+            <div class="flex flex-column md:flex-row md:justify-content-start md:align-items-center">
+                <span class="block mt-2 md:mt-0 p-input-icon-left">
+                    <i class="pi pi-search"></i>
+                    <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Buscar..."  class="w-full sm:w-auto"/>
+                </span>
+            </div>
+            <div class="registros">
+                <p-dropdown [options]="dt.rowsPerPageOptions" [(ngModel)]="dt.rows" [style]="{ 'margin-right': '5px' }"  [autoWidth]="false"></p-dropdown>
+
+                <span style="color: #FFF0C6; font-weight: 700; margin-top: 7px;"> Registros por página</span>
+            </div>
+        </div>
+    </ng-template>
+
+    <!-- Header de tabla -->
+    <ng-template pTemplate="header">
+        <tr>
+            <th class="text-center">Acciones </th>
+            <th class="text-center" pSortableColumn="row">No. <p-sortIcon field="row"></p-sortIcon></th>
+            <th class="text-center" pSortableColumn="docu_TipoDescripcion">Tipo <p-sortIcon field="docu_TipoDescripcion"></p-sortIcon></th>
+            <th class="text-center" pSortableColumn="docu_Descripcion">Descripción <p-sortIcon field="docu_Descripcion"></p-sortIcon></th>
+            <th class="text-center">Documento</th>
+            <th class="text-center" pSortableColumn="docu_Fecha">Fecha del Documento <p-sortIcon field="docu_Fecha"></p-sortIcon></th>
+            <th class="text-center" pSortableColumn="empl_NombreCompleto">Mandante <p-sortIcon field="empl_NombreCompleto"></p-sortIcon></th>
+        </tr>
+    </ng-template>
+
+    <!-- Body de tabla -->
+    <ng-template pTemplate="body" let-documento>
+        <tr>
+            <!-- Columna de Acciones -->
+            <td class="text-center" style="width:5%; min-width:10rem;">
+                <p-splitButton  appendTo="body" label="Acciones" icon="pi pi-cog" [model]="generarDocumentoActionSplitButton(documento)"
+                styleClass="p-button-secondary custom-splitbutton"></p-splitButton>
+            </td>
+
+            <!-- Contenido -->
+            <td class="text-center" style="width:0.5%; min-width:3rem;"><span class="p-column-title">No.</span>
+                {{documento.row}}
+            </td>
+            <td class="text-center" style="width:14%; min-width:10rem;">
+                <span class="p-column-title">Tipo</span>
+                {{documento.docu_TipoDescripcion}}
+            </td>
+            <td class="text-center" style="width:14%; min-width:10rem;">
+                <span class="p-column-title">Descripcion</span>
+                {{documento.docu_Descripcion}}
+            </td>
+            <td class="text-center" style="width:14%; min-width:10rem;"><span class="p-column-title">Documento</span>
+                <button (click)="openFile(documento.docu_Ruta)" pButton pRipple type="button" class="p-button-link" label="Abrir"
+                    icon="pi pi-directions" iconPos="right"></button>
+            </td>
+            <td class="text-center" style="width:14%; min-width:10rem;">
+                <span class="p-column-title">Fecha del Documento</span>
+                {{documento.docu_Fecha | date:'yyyy-MM-dd'}}
+            </td>
+            <td class="text-center" style="width:14%; min-width:10rem;">
+                <span class="p-column-title">Mandante</span>
+                {{documento?.empl_NombreCompleto || 'No aplica'}}
+            </td>
+        </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+        <tr>
+            <td colspan="100">
+                <ng-container *ngIf="isTableLoading; else noData">
+                    <div class="loader-container">
+                        <div class="loader">
+                            <span></span>
+                        </div>
+                    </div>
+                </ng-container>
+                <ng-template #noData>
+                    {{loadedTableMessage}}
+                </ng-template>
+            </td>
+        </tr>
+    </ng-template>
+</p-table>
+
+ <!-- Ver Detalles -->
+ <div *ngIf="detalleDocumento">
+
+    <!-- Campos de detalle -->
+    <div class="flex flex-column mb-4">
+        <div class="flex flew-row justify-content-between align-items-center flex-wrap">
+            <div *ngFor="let property of getFilteredPropertyArray()" style="width: 30%;">
+                <div class="field rows">
+                  <label style="font-weight: 800;">{{ property.key }}</label>
+                </div>
+                <div class="field rows">
+                  <label>{{ property.value }}</label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabla de auditoria -->
+    <p-table  [value]="selectedDocumento" responsiveLayout="scroll" [rowHover]="true" dataKey="id">
+        <ng-template pTemplate="header">
+            <tr>
+                <th>Acción</th>
+                <th>Usuario</th>
+                <th>Fecha</th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-documento>
+            <tr>
+                <td>Creación</td>
+                <td>{{documento.usuaCreacion}}</td>
+                <td>{{documento.docu_FechaCreacion}}</td>
+            </tr>
+            <tr>
+                <td>Modificación</td>
+                <td>{{documento?.usuaModificacion || 'N/a'}}</td>
+                <td>{{documento?.docu_FechaModificacion || 'N/a'}}</td>
+            </tr>
+        </ng-template>
+    </p-table>
+
+    <!-- Boton regresar -->
+    <div class="flex justify-content-end mt-4">
+        <button pButton pRipple label="Regresar" icon="pi pi-fw pi-arrow-left" (click)="cerrarDetalle()"></button>
+    </div>
+</div>
+
+<!-- Modal Eliminar -->
+<p-dialog [(visible)]="deleteDocumentoDialog" header="Confirmación" [modal]="true" [style]="{width:'450px'}">
+    <!-- Cuerpo Modal -->
+    <div class="flex align-items-center justify-content-center">
+        <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+        <span *ngIf="proyecto">¿Está seguro de eliminar <b>{{documento.docu_Descripcion}}</b>?</span>
+    </div>
+
+    <!-- Botones -->
+    <ng-template pTemplate="footer">
+        <button pButton pRipple icon="pi pi-trash" class="p-button-primary" label="Eliminar" (click)="confirmarEliminarDocumento()"></button>
+        <button pButton pRipple icon="pi pi-times" class="p-button-outlined p-button-primary" label="Cancelar" (click)="deleteDocumentoDialog = false"></button>
+    </ng-template>
+</p-dialog>
+<!-- Modal Confirmar Editar-->
+<p-dialog [(visible)]="editarDocumentoDialog" header="Confirmación" [modal]="true" [style]="{width:'450px'}">
+    <!-- Cuerpo Modal -->
+        <div class="flex align-items-center justify-content-center">
+            <i class="pi pi-pencil mr-3" style="font-size: 2rem"></i>
+            <span *ngIf="documento">¿Está seguro que desea editar el documento <b>{{documento.docu_Descripcion}}</b> del proyecto <b>{{proyecto.proy_Nombre}}</b>?</span>
+        </div>
+
+    <!-- Botones -->
+    <ng-template pTemplate="footer">
+        <button pButton pRipple icon="pi pi-pencil" class="p-button-primary" label="Aceptar" (click)="guardarDocumento()"></button>
+        <button pButton pRipple icon="pi pi-times" class="p-button-outlined p-button-primary" label="No" (click)="editarDocumentoDialog = false"></button>
+    </ng-template>
+</p-dialog>

@@ -1,0 +1,918 @@
+<p-toast></p-toast>
+<div class="loader-container" *ngIf="prestamoService.cargando">
+    <div class="loader">
+        <span></span>
+    </div>
+</div>
+<div class="grid" *ngIf="prestamoService.pantallas.get('Index')">
+    <div class="col-12">
+        <div class="card">
+            <h1 class="text-center mt-2" *ngIf="!isRegresarVisible">
+                Préstamos
+            </h1>
+            <div
+                class="flex justify-content-start align-items-center"
+                style="height: 42px"
+                *ngIf="isRegresarVisible"
+            >
+                <a
+                    (click)="cancelarImpresion()"
+                    pButton
+                    style="
+                        display: inline-flex;
+                        justify-self: start;
+                        max-width: 120px;
+                        min-width: 120px;
+                    "
+                    icon="pi pi-arrow-left"
+                    label="Regresar"
+                    class="mr-2 p-button-link"
+                ></a>
+                <h1
+                    class="text-center mt-4"
+                    style="flex-grow: 1; padding-right: 10%"
+                >
+                    Historial del préstamo de
+                    {{ prestamoService.prestamo.empleado }}
+                </h1>
+            </div>
+            <hr />
+            <div class="grid mt-2" *ngIf="!isRegresarVisible">
+                <div class="col-12">
+                    <button
+                        (click)="prestamoService.mostrarForm(false)"
+                        pButton
+                        icon="pi pi-plus"
+                        label="Nuevo"
+                        class="mr-2"
+                    ></button>
+                </div>
+            </div>
+            <p-table
+                *ngIf="!isRegresarVisible"
+                #tabla
+                [value]="prestamoService.prestamos"
+                styleClass="bac mt-2"
+                [tableStyle]="{ background: '#000' }"
+                responsiveLayout="scroll"
+                [rows]="10"
+                [globalFilterFields]="[
+                    'codigo',
+                    'empleado',
+                    'empl_DNI',
+                    'pres_Descripcion',
+                    'estadoPrestamo',
+                    'pres_Monto',
+                    'tasaInteres',
+                    'total',
+                    'cuota',
+                    'interes',
+                    'frec_Descripcion',
+                    'pres_Pagos',
+                    'pagosRestantes',
+                    'fechaPrimerPago',
+                    'fechaUltimoPago'
+                ]"
+                [rows]="10"
+                [paginator]="true"
+                dataKey="codigo"
+                [expandedRowKeys]="expandedRows"
+                [showCurrentPageReport]="true"
+                currentPageReportTemplate="Mostrando {first} al {last} de {totalRecords} entradas"
+                [rowHover]="true"
+                [rowsPerPageOptions]="[10, 25, 50, 100]"
+            >
+                <ng-template pTemplate="caption">
+                    <div
+                        class="flex flex-column md:flex-row md:justify-content-between md:align-items-center"
+                    >
+                        <span class="block mt-2 md:mt-0 p-input-icon-left">
+                            <i style="color: white" class="pi pi-search"></i>
+                            <input
+                                style="color: white"
+                                pInputText
+                                type="text"
+                                (input)="filtrar(tabla, $event)"
+                                placeholder="Buscar..."
+                                class="w-full sm:w-auto"
+                            />
+                        </span>
+                        <div class="registros">
+                            <p-dropdown
+                                [options]="tabla.rowsPerPageOptions"
+                                [(ngModel)]="tabla.rows"
+                                [style]="{ 'margin-right': '5px' }"
+                                [autoWidth]="false"
+                            >
+                            </p-dropdown>
+                            <span
+                                style="
+                                    color: #fff0c6;
+                                    font-weight: 700;
+                                    margin-top: 7px;
+                                "
+                            >
+                                Registros por página
+                            </span>
+                        </div>
+                    </div>
+                </ng-template>
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th style="width: 3rem; max-width: 3rem"></th>
+                        <th
+                            style="color: white; max-width: 500px"
+                            class="text-center"
+                        >
+                            Acciones
+                        </th>
+                        <th
+                            style="color: white"
+                            class="text-center"
+                            [pSortableColumn]="'codigo'"
+                            class="text-center"
+                        >
+                            <div
+                                class="flex justify-content-center align-items-center"
+                            >
+                                No.
+                                <p-sortIcon [field]="'codigo'"></p-sortIcon>
+                            </div>
+                        </th>
+                        <th
+                            style="color: white; min-width: 145px"
+                            class="text-center"
+                            [pSortableColumn]="'estadoPrestamo'"
+                        >
+                            <div
+                                class="flex justify-content-center align-items-center"
+                            >
+                                Estado Préstamo
+                                <p-sortIcon
+                                    [field]="'estadoPrestamo'"
+                                ></p-sortIcon>
+                            </div>
+                        </th>
+                        <th
+                            style="color: white"
+                            class="text-center"
+                            *ngFor="let columna of columnas"
+                            [pSortableColumn]="columna.prop"
+                        >
+                            {{ columna.titulo }}
+                            <p-sortIcon [field]="columna.prop"></p-sortIcon>
+                        </th>
+                    </tr>
+                </ng-template>
+                <<<<<<< Updated upstream =======
+                <ng-template pTemplate="emptymessage">
+                    <tr>
+                        <td colspan="6" class="text-center">
+                            <!-- <div class="loader-container" *ngIf="prestamoService.cargando">
+                            <div class="loader">
+                                <span></span>
+                            </div>
+                        </div> -->
+                        </td>
+                    </tr>
+                </ng-template>
+                >>>>>>> Stashed changes
+                <ng-template
+                    pTemplate="body"
+                    let-prestamo
+                    let-expanded="expanded"
+                >
+                    <tr (click)="seleccionarPrestamo(prestamo)">
+                        <td>
+                            <button
+                                type="button"
+                                pButton
+                                pRipple
+                                [pRowToggler]="prestamo"
+                                class="p-button-text p-button-rounded p-button-plain"
+                                [icon]="
+                                    expanded
+                                        ? 'pi pi-chevron-down'
+                                        : 'pi pi-chevron-right'
+                                "
+                            ></button>
+                        </td>
+                        <td class="text-center">
+                            <p-splitButton
+                                label="Acciones"
+                                icon="pi pi-cog"
+                                [model]="items"
+                                appendTo="body"
+                                styleClass="p-button-secondary"
+                                class="custom-splitbutton"
+                            ></p-splitButton>
+                        </td>
+                        <td class="text-center">
+                            <span class="p-column-title">codigo</span>
+                            {{ prestamo.codigo }}
+                        </td>
+                        <td>
+                            <span
+                                style="
+                                    display: flex;
+                                    justify-content: center;
+                                    align-items: center;
+                                "
+                                class="text-span"
+                                [ngClass]="
+                                    prestamo.estadoPrestamo === 'Cancelado'
+                                        ? 'estado-activo'
+                                        : 'estado-inactivo'
+                                "
+                                >{{ prestamo.estadoPrestamo }}</span
+                            >
+                        </td>
+                        <ng-container *ngFor="let columna of columnas">
+                            <td
+                                *ngIf="
+                                    columna.prop !== 'pres_Monto' &&
+                                    columna.prop !== 'total' &&
+                                    columna.prop !== 'cuota' &&
+                                    columna.prop !== 'interes' &&
+                                    columna.prop !== 'pres_Abonado'
+                                "
+                                style="width: 14%; min-width: 10rem"
+                                class="text-center"
+                            >
+                                <span class="p-column-title">{{
+                                    columna.titulo
+                                }}</span>
+                                {{ prestamo[columna.prop] }}
+                            </td>
+                            <td
+                                *ngIf="
+                                    columna.prop === 'pres_Monto' ||
+                                    columna.prop === 'total' ||
+                                    columna.prop === 'cuota' ||
+                                    columna.prop === 'interes' ||
+                                    columna.prop === 'pres_Abonado'
+                                "
+                                style="
+                                    width: 14%;
+                                    min-width: 10rem;
+                                    text-align: right;
+                                "
+                            >
+                                <span class="p-column-title">{{
+                                    columna.titulo
+                                }}</span>
+                                {{
+                                    prestamo[columna.prop]
+                                        | currency
+                                            : globalMoneda.getState()
+                                                  .mone_Abreviatura + " "
+                                }}
+                            </td>
+                        </ng-container>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="rowexpansion" let-prestamo>
+                    <tr>
+                        <td colspan="7">
+                            <div class="p-3">
+                                <p-table
+                                    [tableStyle]="{ background: '#000' }"
+                                    [value]="prestamo.abonos"
+                                    dataKey="abpr_Id"
+                                    responsiveLayout="scroll"
+                                >
+                                    <ng-template pTemplate="header">
+                                        <tr>
+                                            <th
+                                                style="color: white"
+                                                class="text-center"
+                                            >
+                                                Editar
+                                            </th>
+                                            <th
+                                                style="color: white"
+                                                class="text-center"
+                                                [pSortableColumn]="'codigo'"
+                                            >
+                                                No.
+                                                <p-sortIcon
+                                                    [field]="'codigo'"
+                                                ></p-sortIcon>
+                                            </th>
+                                            <th
+                                                style="color: white"
+                                                class="text-center"
+                                                [pSortableColumn]="
+                                                    'abpr_DeducidoEnPlanilla'
+                                                "
+                                            >
+                                                Método de Pago
+                                                <p-sortIcon
+                                                    [field]="
+                                                        'abpr_DeducidoEnPlanilla'
+                                                    "
+                                                ></p-sortIcon>
+                                            </th>
+                                            <th
+                                                style="color: white"
+                                                class="text-center"
+                                                *ngFor="
+                                                    let columna of columnasAbonos
+                                                "
+                                                [pSortableColumn]="columna.prop"
+                                            >
+                                                {{ columna.titulo }}
+                                                <p-sortIcon
+                                                    [field]="columna.prop"
+                                                ></p-sortIcon>
+                                            </th>
+                                        </tr>
+                                    </ng-template>
+                                    <ng-template pTemplate="body" let-abono>
+                                        <tr
+                                            (click)="
+                                                seleccionarPrestamo(prestamo);
+                                                seleccionarAbono(abono)
+                                            "
+                                        >
+                                            <td
+                                                style="color: white"
+                                                class="text-center"
+                                            >
+                                                <span
+                                                    *ngIf="
+                                                        !abono[
+                                                            'abpr_DeducidoEnPlanilla'
+                                                        ]
+                                                    "
+                                                >
+                                                    <p-button
+                                                        *ngIf="
+                                                            abono['codigo'] ===
+                                                            1
+                                                        "
+                                                        icon="pi pi-pencil"
+                                                        (click)="
+                                                            mostrarModalAbonar(
+                                                                abono
+                                                            )
+                                                        "
+                                                    />
+                                                </span>
+                                            </td>
+                                            <td
+                                                style="color: white"
+                                                class="text-center"
+                                            >
+                                                {{ abono["codigo"] }}
+                                            </td>
+                                            <td class="text-center">
+                                                <span
+                                                    style="
+                                                        display: flex;
+                                                        justify-content: center;
+                                                        align-items: center;
+                                                        width: 100%;
+                                                    "
+                                                    class="text-span"
+                                                    [ngClass]="
+                                                        abono.abpr_DeducidoEnPlanilla
+                                                            ? 'estado-pendiente'
+                                                            : 'otro-estado'
+                                                    "
+                                                    >{{
+                                                        abono.abpr_DeducidoEnPlanilla
+                                                            ? "Planilla"
+                                                            : "Abono"
+                                                    }}</span
+                                                >
+                                            </td>
+                                            <ng-container
+                                                *ngFor="
+                                                    let columna of columnasAbonos
+                                                "
+                                            >
+                                                <td
+                                                    *ngIf="
+                                                        columna.prop !==
+                                                        'abpr_MontoAbonado'
+                                                    "
+                                                    style="color: white"
+                                                    class="text-center"
+                                                >
+                                                    {{ abono[columna.prop] }}
+                                                </td>
+                                                <td
+                                                    *ngIf="
+                                                        columna.prop ===
+                                                        'abpr_MontoAbonado'
+                                                    "
+                                                    style="color: white"
+                                                    class="text-center"
+                                                >
+                                                    {{
+                                                        abono[columna.prop]
+                                                            | currency
+                                                                : globalMoneda.getState()
+                                                                      .mone_Abreviatura +
+                                                                      " "
+                                                    }}
+                                                </td>
+                                            </ng-container>
+                                        </tr>
+                                    </ng-template>
+                                    <ng-template pTemplate="emptymessage">
+                                        <tr>
+                                            <td
+                                                colspan="6"
+                                                style="color: white"
+                                                class="text-center"
+                                            >
+                                                No hay abonos en este préstamo.
+                                            </td>
+                                        </tr>
+                                    </ng-template>
+                                </p-table>
+                            </div>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+
+            <div
+                id="pdfContainer"
+                [ngClass]="{ 'pdf-container-active': isPdfVisible }"
+            ></div>
+        </div>
+    </div>
+</div>
+
+<div
+    class="flex justify-content-center"
+    *ngIf="prestamoService.mostrarPantallaForm && !isRegresarVisible"
+>
+    <app-form-prestamo style="display: contents"></app-form-prestamo>
+</div>
+
+<div
+    class="grid"
+    *ngIf="prestamoService.pantallas.get('Detalle') && !isRegresarVisible"
+>
+    <div class="col-12">
+        <div class="card">
+            <div
+                class="flex justify-content-start align-items-center"
+                style="height: 42px"
+            >
+                <a
+                    (click)="prestamoService.mostrarPantalla('Index')"
+                    pButton
+                    style="
+                        display: inline-flex;
+                        justify-self: start;
+                        max-width: 120px;
+                    "
+                    icon="pi pi-arrow-left"
+                    label="Regresar"
+                    class="mr-2 p-button-link"
+                ></a>
+                <h1
+                    class="text-center mt-4"
+                    style="flex-grow: 1; padding-right: 10%"
+                >
+                    Detalle Préstamo
+                </h1>
+            </div>
+            <hr />
+            <div class="p-fluid p-formgrid grid">
+                <div
+                    class="field col-12 md:col-4"
+                    style="position: relative; height: 10%"
+                >
+                    <div class="field rows">
+                        <label for="codigo" style="font-weight: 800">No:</label>
+                    </div>
+                    <div class="field rows">
+                        <label for="codigo">{{
+                            prestamoService.prestamo.codigo
+                        }}</label>
+                    </div>
+                </div>
+                <div
+                    class="field col-12 md:col-4"
+                    style="position: relative; height: 10%"
+                >
+                    <div class="field rows">
+                        <label for="estado" style="font-weight: 800"
+                            >Estado del préstamo:</label
+                        >
+                    </div>
+                    <div class="field rows">
+                        <label for="estado">{{
+                            prestamoService.prestamo.estadoPrestamo
+                        }}</label>
+                    </div>
+                </div>
+                <ng-container *ngFor="let columna of columnas">
+                    <div
+                        class="field col-12 md:col-4"
+                        style="position: relative; height: 10%"
+                        *ngIf="
+                            columna.prop === 'pres_Monto' ||
+                            columna.prop === 'total' ||
+                            columna.prop === 'cuota' ||
+                            columna.prop === 'interes' ||
+                            columna.prop === 'pres_Abonado'
+                        "
+                    >
+                        <div class="field rows">
+                            <label
+                                for="{{ columna.titulo }}"
+                                style="font-weight: 800"
+                                >{{ columna.titulo }}:</label
+                            >
+                        </div>
+                        <div class="field rows">
+                            <label
+                                for="{{ columna.titulo }}"
+                                style="text-align: right"
+                                >{{
+                                    prestamoService.prestamo[columna.prop]
+                                        | currency
+                                            : globalMoneda.getState()
+                                                  .mone_Abreviatura + " "
+                                }}</label
+                            >
+                        </div>
+                    </div>
+                    <div
+                        class="field col-12 md:col-4"
+                        style="position: relative; height: 10%"
+                        *ngIf="
+                            columna.prop !== 'pres_Monto' &&
+                            columna.prop !== 'total' &&
+                            columna.prop !== 'cuota' &&
+                            columna.prop !== 'interes' &&
+                            columna.prop !== 'pres_Abonado'
+                        "
+                    >
+                        <div class="field rows">
+                            <label
+                                for="{{ columna.titulo }}"
+                                style="font-weight: 800"
+                                >{{ columna.titulo }}:</label
+                            >
+                        </div>
+                        <div class="field rows">
+                            <label for="{{ columna.titulo }}">{{
+                                prestamoService.prestamo[columna.prop]
+                            }}</label>
+                        </div>
+                    </div>
+                </ng-container>
+            </div>
+            <div
+                style="position: relative; top: -20px"
+                *ngIf="prestamoService.prestamo.abonos.length > 0"
+            >
+                <div class="card-title mt-6">
+                    <h1>Abonos</h1>
+                </div>
+                <p-table
+                    [value]="prestamoService.prestamo.abonos"
+                    styleClass=" mt-2"
+                    [tableStyle]="{ background: '#000' }"
+                >
+                    <ng-template pTemplate="header">
+                        <tr>
+                            <th
+                                style="
+                                    width: 200px;
+                                    font-weight: 800;
+                                    color: white;
+                                "
+                            >
+                                No.
+                            </th>
+                            <th
+                                style="
+                                    width: 200px;
+                                    font-weight: 800;
+                                    color: white;
+                                "
+                                *ngFor="let columna of columnasAbonos"
+                            >
+                                {{ columna.titulo }}
+                            </th>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-abono>
+                        <tr>
+                            <td style="color: white">
+                                {{ abono["codigo"] }}
+                            </td>
+                            <ng-container
+                                *ngFor="let columna of columnasAbonos"
+                            >
+                                <td
+                                    *ngIf="columna.prop !== 'abpr_MontoAbonado'"
+                                    style="width: 200px"
+                                >
+                                    {{ abono[columna.prop] }}
+                                </td>
+                                <td
+                                    *ngIf="columna.prop === 'abpr_MontoAbonado'"
+                                    style="width: 200px"
+                                >
+                                    {{
+                                        abono[columna.prop]
+                                            | currency
+                                                : globalMoneda.getState()
+                                                      .mone_Abreviatura + " "
+                                    }}
+                                </td>
+                            </ng-container>
+                        </tr>
+                    </ng-template>
+                </p-table>
+            </div>
+            <div style="position: relative; top: -20px">
+                <div class="card-title mt-6">
+                    <h1>Auditoría</h1>
+                </div>
+                <p-table
+                    [value]="tablaVacia"
+                    styleClass=" mt-2"
+                    [tableStyle]="{ background: '#000' }"
+                >
+                    <ng-template pTemplate="header">
+                        <tr>
+                            <th
+                                style="
+                                    width: 200px;
+                                    font-weight: 800;
+                                    color: white;
+                                "
+                            >
+                                Acción
+                            </th>
+                            <th
+                                style="
+                                    width: 200px;
+                                    font-weight: 800;
+                                    color: white;
+                                "
+                            >
+                                Usuario
+                            </th>
+                            <th
+                                style="
+                                    width: 200px;
+                                    font-weight: 800;
+                                    color: white;
+                                "
+                            >
+                                Fecha
+                            </th>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-transaction>
+                        <tr>
+                            <td style="width: 200px">Creado</td>
+                            <td style="width: 200px">
+                                {{ prestamoService.prestamo.usuaCreacion }}
+                            </td>
+                            <td style="width: 200px">
+                                {{ prestamoService.prestamo.fechaCreacion }}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="width: 200px">Modificado</td>
+                            <td style="width: 200px">
+                                {{ prestamoService.prestamo.usuaModificacion }}
+                            </td>
+                            <td style="width: 200px">
+                                {{ prestamoService.prestamo.fechaModificacion }}
+                            </td>
+                        </tr>
+                    </ng-template>
+                </p-table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<p-dialog
+    [(visible)]="mostrarModalEliminar"
+    header="Confirmación"
+    [modal]="true"
+    [style]="{ width: '450px' }"
+>
+    <div class="flex align-items-center justify-content-center">
+        <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+        <span *ngIf="mostrarModalEliminar"
+            >¿Está seguro de eliminar el préstamo
+            <span style="font-weight: 600"
+                >{{ prestamoService.prestamo.pres_Descripcion }} con un monto de
+                {{
+                    prestamoService.prestamo.pres_Monto
+                        | currency
+                            : globalMoneda.getState().mone_Abreviatura + " "
+                }}</span
+            >?</span
+        >
+    </div>
+    <ng-template pTemplate="footer">
+        <button
+            pButton
+            pRipple
+            icon="pi pi-trash"
+            class="p-button-primary"
+            label="Eliminar"
+            (click)="eliminar()"
+        ></button>
+        <button
+            pButton
+            pRipple
+            icon="pi pi-times"
+            class="p-button-outlined p-button-primary"
+            label="Cancelar"
+            (click)="mostrarModalEliminar = false"
+        ></button>
+    </ng-template>
+</p-dialog>
+
+<p-dialog
+    [(visible)]="mostrarModalAbono"
+    [header]="abono.abpr_Id ? 'Editar Abono' : 'Nuevo Abono'"
+    [modal]="true"
+    [style]="{ width: '450px' }"
+>
+    <div class="formgrid grid">
+        <div class="field col">
+            <label for="inputMontoAbono"
+                >Monto
+                <span
+                    style="color: red"
+                    *ngIf="submitted && !abono.abpr_MontoAbonado"
+                    >*</span
+                ></label
+            >
+            <p-inputNumber
+                id="inputMontoAbono"
+                [(ngModel)]="abono.abpr_MontoAbonado"
+                mode="decimal"
+                [maxlength]="
+                    globalMoneda.getState().mone_Abreviatura.length + 13
+                "
+                [max]="99999999"
+                [minFractionDigits]="2"
+                [maxFractionDigits]="2"
+                (input)="handleInput($event, 'monto')"
+                (paste)="validarPegar($event, 'monto')"
+                [prefix]="globalMoneda.getState().mone_Abreviatura + ' '"
+                [ngClass]="{
+                    'ng-invalid ng-dirty':
+                        (submitted && !this.abono.abpr_MontoAbonado) ||
+                        (submitted &&
+                            this.abono.abpr_MontoAbonado &&
+                            !validarMontoAbonado())
+                }"
+            />
+            <small
+                style="color: red"
+                class="ng-dirty ng-invalid"
+                *ngIf="submitted && !this.abono.abpr_MontoAbonado"
+                >El campo es requerido.</small
+            >
+            <small
+                style="color: red"
+                class="ng-dirty ng-invalid"
+                *ngIf="
+                    submitted &&
+                    this.abono.abpr_MontoAbonado &&
+                    !validarMontoAbonado() &&
+                    this.montoMaximoAabonar
+                "
+                >El monto máximo a abonar es
+                {{
+                    this.montoMaximoAabonar
+                        | currency
+                            : globalMoneda.getState().mone_Abreviatura + " "
+                }}.</small
+            >
+            <small
+                style="color: red"
+                class="ng-dirty ng-invalid"
+                *ngIf="
+                    submitted &&
+                    this.abono.abpr_MontoAbonado &&
+                    !validarMontoAbonado() &&
+                    !this.montoMaximoAabonar
+                "
+                >El campo es inválido.</small
+            >
+        </div>
+        <div class="field col">
+            <label for="fecha"
+                >Fecha del Abono
+                <span style="color: red" *ngIf="submitted && !abono.abpr_Fecha"
+                    >*</span
+                ></label
+            >
+            <p-calendar
+                [showIcon]="true"
+                inputId="icon"
+                [(ngModel)]="abono.abpr_Fecha"
+                autofocus
+                [minDate]="minDateAbono"
+                [maxDate]="maxDateAbono"
+                appendTo="body"
+                [ngClass]="{
+                    'ng-invalid ng-dirty': submitted && !abono.abpr_Fecha
+                }"
+            ></p-calendar>
+            <small
+                style="color: red"
+                class="ng-dirty ng-invalid"
+                *ngIf="submitted && !this.abono.abpr_Fecha"
+                >El campo es requerido.</small
+            >
+        </div>
+    </div>
+    <ng-template pTemplate="footer">
+        <button
+            pButton
+            pRipple
+            icon="pi pi-save"
+            class="p-button-primary"
+            label="Guardar"
+            (click)="guardarAbono()"
+        ></button>
+        <button
+            pButton
+            pRipple
+            icon="pi pi-times"
+            class="p-button-outlined p-button-primary"
+            label="Cancelar"
+            (click)="mostrarModalAbono = false"
+        ></button>
+    </ng-template>
+</p-dialog>
+
+<p-dialog
+    [(visible)]="mostrarModalConfirmacion"
+    header="Confirmación"
+    [modal]="true"
+    [style]="{ width: '450px' }"
+>
+    <div class="flex align-items-center justify-content-center">
+        <i
+            [class]="
+                abono.abpr_Id
+                    ? 'pi pi-pencil mr-3'
+                    : 'pi pi-exclamation-triangle mr-3'
+            "
+            style="font-size: 2rem"
+        ></i>
+        <span *ngIf="mostrarModalConfirmacion"
+            >¿Está seguro de
+            {{
+                abono.abpr_Id
+                    ? "editar el abono del préstamo"
+                    : "abonar " +
+                      (abono.abpr_MontoAbonado
+                          | currency
+                              : globalMoneda.getState().mone_Abreviatura +
+                                    " ") +
+                      " al préstamo"
+            }}
+            <span style="font-weight: 600"
+                >{{ prestamoService.prestamo.pres_Descripcion }} con un monto de
+                {{
+                    prestamoService.prestamo.pres_Monto
+                        | currency
+                            : globalMoneda.getState().mone_Abreviatura + " "
+                }}</span
+            >?</span
+        >
+    </div>
+    <ng-template pTemplate="footer">
+        <button
+            pButton
+            pRipple
+            [icon]="abono.abpr_Id ? 'pi pi-pencil' : 'pi pi-save'"
+            class="p-button-primary"
+            [label]="abono.abpr_Id ? 'Aceptar' : 'Guardar'"
+            (click)="insertarEditarAbono()"
+        ></button>
+        <button
+            pButton
+            pRipple
+            icon="pi pi-times"
+            class="p-button-outlined p-button-primary"
+            label="Cancelar"
+            (click)="mostrarModalConfirmacion = false; mostrarModalAbono = true"
+        ></button>
+    </ng-template>
+</p-dialog>

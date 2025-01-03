@@ -1,0 +1,265 @@
+<p-toast></p-toast>
+
+<style>
+.spinner-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+
+  .hidden-spinner {
+    display: none
+    }
+</style>
+<div class="loader-container" *ngIf="loading">
+    <div class="loader">
+        <span></span>
+    </div>
+  </div>
+<!-- Listado de la tabla -->
+<div class="grid" *ngIf="Index" >
+    <div class="col-12">
+        <div class="card">
+            <h1 class="text-center mt-2">Actividades</h1>
+            <hr>
+            <div class="grid mt-2">
+                <div class="col-12">
+                    <button (click)="CrearActividad()" pButton icon="pi pi-plus" label="Nuevo" class="mr-2"></button>
+                </div>
+            </div>
+
+
+
+            <p-table *ngIf="!isTableLoading" #dt [value]="actividades" styleClass="mt-2" responsiveLayout="scroll" [rows]="10"
+            [globalFilterFields]="['codigo', 'acti_Descripcion']" [paginator]="true" [showCurrentPageReport]="true"
+            currentPageReportTemplate="Mostrando {first} al {last} de {totalRecords} entradas" [rowHover]="true" [tableStyle]="{ background: '#000' }" [rowsPerPageOptions]="[10,25,50,100]">
+       <ng-template pTemplate="caption">
+           <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+               <span class="block mt-2 md:mt-0 p-input-icon-left">
+                   <i class="pi pi-search" style="color: white;"></i>
+                   <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Buscar..."
+                          class="w-full sm:w-auto" style="color: white;" />
+               </span>
+               <div class="registros">
+                <p-dropdown
+                [options]="dt.rowsPerPageOptions"
+                [(ngModel)]="dt.rows"
+                [style]="{ 'margin-right': '5px' }"
+                [autoWidth]="false"
+                />
+                <span style="color: #fff0c6; font-weight: 700; margin-top: 7px;">Registros por página</span>
+              </div>
+           </div>
+       </ng-template>
+       <ng-template pTemplate="header">
+           <tr>
+               <th class="text-center" style="color: white;">Acciones</th>
+
+               <th pSortableColumn="codigo" class="text-center" style="color: white;">No. <p-sortIcon field="acti_Id"></p-sortIcon></th>
+               <th pSortableColumn="acti_Descripcion" class="text-center" style="color: white;">Descripción <p-sortIcon field="acti_Descripcion"></p-sortIcon></th>
+           </tr>
+       </ng-template>
+
+       <!-- <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="6" class="text-center">
+            <div class="loader-container" *ngIf="loading">
+              <div class="loader"></div>
+            </div>
+          </td>
+        </tr>
+      </ng-template> -->
+
+       <ng-template pTemplate="body" let-actividad let-i="rowIndex">
+           <tr >
+               <td class="text-center">
+                <p-splitButton
+                label="Acciones"
+               class="custom-splitbutton"
+                [model]="items"
+                (click)="onRowSelect(actividad)"
+                styleClass="p-button-secondary"
+                appendTo="body">
+            </p-splitButton>
+               </td>
+               <td class="text-center">
+                   <span class="p-column-title">#</span>
+                   {{actividad.codigo}}
+               </td>
+
+               <td class="text-center" >
+                   <span class="p-column-title">Descripción</span>
+                   {{actividad.acti_Descripcion}}
+               </td>
+           </tr>
+       </ng-template>
+   </p-table>
+
+        </div>
+    </div>
+</div>
+
+<!-- collapse crear-editar  -->
+<div class="grid" *ngIf="Create">
+    <div class="col-12">
+        <div class="card">
+            <!-- <h1 class="text-center mt-2">Actividades</h1>
+            <hr>
+            <div class="mb-4" class="flex flex-row justify-content-between align-items-center mb4">
+                <div class="flex flex-column">
+                  <h2>{{ titulo }}</h2>
+                </div>
+                <div class="flex">
+                  <button (click)="CerrarActividad()" class="p-button-link" style="margin-left: 2%;"  pButton  type="button" label="Regresar" icon="pi pi-arrow-left"></button>
+
+                </div>
+              </div> -->
+
+              <div class="flex" style="width: 100%; margin: 0 auto; display: flex; align-items: center; height: 42px; position: relative;">
+                <!-- Back Button Section -->
+                <div style="width: 20%; display: flex; align-items: center; height: 12.5%;">
+                    <button (click)="CerrarActividad()" class="p-button-link" pButton pRipple type="button" label="Regresar" icon="pi pi-arrow-left" style="box-shadow: none !important;"></button>
+                </div>
+
+                <!-- Centered Title Section -->
+                <div style="flex-grow: 1; display: flex; justify-content: center; align-items: center;">
+                    <h1 class="text-center mt-4">{{ titulo }} Actividad</h1>
+                </div>
+
+                <!-- Optional Empty Div for Right-Side Balancing -->
+                <div style="width: 20%;"></div>
+            </div>
+
+            <hr>
+            <div class="mt-2 grid">
+                <form [formGroup]="form" class="grid col-12 p-fluid p-formgrid">
+                    <div class="field col-12 md:col-6">
+                        <label>Descripción
+                            <small
+                                style="display: inline-block; color: red !important;"
+                                class="ng-dirty ng-invalid"
+                                *ngIf="submitted && form.controls['acti_Descripcion'].invalid"
+                            >
+                                *
+                            </small> </label>
+                        <input class="col-6"
+                        (keydown)="ValidarTexto($event)"
+                        (input)="handleInput($event)"
+                               [ngClass]="{'ng-invalid ng-dirty': submitted && form.controls['acti_Descripcion'].invalid}"
+                               type="text" class="p-inputtext" formControlName="acti_Descripcion" maxlength="50">
+                        <small class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['acti_Descripcion'].invalid"
+                               style="color: red !important;">El campo es requerido.</small>
+                      </div>
+                </form>
+            </div>
+            <div style="display: flex; justify-content: end;">
+                <button (click)="Guardar()" pButton pRipple type="button" label="Guardar" icon="pi pi-save" class="btn btn-guardar"></button>
+                <button (click)="CerrarActividad()" pButton pRipple type="button" label="Cancelar" icon="pi pi-times" class="p-button-secondary" style="margin-left: 2%;"></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- mostrar detalles -->
+<div class="grid" *ngIf="Detail">
+    <div class="col-12">
+        <div class="card">
+            <div class="flex" style="width: 100%; display: flex; align-items: center; height: 42px;">
+                <!-- Back Button Section -->
+                <div style="width: 20%; display: flex; align-items: center; justify-content: flex-start;">
+                    <button (click)="CerrarActividad()" class="p-button-link" pButton pRipple type="button" label="Regresar" icon="pi pi-arrow-left" style="box-shadow: none !important;"></button>
+                </div>
+
+                <!-- Centered Title Section -->
+                <div style="flex-grow: 1; display: flex; justify-content: center; align-items: center;">
+                    <h1 class="text-center mt-4">Detalle Actividad</h1>
+                </div>
+
+                <!-- Optional Empty Div for Right-Side Balancing -->
+                <div style="width: 20%;"></div>
+            </div>
+
+            <hr>
+            <div class="p-fluid p-formgrid grid">
+                <div class="field col-12 md:col-4" style="position: relative; height: 10%;">
+                    <div class="field rows">
+                        <label for="Codigo" style="font-weight: 800;">No:</label>
+                    </div>
+                    <div class="field rows">
+                        <label for="Codigo">{{ detalle_acti_Id }}</label>
+                    </div>
+                </div>
+
+                <div class="field col-12 md:col-4" style="position: relative;">
+                    <div class="field rows">
+                        <label for="Municipio" style="font-weight: 800;">Descripción:</label>
+                    </div>
+                    <div class="field rows">
+                        <label for="Municipio">{{ detalle_acti_Descripcion }}</label>
+                    </div>
+                </div>
+            </div>
+            <div style="position: relative; top: -20px;">
+                <div class="card-title">
+                    <h1>Auditoría</h1>
+                </div>
+                <p-table [value]="Datos" styleClass="mt-2">
+                    <ng-template pTemplate="header">
+                        <tr>
+                            <th style="width:200px; font-weight: bold;">Acción</th>
+                            <th style="width:200px; font-weight: bold;">Usuario</th>
+                            <th style="width:200px; font-weight: bold;">Fecha</th>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-transaction>
+                        <tr>
+                            <td style="width:200px;">Creado</td>
+                            <td style="width:200px">{{ detalle_usuaCreacion }}</td>
+                            <td style="width:200px">{{ detalle_FechausuaCreacion }}</td>
+                        </tr>
+                        <tr>
+                            <td style="width:200px;">Modificado</td>
+                            <td style="width:200px">{{ detalle_usuaModificacion }}</td>
+                            <td style="width:200px">{{ detalle_FechausuaModificacion }}</td>
+                        </tr>
+                    </ng-template>
+                </p-table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- modal de eliminar  -->
+<p-dialog [(visible)]="Delete" header="Confirmación" [modal]="true" [style]="{width:'450px'}">
+    <div class="flex align-items-center justify-content-center">
+        <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+        <span>¿Está seguro de eliminar la actividad <span style="font-weight: 600;"> {{Descripcion}}</span>?</span>
+    </div>
+    <ng-template pTemplate="footer">
+        <!-- <button pButton pRipple icon="pi pi-check" label="Sí" (click)="Eliminar()"></button> -->
+        <button pButton pRipple icon="pi pi-trash" type="button" label="Eliminar" (click)="Eliminar()"></button>
+        <button pButton pRipple icon="pi pi-times" class="p-button-outlined p-button-primary" label="Cancelar" (click)="Delete = false"></button>
+    </ng-template>
+</p-dialog>
+
+
+<!-- modal de editar  -->
+<p-dialog [(visible)]="Edit" header="Confirmación" [modal]="true" [style]="{width:'450px'}">
+    <div class="flex align-items-center justify-content-center">
+        <i class="pi pi-pencil mr-3" style="font-size: 2rem"></i>
+        <span>¿Está seguro de editar la actividad <span style="font-weight: 600;">{{form.controls['acti_Descripcion'].value}}</span>?</span>
+    </div>
+    <ng-template pTemplate="footer">
+        <!-- <button pButton pRipple icon="pi pi-check" label="Sí" (click)="EditarG()"></button> -->
+        <button
+        pButton
+        pRipple
+        icon="pi pi-pencil"
+        type="button"
+        label="Aceptar"
+        (click)="EditarG()">
+    </button>
+        <button pButton pRipple icon="pi pi-times" class="p-button-outlined p-button-primary" label="Cancelar" (click)="Edit = false"></button>
+    </ng-template>
+</p-dialog>

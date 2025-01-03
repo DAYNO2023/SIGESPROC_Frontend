@@ -1,0 +1,350 @@
+<p-toast></p-toast>
+<div class="loader-container" *ngIf="isLoading">
+    <div class="loader">
+        <span></span>
+    </div>
+  </div>
+<div class="grid" *ngIf="Index">
+    <div class="col-12">
+        <div class="card">
+            <h1 class="text-center mt-2">Agentes de Bienes Raíces</h1>
+            <hr>
+            <div class="grid mt-2">
+                <div class="col-12">
+                    <button (click)="CrearAgenteBienRaiz()" pButton icon="pi pi-plus" label="Nuevo" class="mr-2">
+                    </button>
+                </div>
+            </div>
+
+            <!-- <div class="spinner-container" *ngIf="isLoading">
+                <p-progressSpinner
+                 styleClass="w-4rem h-4rem"
+                 strokeWidth="8"
+                 fill="var(--surface-ground)"
+                 animationDuration=".5s"></p-progressSpinner>
+              </div> --> 
+
+            <p-table #dt [value]="AgenteBienesRaices" styleClass="mt-2" responsiveLayout="scroll" [rows]="10"
+                [globalFilterFields]="['codigo','agen_DNI','agen_Nombre','agen_Apellido', 'agen_Telefono',  'agen_Correo', 'embr_Nombre']"
+                [paginator]="true" [showCurrentPageReport]="true" [tableStyle]="{ background: '#000' }"
+                currentPageReportTemplate="Mostrando {first} al {last} de {totalRecords} entradas" [rowHover]="true"
+                [rowsPerPageOptions]="[10,25,50,100]"
+                >
+                <ng-template pTemplate="caption">
+                    <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+                        <span class="block mt-2 md:mt-0 p-input-icon-left">
+                            <i style="color: white;" class="pi pi-search"></i>
+                            <input style="color: white;" pInputText type="text" (input)="onGlobalFilter(dt, $event)"
+                                placeholder="Buscar..." class="w-full sm:w-auto" />
+                        </span>
+                        <div class="registros">
+                            <p-dropdown [options]="dt.rowsPerPageOptions" [(ngModel)]="dt.rows" [style]="{ 'margin-right': '5px' }"  [autoWidth]="false"></p-dropdown>
+
+                            <span style="color: #FFF0C6; font-weight: 700; margin-top: 7px;"> Registros por página</span>
+                        </div>
+                    </div>
+                </ng-template>
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th style="color: white;" class="text-center">Acciones</th>
+                        <th style="color: white;" pSortableColumn="agen_Id" class="text-center">No. <p-sortIcon
+                                field="agen_Id"></p-sortIcon></th>
+                        <th style="color: white;" pSortableColumn="agen_DNI" class="text-center">Identidad <p-sortIcon
+                                field="agen_DNI"></p-sortIcon></th>
+                        <th style="color: white;" pSortableColumn="agen_Nombre" class="text-center">Nombre <p-sortIcon
+                                field="agen_Nombre"></p-sortIcon></th>
+                        <th style="color: white;" pSortableColumn="agen_Apellido" class="text-center">Apellido <p-sortIcon
+                                field="agen_Apellido"></p-sortIcon></th>
+                        <th style="color: white;" pSortableColumn="agen_Telefono" class="text-center">Teléfono <p-sortIcon
+                                field="agen_Telefono"></p-sortIcon></th>
+                        <th style="color: white;" pSortableColumn="embr_Nombre" class="text-center">Empresa <p-sortIcon
+                                field="embr_Nombre"></p-sortIcon></th>
+                    </tr>
+                </ng-template>
+
+
+                <!-- <ng-template pTemplate="emptymessage">
+                    <tr>
+                      <td colspan="6" class="text-center">
+                        <div class="loader-container" *ngIf="isLoading">
+                            <div class="loader">
+                                <span></span>
+                            </div>
+                          </div>
+                      </td>
+                    </tr>
+                  </ng-template> -->
+
+                <ng-template pTemplate="body" let-agenteBienRaiz>
+                    <tr (click)="selectAgenteBienRaiz(agenteBienRaiz)">
+                        <td class="text-center">
+                            <p-splitButton
+                            label="Acciones"
+                            icon="pi pi-cog"
+                            [model]="items"
+                            appendTo="body"
+                            styleClass="p-button-secondary"
+                            class="custom-splitbutton"
+                            ></p-splitButton>
+                        </td>
+                        <td class="text-center">
+                            <span class="p-column-title">No.</span>
+                            {{agenteBienRaiz.codigo}}
+                        </td>
+                        <td class="text-center">
+                            <span class="p-column-title">Identidad</span>
+                            {{agenteBienRaiz.agen_DNI}}
+                        </td>
+                        <td class="text-center">
+                            <span class="p-column-title">Nombre</span>
+                            {{agenteBienRaiz.agen_Nombre}}
+                        </td>
+                        <td class="text-center">
+                            <span class="p-column-title">Apellido</span>
+                            {{agenteBienRaiz.agen_Apellido}}
+                        </td>
+                        <td class="text-center">
+                            <span class="p-column-title">Teléfono</span>
+                            {{agenteBienRaiz.agen_Telefono}}
+                        </td>
+                        <td class="text-center">
+                            <span class="p-column-title">Empresa</span>
+                            {{agenteBienRaiz.embr_Nombre}}
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+    </div>
+</div>
+
+<div class="grid" *ngIf="Create">
+    <div class="col-12">
+        <div class="card">
+            <div class="flex" style="width: 100%; margin: 0 auto; display: flex; align-items: center; height: 42px;">
+                <div style="width: 20%; display: flex; align-items: center; height: 12.5%;">
+                    <button (click)="cerrarAgente()" class="p-button-link" pButton pRipple type="button" label="Regresar" icon="pi pi-arrow-left" style="box-shadow: none !important"></button>
+                </div>
+                <div style="flex-grow: 1; display: flex; justify-content: center; align-items: center;">
+                    <h1 class="text-center mt-4">{{ titulo }} Agente</h1>
+                </div>
+                <div style="width: 20%;"></div> <!-- Empty div to balance the space on the right -->
+            </div>
+            <hr>
+
+            <form [formGroup]="form" class="grid col-12 p-fluid p-formgrid">
+                <div class="field col-12 md:col-6">
+                    <label style="display: inline-block;">Identidad&nbsp;</label>
+                    <small style="display:inline-block;"  class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['agen_DNI'].invalid"
+                    style="color: red !important;">*</small>
+                    <input [ngClass]="{'ng-invalid ng-dirty': submitted && form.controls['agen_DNI'].invalid}"
+                        type="text" class="p-inputtext" formControlName="agen_DNI"   (input)="ValidarNumeros($event)" maxlength="13">
+                    <small class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['agen_DNI'].invalid"
+                        style="color: red !important;">El campo es requerido.</small>
+                </div>
+                <div class="field col-12 md:col-6">
+                    <label style="display: inline-block;">Nombre&nbsp;</label>
+                    <small style="display:inline-block;"  class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['agen_Nombre'].invalid"
+                    style="color: red !important;">*</small>
+                    <input [ngClass]="{'ng-invalid ng-dirty': submitted && form.controls['agen_Nombre'].invalid}"
+                        type="text" class="p-inputtext" formControlName="agen_Nombre" (input)="allowObservacion($event)" maxlength="50">
+                    <small class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['agen_Nombre'].invalid"
+                        style="color: red !important;">El campo es requerido.</small>
+                </div>
+                <div class="field col-12 md:col-6">
+                    <label style="display: inline-block;">Apellido&nbsp;</label>
+                    <small style="display:inline-block;"  class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['agen_Apellido'].invalid"
+                    style="color: red !important;">*</small>
+                    <input [ngClass]="{'ng-invalid ng-dirty': submitted && form.controls['agen_Apellido'].invalid}"
+                        type="text" class="p-inputtext" formControlName="agen_Apellido" (input)="allowObservacion($event)" maxlength="50">
+                    <small class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['agen_Apellido'].invalid"
+                        style="color: red !important;">El campo es requerido.</small>
+                </div>
+                <div class="field col-12 md:col-6">
+                    <label style="display: inline-block;">Teléfono&nbsp;</label>
+                    <small style="display:inline-block;"  class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['agen_Telefono'].invalid"
+                    style="color: red !important;">*</small>
+                    <input [ngClass]="{'ng-invalid ng-dirty': submitted && form.controls['agen_Telefono'].invalid}"
+                        type="text" class="p-inputtext" formControlName="agen_Telefono" (input)="ValidarNumeros($event)" maxlength="8">
+                    <small class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['agen_Telefono'].invalid"
+                        style="color: red !important;">El campo es requerido.</small>
+                </div>
+                <div class="field col-12 md:col-6">
+                    <label style="display: inline-block;">Correo&nbsp;</label>
+                    <small style="display:inline-block;"  class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['agen_Correo'].invalid"
+                    style="color: red !important;">*</small>
+                    <input [ngClass]="{'ng-invalid ng-dirty': submitted &&
+                    form.value.agen_Correo &&
+                    !validarCorreo()}" 
+                        type="text" class="p-inputtext" formControlName="agen_Correo"   (input)="ValidarEspacio($event)">
+                    <small class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['agen_Correo'].invalid"
+                        style="color: red !important;">El campo es requerido.</small>
+                        <small
+                        class="ng-dirty ng-invalid"
+                        style="color: red"
+                        *ngIf="
+                            submitted &&
+                            form.value.agen_Correo &&
+                            !validarCorreo()
+                        "
+                        >El correo electrónico es inválido.</small
+                    >
+                </div>
+                <div class="field col-12 md:col-6">
+                    <label style="display: inline-block;">Empresa&nbsp;</label>
+                    <small style="display:inline-block;"  class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['empresa'].invalid"
+                    style="color: red !important;">*</small>
+                    <p-autoComplete
+                      [dropdown]="true"
+                      formControlName="empresa"
+                      [suggestions]="filteredEmpresaBR"
+                      (completeMethod)="searchEmpresa($event)"
+                      (onSelect)="onEmpresa($event)"
+                      field="embr_Nombre"
+                      placeholder="Seleccione una empresa de bien raíz"
+                      appendTo="body"
+                      [ngClass]="{'ng-invalid ng-dirty': submitted && form.controls['empresa'].invalid}">
+                    </p-autoComplete>
+                    <small class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['empresa'].invalid"
+                        style="color: red !important;">{{Error_Empresa}}</small>
+                  </div>
+            </form>
+            <div style="display: flex; justify-content: end;">
+                <button (click)="saberCrearEditar()" class="btn btn-guardar" pButton pRipple type="button" label="Guardar"
+                    icon="pi pi-save"></button>
+                <button (click)="CerrarAgenteBienRaiz()" style="margin-left: 2%;" class="p-button-secondary" pButton
+                    pRipple type="button" label="Cancelar" icon="pi pi-times"></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<p-dialog [(visible)]="modaleditar" header="Confirmación " [modal]="true" [style]="{width:'450px'}">
+    <!-- Cuerpo Modal -->
+        <div class="flex align-items-center justify-content-center">
+              <i class="pi pi-pencil mr-3" style="font-size: 2rem"></i>
+            <span >¿Está seguro de editar al agente <span style="font-weight: 600;"></span><b>{{form.controls['agen_Nombre'].value}} {{form.controls['agen_Apellido'].value}}</b>?</span>
+      </div>
+       <!-- Botones -->
+       <ng-template pTemplate="footer">
+            <button pButton pRipple icon="pi pi-pencil" type="button" label="Aceptar" (click)="Guardar()"></button>
+           <button pButton pRipple icon="pi pi-times" class="p-button-outlined p-button-primary" label="Cancelar" (click)="modaleditar =  false"></button>
+      </ng-template>
+</p-dialog>
+
+<div class="grid" *ngIf="Detail">
+    <div class="col-12">
+        <div class="card">
+            <div class="flex" style="width: 100%; margin: 0 auto; display: flex; align-items: center; height: 42px;">
+                <div style="width: 20%; display: flex; align-items: center; height: 12.5%;">
+                    <button (click)="CerrarAgenteBienRaiz()" class="p-button-link" pButton pRipple type="button" label="Regresar" icon="pi pi-arrow-left" style="box-shadow: none !important;"></button>
+                </div>
+                <div style="flex-grow: 1; display: flex; justify-content: center; align-items: center;">
+                    <h1 class="text-center mt-4">Detalle Agente</h1>
+                </div>
+                <div style="width: 20%;"></div> <!-- Div vacío para balancear el espacio a la derecha -->
+            </div>
+            
+            <hr>
+            <div class="p-fluid p-formgrid grid">
+                <div class="field col-12 md:col-4">
+                    <div class="field rows">
+                        <label for="Codigo" style="font-weight: 800;">No:</label>
+                    </div>
+                    <div class="field rows">
+                        <label for="Codigo">{{ detalle_agen_Id }}</label>
+                    </div>
+                </div>
+                <div class="field col-12 md:col-4">
+                    <div class="field rows">
+                        <label for="Identidad" style="font-weight: 800;">Identidad:</label>
+                    </div>
+                    <div class="field rows">
+                        <label for="Identidad">{{ detalle_agen_DNI }}</label>
+                    </div>
+                </div>
+                <div class="field col-12 md:col-4">
+                    <div class="field rows">
+                        <label for="Nombre" style="font-weight: 800;">Nombre:</label>
+                    </div>
+                    <div class="field rows">
+                        <label for="Nombre">{{ detalle_agen_Nombre }}</label>
+                    </div>
+                </div>
+                <div class="field col-12 md:col-4">
+                    <div class="field rows">
+                        <label for="Apellido" style="font-weight: 800;">Apellido:</label>
+                    </div>
+                    <div class="field rows">
+                        <label for="Apellido">{{ detalle_agen_Apellido }}</label>
+                    </div>
+                </div>
+                <div class="field col-12 md:col-4">
+                    <div class="field rows">
+                        <label for="Telefono" style="font-weight: 800;">Teléfono:</label>
+                    </div>
+                    <div class="field rows">
+                        <label for="Telefono">{{ detalle_agen_Telefono }}</label>
+                    </div>
+                </div>
+                <div class="field col-12 md:col-4">
+                    <div class="field rows">
+                        <label for="Correo" style="font-weight: 800;">Correo:</label>
+                    </div>
+                    <div class="field rows">
+                        <label for="Correo">{{ detalle_agen_Correo }}</label>
+                    </div>
+                </div>
+                <div class="field col-12 md:col-4">
+                    <div class="field rows">
+                        <label for="Empresa" style="font-weight: 800;">Empresa:</label>
+                    </div>
+                    <div class="field rows">
+                        <label for="Empresa">{{ detalle_embr_Nombre }}</label>
+                    </div>
+                </div>
+            </div>
+            <div class="card-title">
+                <h1>Auditoría</h1>
+            </div>
+            <p-table [value]="Datos" styleClass="mt-2">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th style="width:200px; font-weight: bold;">Acción</th>
+                        <th style="width:200px; font-weight: bold;">Usuario</th>
+                        <th style="width:200px; font-weight: bold;">Fecha</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-transaction>
+                    <tr>
+                        <td style="width:200px;">Creado</td>
+                        <td style="width:200px">{{ detalle_usuaCreacion }}</td>
+                        <td style="width:200px">{{ detalle_agen_FechaCreacion }}</td>
+                    </tr>
+                    <tr>
+                        <td style="width:200px;">Modificado</td>
+                        <td style="width:200px">{{ detalle_usuaModificacion }}</td>
+                        <td style="width:200px">{{ detalle_agen_FechaModificacion }}</td>
+                    </tr>
+                </ng-template>
+            </p-table>
+            <!-- <div style="display: flex; justify-content: flex-end; margin-top: 1rem; grid-gap: 5px;">
+                <button (click)="CerrarAgenteBienRaiz()" pButton icon="pi pi-arrow-left" type="button" label="Regresar"
+                    class="p-button-outlined"></button>
+            </div> -->
+        </div>
+    </div>
+</div>
+
+<p-dialog [(visible)]="Delete" header="Confirmación " [modal]="true" [style]="{width:'450px'}">
+    <div class="flex align-items-center justify-content-center">
+        <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+        <span>¿Está seguro de eliminar el agente <span style="font-weight: 600">{{ detalle_agen_Nombre+ ' '+ detalle_agen_Apellido }}</span
+            >?</span
+        >
+    </div>
+    <ng-template pTemplate="footer">
+        <button pButton pRipple  icon="pi pi-trash" type="button" label="Eliminar"  (click)="Eliminar()"></button>
+        <button pButton pRipple icon="pi pi-times" class="p-button-outlined p-button-primary" label="Cancelar" (click)="Delete = false"></button>
+    </ng-template>
+</p-dialog>

@@ -1,0 +1,208 @@
+<!-- Componente de notificaciones para mostrar mensajes -->
+<p-toast></p-toast>
+
+<!-- Card para el formulario de generación de reportes -->
+<div class="card p-mb-4">
+  <div class="card-header">
+    <h2>
+      Reporte Artículos de Actividades
+      <i 
+        pTooltip="Seleccione un proyecto, luego su etapa, luego su actividad y por último elige qué tipo de artículos desea ver" 
+        tooltipPosition="top" 
+        class="pi pi-info-circle ml-2" 
+        style="font-size: 1.2rem; cursor: pointer;"
+      ></i>
+    </h2>
+  </div>
+  <div class="card-body">
+    <form [formGroup]="reportForm"  class="grid col-12 p-fluid p-formgrid">
+      
+      <div class="field col-12 md:col-6">
+        <label style="display: inline-block"
+            >Proyecto &nbsp;</label
+        >
+        <small
+            style="display: inline-block"
+            *ngIf="
+                submitted &&
+                reportForm.controls['proyecto'].invalid
+            "
+            style="color: red !important"
+            >*</small
+        >
+        <p-autoComplete
+            formControlName="proyecto"
+            placeholder="Seleccione un proyecto"
+            [suggestions]="filtradoProyectosSalida"
+            (completeMethod)="
+                filterProyectosSalida($event)
+            "
+            (onSelect)="onProyectoSalidaSelect($event)"
+            field="proy_Nombre"
+            [dropdown]="true"
+            [ngClass]="{
+                'ng-invalid ng-dirty':
+                    submitted &&
+                    reportForm.controls['proyecto'].invalid
+            }"
+        ></p-autoComplete>
+        <small
+            class="ng-dirty ng-invalid"
+            *ngIf="
+                submitted &&
+                reportForm.controls['proyecto'].invalid
+            "
+            style="color: red !important"
+            >{{error_Proyecto}}</small
+        >
+    </div>
+
+    <!-- Etapa de Salida -->
+    <div class="field col-12 md:col-6">
+        <label style="display: inline-block"
+            >Etapa&nbsp;</label
+        >
+        <small
+            style="display: inline-block"
+            *ngIf="
+                submitted &&
+                reportForm.controls['etapa'].invalid
+            "
+            style="color: red !important"
+            >*</small
+        >
+        <p-autoComplete
+            formControlName="etapa"
+            placeholder="Seleccione una etapa"
+            [suggestions]="filtradoEtapasSalida"
+            (completeMethod)="
+                filterEtapasSalida($event)
+            "
+            (onSelect)="onEtapaSalidaSelect($event)"
+            field="etap_Descripcion"
+            appendTo="body"
+            [dropdown]="true"
+            [ngClass]="{
+                'ng-invalid ng-dirty':
+                    submitted &&
+                    reportForm.controls['etapa'].invalid
+            }"
+        ></p-autoComplete>
+        <small
+            class="ng-dirty ng-invalid"
+            *ngIf="
+                submitted &&
+                reportForm.controls['etapa'].invalid
+            "
+            style="color: red !important"
+            >{{error_Etapa}}</small
+        >
+    </div>
+
+    <!-- Actividad de Salida -->
+    <div class="field col-12 md:col-6">
+        <label style="display: inline-block"
+            >Actividad &nbsp;</label
+        >
+        <small
+            style="display: inline-block"
+            *ngIf="
+                submitted &&
+                reportForm.controls['actividad'].invalid
+            "
+            style="color: red !important"
+            >*</small
+        >
+        <p-autoComplete
+            formControlName="actividad"
+            placeholder="Seleccione una actividad"
+            [suggestions]="filtradoActividadesSalida"
+            (completeMethod)="
+                filterActividadesSalida($event)
+            "
+            (onSelect)="onActividadSalidaSelect($event)"
+            field="acti_Descripcion"
+            appendTo="body"
+            [dropdown]="true"
+            [ngClass]="{
+                'ng-invalid ng-dirty':
+                    submitted &&
+                    reportForm.controls['actividad']
+                        .invalid
+            }"
+        ></p-autoComplete>
+        <small
+            class="ng-dirty ng-invalid"
+            *ngIf="
+                submitted &&
+                reportForm.controls['actividad'].invalid
+            "
+            style="color: red !important"
+            >{{error_Actividad}}</small
+        >
+    </div>
+
+    <div class="field col-12 md:col-6">
+      <label for="renta">Tipo
+          <span class="ng-dirty ng-invalid" *ngIf="submitted && reportForm.controls['eleccion'].invalid"
+          style="color: red !important;">*</span>
+      </label>
+      <div class="formgrid grid">
+          <div class="field-radiobutton col-3">
+              <p-radioButton
+                  id="venta"
+                  value="0"
+                  [ngClass]="{'ng-invalid ng-dirty': submitted && reportForm.controls['eleccion'].invalid}"
+                  formControlName="eleccion"
+              ></p-radioButton>
+              <label for="venta">Maquinaria</label>
+          </div>
+          <div class="field-radiobutton col-3">
+              <p-radioButton
+                  id="venta"
+                  value="1"
+                  [ngClass]="{'ng-invalid ng-dirty': submitted &&  reportForm.controls['eleccion'].invalid}"
+                  formControlName="eleccion"
+              ></p-radioButton>
+              <label for="venta">Insumos</label>
+          </div>
+          <div class="field-radiobutton col-3">
+              <p-radioButton
+                  id="venta"
+                  value="3"
+                  [ngClass]="{'ng-invalid ng-dirty': submitted &&  reportForm.controls['eleccion'].invalid}"
+                  formControlName="eleccion"
+              ></p-radioButton>
+              <label for="venta">Ambos</label>
+          </div>
+      </div>
+      <small class="ng-dirty ng-invalid" *ngIf="submitted && reportForm.controls['eleccion'].invalid"
+          style="color: red !important;">El campo es requerido.</small>
+  </div>
+
+      <!-- Botones para Generar Reporte -->
+      <div class="field col-12" style="display: flex; justify-content: flex-end;">
+        <div class="button-group d-flex justify-content-end" style="margin-right: 12px;">
+          <button (click)="generateReport()" class="btn btn-guardar" pButton label="Generar Reporte" icon="pi pi-file-pdf"></button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Card para el contenedor de PDF -->
+<div class="card">
+  <div class="card-header">
+    <h2>
+      Vista del Reporte
+    </h2>
+  </div>
+  <div class="card-body">
+    <div id="pdfContainer" style="width: 100%; height: 800px; position: relative;">
+      <!-- Spinner de carga -->
+      <div class="loader-container" *ngIf="loading">
+        <div class="loader"><span></span></div>
+      </div>
+    </div>
+  </div>
+</div>

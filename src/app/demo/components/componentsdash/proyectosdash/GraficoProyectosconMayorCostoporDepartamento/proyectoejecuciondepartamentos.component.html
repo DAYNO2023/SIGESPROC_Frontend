@@ -1,0 +1,54 @@
+<div class="col-12 lg:col-12">
+    <div class="card">
+      <div class="flex flex-column align-items-center">
+        <h2>Filtrar por Departamento</h2>
+      </div>
+      <form [formGroup]="reportForm" (ngSubmit)="ListadoFiltrado()">
+        <div class="p-fluid grid">
+          <div class="field col-6">
+            <label for="estado">
+              Departamento
+              <span *ngIf="submitted && (reportForm.controls['estado'].invalid || estadoInvalido)" style="color: red;">*</span>
+
+            </label>
+            <p-autoComplete
+            id="estado"
+            formControlName="estado"
+            [suggestions]="filteredEstados"
+            (completeMethod)="filterEstados($event)"
+            field="esta_Nombre"
+            placeholder="Seleccione un Departamento"
+            [dropdown]="true"
+            class="w-full"
+            [ngClass]="{'ng-invalid ng-dirty': submitted && reportForm.controls['estado'].invalid}"
+          ></p-autoComplete>
+          <small class="ng-dirty ng-invalid" *ngIf="submitted && reportForm.controls['estado'].invalid && !estadoInvalido"
+          style="color: red !important;">El campo es requerido.</small>
+          <small class="ng-dirty ng-invalid" *ngIf="estadoInvalido"
+          style="color: red !important;">Opción no encontrada.</small>
+          
+          </div>
+        </div>
+        <div class="field col-12" style="display: flex; justify-content: flex-end;">
+          <div class="button-group d-flex justify-content-end" style="margin-right: 12px;">
+            <button type="submit" pButton label="Filtrar" icon="pi pi-file-pdf"></button>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <div class="card">
+      <div class="flex flex-column align-items-center">
+        <h2>Proyectos con Mayor Costo por Departamento</h2>
+      </div>
+      
+
+      <div *ngIf="!nodata">
+        <p-chart type="bar" [data]="barData" [options]="chartOptions"></p-chart>
+      </div>
+      <div *ngIf="nodata">
+    
+      </div>
+
+    </div>
+</div>

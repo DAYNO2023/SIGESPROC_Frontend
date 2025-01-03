@@ -1,0 +1,696 @@
+<p-toast></p-toast>
+<div class="loader-container" *ngIf="loading">
+  <div class="loader">
+      <span></span>
+  </div>
+</div>
+
+<div class="grid" *ngIf="Index">
+  <div class="col-12">
+    <div class="card">
+      <h1 class="text-center mt-2">Bienes Raíces</h1>
+      <hr>
+      <div class="grid mt-2">
+        <div class="col-12">
+          <button (click)="CrearBienRaiz()" pButton icon="pi pi-plus" label="Nuevo" class="mr-2"></button>
+        </div>
+      </div>
+
+
+      <p-table  #dt [value]="bienesRaices" styleClass="mt-2" responsiveLayout="scroll" [rows]="10"
+        [globalFilterFields]="['bien_Desripcion','codigo','terr_Area']"
+        [paginator]="true" [showCurrentPageReport]="true" currentPageReportTemplate="Mostrando {first} al {last} de {totalRecords} entradas"
+        [rowHover]="true" dataKey="bien_Id" [expandedRowKeys]="expandedRows" (onRowExpand)="onRowExpand($event)" (onRowCollapse)="onRowCollapse($event)" [rowsPerPageOptions]="[10,25,50,100]">
+
+        <ng-template pTemplate="caption">
+          <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+            <span class="block mt-2 md:mt-0 p-input-icon-left">
+              <i style="color: white;" class="pi pi-search"></i>
+              <input style="color: white;" pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Buscar..." class="w-full sm:w-auto" />
+            </span>
+
+            <div class="registros">
+              <p-dropdown [options]="dt.rowsPerPageOptions" [(ngModel)]="dt.rows" [style]="{ 'margin-right': '5px' }"  [autoWidth]="false"></p-dropdown>
+
+              <span style="color: #FFF0C6; font-weight: 700; margin-top: 7px;"> Registros por página</span>
+          </div>
+          </div>
+        </ng-template>
+
+        <ng-template pTemplate="header">
+          <tr>
+            <th style="width: 5rem"></th>
+            <th style="color: white;" class="text-center">Acciones</th>
+            <th style="color: white;" pSortableColumn="codigo" class="text-center">No.<p-sortIcon field="codigo"></p-sortIcon></th>
+            <th style="color: white;" pSortableColumn="bien_Desripcion" class="text-center">Descripción <p-sortIcon field="bien_Desripcion"></p-sortIcon></th>
+            <th style="color: white;" pSortableColumn="terr_Area" class="text-center">Área del Terreno <p-sortIcon field="terr_Area"></p-sortIcon></th>
+            <th style="color: white;" class="text-center">Imagen</th>
+            <th style="color: white;" pSortableColumn="bien_Identificador" class="text-center">Estado
+              <p-sortIcon field="bien_Identificador"></p-sortIcon>
+          </th>
+          </tr>
+        </ng-template>
+        <!-- <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="6" class="text-center">
+              <div class="loader-container" *ngIf="loading">
+                  <div class="loader">
+                      <span></span>
+                  </div>
+                </div>
+            </td>
+          </tr>
+        </ng-template> -->
+      <!--Fin loader-->
+
+        <ng-template pTemplate="body" let-bienRaiz>
+
+          <tr (click)="selectBienRaiz(bienRaiz)">
+            <td>
+              <p-button type="button" pRipple [pRowToggler]="bienRaiz" [text]="true" [rounded]="true" [plain]="true"
+                [icon]="expandedRows[bienRaiz.bien_Id] ? 'pi pi-chevron-down' : 'pi pi-chevron-right'" />
+            </td>
+            <td class="text-center">
+              <p-splitButton
+                [label]="
+                  bienRaiz.bien_Identificador
+                    ? 'Acciones'
+                    : 'Detalle'
+                "
+                icon="pi pi-cog"
+                [model]="
+                  bienRaiz.bien_Identificador
+                    ? items
+                    : itemsfinalizado
+                "
+                styleClass="p-button-secondary"
+                class="custom-splitbutton"
+                appendTo="body"
+              ></p-splitButton>
+            </td>
+            
+            <td class="text-center">
+              <span class="p-column-title">No.</span>
+              {{bienRaiz.codigo}}
+            </td>
+            <td class="text-center">
+              <span class="p-column-title">Descripción</span>
+              {{bienRaiz.bien_Desripcion}}
+            </td>
+            <td class="text-center">
+              <span class="p-column-title">Área del Terreno</span>
+              {{bienRaiz.terr_Area}}.m²
+            </td>
+            <td class="text-center">
+              <span class="p-column-title">Imagen</span>
+              <ng-container *ngIf="bienRaiz.bien_Imagen; else noImage">
+                <img [src]="getSafeUrl(bienRaiz.bien_Imagen)" alt="Imagen Bien Raíz" width="65" (error)="onImageError($event)" />
+              </ng-container>
+              <ng-template #noImage>
+                <span>Sin Imagen</span>
+              </ng-template>
+            </td>
+            <td class="text-center">
+              <span style="display: flex; justify-content: center; align-items: center;" class="text-span" [ngClass]="{
+                  'estado-abierto': bienRaiz.bien_Identificador,
+                  'estado-cerrado': !bienRaiz.bien_Identificador
+                }">
+                {{ bienRaiz.bien_Identificador ? 'Activo' : 'Finalizado' }}
+              </span>
+            </td>
+            
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="rowexpansion" let-bienRaiz>
+          <tr>
+            <td colspan="6">
+              <div class="p-3">
+                <p-table [value]="TablaMaestra" dataKey="bien_Id">
+                  <ng-template pTemplate="header">
+                    <tr>
+                      <th pSortableColumn="codigo2">Código <p-sortIcon field="codigo2" /></th>
+                      <th pSortableColumn="descripcionDocumento">Descripción <p-sortIcon field="descripcionDocumento" /></th>
+                      <th pSortableColumn="tipoDocumentoDescripcion">Tipo documento <p-sortIcon field="tipoDocumentoDescripcion" /></th>
+                      <th >Descargar</th>
+                    </tr>
+                  </ng-template>
+                  <ng-template pTemplate="body" let-item>
+                    <tr>
+                      <td>{{ item.codigo2 }}</td>
+                      <td>{{ item.descripcionDocumento }}</td>
+                      <td>{{ item.tipoDocumentoDescripcion }}</td>
+                      <td>
+                        <button pButton type="button" icon="pi pi-download" class="btn p-button-primary" (click)="downloadDocument(item.documentoImagen,item.descripcionDocumento)">
+                        </button>
+                      </td>
+                      <td>
+
+                    </tr>
+                  </ng-template>
+                  <ng-template pTemplate="emptymessage">
+                    <tr>
+                      <td colspan="5">No hay datos disponibles.</td>
+                    </tr>
+                  </ng-template>
+                </p-table>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </div>
+</div>
+
+<div class="grid" *ngIf="Create">
+  <div class="col-12">
+    <div class="card">
+    <div class="flex">
+      <div style="width: 20%; display: flex; align-items: center; position: absolute; height: 12.5%;">
+          <button (click)="CerrarBienRaiz()" class="p-button-link" pButton pRipple type="button" label="Regresar" icon="pi pi-arrow-left" style="box-shadow: none !important; margin-top: -50px;"></button>
+      </div>
+      <div style="width: 100%; display: flex; justify-content: center; align-items: center;">
+
+      <h1 class="text-center mt-2">{{ titulo }} Bien Raíz</h1>
+      </div>
+  </div>
+
+
+      <p-tabView [(activeIndex)]="currentStep" (onTabChange)="handleTabChange($event)">
+        <p-tabPanel header="Datos Generales">
+      <!-- Step 1 Form -->
+      <form [formGroup]="bienRaizForm" class="grid col-12 p-fluid p-formgrid" *ngIf="currentStep === 0">
+        <div class="col-12 md:col-6">
+          <div class="field" >
+            <label style="display: inline-block;">Descripción&nbsp;</label><small class="ng-dirty ng-invalid" *ngIf="submittedTab1 && bienRaizForm.controls['bien_Desripcion'].invalid"
+            style="color: red !important; display: inline-block;">*</small>
+            <input
+                type="text"
+                pInputText
+                id="bien_Desripcion"
+                formControlName="bien_Desripcion"
+                [ngClass]="{'ng-invalid ng-dirty': submittedTab1 && bienRaizForm.controls['bien_Desripcion'].invalid}"
+                (keydown)="ValidarTexto($event)" (input)="handleInput($event, 'bien_Desripcion')"
+            />
+            <small class="ng-dirty ng-invalid" *ngIf="submittedTab1 && bienRaizForm.controls['bien_Desripcion'].invalid"
+                style="color: red !important;">El campo es requerido.</small>
+        </div>
+
+        <div class="col-12 md:col-5">
+          <div >
+            <button type="button" pButton label="Elegir Construcción" icon="pi pi-plus" (click)="openModal()"></button>
+          </div>
+          <small class="ng-dirty ng-invalid" *ngIf="submittedTab1 && bienRaizForm.controls['pcon_Id'].invalid" style="color: red !important;">
+            El campo es requerido.
+          </small>
+        </div>
+        
+        <p-fieldset *ngIf="mostrarDetallesConstruccion" legend="Detalles Construcción">
+          <div *ngIf="mostrarDetallesConstruccion">
+            <p><strong>Descripción del Proyecto:</strong> {{ selectedProject?.proy_Descripcion }}</p>
+            <p><strong>Dirección:</strong> {{ selectedProject?.proy_DireccionExacta }}</p>
+            <p><strong>Terreno:</strong> {{ selectedProject?.terr_Descripcion }}</p>
+            <p>Precio: {{ selectedProject?.precio || 'N/A' }}</p>
+          </div>
+          
+        </p-fieldset>
+        
+        
+        
+        </div>
+        <div class="field col-12 md:col-6">
+          <div class="field" style="margin-top: 1;">
+
+          <label ></label>
+          <p-fileUpload #fileUpload
+          name="demo[]"
+          accept="image/*"
+          (onSelect)="onImageSelect($event)"
+          (onRemove)="onImageRemove($event)"
+
+            [customUpload]="true"
+             [multiple]="false"
+             [showUploadButton]="false"
+              [showCancelButton]="false"
+               [auto]="true"
+            class="w-full"
+            [showClear]="true"
+             chooseLabel="Subir">
+            <ng-template pTemplate="content">
+              <div class="image-upload-container" (click)="fileUpload.choose()">
+                <ng-container *ngIf="!bienRaizForm.get('bien_Imagen').value; else showDoc">
+                  <div class="upload-placeholder">
+                    <i class="pi pi-image text-900 text-4xl mb-3 custom-icon-size"></i>
+                    <span class="font-bold text-900 text-2xl mb-3">Subir Imagen</span>
+                    <span class="font-medium text-600 text-lg text-center">Seleccione Una Imagen</span>
+                  </div>
+                </ng-container>
+                <ng-template #showDoc>
+                  <div class="image-preview-container">
+                    <img [src]="bienRaizForm.get('bien_Imagen').value" alt="Documento seleccionado" class="image-preview" />
+                  </div>
+                </ng-template>
+              </div>
+            </ng-template>
+          </p-fileUpload>
+          <small class="ng-dirty ng-invalid" *ngIf="submittedTab1 && bienRaizForm.controls['bien_Imagen'].invalid" style="color: red !important;">El campo es requerido.</small>
+        </div>
+        </div>
+
+        <div  *ngIf="isEditMode"class="col-12" style="display: flex; justify-content: flex-end; ">
+          <div class="button-group d-flex justify-content-end" style="margin-right: 12px;">
+
+            <button      (click)="guardar()" class="btn btn-guardar" pButton pRipple type="button" label="Guardar" icon="pi pi-save"></button>
+          </div>
+          <div class="button-group d-flex justify-content-start">
+            <button  (click)="CerrarBienRaiz()"       style="margin-left: 1%"class="p-button-secondary" pButton pRipple type="button" label="Cancelar" icon="pi pi-times"></button>
+          </div>
+        </div>
+        <div class="col-12" style="display: flex; justify-content: flex-end;">
+          <div class="button-group d-flex justify-content-start">
+            <button  (click)="nextStep()" class="btn btn-guardar" pButton pRipple type="button" label="Siguiente" icon="pi pi-arrow-right"></button>
+          </div>
+        </div>
+      </form>
+
+
+    </p-tabPanel>
+      <!-- Step 2 Form -->
+      <p-tabPanel header="Documento Bien Raíz" [disabled]="!isEditMode">
+
+      <form [formGroup]="documentoForm" class="grid col-12 p-fluid p-formgrid" *ngIf="currentStep === 1">
+
+        <div class="col-12 md:col-6">
+          <div class="field" style="margin-top: 1rem;">
+            <label style="display: inline-block;">Descripción del Documento&nbsp;</label>
+            <small class="ng-dirty ng-invalid" *ngIf="submitted && documentoForm.controls['dobt_DescipcionDocumento'].invalid"
+            style="color: red !important; display: inline-block;">*</small>
+
+            <input [ngClass]="{'ng-invalid ng-dirty': submitted && documentoForm.controls['dobt_DescipcionDocumento'].invalid}"
+            (keydown)="ValidarTexto($event)" (input)="handleInput2($event, 'dobt_DescipcionDocumento') "type="text" class="p-inputtext" formControlName="dobt_DescipcionDocumento">
+
+            <small class="ng-dirty ng-invalid" *ngIf="submitted && documentoForm.controls['dobt_DescipcionDocumento'].invalid"
+              style="color: red !important;">El campo es requerido.</small>
+        </div>
+
+     
+
+      <div class="field" style="margin-top: 1rem" *ngIf="Tipodocumento">
+        <label>Tipo de Documento
+          <span class="ng-dirty ng-invalid" *ngIf="submitted && documentoForm.controls['tido_Descripcion'].invalid"
+          style="color: red !important;"> *</span>
+        </label>
+        <p-autoComplete
+        formControlName="tido_Descripcion"
+        [suggestions]="filtradoDocumento"
+        (completeMethod)="filterDocumento($event)"
+        (onSelect)="onDocumentoSelect($event)"
+        field="tido_Descripcion"
+        [dropdown]="true"
+        appendTo="body"
+        [ngClass]="{'ng-invalid ng-dirty': submitted && documentoForm.controls['tido_Descripcion'].invalid}">
+      </p-autoComplete>
+        <small class="ng-dirty ng-invalid" *ngIf="submitted && documentoForm.controls['tido_Descripcion'].invalid"
+          style="color: red !important;">{{Error_TipoDocumento}}</small>
+      </div>
+
+        </div>
+        <div class="col-12 md:col-6">
+          <div class="field">
+            <label></label>
+            <p-fileUpload
+              #docUploader
+              name="demo[]"
+              accept=""
+              (onSelect)="onImageSelect2($event)"
+              (onRemove)="onFileRemove($event)"
+
+              [customUpload]="true"
+              [multiple]="false"
+              [showUploadButton]="false"
+              [showCancelButton]="false"
+              [auto]="true"
+              class="w-full"
+              chooseLabel="Subir"
+            >
+              <ng-template pTemplate="content">
+                <div class="image-upload-container" (click)="docUploader.choose()">
+                  <ng-container *ngIf="!previewImage && !previewPDF; else showDoc">
+                    <div class="h-full flex flex-column justify-content-center align-items-center">
+                      <i class="pi pi-upload text-900 text-2xl mb-3"></i>
+                      <span class="font-bold text-900 text-xl mb-3">Subir Archivo</span>
+                      <span class="font-medium text-600 text-md text-center">Seleccione un Archivo</span>
+                    </div>
+                  </ng-container>
+                  <ng-template #showDoc>
+                      <div class="h-full flex flex-column justify-content-center align-items-center">
+                        <ng-container *ngIf="previewImage">
+                          <img [src]="previewImage" alt="Documento seleccionado" class="image-preview" style="height: 100px;" />
+                        </ng-container>
+                        <ng-container *ngIf="previewPDF">
+                          <iframe [src]="previewPDF" style="width: 100%; height: 500px;" frameborder="0"></iframe>
+                        </ng-container>
+                        <ng-container *ngIf="!previewImage && !previewPDF">
+                          <div class="file-info">
+                            <span>Documento: {{ documentoForm.get('dobt_Imagen')?.value ? 'Archivo cargado' : 'No hay archivo' }}</span>
+                          </div>
+                        </ng-container>
+                      </div>
+                    </ng-template>
+
+                </div>
+              </ng-template>
+            </p-fileUpload>
+            <small *ngIf="submitted && documentoForm.controls['dobt_Imagen'].invalid" style="color: red !important">El campo es requerido.</small>
+          </div>
+
+        <div class="col-12" style="display: flex; justify-content: flex-end; ">
+          <div class="button-group d-flex justify-content-end" style="margin-right: 12px;">
+
+
+            <button      (click)="GuardarDocumento()" class="btn btn-guardar" pButton pRipple type="button" label="Agregar" icon="pi pi-plus"></button>
+          </div>
+          <div class="button-group d-flex justify-content-start">
+            <button       pButton
+            style="width: 94.97px;"
+            type="button"
+            label="Limpiar"
+            (click)="clearDocForm()"
+            class="p-button-secondary"
+            iconPos="left"
+        >
+            <img alt="button icon" style="max-width: 16px; margin-right: 5px;" src="../../../../../../assets/icons/broom-icon.png">
+
+
+            </button>
+            </div>
+        </div>
+
+
+        </div>
+        <div class="card col-12 mt-4">
+          <div class="text-900 text-xl font-semibold mb-3">Documentación</div>
+          <div class="grid">
+            <!-- Imagenes -->
+            <div class="col-12 md:col-6 xl:col-4">
+              <div class="p-3 border-1 surface-border flex align-items-center justify-content-between  border-round">
+                <div class="flex align-items-center">
+                  <i class="pi pi-image text-2xl custom-mr"></i>
+                  <span class="text-900 text-lg font-medium">Imágenes</span>
+                </div>
+              </div>
+              <div class="table-container">
+                <p-listbox [options]="ImagenSubida" formControlName="selectedImage" optionLabel="dobt_DescipcionDocumento" [style]="{width: '100%'}" emptyMessage="No hay archivos de imagenes disponibles.">
+                  <ng-template let-image pTemplate="item">
+                    <div class="d-flex align-items-center doc-item">
+                      <i class="pi pi-image"></i>
+                      <span class="doc-name">{{image.dobt_DescipcionDocumento}}</span>
+                      <button type="button" pButton icon="pi pi-trash" class="p-button-outlined" (click)="EliminarDocumento(image)"></button>
+
+                    <!-- <button type="button" pButton icon="pi pi-trash" class="p-button-outlined" (click)="EliminarDocumento(image.dobt_Id)"></button> -->
+                    </div>
+                  </ng-template>
+                </p-listbox>
+              </div>
+            </div>
+
+            <!-- PDF -->
+            <div class="col-12 md:col-6 xl:col-4">
+              <div class="p-3 border-1 surface-border flex align-items-center justify-content-between  border-round">
+                <div class="flex align-items-center">
+                  <i class="pi pi-file text-2xl custom-mr"></i>
+                  <span class="text-900 text-lg font-medium">PDF</span>
+                </div>
+              </div>
+              <div class="table-container">
+                <p-listbox [options]="PDFSubida" formControlName="selectedPDF" optionLabel="dobt_DescipcionDocumento" [style]="{width: '100%'}" emptyMessage="No hay archivos PDF disponibles.">
+                  <ng-template let-pdf pTemplate="item">
+                    <div class="d-flex align-items-center doc-item">
+                      <i class="pi pi-file-pdf"></i>
+                      <span class="doc-name">{{pdf.dobt_DescipcionDocumento}}</span>
+                                          <button type="button" pButton icon="pi pi-trash" class="p-button-outlined" (click)="EliminarDocumento(pdf)"></button>
+
+                      <!-- <button type="button" pButton icon="pi pi-trash" class="p-button-outlined" (click)="EliminarDocumento(pdf.dobt_Id)"></button> -->
+                    </div>
+                  </ng-template>
+                </p-listbox>
+              </div>
+            </div>
+
+            <!-- Excel -->
+            <div class="col-12 md:col-6 xl:col-4">
+              <div class="p-3 border-1 surface-border flex align-items-center justify-content-between  border-round">
+                <div class="flex align-items-center">
+                  <i class="pi pi-file-excel text-2xl custom-mr"></i>
+                  <span class="text-900 text-lg font-medium">Excel</span>
+                </div>
+              </div>
+              <div class="table-container">
+                <p-listbox [options]="ExcelSubida" formControlName="selectedExcel" optionLabel="dobt_DescipcionDocumento" [style]="{width: '100%'}" emptyMessage="No hay archivos Excel disponibles.">
+                  <ng-template let-excel pTemplate="item">
+                    <div class="d-flex align-items-center doc-item">
+                      <i class="pi pi-file-excel"></i>
+                      <span class="doc-name">{{excel.dobt_DescipcionDocumento}}</span>
+                      <button type="button" pButton icon="pi pi-trash" class="p-button-outlined" (click)="EliminarDocumento(excel)"></button>
+
+                      <!-- <button type="button" pButton icon="pi pi-trash" class="p-button-outlined" (click)="EliminarDocumento(excel.dobt_Id)"></button> -->
+                    </div>
+                  </ng-template>
+                </p-listbox>
+              </div>
+            </div>
+
+            <!-- Word -->
+            <div class="col-12 md:col-6 xl:col-4">
+              <div class="p-3 border-1 surface-border flex align-items-center justify-content-between  border-round">
+                <div class="flex align-items-center">
+                  <i class="pi pi-file-word text-2xl custom-mr"></i>
+                  <span class="text-900 text-lg font-medium">Word</span>
+                </div>
+              </div>
+              <div class="table-container">
+                <p-listbox [options]="WordSubida" formControlName="selectedWord" optionLabel="dobt_DescipcionDocumento" [style]="{width: '100%'}" emptyMessage="No hay archivos Word disponibles.">
+                  <ng-template let-word pTemplate="item">
+                    <div class="d-flex align-items-center doc-item">
+                      <i class="pi pi-file-word"></i>
+                      <span class="doc-name">{{word.dobt_DescipcionDocumento}}</span>
+                      <button type="button" pButton icon="pi pi-trash" class="p-button-outlined" (click)="EliminarDocumento(word)"></button>
+
+                      <!-- <button type="button" pButton icon="pi pi-trash" class="p-button-outlined" (click)="EliminarDocumento(word.dobt_Id)"></button> -->
+                    </div>
+                  </ng-template>
+                </p-listbox>
+              </div>
+            </div>
+
+            <!-- Otros -->
+            <div class="col-12 md:col-6 xl:col-4">
+              <div class="p-3 border-1 surface-border flex align-items-center justify-content-between  border-round">
+                <div class="flex align-items-center">
+                  <i class="pi pi-folder text-2xl custom-mr"></i>
+                  <span class="text-900 text-lg font-medium">Otros</span>
+                </div>
+              </div>
+              <div class="table-container">
+                <p-listbox [options]="OtrosSubida" formControlName="selectedOtros" optionLabel="dobt_DescipcionDocumento" [style]="{width: '100%'}" emptyMessage="No hay otros archivos disponibles.">
+                  <ng-template let-otros pTemplate="item">
+                    <div class="d-flex align-items-center doc-item">
+                      <i class="pi pi-folder"></i>
+                      <span class="doc-name">{{otros.dobt_DescipcionDocumento}}</span>
+                      <button type="button" pButton icon="pi pi-trash" class="p-button-outlined" (click)="EliminarDocumento(otros)"></button>
+
+                      <!-- <button type="button" pButton icon="pi pi-trash" class="p-button-outlined" (click)="EliminarDocumento(otros.dobt_Id)"></button> -->
+                    </div>
+                  </ng-template>
+                </p-listbox>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div
+        style="
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        "
+    >
+        <button
+            (click)="Regresartap()"
+            pButton
+            label="Anterior"
+            icon="pi pi-arrow-left"
+            class="p-button-secondary"
+        ></button>
+        <button
+            (click)="finalizar()"
+            pButton
+            label="Guardar"
+            icon="pi pi-save"
+        ></button>
+    </div>
+
+      </form>
+    </p-tabPanel>
+  </p-tabView>
+    </div>
+  </div>
+</div>
+
+
+<div class="grid" *ngIf="Detail">
+
+  <hr> <div class="col-12">
+    <div class="card">
+    <div class="flex" style="height: 42px;">
+      <div style="width: 20%; display: flex; align-items: center; position: absolute; height: 12.5%;">
+          <button (click)="CerrarBienRaiz()" class="p-button-link" pButton pRipple type="button" label="Regresar" icon="pi pi-arrow-left" style="box-shadow: none !important; margin-top: -20px;"></button>
+      </div>
+      <div style="width: 100%; display: flex; justify-content: center; align-items: center;">
+
+      <h1 class="text-center mt-4"> Detalle Bien Raíz</h1>
+      </div>
+</div>
+<hr>
+      <div class="p-fluid p-formgrid grid">
+        <div class="field col-12 md:col-4">
+          <div class="field rows">
+            <label for="Codigo" style="font-weight: 800;">No:</label>
+          </div>
+          <div class="field rows">
+            <label for="Codigo">{{ detalle_bien_Id }}</label>
+          </div>
+        </div>
+        <div class="field col-12 md:col-4">
+          <div class="field rows">
+            <label for="Descripcion" style="font-weight: 800;">Descripción:</label>
+          </div>
+          <div class="field rows">
+            <label for="Descripcion">{{ detalle_bien_Desripcion }}</label>
+          </div>
+        </div>
+        <div class="field col-12 md:col-4">
+          <div class="field rows">
+            <label for="Imagen" style="font-weight: 800;">Imagen:</label>
+          </div>
+          <div class="field rows">
+            <td class="text-center">
+              <span class="p-column-title"></span>
+              <img [src]="detalle_bien_Imagen"alt="Imagen Bien Raíz" width="100">
+            </td>
+          </div>
+        </div>
+      </div>
+      <div class="card-title">
+        <h1>Auditoría</h1>
+      </div>
+      <p-table [value]="Datos" styleClass="mt-2">
+        <ng-template pTemplate="header">
+          <tr>
+            <th style="width:200px; font-weight: bold;">Acción</th>
+            <th style="width:200px; font-weight: bold;">Usuario</th>
+            <th style="width:200px; font-weight: bold;">Fecha</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body">
+          <tr *ngIf="detalle_usuaCreacion && detalle_bien_FechaCreacion">
+            <td style="width:200px;">Creado</td>
+            <td style="width:200px">{{ detalle_usuaCreacion }}</td>
+            <td style="width:200px">{{ detalle_bien_FechaCreacion }}</td>
+          </tr>
+          <tr >
+            <td style="width:200px;">Modificado</td>
+            <td style="width:200px">{{ detalle_usuaModificacion }}</td>
+            <td style="width:200px">{{ detalle_bien_FechaModificacion }}</td>
+          </tr>
+        </ng-template>
+      </p-table>
+   
+    </div>
+  </div>
+</div>
+
+
+<p-dialog header="Seleccione una Construcción" [(visible)]="displayModal" [modal]="true" [style]="{width: '30vw'}" class="custom-footer-dialog">
+  <div *ngFor="let project of proyectosConstruccion" class="project-item">
+    <p-card styleClass="project-card">
+      <ng-template pTemplate="title">
+        <div class="checkbox-container">
+          <div class="project-details">
+            <div class="project-title">{{ project.proy_Descripcion }}</div>
+            <div class="project-description">{{ project.terr_Descripcion }}</div>
+            <div class="project-address">{{ project.proy_DireccionExacta }}</div>
+            <div class="project-address">{{ globalMoneda.getState().mone_Abreviatura }} {{ project.precio | number:'1.2-2'  }}</div>
+          </div>
+          <p-checkbox
+          [binary]="true"
+          [value]="project"
+          [ngModel]="checkboxStates[project.pcon_Id]" 
+          inputId="{{project.pcon_Id}}"
+          (onChange)="handleProjectChange($event.checked, project)">
+        </p-checkbox>
+        </div>
+      </ng-template>
+    </p-card>
+  </div>
+  <ng-template pTemplate="footer" id="modal-footer1e">
+    <br />
+    <div class="custom-footer">
+      <button  pButton pRipple icon="pi pi-save" type="button"  label="Guardar" (click)="confirmProjectSelection()"></button>
+      <button pButton pRipple icon="pi pi-times" class="p-button-outlined p-button-primary" label="Cancelar" (click)="closeModal()"></button>
+    </div>
+  </ng-template>
+</p-dialog>
+
+<p-dialog  [(visible)]="confirmBienRaizDialog" header="Confirmación" [modal]="true" [style]="{width:'450px'}" >
+  <div class="flex align-items-center justify-content-center">
+    <i class="pi pi-pencil mr-3" style="font-size: 2rem"></i>
+    <span >Está seguro de editar el Bien Raíz <span style="font-weight: 600;">{{nuevoDescripcionBienRaiz}}</span>?</span>
+  </div>
+  <ng-template pTemplate="footer">
+    <button  pButton pRipple icon="pi pi-pencil" type="button"  label="Aceptar" (click)="confirmarBienRaiz()"></button>
+    <button pButton pRipple icon="pi pi-times" class="p-button-outlined p-button-primary" label="Cancelar" (click)="confirmBienRaizDialog = false"></button>
+  </ng-template>
+</p-dialog>
+
+<p-dialog [(visible)]="deleteEmpresaDialog" header="Confirmación" [modal]="true" [style]="{width:'450px'}">
+  <div class="flex align-items-center justify-content-center">
+    <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+    <span>¿Está seguro de eliminar <strong>{{selectedBienRaiz?.bien_Desripcion}}</strong>?</span>
+  </div>
+  <ng-template pTemplate="footer">
+    <button  pButton pRipple icon="pi pi-trash" type="button"  label="Eliminar" (click)="confirmarEliminar()"></button>
+    <button pButton pRipple icon="pi pi-times" class="p-button-outlined p-button-primary" label="Cancelar" (click)="deleteEmpresaDialog = false"></button>
+  </ng-template>
+</p-dialog>
+
+<!-- Diálogo de confirmación para eliminar documentos -->
+<p-dialog [(visible)]="deleteDocumentoDialog" header="Confirmación" [modal]="true" [style]="{width:'450px'}">
+  <div class="flex align-items-center justify-content-center">
+    <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+    <span>¿Está seguro de eliminar el documento <strong>{{selectedDocumento?.dobt_DescipcionDocumento}}</strong>?</span>
+  </div>
+  <ng-template pTemplate="footer">
+    <button pButton pRipple icon="pi pi-trash" type="button" label="Eliminar" (click)="confirmarEliminarDocumento()"></button>
+    <button pButton pRipple icon="pi pi-times" class="p-button-outlined p-button-primary" label="Cancelar" (click)="deleteDocumentoDialog = false"></button>
+  </ng-template>
+</p-dialog>
+
+
+<!-- Finalizar -->
+<p-dialog [(visible)]="finalizarbien" header="Confirmación" [modal]="true" [style]="{width:'450px'}">
+  <div class="flex align-items-center justify-content-center">
+      <i class="pi pi-exclamation-triangle" style="font-size: 2rem"></i>
+      <span
+          >¿Está seguro de Finalizar 
+          <span style="font-weight: 600">{{selectedBienRaiz?.bien_Desripcion}}</span
+              >?
+      </span>
+  </div>
+  <ng-template pTemplate="footer" >
+      <button pButton pRipple icon="pi pi-lock" type="button" label="Aceptar" (click)="Finalizarbieneraice(); finalizarbien = false"></button>
+      <button pButton pRipple icon="pi pi-times" class="p-button-outlined p-button-primary" label="Cancelar" (click)="finalizarbien = false" ></button>
+  </ng-template>
+</p-dialog>

@@ -1,0 +1,301 @@
+<div *ngIf="isTableLoading" class="loader-container">
+    <div class="loader">
+        <span></span>
+    </div>
+</div>
+<div class="grid">
+    <div class="col-12">
+        <div class="card">
+
+            <!-- Toaster -->
+            <p-toast></p-toast>
+
+            <!-- Titulo Encabezado -->
+            <div class="flex align-items-center mb-4">
+                <div *ngIf="!indexProyecto" class="flex justify-content-start" style="gap: 10px; position: absolute;">
+                    <button (click)="cerrarFormulario()" pButton pRipple type="button" class="p-button-link"
+                        label="Regresar" icon="pi pi-arrow-left"></button>
+                    <!-- <button (click)="cerrarFormulario()" class=" p-button-secondary" pButton pRipple type="button" label="Cancelar" icon="pi pi-trash"></button> -->
+                </div>
+                <h1 class="w-full text-center">
+                    {{title}}
+                </h1>
+            </div>
+            <hr *ngIf="indexProyecto">
+
+            <!-- Titulo Accion -->
+            <div *ngIf="!indexProyecto && navigationStateService.getState()?.proyecto?.proy_Id" class="mb-4"
+                class="flex flex-row justify-content-between align-items-center mb-4">
+                <div class="flex flex-column mb-4">
+                    <span style="color: gray;"
+                        class="">{{navigationStateService.getState()?.proyecto?.proy_Nombre}}</span>
+                </div>
+            </div>
+
+            <!-- Boton de nuevo -->
+            <div *ngIf="indexProyecto" class="mb-4">
+                <button pButton pRipple label="Nuevo" icon="pi pi-fw pi-plus" (click)="abrirNuevo()"></button>
+            </div>
+
+            <!-- Tabla de listar -->
+            <p-table *ngIf="indexProyecto" #dt [value]="proyectos" responsiveLayout="scroll" [globalFilterFields]="['row', 'proy_TipoDescripcion', 'espr_Descripcion', 'proy_Nombre',
+            'proy_CostoProyecto','proy_Descripcion', 'proy_FechaInicio', 'proy_FechaFin', 'clie_NombreCompleto',
+            'proy_DireccionExacta', 'pais_Nombre', 'esta_Nombre', 'ciud_Descripcion']" [rows]="10" [paginator]="true"
+                [showCurrentPageReport]="true" [expandedRowKeys]="expandedRows"
+                currentPageReportTemplate="Mostrando {first} al {last} de {totalRecords} entradas"
+                selectionMode="multiple" [rowHover]="true" dataKey="proy_Id" [rowsPerPageOptions]="[10,25,50,100]"
+                [scrollable]="true">
+                <!-- Encabezado de tabla -->
+                <ng-template pTemplate="caption">
+                    <div class="flex">
+                        <div class="flex flex-column md:flex-row md:justify-content-start md:align-items-center">
+                            <span class="block mt-2 md:mt-0 p-input-icon-left">
+                                <i class="pi pi-search"></i>
+                                <input pInputText type="text" (input)="onGlobalFilter(dt, $event)"
+                                    placeholder="Buscar..." class="w-full sm:w-auto" />
+                            </span>
+                        </div>
+                        <div class="registros">
+                            <p-dropdown [options]="dt.rowsPerPageOptions" [(ngModel)]="dt.rows"
+                                [style]="{ 'margin-right': '5px' }" [autoWidth]="false"></p-dropdown>
+
+                            <span style="color: #FFF0C6; font-weight: 700; margin-top: 7px;"> Registros por
+                                página</span>
+                        </div>
+                    </div>
+                </ng-template>
+
+                <!-- Header de tabla -->
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th class="text-center" style="width: 5rem"></th>
+                        <th class="text-center">Acciones </th>
+                        <th class="text-center" pSortableColumn="row">No. <p-sortIcon field="row"></p-sortIcon></th>
+                        <th class="text-center" pSortableColumn="espr_Descripcion">Estado <p-sortIcon field="espr_Descripcion"></p-sortIcon></th>
+                        <th class="text-center" pSortableColumn="tipr_Descripcion">Tipo <p-sortIcon field="tipr_Descripcion"></p-sortIcon></th>
+                        <th class="text-center" pSortableColumn="proy_Nombre">Nombre <p-sortIcon field="proy_Nombre"></p-sortIcon></th>
+                        <th class="text-center" pSortableColumn="proy_CostoProyecto">Costo Actual <p-sortIcon field="proy_Nombre"></p-sortIcon></th>
+                        <th class="text-center" pSortableColumn="proy_FechaInicio">Fecha de Inicio <p-sortIcon field="proy_FechaInicio"></p-sortIcon></th>
+                        <th class="text-center" pSortableColumn="clie_NombreCompleto">Cliente <p-sortIcon field="clie_NombreCompleto"></p-sortIcon></th>
+                        <th class="text-center" pSortableColumn="proy_DireccionExacta">Dirección Exacta <p-sortIcon field="proy_DireccionExacta"></p-sortIcon></th>
+                        <th class="text-center" pSortableColumn="esta_Nombre">Municipio O Estado <p-sortIcon field="esta_Nombre"></p-sortIcon></th>
+                        <th class="text-center" pSortableColumn="ciud_Descripcion">Ciudad <p-sortIcon field="ciud_Descripcion"></p-sortIcon></th>
+                    </tr>
+                </ng-template>
+
+                <!-- Body de tabla -->
+                <ng-template pTemplate="body" let-proyecto let-expanded="expanded">
+
+                    <tr>
+                        <td class="text-center">
+                            <p-button type="button" pRipple [pRowToggler]="proyecto" [text]="true" [rounded]="true"
+                                [plain]="true" [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'" />
+                        </td>
+                        <!-- Columna de Acciones -->
+                        <td class="text-center" style="width:5%; min-width:10rem;">
+                            <p-splitButton appendTo="body" label="Acciones" icon="pi pi-cog"
+                                [model]="generarActionSplitButton(proyecto)"
+                                styleClass="p-button-secondary custom-splitbutton"></p-splitButton>
+                        </td>
+
+                        <!-- Contenido -->
+                        <td class="text-center" style="width:0.5%; min-width:3rem;"><span
+                                class="p-column-title">No.</span>
+                            {{proyecto.row}}
+                        </td>
+                        <td class="text-center" style="width:14%; min-width:10rem;"><span
+                                class="p-column-title">Estado</span>
+                            {{proyecto.espr_Descripcion}}
+                        </td>
+                        <td class="text-center" style="width:14%; min-width:10rem;"><span class="p-column-title">Tipo de
+                                Proyecto</span>
+                            {{proyecto.tipr_Descripcion}}
+                        </td>
+                        <td class="text-center" style="width:14%; min-width:10rem;">
+                            <span class="p-column-title">Nombre</span>
+                            {{proyecto.proy_Nombre}}
+                        </td>
+                        <td style="width:14%; min-width:10rem; text-align: right;">
+                            <span class="p-column-title">Costo Actual</span>
+                            {{proyecto.proy_CostoProyecto | number: '1.2-2'}}
+                        </td>
+                        <td class="text-center" style="width:14%; min-width:10rem;">
+                            <span class="p-column-title">Fecha de Inicio</span>
+                            {{proyecto.proy_FechaInicio | date:'yyyy-MM-dd'}}
+                        </td>
+                        <td class="text-center" style="width:14%; min-width:10rem;">
+                            <span class="p-column-title">Cliente</span>
+                            {{proyecto.clie_NombreCompleto}}
+                        </td>
+                        <td class="text-center" style="width:14%; min-width:10rem;">
+                            <span class="p-column-title">Dirección Exacta</span>
+                            {{proyecto.proy_DireccionExacta}}
+                        </td>
+                        <td class="text-center" style="width:14%; min-width:10rem;">
+                            <span class="p-column-title">Municipio O Estado</span>
+                            {{proyecto.esta_Nombre}}
+                        </td>
+                        <td class="text-center" style="width:14%; min-width:10rem;">
+                            <span class="p-column-title">Ciudad</span>
+                            {{proyecto.ciud_Descripcion}}
+                        </td>
+                    </tr>
+                </ng-template>
+
+
+                <ng-template pTemplate="rowexpansion" let-proyecto>
+                    <tr>
+                        <td colspan="7">
+                            <div class="p-3">
+                                <p-table [value]="proyecto.pagos" dataKey="id">
+                                    <ng-template pTemplate="header">
+                    <tr>
+                        <th class="text-center" pSortableColumn="row">No. <p-sortIcon field="row" /></th>
+                        <th class="text-center" pSortableColumn="pago_Id">Código de Pago <p-sortIcon field="pago_Id" />
+                        </th>
+                        <th class="text-center" pSortableColumn="pago_Monto">Monto <p-sortIcon field="pago_Monto" />
+                        </th>
+                        <th class="text-center" pSortableColumn="pago_Fecha">Fecha de Pago <p-sortIcon
+                                field="pago_Fecha" /></th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-pago>
+                    <tr>
+                        <td class="text-center">{{ pago.row }}</td>
+                        <td class="text-center">{{ pago.pago_Id }}</td>
+                        <td class="text-center">{{ pago.pago_Monto | currency : 'LPS ' }}</td>
+                        <td class="text-center">{{ pago.pago_Fecha | date: 'yyyy-MM-dd' }}</td>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage">
+                    <tr>
+                        <td colspan="6">No hay pagos abonados a este proyecto aún.</td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+        </td>
+        </tr>
+        </ng-template>
+
+        <ng-template pTemplate="emptymessage">
+            <tr>
+                <td colspan="100">
+                    {{loadedTableMessage}}
+                </td>
+            </tr>
+        </ng-template>
+        </p-table>
+
+        <!-- Formulario -->
+        <div *ngIf="proyectoFormulario" [style]="{width: '100%'}" class="p-fluid">
+            <p-tabMenu styleClass="mb-5" [model]="menuItems"></p-tabMenu>
+
+            <!-- Campos -->
+            <router-outlet></router-outlet>
+
+            <div class="flex mb-4">
+                <div class="flex justify-content-start w-full">
+                    <button *ngIf="!isFirstTab()" (click)="anterior()" class=" p-button-secondary" pButton pRipple
+                        type="button" label="Anterior" icon="pi pi-arrow-left"></button>
+                </div>
+
+                <div class="flex justify-content-end w-full">
+                    <button *ngIf="!isLastTab()" (click)="siguiente()" pButton pRipple type="button" label="Siguiente"
+                        icon="pi pi-arrow-right" iconPos="right"></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ver Detalles -->
+        <div *ngIf="detalleProyecto">
+
+            <!-- Campos de detalle -->
+            <div class="flex flex-column mb-4">
+                <div class="flex align-items-center flex-wrap" style="gap: 30px;">
+                    <div style="width: 30%;" *ngFor="let property of getFilteredPropertyArray()">
+                        <div class="field rows">
+                            <label style="font-weight: 800;">{{ property?.key }}</label>
+                        </div>
+                        <div class="field rows">
+                            <label>{{ property?.value }}</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabla de auditoria -->
+            <p-table [value]="selectedProyecto" responsiveLayout="scroll" [rowHover]="true" dataKey="id">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th>Acción</th>
+                        <th>Usuario</th>
+                        <th>Fecha</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-proyecto>
+                    <tr>
+                        <td>Creación</td>
+                        <td>{{proyecto.usuaCreacion}}</td>
+                        <td>{{proyecto.proy_FechaCreacion | date: 'dd/mm/yy hh:mm:ss a'}}</td>
+                    </tr>
+                    <tr>
+                        <td>Modificación</td>
+                        <td>{{proyecto?.usuaModificacion || 'N/a'}}</td>
+                        <td>{{proyecto?.proy_FechaModificacion || 'N/a' | date: 'dd/mm/yy hh:mm:ss a' }}</td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+    </div>
+
+    <!-- Modal Eliminar -->
+    <p-dialog [(visible)]="deleteProyectoDialog" header="Confirmación" [modal]="true" [style]="{width:'450px'}">
+        <!-- Cuerpo Modal -->
+        <div class="flex align-items-center justify-content-center">
+            <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+            <span *ngIf="proyecto">¿Está seguro de eliminar el proyecto <b>{{proyecto.proy_Nombre}}</b>?</span>
+        </div>
+
+        <!-- Botones -->
+        <ng-template pTemplate="footer">
+            <button pButton pRipple icon="pi pi-trash" class="p-button-primary" label="Eliminar"
+                (click)="confirmarEliminar()"></button>
+            <button pButton pRipple icon="pi pi-times" class="p-button-outlined p-button-primary" label="Cancelar"
+                (click)="deleteProyectoDialog = false"></button>
+        </ng-template>
+    </p-dialog>
+
+    <p-dialog [(visible)]="abonoDialog" [header]="'Nuevo Abono'" [modal]="true" [style]="{ width: '450px' }">
+        <div class="formgrid grid">
+            <div class="field col">
+                <label for="inputMontoAbono">Monto
+                    <span style="color: red" *ngIf="submitted && !pago.pago_Monto">*</span></label>
+                <p-inputNumber [(ngModel)]="pago.pago_Monto" mode="decimal" [minFractionDigits]="2"
+                    [maxFractionDigits]="2" [prefix]="'LPS' + ' '" [min]="1" [max]="1000000" [ngClass]="{
+                            'ng-invalid ng-dirty':
+                                (submitted && !pago.pago_Monto)
+                        }" />
+                <small style="color: red" class="ng-dirty ng-invalid" *ngIf="submitted && !pago.pago_Monto">El campo es
+                    requerido.</small>
+            </div>
+            <div class="field col">
+                <label for="fecha">Fecha del Abono
+                    <span style="color: red" *ngIf="submitted && !pago.pago_Fecha">*</span></label>
+                <p-calendar [showIcon]="true" [minDate]="defaultDatabaseDate" inputId="icon" [(ngModel)]="pago.pago_Fecha" autofocus appendTo="body"
+                    [ngClass]="{
+                            'ng-invalid ng-dirty': submitted && !pago.pago_Fecha
+                        }"></p-calendar>
+                <small style="color: red" class="ng-dirty ng-invalid" *ngIf="submitted && !pago.pago_Fecha">El campo es
+                    requerido.</small>
+            </div>
+        </div>
+        <ng-template pTemplate="footer">
+            <button pButton pRipple icon="pi pi-save" class="p-button-primary" label="Guardar"
+                (click)="guardarPago()"></button>
+            <button pButton pRipple icon="pi pi-times" class="p-button-outlined p-button-primary" label="Cancelar"
+                (click)="cerrarDialogPago()"></button>
+        </ng-template>
+    </p-dialog>
+</div>
+</div>

@@ -1,0 +1,49 @@
+.floating-button-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
+}
+
+.floating-button-container-left {
+  position: fixed;
+  bottom: 20px;
+  right: 90px;
+  z-index: 1000;
+}
+
+.floating-button-container-left .large-button {
+  width: 60px;
+  height: 60px;
+  font-size: 24px;
+}
+
+.floating-button-container .large-button {
+  width: 60px;
+  height: 60px;
+  font-size: 24px;
+}
+
+.floating-button-container-left .large-button .pi {
+  font-size: 24px;
+}
+
+.floating-button-container .large-button .pi {
+  font-size: 24px;
+}
+
+.conversionbtn {
+  margin-top: 2.6rem !important;
+}
+
+::ng-deep #dropPresupuesto > div > input.p-autocomplete-input {
+  max-width: 175px;
+}
+
+::ng-deep #dropPorcentaje > div > input.p-autocomplete-input {
+  max-width: 85px;
+}
+
+::ng-deep #dropMoneda > div > input.p-autocomplete-input {
+  max-width: 85px;
+}/*# sourceMappingURL=presupuesto.component.css.map */

@@ -1,0 +1,268 @@
+<p-toast ></p-toast>
+<div class="loader-container" *ngIf="loading">
+  <div class="loader">
+      <span></span>
+  </div>
+</div>
+<div class="grid" *ngIf="Index">
+    <div class="col-12">
+        <div class="card">
+            <h1 class="text-center">Países</h1>
+            <hr>
+            <div class="grid mt-2">
+                <div class="col-12">
+                    <button (click)="CrearPais()" pButton icon="pi pi-plus" label="Nuevo" class="mr-2">
+                    </button>
+                </div>
+            </div>
+
+            <p-table #dt [value]="pais" styleClass=" mt-2" responsiveLayout="scroll" [rows]="10"
+                [globalFilterFields]="['codigo','pais_Nombre','pais_Codigo','pais_Prefijo']"
+                [rows]="10" [paginator]="true" [showCurrentPageReport]="true" [tableStyle]="{ background: '#000' }"
+                currentPageReportTemplate="Mostrando {first} al {last} de {totalRecords} entradas"  [rowHover]="true" [rowsPerPageOptions]="[10,25,50,100]">
+                <ng-template pTemplate="caption">
+                    <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+
+                        <span class="block mt-2 md:mt-0 p-input-icon-left">
+                            <i style="color: white;" class="pi pi-search"></i>
+                            <input style="color: white;" pInputText type="text" (input)="onGlobalFilter(dt, $event)"
+                                placeholder="Buscar..." class="w-full sm:w-auto" />
+                        </span>
+
+                        <div class="registros">
+                            <p-dropdown [options]="dt.rowsPerPageOptions" [(ngModel)]="dt.rows" [style]="{ 'margin-right': '5px' }"  [autoWidth]="false"></p-dropdown>
+
+                            <span style="color: #FFF0C6; font-weight: 700; margin-top: 7px;"> Registros por página</span>
+                        </div>
+
+                    </div>
+                </ng-template>
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th style="color: white;" class="text-center">Acciones</th>
+                        <th style="color: white;" pSortableColumn="pais_Id" class="text-center">No. <p-sortIcon
+                                field="pais_Id"></p-sortIcon></th>
+                        <th style="color: white;" pSortableColumn="pais_Nombre" class="text-center">País <p-sortIcon
+                                field="pais_Nombre"></p-sortIcon></th>
+                        <th style="color: white;" pSortableColumn="pais_Codigo" class="text-center">Prefijo <p-sortIcon
+                                    field="pais_Codigo"></p-sortIcon></th>
+                        <th style="color: white;" pSortableColumn="pais_Prefijo" class="text-center">Código País <p-sortIcon
+                                        field="pais_Prefijo"></p-sortIcon></th>
+
+                    </tr>
+                </ng-template>
+                <!-- <ng-template pTemplate="emptymessage">
+                  <tr>
+                    <td colspan="6" class="text-center">
+                   
+                    </td>
+                  </tr>
+                </ng-template> -->
+                <ng-template pTemplate="body" let-pais>
+                    <tr (click)="onRowSelect(pais)">
+                                <td class="text-center" style="width:5%; min-width:15rem;">
+                                    <p-splitButton
+                                    label="Acciones"
+                                    class="custom-splitbutton"
+                                    [model]="items"
+                                    styleClass="p-button-secondary"
+                                    appendTo="body">
+                                   </p-splitButton>
+                              </td>
+
+                        <td  class="text-center"><span
+                          class="p-column-title">Código</span>
+                          {{pais.codigo}}
+                        </td>
+                        <td style="width:25%; min-width:10rem;" class="text-center">
+                            <span class="p-column-title">País</span>
+                            {{pais.pais_Nombre}}
+                        </td>
+
+                        <td style="width:25%; min-width:10rem;" class="text-center">
+                            <span class="p-column-title">Código País</span>
+                            {{pais.pais_Codigo}}
+                        </td>
+                        <td style="width:25%; min-width:10rem;" class="text-center">
+                            <span class="p-column-title">Prefijo</span>
+                            {{pais.pais_Prefijo}}
+                        </td>
+
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+
+    </div>
+</div>
+
+
+
+
+
+
+
+<div class="grid" *ngIf="Create">
+    <div class="col-12">
+        <div class="card" >
+            <div class="flex" style="width: 100%; margin: 0 auto; display: flex; align-items: center; height: 42px;">
+                <div style="width: 20%; display: flex; align-items: center; height: 12.5%;">
+                    <button (click)="CerrarPais()" class="p-button-link" pButton pRipple type="button" label="Regresar" icon="pi pi-arrow-left" style="box-shadow: none !important"></button>
+                </div>
+                <div style="flex-grow: 1; display: flex; justify-content: center; align-items: center;">
+                    <h1 class="text-center mt-4">{{ titulo }} País</h1>
+                </div>
+                <div style="width: 20%;"></div> <!-- Empty div to balance the space on the right -->
+            </div>
+            <hr>
+
+        <div class=" mt-2 grid">
+          <form [formGroup]="form" class="grid col-12 p-fluid p-formgrid">
+            <div class="field col-12 md:col-6">
+              <label>Nombre del País&nbsp;</label><small style="display:inline-block;"  class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['pais_Nombre'].invalid"
+              style="color: red !important;">*</small>
+              <input maxlength="50" class="col-6"
+              (keydown)="ValidarTexto($event)"
+                     [ngClass]="{'ng-invalid ng-dirty': submitted && form.controls['pais_Nombre'].invalid}"
+                     type="text" class="p-inputtext" formControlName="pais_Nombre" (input)="handleInput1($event)" (blur)="ManejodeDesenfoque1($event)">
+              <small class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['pais_Nombre'].invalid"
+                     style="color: red !important;" >El campo es requerido.</small>
+            </div>
+            <div class="field col-12 md:col-6">
+              <label>Prefijo&nbsp;</label><small style="display:inline-block;"  class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['pais_Codigo'].invalid"
+              style="color: red !important;">*</small>
+              <input class="col-6"
+              (keydown)="ValidarPrefijo($event)"
+                     [ngClass]="{'ng-invalid ng-dirty': submitted && form.controls['pais_Codigo'].invalid}"
+                     type="text" class="p-inputtext" formControlName="pais_Codigo" maxlength="3" (input)="handleInput($event)"
+                     (blur)="ManejodeDesenfoque($event)">
+              <small class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['pais_Codigo'].invalid"
+                     style="color: red !important;">El campo es requerido.</small>
+            </div>
+            <div class="field col-12 md:col-6">
+              <label>Código del País&nbsp;</label><small style="display:inline-block;"  class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['pais_Prefijo'].invalid"
+              style="color: red !important;">*</small>
+              <input class="col-6"
+              (keydown)="ValidarNumeros($event)"
+                     [ngClass]="{'ng-invalid ng-dirty': submitted && form.controls['pais_Prefijo'].invalid}"
+                     type="text" class="p-inputtext" formControlName="pais_Prefijo" >
+              <small class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['pais_Prefijo'].invalid"
+                     style="color: red !important;">El campo es requerido.</small>
+            </div>
+          </form>
+        </div>
+        <div style="display: flex;justify-content: end;">
+          <button (click)="Guardar()" class="btn btn-guardar" pButton pRipple type="button" label="Guardar" icon="pi pi-save"></button>
+          <button (click)="CerrarPais()" style="margin-left: 2%;" class=" p-button-secondary" pButton pRipple type="button" label="Cancelar" icon="pi pi-times"></button>
+        </div>
+
+
+        <p-dialog [(visible)]="editarPaiss" header="Confirmación" [modal]="true" [style]="{width:'450px'}">
+            <!-- Cuerpo -->
+            <div class="flex align-items-center justify-content-center">
+                <i class="pi pi-pencil mr-3" style="font-size: 2rem"></i>
+                <span *ngIf="paiss">¿Está seguro de editar el país <span style="font-weight: 600;"> {{form.controls['pais_Nombre'].value}}</span>?</span>
+            </div>
+            <!-- Botones -->
+            <ng-template pTemplate="footer">
+                <button pButton pRipple icon="pi pi-pencil" class="p-button-primary" label="Aceptar" (click)="confirmarEditar()"></button>
+                <button pButton pRipple icon="pi pi-times" class="p-button-outlined p-button-primary" label="Cancelar" (click)="editarPaiss = false"></button>
+            </ng-template>
+        </p-dialog>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid" *ngIf="Detail">
+    <div class="col-12">
+        <div class="card">
+            <div class="flex" style="width: 100%; margin: 0 auto; display: flex; align-items: center; height: 42px;">
+                <div style="width: 20%; display: flex; align-items: center; height: 12.5%;">
+                    <button (click)="CerrarPais()" class="p-button-link" pButton pRipple type="button" label="Regresar" icon="pi pi-arrow-left" style="box-shadow: none !important"></button>
+                </div>
+                <div style="flex-grow: 1; display: flex; justify-content: center; align-items: center;">
+                    <h1 class="text-center mt-4">Detalle País</h1>
+                </div>
+                <div style="width: 20%;"></div> <!-- Empty div to balance the space on the right -->
+            </div>
+    <hr>
+        <div class="p-fluid p-formgrid grid">
+          <div class="field col-12 md:col-4 " style="position: relative; height: 10%;">
+            <div class="field rows">
+              <label for="Codigo" style="font-weight: 800;">No:</label>
+            </div>
+            <div class="field rows">
+              <label for="Codigo">{{ selectedPais.codigo }}</label>
+            </div>
+          </div>
+
+          <div class="field col-12 md:col-4" style="position: relative;">
+            <div class="field rows">
+              <label for="Municipio" style="font-weight: 800;">País:</label>
+            </div>
+            <div class="field rows">
+              <label for="Municipio">{{ detalle_pais_Nombre }}</label>
+            </div>
+          </div>
+
+          <div class="field col-12 md:col-4" style="position: relative;">
+            <div class="field rows">
+              <label for="Municipio" style="font-weight: 800;">Prefijo:</label>
+            </div>
+            <div class="field rows">
+              <label for="Municipio">{{ detalle_pais_Codigo }}</label>
+            </div>
+          </div>
+
+          <div class="field col-12 md:col-4" style="position: relative;">
+            <div class="field rows">
+              <label for="Municipio" style="font-weight: 800;">Código del País:</label>
+            </div>
+            <div class="field rows">
+              <label for="Municipio">{{ detalle_pais_Prefijo }}</label>
+            </div>
+          </div>
+
+        </div>
+        <div style="position: relative;top:-20px;">
+          <div class="card-title">
+            <h1>Auditoría</h1>
+          </div>
+          <p-table [value]="Datos" styleClass="mt-2">
+            <ng-template pTemplate="header">
+              <tr>
+                <th style="width:200px; font-weight: bold;">Acción</th>
+                <th style="width:200px; font-weight: bold;">Usuario</th>
+                <th style="width:200px; font-weight: bold;">Fecha</th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-transaction>
+              <tr>
+                <td style="width:200px;">Creado</td>
+                <td style="width:200px">{{ detalle_usuaCreacion }}</td>
+                <td style="width:200px">{{ detalle_FechausuaCreacion }}</td>
+              </tr>
+              <tr>
+                <td style="width:200px;">Modificado</td>
+                <td style="width:200px">{{ detalle_usuaModificacion }}</td>
+                <td style="width:200px">{{ detalle_FechausuaModificacion}}</td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p-dialog [(visible)]="Delete" header="Confirmación" [modal]="true" [style]="{width:'450px'}">
+    <div class="flex align-items-center justify-content-center">
+      <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+      <span>¿Está seguro de eliminar el País
+        <span style="font-weight: 600">{{ detalle_pais_Nombre }}</span>?</span>
+    </div>
+    <ng-template pTemplate="footer">
+      <button pButton pRipple icon="pi pi-trash" class="p-button-primary" label="Eliminar" (click)="Eliminar()"></button>
+      <button pButton pRipple icon="pi pi-times" class="p-button-outlined p-button-primary" label="Cancelar" (click)="Delete = false"></button>
+    </ng-template>
+  </p-dialog>
+

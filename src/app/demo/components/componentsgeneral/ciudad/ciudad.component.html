@@ -1,0 +1,308 @@
+<p-toast></p-toast>
+<div class="loader-container" *ngIf="loading">
+    <div class="loader">
+        <span></span>
+    </div>
+  </div>
+<!--Inicio del Index-->
+<div class="grid" *ngIf="Index">
+    <div class="col-12">
+        <div class="card">
+            <h1 class="text-center mt-2">Ciudades</h1>
+            <hr>
+            <div class="grid mt-2">
+                <div class="col-12">
+                    <button (click)="Crearciudad()" pButton icon="pi pi-plus" label="Nuevo" class="mr-2">
+                    </button>
+                </div>
+            </div>
+
+            <p-table #dt [value]="ciudades" styleClass=" mt-2" responsiveLayout="scroll" [rows]="10"
+                [globalFilterFields]="['ciud_Codigo', 'ciud_Descripcion', 'esta_Nombre']"
+                [rows]="10" [paginator]="true" [showCurrentPageReport]="true" [tableStyle]="{ background: '#000' }"
+                currentPageReportTemplate="Mostrando {first} al {last} de {totalRecords} entradas" [rowHover]="true" [rowsPerPageOptions]="[10,25,50,100]">
+                <ng-template pTemplate="caption">
+                    <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+
+                        <span class="block mt-2 md:mt-0 p-input-icon-left">
+                            <i style="color: white;" class="pi pi-search"></i>
+                            <input style="color: white;" pInputText type="text" (input)="onGlobalFilter(dt, $event)"
+                                placeholder="Buscar..." class="w-full sm:w-auto" />
+                        </span>
+
+                        <div class="registros">
+                            <p-dropdown [options]="dt.rowsPerPageOptions" [(ngModel)]="dt.rows" [style]="{ 'margin-right': '5px' }"  [autoWidth]="false"></p-dropdown>
+
+                            <span style="color: #FFF0C6; font-weight: 700; margin-top: 7px;"> Registros por página</span>
+                        </div>
+                    </div>
+                </ng-template>
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th style="color: white;" class="text-center">Acciones</th>
+                        <th style="color: white;" pSortableColumn="ciud_Id" class="text-center">No. <p-sortIcon
+                            field="esta_Id"></p-sortIcon></th>
+                        <th style="color: white;" pSortableColumn="ciud_Codigo" class="text-center">Código <p-sortIcon
+                                field="esta_Id"></p-sortIcon></th>
+                      <th style="color: white;" pSortableColumn="ciud_Descripcion" class="text-center">Nombre <p-sortIcon
+                           field="esta_Codigo"></p-sortIcon></th>
+                        <th style="color: white;" pSortableColumn="esta_Nombre" class="text-center">Estado <p-sortIcon
+                            field="esta_Nombre"></p-sortIcon></th>
+
+                    </tr>
+                </ng-template>
+
+          
+
+
+                <ng-template pTemplate="body" let-ciudad>
+                    <tr (click)="selectciudad(ciudad)">
+                        <td class="text-center" style="width:5%; min-width:10rem;" >
+                            <p-splitButton label="Acciones"
+                            icon="pi pi-cog"
+                            class="custom-splitbutton"
+                            [model]="items"
+                                styleClass="p-button-secondary"
+                                 appendTo="body">
+                            </p-splitButton>
+                        </td>
+                        <td style="width:14%; min-width:10rem;" class="text-center"><span
+                            class="p-column-title">No.</span>
+                        {{ciudad.codigo}}
+                    </td>
+                        <td style="width:14%; min-width:10rem;" class="text-center"><span
+                                class="p-column-title">Código: </span>
+                            {{ciudad.ciud_Codigo}}
+                        </td>
+                        <td style="width:14%; min-width:10rem;" class="text-center">
+                            <span class="p-column-title">Descripción: </span>
+                            {{ciudad.ciud_Descripcion}}
+                        </td>
+                        <td style="width:14%; min-width:10rem;" class="text-center">
+                            <span class="p-column-title">País: </span>
+                            {{ciudad.esta_Nombre}}
+                        </td>
+
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+    </div>
+</div>
+<!--Fin del Index-->
+
+
+<!--Inicio del Formulario-->
+<div class="grid" *ngIf="Create">
+    <div class="col-12">
+        <div class="card">
+            <div class="flex" style="width: 100%; margin: 0 auto; display: flex; align-items: center; height: 42px;">
+                <!-- Contenedor del Botón Regresar -->
+                <div style="width: 20%; display: flex; align-items: center; height: 12.5%;">
+                    <button (click)="Cerrarciudad()" pButton pRipple type="button" class="p-button-link" label="Regresar" icon="pi pi-arrow-left" style="box-shadow: none !important"></button>
+                </div>
+
+                <!-- Contenedor del Título -->
+                <div style="flex-grow: 1; display: flex; justify-content: center; align-items: center;">
+                    <h1 class="text-center mt-4">{{ titulo }}</h1>
+                </div>
+
+                <div style="width: 20%;"></div> <!-- Empty div to balance the space on the right -->
+            </div>
+             <hr>
+             <div class=" mt-2 grid">
+                <form [formGroup]="form" class="grid col-12 p-fluid p-formgrid">
+                    <div class="field col-12 md:col-6">
+                        <label>Código&nbsp;</label><small style="display:inline-block;"  class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['ciud_Codigo'].invalid"
+                        style="color: red !important;">*</small>
+                        <input class="col-6"
+                        (keydown)="ValidarNumeros($event)"
+                        (input)="handleInputnumber($event,'ciud_Codigo')"
+                            [ngClass]="{'ng-invalid ng-dirty': submitted && form.controls['ciud_Codigo'].invalid}"
+                            type="text" class="p-inputtext" formControlName="ciud_Codigo">
+                        <small class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['ciud_Codigo'].invalid"
+                            style="color: red !important;">El campo es requerido.</small>
+                    </div>
+                    <div class="field col-12 md:col-6">
+                        <label>Descripción&nbsp;</label><small style="display:inline-block;"  class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['ciud_Descripcion'].invalid"
+                        style="color: red !important;">*</small>
+                        <input class="col-6"
+                        (keydown)="ValidarTexto($event)"
+                            [ngClass]="{'ng-invalid ng-dirty': submitted && form.controls['ciud_Descripcion'].invalid}"
+                            type="text" class="p-inputtext" formControlName="ciud_Descripcion" (input)="handleInput($event,'ciud_Descripcion')">
+                        <small class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['ciud_Descripcion'].invalid"
+                            style="color: red !important;">El campo es requerido.</small>
+                    </div>
+                    <div class="field col-12 md:col-6">
+                        <label for="pais_Nombre">País&nbsp;</label><small style="display:inline-block;"  class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['pais_Nombre'].invalid"
+                        style="color: red !important;">*</small>
+                        <p-autoComplete
+                          id="pais_Nombre"
+                          formControlName="pais_Nombre"
+                          [suggestions]="paisfill"
+                          (completeMethod)="filterPais($event)"
+                          (onSelect)="filtrarEstados($event)"
+                          field="pais_Nombre"
+                          placeholder="Seleccione un país"
+                          [dropdown]="true"
+                          appendTo="body"
+                          [ngClass]="{'ng-invalid ng-dirty': submitted && form.controls['pais_Nombre'].invalid || notFound}"
+                        ></p-autoComplete>
+                        <small class="ng-dirty ng-invalid" *ngIf="notFound && !form.controls['pais_Nombre'].invalid"
+                        style="color: red !important;">Opción no encontrada.</small>
+
+                        <!-- Mostrar mensaje de error si el campo es requerido -->
+                        <small class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['pais_Nombre'].invalid"
+                        style="color: red !important;">El campo es requerido.</small>
+                      </div>
+
+                      <div class="field col-12 md:col-6">
+                        <label for="esta_Nombre">Estado&nbsp;</label><small style="display:inline-block;"  class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['esta_Nombre'].invalid"
+                        style="color: red !important;">*</small>
+                        <p-autoComplete
+                          id="esta_Nombre"
+                          formControlName="esta_Nombre"
+                          [suggestions]="estadofill"
+                          (completeMethod)="filterEstado($event)"
+                          (onSelect)="EstadoOnChange($event)"
+                          appendTo="body"
+                          field="esta_Nombre"
+                          placeholder="Seleccione un estado"
+                          [dropdown]="true"
+                          [ngClass]="{'ng-invalid ng-dirty': submitted && form.controls['esta_Nombre'].invalid || notFound1}"
+                        ></p-autoComplete>
+                        <!-- Mostrar mensaje de error si el campo es requerido -->
+                        <small class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['esta_Nombre'].invalid"
+                        style="color: red !important;">El campo es requerido.</small>
+
+                        <small class="ng-dirty ng-invalid" *ngIf="notFound1 && !form.controls['esta_Nombre'].invalid"
+                        style="color: red !important;">Opción no encontrada.</small>
+
+                      </div>
+                 </form>
+            </div>
+            <div style="display: flex;justify-content: end;" >
+                <button (click)="Guardar()"  class="btn btn-guardar" pButton pRipple type="button" label="Guardar" icon="pi pi-save"></button>
+                <button (click)="Cerrarciudad()" style="margin-left: 2%;" class=" p-button-secondary" pButton pRipple type="button" label="Cancelar" icon="pi pi-times"></button>
+            </div>
+        </div>
+
+    </div>
+</div>
+<!--Fin del Formulario-->
+
+<!--Inicio del Detalle-->
+<div class="grid" *ngIf="Detail">
+    <div class="col-12">
+        <div class="card">
+            <div class="flex" style="width: 100%; margin: 0 auto; display: flex; align-items: center; height: 42px;">
+                <!-- Contenedor del Botón Regresar -->
+                <div style="width: 20%; display: flex; align-items: center; height: 12.5%;">
+                    <button (click)="Cerrarciudad()" pButton pRipple type="button" class="p-button-link" label="Regresar" icon="pi pi-arrow-left" style="box-shadow: none !important"></button>
+                </div>
+
+                <!-- Contenedor del Título -->
+                <div style="flex-grow: 1; display: flex; justify-content: center; align-items: center;">
+                    <h1 class="text-center mt-4">{{ titulo }}</h1>
+                </div>
+
+                <div style="width: 20%;"></div> <!-- Empty div to balance the space on the right -->
+            </div>
+
+            <hr>
+        <div class="p-fluid p-formgrid grid" >
+            <div class="field col-12 md:col-4 " style="position: relative; height: 10%;">
+                <div class="field rows">
+                    <label for="Codigo" style="font-weight: 800;">No:</label>
+                </div>
+                <div class="field rows">
+                    <label for="Codigo">{{ detalle_ciud_Id }}</label>
+                </div>
+            </div>
+            <div class="field col-12 md:col-4" style="position: relative;" >
+                <div class="field rows">
+                    <label for="Municipio" style="font-weight: 800;">Código:</label>
+                </div>
+                <div class="field rows">
+                    <label for="Municipio">{{ detalle_ciud_Codigo }}</label>
+                </div>
+            </div>
+            <div class="field col-12 md:col-4" style="position: relative;" >
+                <div class="field rows">
+                    <label for="Municipio" style="font-weight: 800;">Nombre:</label>
+                </div>
+                <div class="field rows">
+                    <label for="Municipio">{{ detalle_ciud_Descripcion }}</label>
+                </div>
+            </div>
+            <div class="field col-12 md:col-4" style="position: relative;" >
+                <div class="field rows">
+                    <label for="Municipio" style="font-weight: 800;">País:</label>
+                </div>
+                <div class="field rows">
+                    <label for="Municipio">{{ detalle_esta_Nombre}}</label>
+                </div>
+            </div>
+
+        </div>
+    <div style="position: relative;top:-20px;" >
+        <div class="card-title">
+            <h1>Auditoría</h1>
+        </div>
+        <p-table [value]="Datos" styleClass=" mt-2">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th style="width:200px; font-weight: bold;">Acción</th>
+                    <th style="width:200px; font-weight: bold;" >Usuario</th>
+                    <th style="width:200px; font-weight: bold;">Fecha</th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-transaction>
+                <tr>
+                    <td style="width:200px;">Creado</td>
+                    <td style="width:200px">{{ detalle_usuaCreacion }}</td>
+                    <td style="width:200px">{{ detalle_FechausuaCreacion | date:'yyyy/MM/dd'}}</td>
+                </tr>
+                <tr>
+                    <td style="width:200px;">Modificado</td>
+                    <td style="width:200px">{{ detalle_usuaModificacion }}</td>
+                    <td style="width:200px">{{ detalle_FechausuaCreacion | date:'yyyy/MM/dd'}}</td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+    </div>
+</div>
+</div>
+<!--Fin del Detalle-->
+
+<!--Inicio de la confirmacion de eliminar-->
+
+<p-dialog [(visible)]="Delete" header="Confirmación" [modal]="true" [style]="{width:'450px'}">
+    <div class="flex align-items-center justify-content-center">
+        <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+        <span *ngIf="Delete">¿Está seguro de eliminar la ciudad <span style="font-weight: 600;">{{detalle_ciud_Descripcion}}</span>?</span>
+    </div>
+    <ng-template pTemplate="footer">
+        <button pButton pRipple icon="pi pi-trash" class=" p-button-primary" label="Eliminar" (click)="Eliminarciudad()"></button>
+        <button pButton pRipple icon="pi pi-times" class="p-button-outlined p-button-primary" label="Cancelar" (click)="Delete = false"></button>
+    </ng-template>
+</p-dialog>
+<!--Fin de la confirmacion de eliminar-->
+
+
+<!--Inicio del Modal para confirmar la edicion-->
+<p-dialog [(visible)]="modalConfirmacion" header="Confirmación" [modal]="true" [style]="{width:'450px'}">
+    <div class="flex align-items-center justify-content-center">
+        <i class="pi pi-pencil mr-3" style="font-size: 2rem"></i>
+        <span>¿Está seguro que deseas editar la ciudad <span style="font-weight: 600;">{{form.value.ciud_Descripcion}}</span>?</span>
+    </div>
+    <ng-template pTemplate="footer">
+        <button pButton pRipple icon="pi pi-pencil" class=" p-button-primary" label="Aceptar"
+            (click)="Guardar()"></button>
+        <button pButton pRipple icon="pi pi-times" class="p-button-outlined p-button-primary" label="Cancelar"
+            (click)="modalConfirmacion = false"></button>
+    </ng-template>
+</p-dialog>
+<!--Fin del Modal para confirmar la edicion-->
+

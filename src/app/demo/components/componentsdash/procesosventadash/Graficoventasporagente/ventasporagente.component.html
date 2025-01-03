@@ -1,0 +1,84 @@
+<div class="col-12 lg:col-12">
+  <div class="card ">
+    <div class="card-header flex flex-column align-items-center">
+      <h2>
+        Filtrar por Fecha
+      
+      </h2>
+    </div>
+    <div class="card-body">
+      
+      <form [formGroup]="form" (ngSubmit)="comprasrealizadas()" class="grid col-12 p-fluid p-formgrid">
+        
+        
+        <!-- Campo para Fecha de Inicio -->
+        <div class="field col-12 md:col-6">
+          <label for="fechaInicio">
+            Fecha de Inicio
+            <small *ngIf="submitted && form.controls['fechaInicio'].invalid" style="color: red;">*</small>
+          </label>
+          <p-calendar
+            id="fechaInicio"
+            formControlName="fechaInicio"
+            [showIcon]="true"
+            dateFormat="dd/mm/yy"
+            appendTo="body"
+            class="w-full"
+            (keydown)="preventManualInput($event)"
+            (input)="preventManualInput($event)"
+            [ngClass]="{'ng-invalid ng-dirty': submitted && form.controls['fechaInicio'].invalid}"
+          ></p-calendar>
+          <small class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['fechaInicio'].invalid"
+          style="color: red !important;">El campo es requerido.</small>
+        </div>
+  
+        <!-- Campo para Fecha Final -->
+        <div class="field col-12 md:col-6">
+          <label for="fechaFinal">
+            Fecha de Finalización
+            <small *ngIf="submitted && form.controls['fechaFinal'].invalid" style="color: red;">*</small>
+          </label>
+          <p-calendar
+            id="fechaFinal"
+            formControlName="fechaFinal"
+            [showIcon]="true"
+            dateFormat="dd/mm/yy"
+            appendTo="body"
+            class="w-full"
+            (keydown)="preventManualInput($event)"
+            (input)="preventManualInput($event)"
+            [ngClass]="{'ng-invalid ng-dirty': submitted && form.controls['fechaFinal'].invalid}"
+          ></p-calendar>
+          <small class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['fechaFinal'].invalid"
+          style="color: red !important;">El campo es requerido.</small>
+        </div>
+  
+        <!-- Botones para Generar Reporte -->
+        <div class="field col-12" style="display: flex; justify-content: flex-end;">
+          <div class="button-group d-flex justify-content-end" style="margin-right: 12px;">
+            <button type="submit" pButton label="Filtrar" icon="pi pi-file-pdf"></button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+  <div class="card " >
+    <div class="card-header flex flex-column align-items-center">
+      <h2>
+        Ventas por Agentes
+      
+      </h2>
+    </div>
+
+    <div *ngIf="!nodata">
+      <p-chart type="bar" [data]="barData" [options]="barOptions"></p-chart>
+      
+    </div>
+    <div *ngIf="nodata">
+    
+    </div>
+
+  </div>
+</div>

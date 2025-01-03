@@ -1,0 +1,150 @@
+::ng-deep .custom-splitbutton .p-splitbutton-defaultbutton {
+    display: none; /* Oculta el botón izquierdo */
+}
+
+::ng-deep .custom-splitbutton .p-splitbutton-menubutton {
+    width: 133.73px;
+    height: 29.49px;
+    display: flex;
+    align-items: center;
+    padding: 0.5rem;
+    border-radius: 5px;
+    position: relative;
+}
+
+::ng-deep .custom-splitbutton .p-splitbutton-menubutton .p-button-label {
+    display: flex;
+    align-items: center;
+}
+
+::ng-deep .custom-splitbutton .p-splitbutton-menubutton::before {
+    content: '\e94a   Acciones ';
+    font-family: 'PrimeIcons', sans-serif;
+    font-size: 1rem;
+    display: inline-flex;
+    align-items: center;
+    margin-right: 17px;
+}
+
+/* Añadir el icono de engranaje a la izquierda del texto */
+::ng-deep .custom-splitbutton .p-splitbutton-menubutton::before {
+    position: relative;
+}
+
+
+::ng-deep .custom-splitbutton .p-splitbutton-menubutton .p-button-icon-right .p-icon-wrapper{
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    margin-left: 0;
+}
+
+
+.p-tabview-nav {
+    display: flex;
+    justify-content: space-between;
+    }.p-tabview-nav {
+    display: flex;
+    justify-content: space-between;
+    }
+  .high-z-index-dropdown .ui-dropdown-panel {
+      z-index: 1050 !important;
+    }
+
+    .p-dialog {
+      z-index: 1000 !important;
+    }
+
+    .p-dropdown {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid transparent;
+      transition: background-color 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s;
+      border-radius: 0px !important;
+  }
+
+  .status-button {
+    height: 30px;
+    width: 80px;
+    border-radius: 5px;
+    color: white;
+    text-align: center;
+    line-height: 30px;
+    font-weight: bold;
+    display: inline-block;
+  }
+
+  .status-emitida {
+    background-color: green;
+  }
+
+  .status-sinemitir {
+    background-color: red;
+  }
+
+  .button-container {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+  }
+
+  .p-mr-3 {
+    margin-right: 1rem;
+  }
+
+  .p-mb-2 {
+    margin-bottom: 0.5rem;
+  }
+
+  .p-field label {
+  font-size: 1.1em;
+  }
+
+  .p-text-secondary {
+  font-size: 1.2em;
+  color: #6c757d;
+  }
+
+  .p-button-rounded {
+  border-radius: 50%;
+  }
+
+  .p-button-icon-only {
+  width: 2.5em;
+  }
+
+  .rounded-box {
+  background-color: #f5f5f5;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .p-field h5 {
+  margin: 0;
+  }
+
+  .p-field p {
+  margin: 0;
+  font-size: 1.2em;
+  color: #6c757d;
+  }
+
+
+  .p-fluid .p-inputgroup .p-button.p-button-icon-only {
+     width: 1.286rem !important;
+}
+
+
+
+
+  ::ng-deep .p-tabview .p-tabview-nav .p-tabview-ink-bar {
+    z-index: 1 !important;
+    display: block !important;
+    position: absolute !important;
+    bottom: 0 !important;
+    height: 2px !important;
+    background-color: transparent !important;
+    transition: 500ms cubic-bezier(0.35, 0, 0.25, 1) !important;
+}

@@ -1,0 +1,641 @@
+<p-toast></p-toast>
+
+<style>
+    .actividad-container {
+        display: block;
+    }
+
+    ::ng-deep .p-fileupload .p-fileupload-content {
+        height: 180px;
+    }
+</style>
+
+<div class="actividad-container" *ngIf="Index">
+    <div class="col-12">
+        <div class="card">
+            <!--  -->
+            <div
+                class="flex"
+                style="
+                    width: 100%;
+                    margin: 0 auto;
+                    display: flex;
+                    align-items: center;
+                "
+            >
+                <div
+                    style="
+                        width: 20%;
+                        display: flex;
+                        align-items: center;
+                        height: 12.5%;
+                    "
+                >
+                    <button
+                        (click)="CerrarCliente()"
+                        class="p-button-link"
+                        pButton
+                        pRipple
+                        type="button"
+                        label="Regresar"
+                        icon="pi pi-arrow-left"
+                        style="box-shadow: none !important"
+                    ></button>
+                </div>
+                <div
+                    style="
+                        flex-grow: 1;
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                    "
+                >
+                    <h1
+                        class="text-center"
+                        style="flex-grow: 1; padding-right: 10%"
+                    >
+                        {{ titulo }} Incidente
+                    </h1>
+                </div>
+                <div style="width: 20%"></div>
+            </div>
+            <hr />
+            <!--  -->
+            <div class="mt-2 grid">
+                <div class="grid col-12 fluid ml-1" style="padding-bottom: 0;">
+                    <div class="field col-12 md:col-4">
+                        <label style="font-weight: 800;">Actividad: </label>
+                        <span class="flex">{{actividad.acti_Descripcion}}</span>
+                    </div>
+                    <div class="field col-12 md:col-4">
+                        <label style="font-weight: 800;">Etapa: </label>
+                        <span class="flex">{{actividad.etap_Descripcion}}</span>
+                    </div>
+                    <div class="field col-12 md:col-4">
+                        <label style="font-weight: 800;">Proyecto: </label>
+                        <span class="flex">{{actividad.proy_Nombre}}</span>
+                    </div>
+                </div>
+                <form [formGroup]="form" class="col-12 p-fluid grid" style="padding-top: 0;">
+                    <!-- Primera columna con los inputs -->
+                    <div class="field col-12 md:col-6">
+                        <div class="field col-12">
+                            <label>Descripción <small
+                                class="ng-dirty ng-invalid"
+                                *ngIf="
+                                    submitted &&
+                                    form.controls['inci_Descripcion'].invalid
+                                "
+                                style="color: red !important"
+                            >
+                                *
+                            </small></label>
+                            <input
+                                (keydown)="validarTexto($event)"
+                                [ngClass]="{
+                                    'ng-invalid ng-dirty':
+                                        submitted &&
+                                        form.controls['inci_Descripcion']
+                                            .invalid
+                                }"
+                                type="text"
+                                class="p-inputtext"
+                                formControlName="inci_Descripcion"
+                                maxlength="100"
+                            />
+                            <small
+                                class="ng-dirty ng-invalid"
+                                *ngIf="
+                                    submitted &&
+                                    form.controls['inci_Descripcion'].invalid
+                                "
+                                style="color: red !important"
+                            >
+                            El campo es requerido.
+                            </small>
+                        </div>
+
+                        <div class="field col-12">
+                            <label>Fecha <small
+                                class="ng-dirty ng-invalid"
+                                *ngIf="
+                                    submitted &&
+                                    form.controls['inci_Fecha'].invalid
+                                "
+                                style="color: red !important"
+                            >
+                                *
+                            </small></label>
+                            <p-calendar
+                                (keydown)="ValidarNumeros($event)"
+                                [ngClass]="{
+                                    'ng-invalid ng-dirty':
+                                        submitted &&
+                                        form.controls['inci_Fecha'].invalid
+                                }"
+                                type="text"
+                                [showIcon]="true"
+                                formControlName="inci_Fecha"
+                                [minDate]="minDate"
+                                [maxDate]="maxDate"
+                            ></p-calendar>
+                            <small
+                                class="ng-dirty ng-invalid"
+                                *ngIf="
+                                    submitted &&
+                                    form.controls['inci_Fecha'].invalid
+                                "
+                                style="color: red !important"
+                            >
+                            El campo es requerido.
+                            </small>
+                        </div>
+
+                        <div class="field col-12">
+                            <label>Costo <small
+                                class="ng-dirty ng-invalid"
+                                *ngIf="
+                                    submitted &&
+                                    form.controls['inci_Costo'].invalid
+                                "
+                                style="color: red !important"
+                            >
+                                *
+                            </small></label>
+                            <p-inputNumber
+                                mode="decimal"
+                                [minFractionDigits]="2" 
+                                [maxFractionDigits]="2"
+                                [prefix]="globalmonedaService.getState().mone_Abreviatura + ' '" 
+                                (keydown)="ValidarNumeros($event)"
+                                [ngClass]="{
+                                    'ng-invalid ng-dirty':
+                                        submitted &&
+                                        form.controls['inci_Costo'].invalid
+                                }"
+                                formControlName="inci_Costo"
+                            />
+                            <small
+                                class="ng-dirty ng-invalid"
+                                *ngIf="
+                                    submitted &&
+                                    form.controls['inci_Costo'].invalid
+                                "
+                                style="color: red !important"
+                            >
+                            El campo es requerido.
+                            </small>
+                        </div>
+                    </div>
+
+                    <!-- Segunda columna con el file upload -->
+                    <div class="field col-12 md:col-6" style="margin-top: 30px">
+                        <p-fileUpload
+                            #fileUpload
+                            name="demo[]"
+                            accept="image/*"
+                            (onSelect)="onImageSelect($event)"
+                            [customUpload]="true"
+                            [multiple]="false"
+                            [showUploadButton]="false"
+                            [showCancelButton]="false"
+                            [auto]="true"
+                            class="w-full"
+                            chooseLabel="Subir"
+                        >
+                            <ng-template pTemplate="content">
+                                <div
+                                    class="image-upload-container"
+                                    (click)="triggerFileUpload()"
+                                    style="margin-top: -20px;"
+                                >
+                                    <ng-container
+                                        *ngIf="
+                                            !form.get('imin_Imagen').value;
+                                            else showDoc
+                                        "
+                                    >
+                                        <div
+                                            class="h-full flex flex-column justify-content-center align-items-center"
+                                        >
+                                            <i
+                                                class="pi pi-upload text-900 text-2xl mb-3"
+                                            ></i>
+                                            <span
+                                                class="font-bold text-900 text-xl mb-3"
+                                                >Subir imágenes</span
+                                            >
+                                            <span
+                                                class="font-medium text-600 text-md text-center"
+                                                >Seleccione las imágenes</span
+                                            >
+                                        </div>
+                                    </ng-container>
+                                    <ng-template #showDoc>
+                                        <div
+                                            class="h-full flex flex-column justify-content-center align-items-center"
+                                        >
+                                            <img
+                                                [src]="
+                                                    form.get('imin_Imagen')
+                                                        .value
+                                                "
+                                                alt="Documento seleccionado"
+                                                class="image-preview"
+                                            />
+                                        </div>
+                                    </ng-template>
+                                </div>
+                            </ng-template>
+                        </p-fileUpload>
+                        <div
+                            style="display: flex; justify-content: end"
+                            class="mt-3"
+                        >
+                            <button
+                                (click)="Guardar()"
+                                pButton
+                                pRipple
+                                type="button"
+                                label="Guardar"
+                                icon="pi pi-save"
+                                class="btn btn-guardar"
+                            ></button>
+                            <button
+                                (click)="CerrarIncidente()"
+                                pButton
+                                pRipple
+                                type="button"
+                                label="Cancelar"
+                                icon="pi pi-times"
+                                class="p-button-secondary ml-2"
+                            ></button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="tabla">
+                <div class="grid">
+                    <div class="col-12">
+                        <p-table
+                            #dt
+                            [value]="incidentes"
+                            styleClass="mt-2"
+                            responsiveLayout="scroll"
+                            [rows]="10"
+                            [globalFilterFields]="[
+                                'codigo',
+                                'inci_Descripcion',
+                                'inci_Fecha',
+                                'inci_Costo'
+                            ]"
+                            [paginator]="true"
+                            [showCurrentPageReport]="true"
+                            currentPageReportTemplate="Mostrando {first} al {last} de {totalRecords} entradas"
+                            [rowHover]="true"
+                            [tableStyle]="{ background: '#000' }"
+                            [rowsPerPageOptions]="[10, 25, 50, 100]"
+                        >
+                            <ng-template pTemplate="caption">
+                                <div
+                                    class="flex flex-column md:flex-row md:justify-content-between md:align-items-center"
+                                >
+                                    <span
+                                        class="block mt-2 md:mt-0 p-input-icon-left"
+                                    >
+                                        <i
+                                            class="pi pi-search"
+                                            style="color: white"
+                                        ></i>
+                                        <input
+                                            pInputText
+                                            type="text"
+                                            (input)="onGlobalFilter(dt, $event)"
+                                            placeholder="Buscar..."
+                                            class="w-full sm:w-auto"
+                                            style="color: white"
+                                        />
+                                    </span>
+
+                                    <div class="registros">
+                                        <p-dropdown
+                                            [options]="dt.rowsPerPageOptions"
+                                            [(ngModel)]="dt.rows"
+                                            [style]="{ 'margin-right': '5px' }"
+                                            [autoWidth]="false"
+                                        ></p-dropdown>
+
+                                        <span
+                                            style="
+                                                color: #fff0c6;
+                                                font-weight: 700;
+                                                margin-top: 7px;
+                                            "
+                                        >
+                                            Registros por página</span
+                                        >
+                                    </div>
+                                </div>
+                            </ng-template>
+                            <ng-template pTemplate="header">
+                                <tr>
+                                    <th
+                                        class="text-center"
+                                        style="color: white"
+                                    >
+                                        Acciones
+                                    </th>
+                                    <th
+                                        pSortableColumn="codigo"
+                                        class="text-center"
+                                        style="color: white"
+                                    >
+                                        No.
+                                        <p-sortIcon
+                                            field="acti_Id"
+                                        ></p-sortIcon>
+                                    </th>
+                                    <th
+                                        pSortableColumn="inci_Descripcion"
+                                        class="text-center"
+                                        style="color: white"
+                                    >
+                                        Descripción
+                                        <p-sortIcon
+                                            field="inci_Descripcion"
+                                        ></p-sortIcon>
+                                    </th>
+                                    <th
+                                        pSortableColumn="inci_Fecha"
+                                        class="text-center"
+                                        style="color: white"
+                                    >
+                                        Fecha<p-sortIcon
+                                            field="inci_Fecha"
+                                        ></p-sortIcon>
+                                    </th>
+                                    <th
+                                        pSortableColumn="inci_Costo"
+                                        class="text-center"
+                                        style="color: white"
+                                    >
+                                        Costo
+                                        <p-sortIcon
+                                            field="inci_Costo"
+                                        ></p-sortIcon>
+                                    </th>
+                                </tr>
+                            </ng-template>
+                            <!--Inicio loader-->
+                            
+                            <ng-template pTemplate="emptymessage">
+                                <tr>
+                                  <td colspan="6" class="text-center">
+                                    <div
+                                    class="loader-container"
+                                    *ngIf="loading"
+                                >
+                                        <div class="loader">
+                                            <span></span>
+                                        </div>
+                                      </div>
+                                  </td>
+                                </tr>
+                              </ng-template>
+
+                            <!-- <div class="loader-container" *ngIf="loading">
+                                <div class="loader">
+                                    <span></span>
+                                </div>
+                              </div> -->
+                            <!--Fin loader-->
+
+                            <ng-template
+                                pTemplate="body"
+                                let-incidentes
+                                let-i="rowIndex"
+                            >
+                                <tr (click)="onRowSelect(incidentes)">
+                                    <td class="text-center">
+                                        <p-splitButton
+                                            label="Acciones"
+                                            class="custom-splitbutton"
+                                            icon="pi pi-cog"
+                                            [model]="items"
+                                            styleClass="p-button-secondary"
+                                            appendTo="body"
+                                        ></p-splitButton>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="p-column-title">No.</span>
+                                        {{ incidentes.codigo }}
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="p-column-title"
+                                            >Descripción</span
+                                        >
+                                        {{ incidentes.inci_Descripcion }}
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="p-column-title"
+                                            >Fecha</span
+                                        >
+                                        {{
+                                            incidentes.inci_Fecha
+                                                | date : "yyyy-MM-dd"
+                                        }}
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="p-column-title"
+                                            >Costo</span
+                                        >
+                                        {{globalmonedaService.getState().mone_Abreviatura}} {{incidentes.inci_Costo }}
+                                    </td>
+                                </tr>
+                            </ng-template>
+                        </p-table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--Inicio del Modal para confirmar al eliminar-->
+<p-dialog
+    [(visible)]="Delete"
+    header="Confirmación"
+    [modal]="true"
+    [style]="{ width: '450px' }"
+>
+    <div class="flex align-items-center justify-content-center">
+        <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+        <span
+            >¿Está seguro de eliminar el Incidente
+            <span style="font-weight: 600"> {{ Descripcion }}</span> ?</span
+        >
+    </div>
+    <ng-template pTemplate="footer">
+        <button
+            pButton
+            pRipple
+            icon="pi pi-trash"
+            class="p-button-primary"
+            label="Eliminar"
+            (click)="Eliminarincidentes()"
+        ></button>
+        <button
+            pButton
+            pRipple
+            icon="pi pi-times"
+            class="p-button-outlined p-button-primary"
+            label="Cancelar"
+            (click)="Delete = false"
+        ></button>
+    </ng-template>
+</p-dialog>
+<!--Fin del Modal para confirmar al eliminar-->
+
+<!--Inicio del Modal para confirmar la edicion-->
+<p-dialog
+    [(visible)]="modalConfirmacion"
+    header="Confirmación"
+    [modal]="true"
+    [style]="{ width: '450px' }"
+>
+    <div class="flex align-items-center justify-content-center">
+        <i class="pi pi-pencil mr-3" style="font-size: 2rem"></i>
+        <span
+            >¿Está seguro que deseas editar el incidente
+            <span style="font-weight: 600">{{ Descripcion }}</span
+            >?</span
+        >
+    </div>
+    <ng-template pTemplate="footer">
+        <button
+            pButton
+            pRipple
+            icon="pi pi-pencil"
+            class="p-button-primary"
+            label="Guardar"
+            (click)="Guardar()"
+        ></button>
+        <button
+            pButton
+            pRipple
+            icon="pi pi-times"
+            class="p-button-outlined p-button-primary"
+            label="Cancelar"
+            (click)="modalConfirmacion = false"
+        ></button>
+    </ng-template>
+</p-dialog>
+<!--Fin del Modal para confirmar la edicion-->
+
+<div class="grid" *ngIf="Detail">
+    <div class="col-12">
+        <div class="card">
+    <div class="flex" style="width: 100%; margin: 0 auto; display: flex; align-items: center; height: 42px;">
+      <div style="width: 20%; display: flex; align-items: center; height: 12.5%;">
+          <button (click)="Regresar()" class="p-button-link" pButton pRipple type="button" label="Regresar" icon="pi pi-arrow-left" style="box-shadow: none !important"></button>
+      </div>
+      <div style="flex-grow: 1; display: flex; justify-content: center; align-items: center;">
+          <h1 class="text-center mt-4">Detalle Control de Calidad</h1>
+      </div>
+      <div style="width: 20%;"></div> <!-- Empty div to balance the space on the right -->
+  </div>
+    <hr>
+        <div class="p-fluid p-formgrid grid" >
+            <div class="field col-12 md:col-4" style="position: relative;" >
+                <div class="field rows">
+                    <label for="Municipio" style="font-weight: 800;">Descripción:</label>
+                </div>
+                <div class="field rows">
+                    <label for="Municipio">{{ selectedincidentes.inci_Descripcion }}</label>
+                </div>
+            </div>
+            <div class="field col-12 md:col-4" style="position: relative;">
+                <div class="field rows" style="font-weight: 800;">
+                    <label for="Departamento">Fecha de Control:</label>
+                </div>
+                <div class="field rows">
+                    <label for="Departamento">{{ selectedincidentes.inci_Fecha | date:'yyyy/MM/dd' }}</label>
+                </div>
+            </div>
+            <div class="field col-12 md:col-4" style="position: relative;" >
+                <div class="field rows" style="font-weight: 800;">
+                    <label for="Departamento">Costo de Incidencia:</label>
+                </div>
+                <div class="field rows">
+                    <label for="Departamento">{{ globalmonedaService.getState().mone_Abreviatura +' '+ selectedincidentes.inci_Costo.toFixed(2) }}</label>
+                </div>
+            </div>
+            
+            <div class="field col-12 md:col-4" style="position: relative; top: -10px;" >
+                <div class="field rows" style="font-weight: 800;">
+                    <label for="Departamento">Actividad:</label>
+                </div>
+                <div class="field rows">
+                    <label for="Departamento">{{ selectedincidentes.acti_Descripcion }}</label>
+                </div>
+            </div>
+            <div class="field col-12 md:col-4" style="position: relative; top: -10px;" >
+                <div class="field rows" style="font-weight: 800;">
+                    <label for="Departamento">Etapa:</label>
+                </div>
+                <div class="field rows">
+                    <label for="Departamento"> {{   selectedincidentes.etap_Descripcion }}</label>
+                </div>
+            </div>
+            <div class="field col-12 md:col-4" style="position: relative; top: -10px;" >
+              <div class="field rows" style="font-weight: 800;">
+                  <label for="Departamento">Proyecto:</label>
+              </div>
+              <div class="field rows">
+                  <label for="Departamento"> {{ selectedincidentes.proy_Nombre }}</label>
+              </div>
+          </div>
+        </div>
+        <div style="position: relative;top:-20px;">
+          <div class="field rows" style="font-weight: 800;">
+            <label>Imágen Ingresada:</label>
+          </div>
+            <ng-container *ngIf="selectedincidentes.imin_Imagen; else noImage">
+                <img [src]="selectedincidentes.imin_Imagen" alt="Imagen" width="65" (error)="onImageError($event)" />
+                </ng-container>
+                <ng-template #noImage>
+                <span>De momento no se encuentran imágenes</span>
+            </ng-template>
+        </div>
+    <div style="position: relative;top:-10px;" >
+        <div class="card-title">
+            <h1>Auditoría</h1>
+        </div>
+        <p-table [value]="Datos" styleClass=" mt-2">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th style="width:200px; font-weight: bold;">Acción</th>
+                    <th style="width:200px; font-weight: bold;" >Usuario</th>
+                    <th style="width:200px; font-weight: bold;">Fecha</th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-dato>
+                <tr>
+                    <td style="width:200px;">Creado</td>
+                    <td style="width:200px">{{ dato.usuaCreacion }}</td>
+                    <td style="width:200px">{{ dato.inci_FechaCreacion  | date:'yyyy/MM/dd'}}</td>
+                </tr>
+                <tr>
+                    <td style="width:200px;">Modificado</td>
+                    <td style="width:200px">{{ dato.usuaModificacion }}</td>
+                    <td style="width:200px">{{ dato.inci_FechaModificacion | date:'yyyy/MM/dd' }}</td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+    </div>
+  </div>
+  
+  
+  </div>
+  

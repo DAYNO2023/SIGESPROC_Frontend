@@ -1,0 +1,511 @@
+<p-tabView>
+    <!-- Tab para Cotizaciones -->
+    <p-tabPanel header="Cotizaciones">
+        <div class="grid">
+
+
+
+            <div class="col-12 md:col-6">
+                <div class="card">
+                    <div class="font-medium line-height-4">Top 5 Proveedores con más Cotizaciones</div>
+                    <div class="country-graph">
+                        <div class="flex justify-content-center">
+                            <!-- Gráfico doughnut -->
+                            <p-chart type="doughnut" id="proveedor-chart" [data]="proveedorChart"
+                                [options]="proveedorChartOptions" [style]="{ width: '75%' }"></p-chart>
+                        </div>
+                    </div>
+                    <div class="country-content">
+                        <ul class="m-0 p-0 border-none outline-none list-none">
+                            <li class="flex justify-content-between align-items-center py-2 border-bottom-1 surface-border"
+                                *ngFor="let item of top5ProveedoresList; let i = index">
+                                <div class="flex justify-content-between align-items-center">
+                                    <div class="w-2rem h-2rem border-round mr-2"
+                                        [ngStyle]="{ 'background-color': item.color, 'box-shadow': item.boxShadow }">
+                                    </div>
+                                    <span>{{ i + 1 }}. {{ item.nombre }}</span>
+                                </div>
+                                <span>{{ item.numeroDeCotizaciones }} cotizaciones ({{ item.porcentaje }}%)</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+
+
+            <!-- Fila 2: Gráficos de Top 5 Artículos e Insumos (side by side) -->
+            <div class="col-12 md:col-6">
+                <div class="card">
+                    <div class="font-medium line-height-4">
+                        Top 5 Artículos con Mayor Gasto Acumulado
+                    </div>
+                    <div class="country-graph">
+                        <div class="flex justify-content-center">
+                            <!-- Gráfico doughnut -->
+                            <p-chart type="doughnut" id="country-chart" [data]="countryChart"
+                                [options]="countryChartOptions" [style]="{ width: '75%' }"></p-chart>
+                        </div>
+                    </div>
+                    <div class="country-content">
+                        <ul class="m-0 p-0 border-none outline-none list-none">
+                            <li class="flex justify-content-between align-items-center py-2 border-bottom-1 surface-border"
+                                *ngFor="let item of top5List; let i = index">
+                                <div class="flex justify-content-between align-items-center">
+                                    <div class="w-2rem h-2rem border-round mr-2" [ngStyle]="{
+                                            'background-color': item.color,
+                                            'box-shadow': item.boxShadow
+                                        }"></div>
+                                    <span>{{ i + 1 }}. {{ item.nombre }}</span>
+                                </div>
+                                <!-- Se muestra tanto el número de compras como el porcentaje -->
+                                <span>{{ item.numeroCompras }} compras ({{
+                                    item.porcentaje
+                                    }}%)</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 md:col-6">
+                <div class="card">
+                    <div class="font-medium line-height-4">
+                        Top 5 Insumos más comprados
+                    </div>
+                    <div class="country-graph">
+                        <div class="flex justify-content-center">
+                            <!-- Gráfico doughnut -->
+                            <p-chart type="doughnut" id="insumo-chart" [data]="insumoChart"
+                                [options]="insumoChartOptions" [style]="{ width: '75%' }"></p-chart>
+                        </div>
+                    </div>
+                    <div class="country-content">
+                        <ul class="m-0 p-0 border-none outline-none list-none">
+                            <li class="flex justify-content-between align-items-center py-2 border-bottom-1 surface-border"
+                                *ngFor="
+                                    let item of insumoChartList;
+                                    let i = index
+                                ">
+                                <div class="flex justify-content-between align-items-center">
+                                    <div class="w-2rem h-2rem border-round mr-2" [ngStyle]="{
+                                            'background-color': item.color,
+                                            'box-shadow': item.boxShadow
+                                        }"></div>
+                                    <span>{{ i + 1 }}. {{ item.nombre }}</span>
+                                    <!-- Enumerar del 1 al 5 -->
+                                </div>
+                                <!-- Mostrar número de compras y porcentaje basado en número de compras -->
+                                <span>{{ item.numeroCompras }} compras ({{
+                                    item.porcentaje
+                                    }}%)</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Fila 4: Gráficos de Maquinarias y Equipos de Seguridad (side by side) -->
+            <div class="col-12 md:col-6">
+                <div class="card">
+                    <div class="font-medium line-height-4">
+                        Top 5 Maquinarias más rentadas
+                    </div>
+                    <div class="country-graph">
+                        <div class="flex justify-content-center">
+                            <p-chart type="doughnut" id="maquinaria-chart" [data]="maquinariaChart"
+                                [options]="maquinariaChartOptions" [style]="{ width: '75%' }"></p-chart>
+                        </div>
+                    </div>
+                    <div class="country-content">
+                        <ul class="m-0 p-0 border-none outline-none list-none">
+                            <li class="flex justify-content-between align-items-center py-2 border-bottom-1 surface-border"
+                                *ngFor="
+                                    let item of maquinariaChartList;
+                                    let i = index
+                                ">
+                                <div class="flex justify-content-between align-items-center">
+                                    <div class="w-2rem h-2rem border-round mr-2" [ngStyle]="{
+                                            'background-color': item.color,
+                                            'box-shadow': item.boxShadow
+                                        }"></div>
+                                    <span>{{ i + 1 }}. {{ item.nombre }}</span>
+                                    <!-- Enumerar del 1 al 5 -->
+                                </div>
+                                <span>{{ item.numeroCompras }} compras ({{
+                                    item.porcentaje
+                                    }}%)</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 md:col-6">
+                <div class="card">
+                    <div class="font-medium line-height-4">
+                        Top 5 Equipos de Seguridad más comprados
+                    </div>
+                    <div class="country-graph">
+                        <div class="flex justify-content-center">
+                            <p-chart type="doughnut" id="equipo-chart" [data]="equipoChart"
+                                [options]="equipoChartOptions" [style]="{ width: '75%' }"></p-chart>
+                        </div>
+                    </div>
+                    <div class="country-content">
+                        <ul class="m-0 p-0 border-none outline-none list-none">
+                            <li class="flex justify-content-between align-items-center py-2 border-bottom-1 surface-border"
+                                *ngFor="
+                                    let item of equipoChartList;
+                                    let i = index
+                                ">
+                                <div class="flex justify-content-between align-items-center">
+                                    <div class="w-2rem h-2rem border-round mr-2" [ngStyle]="{
+                                            'background-color': item.color,
+                                            'box-shadow': item.boxShadow
+                                        }"></div>
+                                    <span>{{ i + 1 }}. {{ item.nombre }}</span>
+                                </div>
+                                <span>{{ item.numeroCompras }} compras ({{
+                                    item.porcentaje
+                                    }}%)</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Fila 1: Gráfico de compras mensuales (line) -->
+            <div class="col-12 md:col-6">
+                <div class="card flex justify-content-center">
+                    <!-- Gráfico de compras mensuales -->
+                    <div class="font-medium line-height-4">
+                        Compras realizadas por mes
+                    </div>
+                    <p-chart type="line" [data]="data" [options]="options"></p-chart>
+                </div>
+            </div>
+        </div>
+    </p-tabPanel>
+
+    <!-- Tab para Fletes -->
+    <p-tabPanel header="Fletes">
+        <!-- Contenido vacío para fletes -->
+        <div class="grid">
+
+
+
+
+            <div class="col-12 md:col-6">
+                <div class="card p-3 surface-card border-round shadow-2">
+
+                    <br>
+
+                    <div class="flex align-items-center mb-3">
+                        <br>
+                        <br>
+                        <br>
+                        <i class="pi pi-calendar mr-2" style="color: #f9ca24; font-size: 1.5rem;"></i>
+                        <span class="text-lg font-medium" style="color: var(--text-color)">Tasa de Incidencias - {{
+                            mesActualTexto }}</span>
+                    </div>
+                    <div class="flex align-items-center mb-2">
+                        <i class="pi pi-exclamation-triangle mr-2" style="color: #eb4d4b; font-size: 1.2rem;"></i>
+                        <span class="text-md font-medium" style="color: var(--text-color)">Incidencias Totales:</span>
+                        <span class="ml-2 text-md font-semibold" style="color: var(--text-color)">{{ totalIncidencias
+                            }}</span>
+                    </div>
+                    <div class="flex align-items-center">
+                        <i class="pi pi-truck mr-2" style="color: #6ab04c; font-size: 1.2rem;"></i>
+                        <span class="text-md font-medium" style="color: var(--text-color)">Número de Fletes
+                            Mensuales:</span>
+                        <span class="ml-2 text-md font-semibold" style="color: var(--text-color)">{{
+                            totalFletesMensuales }}</span>
+
+
+                        <br>
+                        <br>
+                        <br>
+                        <br>
+                    </div>
+
+                </div>
+
+                <div class="card">
+                    <div class="font-medium line-height-4">Proyectos con Mayor Cantidad de Fletes</div>
+                    <div class="country-graph">
+                        <div class="flex justify-content-center">
+                            <!-- Gráfico de barras -->
+                            <p-chart type="polarArea" id="proyectos-chart" [data]="proyectosChart"
+                                [options]="proyectosChartOptions" [style]="{ width: '75%' }"></p-chart>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+
+            <div class="col-12 md:col-6">
+                <div class="card">
+                    <div class="font-medium line-height-4">Top 5 Bodegas con Mayor Cantidad de Fletes</div>
+                    <div class="country-graph">
+                        <div class="flex justify-content-center">
+                            <!-- Gráfico doughnut -->
+                            <p-chart type="doughnut" id="bodegas-chart" [data]="bodegasChart"
+                                [options]="bodegasChartOptions" [style]="{ width: '75%' }"></p-chart>
+                        </div>
+                    </div>
+                    <div class="country-content">
+                        <ul class="m-0 p-0 border-none outline-none list-none">
+                            <li class="flex justify-content-between align-items-center py-2 border-bottom-1 surface-border"
+                                *ngFor="let item of top5BodegasList; let i = index">
+                                <div class="flex justify-content-between align-items-center">
+                                    <div class="w-2rem h-2rem border-round mr-2"
+                                        [ngStyle]="{ 'background-color': item.color, 'box-shadow': item.boxShadow }">
+                                    </div>
+                                    <span>{{ i + 1 }}. {{ item.destino }}</span>
+                                </div>
+                                <span>{{ item.numeroFletes }} fletes ({{ item.porcentaje }}%)</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+
+
+
+
+
+        </div>
+    </p-tabPanel>
+
+    <!-- Tab para Proyectos -->
+    <p-tabPanel header="Proyectos">
+        <div class="grid">
+            <div class="col-12 md:col-4">
+                <div class="card relative h-6rem border-round-xl p-3">
+                    <span class="text-sm font-medium line-height-1">
+                        Total de incidencias
+                    </span>
+                    <div class="flex justify-content-between">
+                        <div class="flex justify-content-between align-items-center">
+                            <div class="flex justify-content-center align-items-center h-2rem w-5rem border-round p-2 mr-3"
+                                style="
+                                    background-color: #fc6161;
+                                    box-shadow: 0px 6px 20px
+                                        rgba(252, 97, 97, 0.3);
+                                ">
+                                <i class="pi pi-arrow-down w-2rem"></i>
+                                <!-- Aquí se mostrará totalIncidencias -->
+                                <span class="line-height-2">{{
+                                    totalIncidenciasproy
+                                    }}</span>
+                            </div>
+                            <!-- Mostrar el mes actual -->
+                            <div class="line-height-2 text-2xl">
+                                {{ mesActual }}
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Mostrar total del costo de incidencias -->
+                    <div class="text-lg font-medium">
+                        Costo Total: LPS
+                        {{ totalCostoIncidencias | number : "1.2-2" }}
+                    </div>
+                    <img class="absolute" style="bottom: 14px; right: 12px"
+                        src="assets/demo/images/ecommerce-dashboard/rate.svg" />
+                </div>
+            </div>
+
+            <div class="col-12 md:col-4">
+                <div class="card relative h-6rem border-round-xl p-3">
+                    <span class="text-sm font-medium line-height-1">
+                        Promedio de Gasto por Proyecto
+                    </span>
+                    <div class="flex justify-content-between">
+                        <div class="flex justify-content-between align-items-center">
+                            <div class="flex justify-content-center align-items-center h-2rem w-5rem border-round p-2 mr-3"
+                                style="
+                                    margin-right: 12px;
+                                    background-color: #0bd18a;
+                                    box-shadow: 0px 6px 20px
+                                        rgba(11, 209, 138, 0.3);
+                                ">
+                                <i class="pi pi-dollar"></i>
+                            </div>
+                            <!-- Mostrar el promedio de costos por proyecto -->
+                            <div class="line-height-2 text-2xl">
+                                LPS
+                                {{
+                                promedioCostoPorProyecto | number : "1.2-2"
+                                }}
+                            </div>
+                        </div>
+                    </div>
+                    <img class="absolute" style="bottom: 14px; right: 12px"
+                        src="assets/demo/images/ecommerce-dashboard/value.svg" />
+                </div>
+            </div>
+
+            <div class="col-12 md:col-4">
+                <div class="card relative h-6rem border-round-xl p-3">
+                    <span class="text-sm font-medium line-height-1">
+                        Duración Promedio de los Proyectos
+                    </span>
+                    <div class="flex justify-content-between">
+                        <div class="flex justify-content-between align-items-center">
+                            <div class="flex justify-content-center align-items-center h-2rem w-5rem border-round p-2 mr-3"
+                                style="
+                                    background-color: #00d0de;
+                                    box-shadow: 0px 6px 20px
+                                        rgba(0, 208, 222, 0.3);
+                                ">
+                                <i class="pi pi-calendar"></i>
+                            </div>
+                            <!-- Mostrar el promedio de días entre la fecha de inicio y fin de los proyectos -->
+                            <div class="line-height-4 text-4xl">
+                                {{
+                                promedioTiempoProyectos | number : "1.0-0"
+                                }}
+                                días
+                            </div>
+                        </div>
+                    </div>
+                    <img class="absolute" style="bottom: 14px; right: 12px"
+                        src="assets/demo/images/ecommerce-dashboard/quantity.svg" />
+                </div>
+            </div>
+
+            <div class="col-12 md:col-6">
+                <div class="card">
+                    <div class="font-medium line-height-4">
+                        Top 5 Proyectos con mayor costo
+                    </div>
+                    <div class="country-graph">
+                        <div class="flex justify-content-center">
+                            <!-- Gráfico doughnut -->
+                            <p-chart type="doughnut" id="proyecto-chart" [data]="proyectotop5Chart"
+                                [options]="proyectotop5ChartOptions" [style]="{ width: '75%' }"></p-chart>
+                        </div>
+                    </div>
+                    <div class="country-content">
+                        <ul class="m-0 p-0 border-none outline-none list-none">
+                            <li class="flex justify-content-between align-items-center py-2 border-bottom-1 surface-border"
+                                *ngFor="
+                                    let item of proyectotop5List;
+                                    let i = index
+                                ">
+                                <div class="flex justify-content-between align-items-center">
+                                    <div class="w-2rem h-2rem border-round mr-2" [ngStyle]="{
+                                            'background-color': item.color,
+                                            'box-shadow': item.boxShadow
+                                        }"></div>
+                                    <span>{{ i + 1 }}. {{ item.nombre }}</span>
+                                </div>
+                                <span>{{ item.costoTotal }}</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Fila 3: Gráficos de Proyectos con mayor presupuesto y Proyectos por Departamento (side by side) -->
+            <div class="col-12 md:col-6">
+                <div class="card">
+                    <div class="font-medium line-height-4">
+                        Top 5 Proyectos con mayor presupuesto
+                    </div>
+                    <div class="country-graph">
+                        <div class="flex justify-content-center">
+                            <!-- Gráfico tipo doughnut -->
+                            <p-chart type="doughnut" id="proyecto-chart" [data]="proyectoChart"
+                                [options]="proyectoChartOptions" [style]="{ width: '75%' }"></p-chart>
+                        </div>
+                    </div>
+                    <!-- Lista de proyectos -->
+                    <div class="country-content">
+                        <ul class="m-0 p-0 border-none outline-none list-none">
+                            <li class="flex justify-content-between align-items-center py-2 border-bottom-1 surface-border"
+                                *ngFor="let item of top5ProyectosList; let i = index">
+                                <div class="flex justify-content-between align-items-center">
+                                    <div class="w-2rem h-2rem border-round mr-2"
+                                        [ngStyle]="{ 'background-color': item.color, 'box-shadow': item.boxShadow }">
+                                    </div>
+                                    <span>{{ i + 1 }}. {{ item.nombre }}</span>
+                                </div>
+                                <span>{{ item.presupuestoTotal }}</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+
+
+            <div class="col-12 md:col-6">
+                <div class="card">
+                    <div class="font-medium line-height-4">
+                        Proyectos por departamentos
+                    </div>
+                    <div class="country-graph">
+                        <div class="flex justify-content-center">
+                            <!-- Gráfico bar -->
+                            <p-chart type="bar" id="departamento-chart" [data]="departamentoChart"
+                                [options]="departamentoChartOptions" [style]="{ width: '75%' }"></p-chart>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </p-tabPanel>
+
+    <!-- Tab para Bienes Raíces -->
+    <p-tabPanel header="Bienes Raíces">
+        <!-- Contenido vacío para bienes raíces -->
+        <div class="grid">
+
+
+
+            <div class="col-12 md:col-6">
+                <div class="card">
+                    <div class="font-medium line-height-4">Resumen de Bienes Raíces</div>
+                    <div class="country-graph">
+                        <div class="flex justify-content-center">
+                            <!-- Gráfico mixto (barras y línea) -->
+                            <p-chart type="bar" id="bienes-raices-chart" [data]="bienesRaicesChart"
+                                [options]="bienesRaicesChartOptions" [style]="{ width: '75%' }"></p-chart>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 md:col-6">
+                <div class="card">
+                    <div class="font-medium line-height-4">Terrenos Vendidos - {{ mesActual }}/{{ anioActual }}</div>
+                    <div class="country-graph">
+                        <div class="flex justify-content-center">
+                            <!-- Gráfico de barras -->
+                            <p-chart type="bar" id="terrenos-vendidos-chart" [data]="terrenosVendidosChart"
+                                [options]="terrenosVendidosChartOptions" [style]="{ width: '75%' }"></p-chart>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 md:col-6">
+                <div class="card">
+                    <div class="font-medium line-height-4">Ventas por Agente</div>
+                    <div class="country-graph">
+                        <div class="flex justify-content-center">
+                            <!-- Gráfico tipo pie -->
+                            <p-chart type="pie" id="ventas-agente-chart" [data]="ventasPorAgenteChart"
+                                [options]="ventasPorAgenteChartOptions" [style]="{ width: '75%' }"></p-chart>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </p-tabPanel>
+</p-tabView>

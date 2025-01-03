@@ -1,0 +1,229 @@
+@charset "UTF-8";
+/* Estilos generales para el formulario */
+.form-container {
+  max-width: 800px; /* Ancho máximo del formulario */
+  margin: 0 auto; /* Centrado horizontal */
+  padding: 20px; /* Espaciado interior */
+  background-color: #f9f9f9; /* Color de fondo */
+  border: 1px solid #ddd; /* Borde del formulario */
+  border-radius: 8px; /* Bordes redondeados */
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Sombra */
+}
+
+/* Estilos para los campos del formulario */
+.field-container {
+  display: grid;
+  gap: 20px; /* Espacio entre campos */
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+}
+
+label {
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+input[type=text],
+textarea {
+  padding: 10px;
+  font-size: 14px;
+  border-radius: 4px;
+  transition: border-color 0.3s ease-in-out;
+}
+
+.btn-small {
+  padding: 0.25rem 0.5rem; /* Adjust padding as needed */
+  font-size: 0.75rem; /* Adjust font size as needed */
+  height: 30px; /* Adjust height as needed */
+  width: 80px; /* Adjust width as needed */
+}
+
+.error-message {
+  color: red;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.step-label {
+  padding: 5px 10px; /* Ajusta el espaciado interior */
+  border: 1px solid #ccc; /* Agrega un borde */
+  border-radius: 4px; /* Borde redondeado */
+  background-color: #f0f0f0; /* Color de fondo */
+}
+
+.button-group {
+  display: flex;
+  justify-content: flex-start;
+  gap: 10px; /* Espacio entre los botones */
+}
+
+.button-group button {
+  font-size: 12px; /* Tamaño de fuente más pequeño */
+  padding: 8px 12px; /* Ajuste del padding para hacer los botones más compactos */
+}
+
+.input-with-unit {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-with-unit .unit {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #666;
+  font-size: 14px;
+}
+
+::ng-deep .ui-dialog .ui-dialog-content .card {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+::ng-deep .ui-dialog .ui-dialog-content #map {
+  flex: 1;
+  position: relative;
+}
+
+:host ::ng-deep .ui-dialog {
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+}
+
+.map-container {
+  width: 100%;
+  height: 100%;
+}
+
+/* Ajustes adicionales según necesidades */
+.modal-body {
+  padding: 0;
+}
+
+.container {
+  position: relative;
+  overflow-x: unset;
+}
+
+.custom-marker {
+  width: 30px;
+  height: 30px;
+  background-color: #007bff;
+  border-radius: 50%;
+  border: 2px solid #ffffff;
+  cursor: pointer;
+}
+
+.custom-marker img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+}
+
+.upload-container {
+  position: relative;
+}
+
+.error-message {
+  color: red;
+  font-size: 12px;
+  margin-top: 5px;
+  display: block;
+}
+
+.p-splitbutton-menu {
+  z-index: 1000; /* Ajusta según sea necesario */
+}
+
+/* Contenedor principal para la carga de imágenes */
+.image-upload-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #000000;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+.file-upload {
+  width: 100%;
+  padding: 10px;
+  background-color: #000000;
+  border: 2px dashed #ffffff;
+  border-radius: 10px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.file-upload:hover {
+  background-color: #000000;
+}
+
+.error-message {
+  color: #ff4d4f;
+  font-size: 12px;
+  margin-top: 10px;
+}
+
+.image-preview-container {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.image-preview {
+  max-width: 100%;
+  max-height: 300px;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.image-upload-container {
+  width: 100%;
+  height: 300px; /* Puedes ajustar la altura según tus necesidades */
+  border: 1px dashed #ccc;
+  position: relative;
+  cursor: pointer;
+}
+
+.image-preview {
+  max-width: 100%;
+  max-height: 100%;
+  -o-object-fit: contain;
+     object-fit: contain; /* Esto asegura que la imagen se ajuste sin distorsionarse */
+  display: block;
+  margin: auto;
+}
+
+.h-full {
+  height: 100%;
+}
+
+.p-tabview-nav {
+  display: flex;
+  justify-content: space-between;
+}
+
+.p-tabview-nav {
+  display: flex;
+  justify-content: space-between;
+}
+
+/* Global style for disabled input fields */
+input[disabled] {
+  background-color: #f0f0f0; /* Light gray background */
+  color: #a0a0a0; /* Gray text color */
+  border: 1px solid #d0d0d0; /* Light gray border */
+  cursor: not-allowed; /* Show a not-allowed cursor */
+  opacity: 0.6; /* Slightly transparent */
+}/*# sourceMappingURL=terreno.component.css.map */

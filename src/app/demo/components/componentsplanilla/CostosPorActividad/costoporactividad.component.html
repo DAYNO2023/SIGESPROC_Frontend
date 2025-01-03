@@ -1,0 +1,276 @@
+<p-toast></p-toast>
+
+<div class="loader-container" *ngIf="loading">
+    <div class="loader">
+        <span></span>
+    </div>
+  </div>
+<!-- muestra Index -->
+<div class="grid" *ngIf="Index">
+    <div class="col-12">
+        <div class="card">
+            <!-- Título  -->
+            <h1 class="text-center mt-2">Costos por Actividad</h1>
+            <hr>
+            <div class="grid mt-2">
+                <div class="col-12">
+                    <!-- Botón para crear un nuevo costo por actividad -->
+                    <button (click)="CrearCostoPorActividad()" pButton icon="pi pi-plus" label="Nuevo" class="mr-2"></button>
+                </div>
+            </div>
+
+            <!-- Tabla General -->
+            <p-table  #dt [value]="CostosPorActividad" styleClass="mt-2" responsiveLayout="scroll" [rows]="10"
+                [globalFilterFields]="['codigo','copc_Observacion','actividad','unidadDeMedida','copc_EsPorcentaje']"
+                [paginator]="true" [showCurrentPageReport]="true" [tableStyle]="{ background: '#000' }"
+                currentPageReportTemplate="Mostrando {first} al {last} de {totalRecords} entradas" [rowHover]="true" [rowsPerPageOptions]="[10,25,50,100]">
+
+                <ng-template pTemplate="caption">
+                    <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+                        <span class="block mt-2 md:mt-0 p-input-icon-left">
+                            <i style="color: white;" class="pi pi-search"></i>
+                            <input style="color: white;" pInputText type="text" (input)="onGlobalFilter(dt, $event)"
+                                placeholder="Buscar..." class="w-full sm:w-auto" />
+                        </span>
+                         <div class="registros">
+                            <p-dropdown [options]="dt.rowsPerPageOptions" [(ngModel)]="dt.rows" [style]="{ 'margin-right': '5px' }"  [autoWidth]="false"></p-dropdown>
+
+                            <span style="color: #FFF0C6; font-weight: 700; margin-top: 7px;"> Registros por página</span>
+                        </div>
+                    </div>
+                </ng-template>
+                <!-- Encabezados de la tabla -->
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th style="color: white;" class="text-center">Acciones</th>
+                        <th style="color: white;" pSortableColumn="codigo" class="text-center">No.<p-sortIcon field="codigo"></p-sortIcon></th>
+                        <th style="color: white;" pSortableColumn="acti_Id" class="text-center">Actividad<p-sortIcon field="acti_Id"></p-sortIcon></th>
+                        <th style="color: white;" pSortableColumn="acti_Id" class="text-center">Unidad Medida<p-sortIcon field="acti_Id"></p-sortIcon></th>
+                        <th style="color: white;" pSortableColumn="copc_Valor" class="text-center">Valor<p-sortIcon field="copc_Valor"></p-sortIcon></th>
+                    </tr>
+                </ng-template>
+           
+                <!--Fin loader-->
+                <!-- Cuerpo de la tabla -->
+                <ng-template pTemplate="body" let-costoActividad>
+                    <tr (click)="selectCostoPorActividad(costoActividad)">
+                        <td class="text-center" style="width:10%; min-width:8rem;">
+                            <!-- Botón de acciones -->
+                            <p-splitButton label="Acciones"
+                                class="custom-splitbutton"
+                                icon="pi pi-cog" [model]="items" styleClass="p-button-secondary" appendTo="body"></p-splitButton>
+                        </td>
+                        <td style="width:10%; min-width:8rem;" class="text-center">
+                            <span class="p-column-title">No.</span>
+                            {{costoActividad.codigo}}
+                        </td>
+                        <td style="width:20%; min-width:10rem;" class="text-center">
+                            <span class="p-column-title">Actividad</span>
+                            {{costoActividad.actividad}}
+                        </td>
+                        <td style="width:20%; min-width:10rem;" class="text-center">
+                            <span class="p-column-title">Unidad Medida</span>
+                            {{costoActividad.unidadDeMedida}}
+                        </td>
+                        <td style="width:10%; min-width:10rem;" class="text-center">
+                            <span class="p-column-title">Valor</span><div style=" text-align: end;">
+                            {{globalMoneda.getState().mone_Abreviatura}} {{costoActividad.copc_Valor| number: "1.2-2" }}
+                            </div>
+                        </td>
+                    </tr>
+                </ng-template>
+
+            </p-table>
+        </div>
+    </div>
+</div>
+
+<!-- Formulario de creación -->
+<div class="grid" *ngIf="Create">
+    <div class="col-12">
+        <div class="card">
+            <!-- Título del formulario -->
+            <div class="flex" style="height: 42px;">
+                <div style="width: 20%; display: flex; align-items: center; position: absolute; height: 12.5%;">
+                    <button (click)="CerrarCostoPorActividad()" class="p-button-link" pButton pRipple type="button" label="Regresar" icon="pi pi-arrow-left" style="box-shadow: none !important; margin-top: -10px;"></button>
+                </div>
+                <div style="width: 100%; display: flex; justify-content: center; align-items: center;">
+
+                <h1 class="text-center mt-4">{{ titulo }} Costo por Actividad </h1>
+                </div>
+            </div>
+            <hr>
+            <div class="mt-2 grid">
+                <!-- Formulario -->
+                <form [formGroup]="form" class="grid col-12 p-fluid p-formgrid">
+                    <div class="field col-12 md:col-6">
+                        <label style="display: inline-block;">Valor&nbsp;</label> <small style="display:inline-block;"  class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['copc_Valor'].invalid"
+                        style="color: red !important;">*</small>
+
+                        <!-- (keypress)="Numeros($event)" -->
+                        <p-inputNumber
+                        formControlName="copc_Valor"
+                        mode="decimal"
+                        maxlength="16"
+                        [minFractionDigits]="2"
+                        [maxFractionDigits]="2"
+                        [max]="9999999.99"
+                        [useGrouping]="true"
+                        [prefix]="globalMoneda.getState().mone_Abreviatura + ' '"
+                        [min]="1"
+                        [ngClass]="{'ng-invalid ng-dirty': submitted && form.controls['copc_Valor'].invalid}"
+                      ></p-inputNumber>
+
+                                <!-- <p-inputNumber
+
+                                        formControlName="copc_Valor"
+                                        (keypress)="Numeros($event)"
+                                        [ngClass]="{'ng-invalid ng-dirty': submitted && form.controls['copc_Valor'].invalid}"
+                                      ></p-inputNumber>"	 -->
+
+                        <small class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['copc_Valor'].invalid"
+                            style="color: red !important;">El campo es requerido.</small>
+                    </div>
+
+                    <div class="field col-12 md:col-6">
+                        <label style="display: inline-block;">Actividad&nbsp;</label> <small style="display:inline-block;"  class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['acti_Descripcion'].invalid"
+                        style="color: red !important;">*</small>
+                        <p-autoComplete formControlName="acti_Descripcion" [suggestions]="filtradoActividades" (completeMethod)="filterActividades($event)"
+                          (onSelect)="onActividadSelect($event)" field="acti_Descripcion" appendTo="body" (keydown)="ValidarTextoNumeros($event)"
+                          placeholder="Seleccione una actividad" [dropdown]="true" [ngClass]="{'ng-invalid ng-dirty': submitted && form.controls['acti_Descripcion'].invalid}">
+                        </p-autoComplete>
+
+                        <small class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['acti_Descripcion'].invalid"
+                          style="color: red !important;">{{Error_Acti}}</small>
+                    </div>
+
+                    <div class="field col-12 md:col-6" style="margin-top: 1rem">
+                        <label style="display: inline-block;">Unidad de Medida&nbsp;</label> <small style="display:inline-block;"  class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['unme_Nombre'].invalid"
+                        style="color: red !important;">*</small>
+                        <p-autoComplete formControlName="unme_Nombre" [suggestions]="filtradoUM" (completeMethod)="filterUM($event)"
+                          (onSelect)="onUMSelect($event)" field="unme_Nombre" appendTo="body" (keydown)="ValidarTextoNumeros($event)"
+                          placeholder="Seleccione una unidad de medida" [dropdown]="true" [ngClass]="{'ng-invalid ng-dirty': submitted && form.controls['unme_Nombre'].invalid}">
+                        </p-autoComplete>
+
+                        <small class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['unme_Nombre'].invalid"
+                          style="color: red !important;">{{Error_Unme}}</small>
+                    </div>
+                </form>
+            </div>
+            <div style="display: flex;justify-content: end;" >
+                <!-- Botones para guardar o cancelar -->
+                <button (click)="abrirConfirmacionEdicion()"  class="btn btn-guardar" pButton pRipple type="button" label="Guardar" icon="pi pi-save"></button>
+                <button (click)="CerrarCostoPorActividad()" style="margin-left: 2%;" class=" p-button-secondary" pButton pRipple type="button" label="Cancelar" icon="pi pi-times"></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Vista de detalles-->
+<div class="grid" *ngIf="Detail">
+    <div class="col-12">
+        <div class="card">
+            <div class="flex" style="width: 100%; margin: 0 auto; display: flex; align-items: center; height: 42px;">
+                <div style="width: 20%; display: flex; align-items: center; height: 12.5%;">
+                        <button (click)="CerrarCostoPorActividad()" class="p-button-link" pButton pRipple type="button" label="Regresar" icon="pi pi-arrow-left" style="box-shadow: none !important;"></button>
+                    </div>
+                    <div style="width: 100%; display: flex; justify-content: center; align-items: center;">
+
+                        <h1 class="text-center mt-4">Detalle Costo Por Actividad</h1>
+                    </div>
+                    <div style="width: 20%;"></div>
+                </div>
+          <hr>
+            <div class="p-fluid p-formgrid grid">
+                <div class="field col-12 md:col-4 " style="position: relative; height: 10%;">
+                    <div class="field rows">
+                        <label for="Codigo" style="font-weight: 800;">No:</label>
+                    </div>
+                    <div class="field rows">
+                        <label for="Codigo">{{ detalle_copc_Id }}</label>
+                    </div>
+                </div>
+                <div class="field col-12 md:col-4" style="position: relative;" >
+                    <div class="field rows">
+                        <label for="Actividad" style="font-weight: 800;">Actividad:</label>
+                    </div>
+                    <div class="field rows">
+                        <label for="Actividad">{{ detalle_acti_Id }}</label>
+                    </div>
+                </div>
+                <div class="field col-12 md:col-4">
+                    <div class="field rows">
+                        <label for="Valor" style="font-weight: 800;">Valor:</label>
+                    </div>
+                    <div class="field rows">
+                        <label for="Valor">{{ globalMoneda.getState().mone_Abreviatura }} {{ detalle_copc_Valor | number:'1.2-2' }}</label>
+                    </div>
+                </div>
+                <div class="field col-12 md:col-4" style="position: relative;">
+                    <div class="field rows" style="font-weight: 800;">
+                        <label for="Departamento">Unidad de Medida:</label>
+                    </div>
+                    <div class="field rows">
+                        <label for="Departamento">{{ detalle_unme_Id }}</label>
+                    </div>
+                </div>
+            </div>
+            <div style="position: relative; top:-20px;">
+                <div class="card-title">
+                    <h1>Auditoría</h1>
+                </div>
+                <!-- Tabla de auditoría -->
+                <p-table [value]="Datos" styleClass="mt-2">
+                    <ng-template pTemplate="header">
+                        <tr>
+                            <th style="width:200px; font-weight: bold;">Acción</th>
+                            <th style="width:200px; font-weight: bold;">Usuario</th>
+                            <th style="width:200px; font-weight: bold;">Fecha</th>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-transaction>
+                        <tr>
+                            <td style="width:200px;">Creado</td>
+                            <td style="width:200px">{{ detalle_usuaCreacion }}</td>
+                            <td style="width:200px">{{ detalle_copc_FechaCreacion }}</td>
+                        </tr>
+                        <tr>
+                            <td style="width:200px;">Modificado</td>
+                            <td style="width:200px">{{ detalle_usuaModificacion }}</td>
+                            <td style="width:200px">{{ detalle_copc_FechaModificacion }}</td>
+                        </tr>
+                    </ng-template>
+                </p-table>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<!-- Diálogo de confirmación de eliminación -->
+<p-dialog [(visible)]="Delete" header="Confirmación" [modal]="true" [style]="{width:'450px'}">
+    <div class="flex align-items-center justify-content-center">
+        <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+        <span>¿Está seguro de eliminar el costo por actividad con valor de <span style="font-weight: 600">{{ detalle_copc_Valor }}</span>?</span>
+
+    </div>
+    <ng-template pTemplate="footer">
+        <button pButton pRipple icon="pi pi-trash" type="button" label="Eliminar" (click)="confirmarEliminar()"></button>
+        <button pButton pRipple icon="pi pi-times" class="p-button-outlined p-button-primary" label="Cancelar" (click)="Delete = false"></button>
+    </ng-template>
+</p-dialog>
+
+
+<!-- Diálogo de confirmación de edición -->
+<p-dialog [(visible)]="confirmEditDialog" header="Confirmación" [modal]="true" [style]="{width:'450px'}">
+    <div class="flex align-items-center justify-content-center">
+        <i class="pi pi-pencil mr-3" style="font-size: 2rem"></i>
+        <span>¿Está seguro de editar el costo por actividad con valor de <span style="font-weight: 600">{{ form.value.copc_Valor }}</span>?</span>
+
+    </div>
+    <ng-template pTemplate="footer">
+        <button pButton pRipple icon="pi pi-pencil" type="button" label="Aceptar" (click)="confirmarEdicion()"></button>
+        <button pButton pRipple icon="pi pi-times" class="p-button-outlined p-button-primary" label="Cancelar" (click)="confirmEditDialog = false"></button>
+    </ng-template>
+</p-dialog>

@@ -1,0 +1,121 @@
+<p-toast></p-toast>
+
+<div class="card p-mb-4">
+  <div class="card-header">
+    <h2>
+      Reporte de Cotización
+      <i 
+      pTooltip="Para generar el reporte, seleccione una Fecha de Inicio y una Fecha Final utilizando los selectores de fechas. Elija un Proveedor de la lista desplegable. Si desea incluir todos los datos, deje el interruptor en 'Sí'; de lo contrario, en 'No'. Finalmente, haga clic en 'Generar Reporte' para obtener el PDF." 
+      tooltipPosition="top" 
+      class="pi pi-info-circle ml-2" 
+      style="font-size: 1.2rem; cursor: pointer;"
+  ></i>
+    </h2>
+  </div>
+  <div class="card-body">
+    <form [formGroup]="reportForm" (ngSubmit)="generateReport()" class="grid col-12 p-fluid p-formgrid">
+      
+      <!-- Campo para Fecha de Inicio -->
+      <div class="field col-12 md:col-6">
+        <label for="RangoFechaInicio">
+          Fecha Inicio
+          <small *ngIf="submitted && reportForm.controls['RangoFechaInicio'].invalid" 
+            style="color: red; margin-left: 4px;">*</small>
+        </label>
+        <p-calendar
+          id="RangoFechaInicio"
+          formControlName="RangoFechaInicio"
+          [showIcon]="true"
+          dateFormat="dd/mm/yy"
+          appendTo="body"
+          class="w-full"
+          [ngClass]="{'ng-invalid ng-dirty': submitted && reportForm.controls['RangoFechaInicio'].invalid}"
+        ></p-calendar>
+        <small class="ng-dirty ng-invalid" *ngIf="submitted && reportForm.controls['RangoFechaInicio'].invalid"
+          style="color: red !important;">El campo es requerido.</small>
+      </div>
+
+      <!-- Campo para Fecha Final -->
+      <div class="field col-12 md:col-6">
+        <label for="RangoFechaFin">
+          Fecha Final
+          <small *ngIf="submitted && reportForm.controls['RangoFechaFin'].invalid" 
+            style="color: red; margin-left: 4px;">*</small>
+        </label>
+        <p-calendar
+          id="RangoFechaFin"
+          formControlName="RangoFechaFin"
+          [showIcon]="true"
+          dateFormat="dd/mm/yy"
+          appendTo="body"
+          class="w-full"
+          [ngClass]="{'ng-invalid ng-dirty': submitted && reportForm.controls['RangoFechaFin'].invalid}"
+        ></p-calendar>
+        <small class="ng-dirty ng-invalid" *ngIf="submitted && reportForm.controls['RangoFechaFin'].invalid"
+          style="color: red !important;">El campo es requerido.</small>
+      </div>
+
+      <!-- Campo para Proveedor -->
+      <div class="field col-12 md:col-6">
+        <label for="ProveedorId">
+          Proveedor
+          <small *ngIf="proveedorError" style="color: red; margin-left: 4px;">*</small>
+        </label>
+        <p-autoComplete
+          id="ProveedorId"
+          formControlName="ProveedorId"
+          [suggestions]="filteredproveedor"
+          (completeMethod)="filterEmpresa($event)"
+          field="text"
+          [dropdown]="true"
+          placeholder="Seleccione un proveedor"
+          class="w-full"
+          (onSelect)="onProveedorSelect($event)"
+          (onBlur)="validateProveedor()"
+          [ngClass]="{'ng-invalid ng-dirty': submitted && reportForm.controls['ProveedorId'].invalid || proveedorError}"
+        ></p-autoComplete>
+        
+        <small class="ng-dirty ng-invalid" *ngIf="submitted && reportForm.controls['ProveedorId'].invalid" style="color: red !important;">
+          El campo es requerido
+        </small>
+        <small class="ng-dirty ng-invalid" *ngIf="proveedorError" style="color: red !important;">
+          Opción no encontrada
+        </small>
+      </div>
+      
+      
+
+      <!-- Interruptor para Mostrar Todo -->
+      <div class="field col-12 md:col-6" style="display: flex; align-items: start; justify-content: start; flex-direction: column; margin-bottom: 16px;">
+        <label for="tipoSwitch" style="font-weight: bold; text-align: center; margin-bottom: 8px;">Todo:</label>
+        <div style="display: flex; align-items: center;">
+          <span *ngIf="!reportForm.controls['MostrarTodo'].value" style="margin-right: 8px;">No</span>
+          <p-inputSwitch id="tipoSwitch" formControlName="MostrarTodo"></p-inputSwitch>
+          <span *ngIf="reportForm.controls['MostrarTodo'].value" style="margin-left: 8px;">Sí</span>
+        </div>
+      </div>
+
+      <!-- Botones para Generar Reporte -->
+      <div class="field col-12" style="display: flex; justify-content: flex-end;">
+        <div class="button-group d-flex justify-content-end" style="margin-right: 12px;">
+          <button type="submit" pButton label="Generar Reporte" icon="pi pi-file-pdf"></button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Card para el contenedor de PDF -->
+<div class="card">
+  <div class="card-header">
+    <h2>Vista del Reporte</h2>
+  </div>
+  <div class="card-body">
+    <div id="pdfContainer" style="width: 100%; height: 800px; position: relative;">
+      <!-- Spinner de carga -->
+      <div class="loader-container" *ngIf="loading">
+        <div class="loader"><span></span></div>
+      </div>
+    </div>
+  </div>
+</div>

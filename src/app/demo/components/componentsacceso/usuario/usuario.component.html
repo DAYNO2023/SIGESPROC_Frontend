@@ -1,0 +1,379 @@
+
+<p-toast ></p-toast>
+<div class="loader-container" *ngIf="loading">
+    <div class="loader">
+        <span></span>
+    </div>
+  </div>
+<div class="grid" *ngIf="Index">
+    <div class="col-12">
+        <div class="card">
+            <div *ngIf="isTableLoading" class="loader-container">
+                <div class="loader">
+                    <span></span>
+                </div>
+            </div>
+
+            <h1 class="text-center mt-2">Usuarios</h1>
+            <hr>
+            <div class="grid mt-2">
+                <div class="col-12">
+                    <button (click)="CrearUsuario()" pButton icon="pi pi-plus" label="Nuevo" class="mr-2">
+                    </button>
+                </div>
+            </div>
+
+            <p-table #dt [value]="Usuario" styleClass=" mt-2" responsiveLayout="scroll" [rows]="10"
+                [globalFilterFields]="['codigo','usua_Usuario','role_Descripcion','empleadoSinDNI']" [rowsPerPageOptions]="[10,25,50,100]"
+                 [paginator]="true" [showCurrentPageReport]="true" [tableStyle]="{ background: '#000' }"
+                currentPageReportTemplate="Mostrando {first} al {last} de {totalRecords} entradas" [rowHover]="true">
+                <ng-template pTemplate="caption">
+                    <div class="flex">
+                        <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+
+                            <span class="block mt-2 md:mt-0 p-input-icon-left">
+                                <i style="color: white;" class="pi pi-search"></i>
+                                <input style="color: white;" pInputText type="text" (input)="onGlobalFilter(dt, $event)"
+                                    placeholder="Buscar..." class="w-full sm:w-auto" />
+                            </span>
+                        </div>
+                        <div class="registros">
+                            <p-dropdown [options]="dt.rowsPerPageOptions" [(ngModel)]="dt.rows" [style]="{ 'margin-right': '5px' }"  [autoWidth]="false"></p-dropdown>
+
+                            <span style="color: #FFF0C6; font-weight: 700; margin-top: 7px;"> Registros por página</span>
+                        </div>
+                    </div>
+
+                </ng-template>
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th style="color: white;" class="text-center">Acciones</th>
+                        <th style="color: white;" class="text-center"  pSortableColumn="codigo" >No.<p-sortIcon
+                            field="codigo"></p-sortIcon></th>
+                        <th style="color: white;" class="text-center">Activo/Inactivo
+                               </th>
+                        <th style="color: white;" pSortableColumn="usua_Usuario" class="text-center">Usuario <p-sortIcon
+                                field="usua_Usuario"></p-sortIcon></th>
+                       <th style="color: white;" pSortableColumn="usua_EsAdministrador" class="text-center">Admin <p-sortIcon
+                                field="usua_EsAdministrador"></p-sortIcon></th>
+                        <th style="color: white;" pSortableColumn="role_Descripcion" class="text-center">Rol <p-sortIcon
+                                field="role_Descripcion"></p-sortIcon></th>
+                        <th style="color: white;" pSortableColumn="empleadoSinDNI" class="text-center">Empleado <p-sortIcon
+                                field="empleado"></p-sortIcon></th>
+                    </tr>
+                </ng-template>
+
+                <ng-template pTemplate="body" let-usuario let-i="rowIndex">
+                    <tr (click)="selectUsuario(usuario)">
+                        <td class="text-center" style="width:5%; min-width:10rem;">
+                            <p-splitButton label="Acciones" icon="pi pi-cog" [model]="generarModelSplitButton(usuario)" styleClass="p-button-secondary custom-splitbutton" appendTo="body" ></p-splitButton>
+                        </td>
+                        <td style="width:14%; min-width:10rem;" class="text-center"><span
+                            class="p-column-title">No.</span>
+                            {{usuario.codigo}}
+                        </td>
+                        <td class="text-center">
+                            <i [ngClass]="{'pi': true,'pi-lock-open': usuario.usua_Estado, 'pi-lock': !usuario.usua_Estado}"
+                                [style]="{'color': usuario.usua_Estado ? 'green' : 'red'}" style="font-size: 1.5rem"></i>
+                        </td>
+                        <td style="width:14%; min-width:10rem;" class="text-center">
+                            <span class="p-column-title">Usuario</span>
+                            {{usuario.usua_Usuario}}
+                        </td>
+                        <td style="width:14%; min-width:10rem;" class="text-center">
+                            <span class="p-column-title">Admin</span>
+                            {{usuario.usua_EsAdministrador}}
+                        </td>
+                        <td style="width:14%; min-width:10rem;" class="text-center"><span
+                                class="p-column-title">Rol</span>
+                            {{usuario.role_Descripcion}}
+                        </td>
+                        <td style="width:14%; min-width:8rem;" class="text-center">
+                            <span class="p-column-title">Empleado</span>
+                            {{usuario.empleadoSinDNI}}
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+
+    </div>
+</div>
+
+
+<div class="grid" *ngIf="Create">
+    <div class="col-12">
+
+        <div class="card">
+            <div class="flex" style="width: 100%; margin: 0 auto; display: flex; align-items: center; height: 42px;">
+                <div style="width: 20%; display: flex; align-items: center; height: 12.5%;">
+                    <button (click)="CerrarUsuario()" class="p-button-link" pButton pRipple type="button" label="Regresar" icon="pi pi-arrow-left" style="box-shadow: none !important;"></button>
+                </div>
+                <div style="width: 100%; display: flex; justify-content: center; align-items: center;">
+
+                    <h1 class="text-center mt-4 ">{{ titulo }} Usuario</h1>
+                </div>
+                <div style="width: 20%;"></div>
+            </div>
+            <hr>
+            <div class=" mt-2 grid">
+                <form [formGroup]="form" class="grid col-12 p-fluid p-formgrid">
+                    <div class="field col-12 md:col-6" *ngIf="usuario">
+                        <label>Usuario
+                            <span class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['usua_Usuario'].invalid"
+                            style="color: red !important;"> *</span>
+                        </label>
+                        <input class="col-6"
+                            maxlength="80"
+                            [ngClass]="{'ng-invalid ng-dirty': submitted && form.controls['usua_Usuario'].invalid}"
+                            type="text" class="p-inputtext" formControlName="usua_Usuario" (input)="allowUsuarios($event)">
+                        <small class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['usua_Usuario'].invalid"
+                            style="color: red !important;">El campo es requerido.</small>
+                    </div>
+                    <div class="field col-12 md:col-6" *ngIf="contra">
+                        <label>Contraseña
+                            <span class="ng-dirty ng-invalid"
+                            *ngIf="submitted && form.controls['usua_Clave'].invalid"
+                            style="color: red !important;"> *</span>
+                        </label>
+                        <input
+                            maxlength="64"
+                            [ngClass]="{'ng-invalid ng-dirty': submitted && form.controls['usua_Clave'].invalid}" 
+                            type="text" class="p-inputtext" formControlName="usua_Clave"  (input)="allowContra($event)">
+                        <small class="ng-dirty ng-invalid"
+                            *ngIf="submitted && form.controls['usua_Clave'].invalid"
+                            style="color: red !important;">El campo es requerido.</small>
+                    </div>
+                    <div class="field col-12 md:col-6" *ngIf="usuario">
+                        <label>Empleado
+                            <span class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['empleado'].invalid"
+                            style="color: red !important;"> *</span>
+                        </label>
+
+                        <p-autoComplete
+                            formControlName="empleado"
+                            [suggestions]="filtradoEmpleado"
+                            (completeMethod)="filterEmpleado($event)"
+                            (onSelect)="onEmpleadoSelect($event)"
+                            field="empleado"
+                            placeholder="Seleccione un empleado"
+                            [dropdown]="true"
+                            appendTo="body"
+                            [ngClass]="{'ng-invalid ng-dirty': submitted && form.controls['empleado'].invalid }"
+                            [ngClass]="{'ng-invalid ng-dirty': submittedComplete }" />
+                        <small class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['empleado'].invalid"
+                            style="color: red !important;">{{Error_Usuario}}</small>
+                    </div>
+                    
+                    <div class="field col-12 md:col-6" *ngIf="Admin">
+                        <label>Rol
+                            <span class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['role_Descripcion'].invalid"
+                            style="color: red !important;"> *</span>
+                        </label>
+                        <p-autoComplete
+                        [options]="roles"
+                        formControlName="role_Descripcion"
+                        [(ngModel)]="selectedRol"
+                        (onSelect)="onRolSelect($event)"
+                        (completeMethod)="filterRol($event)"
+                        [suggestions]="filteredRoles"
+                        placeholder="Seleccione un rol"
+                        [dropdown]="true"
+                        appendTo="body"
+                        [ngClass]="{'ng-invalid ng-dirty': submitted && form.controls['role_Descripcion'].invalid}"
+                      ></p-autoComplete>
+                        <small class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['role_Descripcion'].invalid"
+                            style="color: red !important;">{{Error_Rol}}</small>
+                    </div>
+
+                    <div class="field col-12 md:col-6" *ngIf="usuario">
+                    <label for="Administrador">Administrador</label>
+                      <p-checkbox
+                      [style]="{'position': 'relative', 'top': '-4px', 'right': '-5px'}"
+                      formControlName="usua_EsAdministrador"
+                      [binary]="true"
+                      inputId="Administrador"
+                      (onChange)="esAdmin($event)" />
+                    </div>
+                </form>
+            </div>
+            <div style="display: flex;justify-content: end;" >
+                <button (click)="Guardar()"  class="btn btn-guardar" pButton pRipple type="button" label="Guardar" icon="pi pi-save"></button>
+                <button (click)="CerrarUsuario()" style="margin-left: 2%;" class=" p-button-secondary" pButton pRipple type="button" label="Cancelar" icon="pi pi-times"></button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div class="grid" *ngIf="Detail">
+    <div class="col-12">
+        <div class="card">
+        <div class="flex" style="width: 100%; margin: 0 auto; display: flex; align-items: center; height: 42px;">
+            <div style="width: 20%; display: flex; align-items: center; height: 12.5%;">
+                    <button (click)="CerrarUsuario()" class="p-button-link" pButton pRipple type="button" label="Regresar" icon="pi pi-arrow-left" style="box-shadow: none !important;"></button>
+                </div>
+                <div style="width: 100%; display: flex; justify-content: center; align-items: center;">
+
+                    <h1 class="text-center mt-4">Detalle Usuario</h1>
+                </div>
+                <div style="width: 20%;"></div>
+            </div>
+           
+            <hr>
+        <div class="p-fluid p-formgrid grid" >
+            <div class="field col-12 md:col-4 " style="position: relative; height: 10%;">
+                <div class="field rows">
+                    <label for="Codigo" style="font-weight: 800;">No:</label>
+                </div>
+                <div class="field rows">
+                    <label for="Codigo">{{ detalle_Codigo }}</label>
+                </div>
+            </div>
+            <div class="field col-12 md:col-4" style="position: relative;" >
+                <div class="field rows">
+                    <label for="Municipio" style="font-weight: 800;">Usuario:</label>
+                </div>
+                <div class="field rows">
+                    <label for="Municipio">{{ detalle_Usuario }}</label>
+                </div>
+            </div>
+            <div class="field col-12 md:col-4" style="position: relative;">
+                <div class="field rows" style="font-weight: 800;">
+                    <label for="Departamento">Administrador:</label>
+                </div>
+                <div class="field rows">
+                    <label for="Departamento">{{ detalle_Administrador }}</label>
+                </div>
+            </div>
+            <div class="field col-12 md:col-4" style="position: relative; top: -10px;" >
+                <div class="field rows" style="font-weight: 800;">
+                    <label for="Departamento">Rol:</label>
+                </div>
+                <div class="field rows">
+                    <label for="Departamento">{{ detalle_Rol }}</label>
+                </div>
+            </div>
+
+            <div class="field col-12 md:col-4" style="position: relative; top: -10px;" >
+                <div class="field rows" style="font-weight: 800;">
+                    <label for="Departamento">Empleado:</label>
+                </div>
+                <div class="field rows">
+                    <label for="Departamento">{{ detalle_Empleado }}</label>
+                </div>
+            </div>
+            <div class="field col-12 md:col-4" style="position: relative; top: -10px;" >
+                <div class="field rows" style="font-weight: 800;">
+                    <label for="Departamento">Activo/Inactivo:</label>
+                </div>
+                <div class="field rows">
+                    <label for="Departamento" [ngStyle]="{color: detalle_Estado == 'Inactivo' ? 'red' : 'green'}">{{ detalle_Estado }}</label>
+                </div>
+            </div>
+            <div class="field col-12 md:col-4" style="position: relative; top: -10px;" *ngIf="detalle_Estado == 'Inactivo'">
+                <div class="field rows" style="font-weight: 800;">
+                    <label for="Departamento">Observación:</label>
+                </div>
+                <div class="field rows">
+                    <label for="Departamento">{{ detalle_Observacion }}</label>
+                </div>
+            </div>
+        </div>
+    <div style="position: relative;top:-20px;" >
+        <div class="card-title">
+            <h1>Auditoría</h1>
+        </div>
+        <p-table [value]="Datos" styleClass=" mt-2">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th style="width:200px; font-weight: bold;">Acción</th>
+                    <th style="width:200px; font-weight: bold;" >Usuario</th>
+                    <th style="width:200px; font-weight: bold;">Fecha</th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-transaction>
+                <tr>
+                    <td style="width:200px;">Creado</td>
+                    <td style="width:200px">{{ detalle_usuaCreacion }}</td>
+                    <td style="width:200px">{{ detalle_FechausuaCreacion }}</td>
+                </tr>
+                <tr>
+                    <td style="width:200px;">Modificado</td>
+                    <td style="width:200px">{{ detalle_usuaModificacion }}</td>
+                    <td style="width:200px">{{ detalle_FechausuaModificacion }}</td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+    </div>
+</div>
+
+
+</div>
+
+<p-dialog [(visible)]="Delete" header="Confirmación" [modal]="true" [style]="{width:'450px'}">
+
+    <div class="flex align-items-center justify-content-center">
+        <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+        <span>¿Está seguro de <span>{{textoDialogActivarDesactivar}}</span> el usuario <span style="font-weight: 600">{{ detalle_Usuario }}</span
+            >?</span>
+            
+    </div>
+    <form [formGroup]="formObservacion" class="formgrid grid">
+        <div class="field col" style="display: grid; margin-top: 1rem; margin-bottom: 0;" >
+           
+            <label>Observación
+                <span class="ng-dirty ng-invalid" *ngIf="submitted && formObservacion.controls['Observacion'].invalid"
+                style="color: red !important;"> *</span>
+            </label>
+            <input class="col-6"
+            [ngClass]="{'ng-invalid ng-dirty': submitted && formObservacion.controls['Observacion'].invalid}"
+            type="text" class="p-inputtext" formControlName="Observacion" (input)="allowObservacion($event)">
+            <small class="ng-dirty ng-invalid" *ngIf="submitted && formObservacion.controls['Observacion'].invalid"
+            style="color: red !important;">El campo es requerido.</small>
+            
+        </div>
+    </form>
+
+
+    <ng-template pTemplate="footer">
+        <button pButton pRipple icon="pi pi-check" type="button" label="Aceptar" (click)="Eliminar(textoDialogActivarDesactivar)"></button>
+        <button pButton pRipple icon="pi pi-times" class="p-button-outlined p-button-primary" label="Cancelar" (click)="Delete = false"></button>
+
+    </ng-template>
+</p-dialog>
+
+<!-- Modal Confirmar Editar-->
+<p-dialog [(visible)]="editarUsuarioDialog" header="Confirmación" [modal]="true" [style]="{width:'450px'}">
+    <!-- Cuerpo Modal -->
+        <div class="flex align-items-center justify-content-center">
+              <i class="pi pi-pencil mr-3" style="font-size: 2rem"></i>
+            <span *ngIf="detalle_Usuario">¿Está seguro de editar al usuario <b>{{form.value.usua_Usuario}}</b>?</span>
+      </div>
+
+
+       <!-- Botones -->
+       <ng-template pTemplate="footer">
+            <button pButton pRipple icon="pi pi-pencil" type="button" label="Aceptar" (click)="Guardar()"></button>
+            <button pButton pRipple icon="pi pi-times" class="p-button-outlined p-button-primary" label="Cancelar" (click)="editarUsuarioDialog = false;"></button>
+      </ng-template>
+</p-dialog>
+
+
+
+<!-- Modal Confirmar Editar-->
+<p-dialog [(visible)]="reestableceerModal" header="Confirmación" [modal]="true" [style]="{width:'450px'}">
+    <!-- Cuerpo Modal -->
+        <div class="flex align-items-center justify-content-center">
+              <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+            <span>¿Está seguro de restablecer la contraseña al usuario <b>{{detalle_Usuario}}</b>?</span>
+      </div>
+
+
+       <!-- Botones -->
+       <ng-template pTemplate="footer">
+            <button pButton pRipple icon="pi pi-check" type="button" label="Aceptar" (click)="Guardar();"></button>
+           <button pButton pRipple icon="pi pi-times" class="p-button-outlined p-button-primary" label="Cancelar" (click)="reestableceerModal = false;"></button>
+      </ng-template>
+</p-dialog>

@@ -1,0 +1,322 @@
+<style>
+
+.custom-input-container {
+    margin-bottom: 15px;
+}
+
+
+::ng-deep .custom-splitbutton .p-splitbutton-defaultbutton {
+    display: none; /* Oculta el botón izquierdo */
+}
+
+
+::ng-deep .custom-splitbutton .p-splitbutton-menubutton {
+    width: 133.73px;
+    height: 29.49px;
+    display: flex;
+    align-items: center;
+    padding: 0.5rem;
+    border-radius: 5px;
+    position: relative;
+}
+
+
+::ng-deep .custom-splitbutton .p-splitbutton-menubutton .p-button-label {
+    display: flex;
+    align-items: center;
+}
+
+
+::ng-deep .custom-splitbutton .p-splitbutton-menubutton::before {
+    content: '\e94a   Acciones ';
+    font-family: 'PrimeIcons', sans-serif;
+    font-size: 1rem;
+    display: inline-flex;
+    align-items: center;
+    margin-right: 17px;
+}
+
+
+/* Añadir el icono de engranaje a la izquierda del texto */
+::ng-deep .custom-splitbutton .p-splitbutton-menubutton::before {
+    position: relative;
+}
+
+
+
+
+::ng-deep .custom-splitbutton .p-splitbutton-menubutton .p-button-icon-right .p-icon-wrapper{
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    margin-left: 0;
+}
+
+
+  .spinner-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+</style>
+<div class="loader-container" *ngIf="loading">
+  <div class="loader">
+      <span></span>
+  </div>
+</div>
+<!-- Componente Toast para mostrar mensajes -->
+<p-toast></p-toast>
+
+<!-- Contenedor principal para la vista de listado -->
+<div class="grid" *ngIf="Index">
+  <div class="col-12">
+    <div class="card">
+      <h1 class="text-center mt-2">Sub Categorías</h1>
+      <hr>
+      <div class="grid mt-2">
+        <div class="col-12">
+          <!-- Botón para crear una nueva subcategoría -->
+          <button (click)="CrearSubCategoria()" pButton icon="pi pi-plus" label="Nuevo" class="mr-2"></button>
+        </div>
+      </div>
+      <!-- Tabla para listar subcategorías -->
+      <p-table #dt [value]="subcategoria" styleClass="mt-2" responsiveLayout="scroll" [rows]="10"
+        [globalFilterFields]="['codigo','suca_Descripcion', 'cate_Id', 'cate_Descripcion']"
+        [paginator]="true" [showCurrentPageReport]="true" [tableStyle]="{ background: '#000' }"
+
+        currentPageReportTemplate="Mostrando {first} al {last} de {totalRecords} entradas" [rowHover]="true"
+        [rowsPerPageOptions]="[10,25,50,100]"
+        >
+
+        <!-- Plantilla de la cabecera de la tabla -->
+        <ng-template pTemplate="caption">
+          <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+            <span class="block mt-2 md:mt-0 p-input-icon-left">
+              <i style="color: white;" class="pi pi-search"></i>
+              <input style="color: white;" pInputText type="text" (input)="onGlobalFilter(dt, $event)"
+                placeholder="Buscar..." class="w-full sm:w-auto" />
+            </span>
+            <div class="registros">
+              <p-dropdown [options]="dt.rowsPerPageOptions" [(ngModel)]="dt.rows" [style]="{ 'margin-right': '5px' }"  [autoWidth]="false"></p-dropdown>
+
+              <span style="color: #FFF0C6; font-weight: 700; margin-top: 7px;"> Registros por página</span>
+          </div>
+          </div>
+        </ng-template>
+
+        <!-- Cabecera de la tabla -->
+        <ng-template pTemplate="header">
+          <tr>
+            <th style="color: white;" class="text-center">Acciones</th>
+            <th style="color: white;" pSortableColumn="codigo" class="text-center">No. <p-sortIcon field="codigo"></p-sortIcon></th>
+            <th style="color: white;" pSortableColumn="cate_Descripcion" class="text-center">Categoría <p-sortIcon field="cate_Descripcion"></p-sortIcon></th>
+            <th style="color: white;" pSortableColumn="suca_Descripcion" class="text-center">Sub Categoría <p-sortIcon field="suca_Descripcion"></p-sortIcon></th>
+          </tr>
+        </ng-template>
+
+        <!-- Cuerpo de la tabla -->
+        <ng-template pTemplate="body" let-subcategoria>
+          <tr (click)="onRowSelect(subcategoria)">
+            <td class="text-center">
+              <p-splitButton
+              class="custom-splitbutton"
+              label="Acciones"
+              icon="pi pi-cog"
+              [model]="items"
+              styleClass="p-button-secondary"
+               appendTo="body"></p-splitButton>
+            </td>
+            <td class="text-center"><span class="p-column-title">Código</span>{{subcategoria.codigo}}</td>
+
+            <td style="width:30%; min-width:10rem;" class="text-center">
+              <span class="p-column-title">Categoría</span>{{ subcategoria.cate_Descripcion }}
+            </td>
+
+            <td style="width:30%; min-width:10rem;" class="text-center">
+              <span class="p-column-title">Sub Categoría</span>{{subcategoria.suca_Descripcion}}
+            </td>
+          </tr>
+        </ng-template>
+
+      </p-table>
+    </div>
+  </div>
+</div>
+
+<!-- Contenedor para la vista de creación -->
+<div class="grid" *ngIf="Create">
+  <div class="col-12">
+    <div class="card">
+      <div class="flex" style="width: 100%; margin: 0 auto; display: flex; align-items: center; height: 42px;">
+        <div style="width: 20%; display: flex; align-items: center; height: 12.5%;">
+            <button (click)="CerrarSubCategoria()" class="p-button-link" pButton pRipple type="button" label="Regresar" icon="pi pi-arrow-left" style="box-shadow: none !important"></button>
+        </div>
+        <div style="flex-grow: 1; display: flex; justify-content: center; align-items: center;">
+            <h1 class="text-center mt-4">{{ titulo }} Sub Categoría</h1>
+        </div>
+        <div style="width: 20%;"></div> <!-- Empty div to balance the space on the right -->
+    </div>
+      <hr>
+
+
+      <!-- Formulario para crear/editar subcategoría -->
+      <form [formGroup]="form" class="grid col-12 p-fluid p-formgrid">
+        <div class="field col-12 md:col-6">
+          <label>Categoría
+            <span class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['cate_Descripcion'].invalid"
+            style="color: red !important;">
+              *
+            </span>
+          </label>
+          <p-autoComplete
+            [dropdown]="true"
+            formControlName="cate_Descripcion"
+            [suggestions]="filteredCategories"
+            (completeMethod)="searchCategory($event)"
+            (onSelect)="onNivelSelect($event)"
+            (keypress)="ValidarTexto($event)"
+            field="cate_Descripcion"
+            placeholder="Seleccione una categoría"
+            [ngClass]="{'ng-invalid ng-dirty': submitted && form.controls['cate_Descripcion'].invalid}"
+            appendTo="body"></p-autoComplete>
+          <small class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['cate_Descripcion'].invalid"
+            style="color: red !important;">{{Error_SubCategoria}}</small>
+        </div>
+
+        <div class="field col-12 md:col-6">
+          <label>Sub Categoría
+            <span class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['suca_Descripcion'].invalid"
+            style="color: red !important;">
+              *
+            </span>
+          </label>
+          <input class="col-6" [ngClass]="{'ng-invalid ng-dirty': submitted && form.controls['suca_Descripcion'].invalid}"
+            type="text" class="p-inputtext" formControlName="suca_Descripcion"
+            (input)="handleInput($event)">  <!-- Añadir evento keypress -->
+          <small class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['suca_Descripcion'].invalid"
+            style="color: red !important;">El campo es requerido.</small>
+        </div>
+      </form>
+
+
+      <!-- Botones para guardar o cancelar la creación-edición -->
+      <div style="display: flex;justify-content: end;">
+        <button (click)="Guardar()" class="btn btn-guardar" pButton pRipple type="button" label="Guardar"
+          icon="pi pi-save"></button>
+        <button (click)="CerrarSubCategoria()" style="margin-left: 2%;" class="p-button-secondary" pButton pRipple
+          type="button" label="Cancelar" icon="pi pi-times"></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Contenedor para la vista de detalles -->
+<div class="grid" *ngIf="Detail">
+  <div class="col-12">
+    <div class="card">
+      <div class="flex" style="width: 100%; margin: 0 auto; display: flex; align-items: center; height: 42px;">
+        <div style="width: 20%; display: flex; align-items: center; height: 12.5%;">
+            <button (click)="CerrarSubCategoria()" class="p-button-link" pButton pRipple type="button" label="Regresar" icon="pi pi-arrow-left" style="box-shadow: none !important"></button>
+        </div>
+        <div style="flex-grow: 1; display: flex; justify-content: center; align-items: center;">
+            <h1 class="text-center mt-4">Detalle Sub Categoría</h1>
+        </div>
+        <div style="width: 20%;"></div> <!-- Empty div to balance the space on the right -->
+    </div>
+      <hr>
+      <div class="p-fluid p-formgrid grid">
+        <div class="field col-12 md:col-4" style="position: relative; height: 10%;">
+          <div class="field rows">
+            <label for="Codigo" style="font-weight: 800;">No:</label>
+          </div>
+          <div class="field rows">
+            <label for="Codigo">{{ detalle_suca_Id }}</label>
+          </div>
+        </div>
+
+        <div class="field col-12 md:col-4" style="position: relative;">
+          <div class="field rows">
+            <label for="Municipio" style="font-weight: 800;">Categoría:</label>
+          </div>
+          <div class="field rows">
+            <label for="Municipio">{{ detalle_cate_Descripcion }}</label>
+          </div>
+        </div>
+
+        <div class="field col-12 md:col-4" style="position: relative;">
+          <div class="field rows">
+            <label for="Municipio" style="font-weight: 800;">Sub Categoría:</label>
+          </div>
+          <div class="field rows">
+            <label for="Municipio">{{ detalle_suca_Descripcion }}</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabla para mostrar detalles de auditoría -->
+      <div style="position: relative;top:-20px;">
+        <div class="card-title">
+          <h1>Auditoría</h1>
+        </div>
+        <p-table [value]="Datos" styleClass="mt-2">
+          <ng-template pTemplate="header">
+            <tr>
+              <th style="width:200px; font-weight: bold;">Acción</th>
+              <th style="width:200px; font-weight: bold;">Usuario</th>
+              <th style="width:200px; font-weight: bold;">Fecha</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-transaction>
+            <tr>
+              <td style="width:200px;">Creado</td>
+              <td style="width:200px">{{ detalle_usuaCreacion }}</td>
+              <td style="width:200px">{{ detalle_FechausuaCreacion }}</td>
+            </tr>
+            <tr>
+              <td style="width:200px;">Modificado</td>
+              <td style="width:200px">{{ detalle_usuaModificacion }}</td>
+              <td style="width:200px">{{ detalle_FechausuaModificacion }}</td>
+            </tr>
+          </ng-template>
+
+        </p-table>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- modal confirmacion eliminacion con botones dependiendo la respuesta -->
+
+
+<p-dialog [(visible)]="Delete" header="Confirmación" [modal]="true" [style]="{ width: '450px' }">
+  <div class="flex align-items-center justify-content-center">
+    <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+    <span>¿Está seguro de eliminar la Sub Categoría
+      <span style="font-weight: 600">{{selectedsubcategoria?.suca_Descripcion}}</span>?</span>
+  </div>
+  <ng-template pTemplate="footer">
+    <button  pButton pRipple icon="pi pi-trash" type="button" label="Eliminar"
+      (click)="confirmarEliminar()"></button>
+    <button pButton pRipple icon="pi pi-times" class="p-button-outlined p-button-primary" label="Cancelar"
+      (click)="Delete = false"></button>
+  </ng-template>
+</p-dialog>
+
+
+<!-- modal confirmacion edicion con botones dependiendo la respuesta -->
+
+<p-dialog [(visible)]="Edit" header="Confirmación" [modal]="true" [style]="{ width: '450px' }">
+  <div class="flex align-items-center justify-content-center">
+    <i class="pi pi-pencil mr-3" style="font-size: 2rem"></i>    <span>¿Está seguro de editar la Sub Categoría
+      <span style="font-weight: 600">{{form.value.suca_Descripcion}}</span>?</span>
+  </div>
+  <ng-template pTemplate="footer">
+    <button  pButton pRipple icon="pi pi-pencil" type="button" label="Aceptar"
+      (click)="GuardarEdicion()"></button>
+    <button pButton pRipple icon="pi pi-times" class="p-button-outlined p-button-primary" label="Cancelar"
+      (click)="Edit = false"></button>
+  </ng-template>
+</p-dialog>

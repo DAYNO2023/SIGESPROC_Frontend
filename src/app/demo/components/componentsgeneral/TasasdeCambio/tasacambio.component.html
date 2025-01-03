@@ -1,0 +1,346 @@
+<p-toast ></p-toast>
+<div class="loader-container" *ngIf="loading">
+  <div class="loader">
+      <span></span>
+  </div>
+</div>
+<!--Spinner-->
+
+<!--Spinner-->
+
+
+<!-- Listado -->
+<div class="grid" *ngIf="Index">
+    <div class="col-12">
+        <div class="card">
+            <h1 class="text-center mt-2">Tasas de Cambio</h1>
+            <hr>
+            <div class="grid mt-2">
+                <div class="col-12">
+                    <button (click)="CrearTasaCambio()" pButton icon="pi pi-plus" label="Nuevo" class="mr-2">
+                    </button>
+                </div>
+            </div>
+            <!-- <div class="loader-container" *ngIf="isTableLoading">
+              <div class="loader"></div>
+            </div> -->
+            <p-table *ngIf="!isTableLoading" #dt [value]="TasaCambio" styleClass=" mt-2" responsiveLayout="scroll"
+                [globalFilterFields]="['codigo','mone_A','taca_ValorA','moneda_A','mone_B','taca_ValorB','moneda_B']"
+                [rows]="10" [paginator]="true" [showCurrentPageReport]="true" [tableStyle]="{ background: '#000' }"
+                currentPageReportTemplate="Mostrando {first} al {last} de {totalRecords} entradas" [rowHover]="true"
+                [rowsPerPageOptions]="[10,25,50,100]">
+                <ng-template pTemplate="caption">
+                    <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+
+                        <span class="block mt-2 md:mt-0 p-input-icon-left">
+                            <i style="color: white;" class="pi pi-search"></i>
+                            <input style="color: white;" pInputText type="text" (input)="onGlobalFilter(dt, $event)"
+                                placeholder="Buscar..." class="w-full sm:w-auto" />
+                        </span>
+                        <div class="registros">
+                          <p-dropdown
+                          [options]="dt.rowsPerPageOptions"
+                          [(ngModel)]="dt.rows"
+                          [style]="{ 'margin-right': '5px' }"
+                          [autoWidth]="false"
+                          />
+                          <span style="color: #fff0c6; font-weight: 700; margin-top: 7px;">Registros por página</span>
+                        </div>
+                    </div>
+
+                </ng-template>
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th style="color: white;" class="text-center">Acciones</th>
+                        <th style="color: white;" pSortableColumn="taca_Id" class="text-center">No. <p-sortIcon
+                                field="taca_Id"></p-sortIcon></th>
+                        <th style="color: white;" pSortableColumn="taca_ValorA" class="text-center">Moneda A <p-sortIcon
+                            field="taca_ValorA"></p-sortIcon></th>
+                            <th style="color: white;" pSortableColumn="taca_ValorA" class="text-center">
+
+                            </th>
+                        <th style="color: white;" pSortableColumn="taca_ValorB" class="text-center">Moneda B <p-sortIcon
+                            field="taca_ValorB"></p-sortIcon></th>
+
+
+                    </tr>
+                </ng-template>
+                <!-- <ng-template pTemplate="emptymessage">
+                  <tr>
+                    <td colspan="6" class="text-center">
+                    
+                    </td>
+                  </tr>
+                </ng-template> -->
+                <!-- <ng-template pTemplate="emptymessage">
+                  <tr>
+                     <td colspan="6">
+                            <ng-container *ngIf="isTableLoading; else noData">
+                             <i class="pi pi-spin pi-spinner"></i> Cargando...
+                              </ng-container>
+                               <ng-template #noData>
+                                   {{loadedTableMessage}}
+                            </ng-template>
+                     </td>
+                 </tr>
+          </ng-template> -->
+                <ng-template pTemplate="body" let-tasacambio>
+                    <tr (click)="onRowSelect(tasacambio)">
+                        <td class="text-center">
+                          <p-splitButton
+                          label="Acciones"
+                         class="custom-splitbutton"
+                          [model]="items"
+                          styleClass="p-button-secondary"
+                          (onDropdownClick)="rowactual = categoria"
+                          appendTo="body">
+                      </p-splitButton>
+                        </td>
+
+                        <td  class="text-center"><span
+                                class="p-column-title">Código</span>
+                            {{tasacambio.codigo}}
+                        </td>
+
+
+                        <td  class="text-center">
+                            <span class="p-column-title">Valor Moneda A</span>
+                            {{tasacambio.taca_ValorA}}
+
+                            <span class="p-column-title">Simbolo Moneda A</span>
+                            {{tasacambio.moneda_A}}
+                        </td>
+                        <td class="text-center">
+                            <i class="pi pi-arrow-right"></i>
+                        </td>
+
+                        <td class="text-center">
+                            <span class="p-column-title">Valor Moneda B</span>
+                            {{tasacambio.taca_ValorB}}
+
+                            <span class="p-column-title">Simbolo Moneda B</span>
+                            {{tasacambio.moneda_B}}
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+
+    </div>
+</div>
+
+<!-- Collapse de crear/editar tasa de cambio -->
+<div class="grid" *ngIf="Create">
+  <div class="col-12">
+    <div class="card">
+      <div style="display: flex; justify-content: space-between; align-items: center; height: 42px;">
+        <div style="width: 20%; display: flex; align-items: center;">
+          <button (click)="CerrarTasaCambio()" class="p-button-link" pButton pRipple type="button" label="Regresar" icon="pi pi-arrow-left" style="box-shadow: none !important"></button>
+        </div>
+        <div style="flex: 1; text-align: center;">
+          <h1 class="text-center mt-4">{{ titulo }}</h1>
+        </div>
+        <div style="width: 20%;"></div>
+      </div>
+      <hr>
+
+
+        <div class=" mt-2 grid">
+            <form [formGroup]="form" class="grid col-12 p-fluid p-formgrid">
+                <div class="field col-12 md:col-4">
+                  <label>
+                    De
+                    <span *ngIf="submitted && form.controls['monea'].invalid" style="color: red">*</span> <!-- Asterisco rojo condicionado -->
+                  </label>
+                    <!-- <p-dropdown
+
+                        formControlName="mone_A"
+                        [options]="monedas"
+                        optionLabel="mone_Nombre"
+                        optionValue="mone_Id"
+                        placeholder="Seleccione una moneda"
+                        [ngClass]="{'ng-invalid ng-dirty': submitted && form.controls['mone_A'].invalid}"></p-dropdown> -->
+
+                         <p-autoComplete
+                        formControlName="monea"
+                        [suggestions]="monedaAfill"
+                        (completeMethod)="filterMonedaA($event)"
+                        (onSelect)="onMonedaASelect($event)"
+                        field="mone_Nombre"
+                        placeholder="Seleccionar una moneda"
+                        [dropdown]="true"
+                        (disabled)="true"
+                        [ngClass]="{'ng-invalid ng-dirty': submitted && form.controls['monea'].invalid}" />
+
+                    <small class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['monea'].invalid" style="color: red !important;">El campo es requerido.</small>
+                </div>
+
+                <div class="field col-12 md:col-2">
+                  <label>
+                    Valor
+                    <span *ngIf="submitted && form.controls['taca_ValorA'].invalid" style="color: red">*</span> <!-- Asterisco rojo condicionado -->
+                  </label>
+                    <input type="number" [value]="1" formControlName="taca_ValorA" class="p-inputtext text-center"  [ngClass]="{'ng-invalid ng-dirty': submitted && form.controls['taca_ValorA'].invalid}">
+                    <small class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['taca_ValorA'].invalid" style="color: red !important;">El campo es requerido.</small>
+                  </div>
+
+
+                <div class="field col-12 md:col-4">
+                  <label>
+                    A
+                    <span *ngIf="submitted && form.controls['moneb'].invalid" style="color: red">*</span> <!-- Asterisco rojo condicionado -->
+                  </label>
+                    <!-- <p-dropdown
+                        formControlName="mone_B"
+                        [options]="monedas"
+                        optionLabel="mone_Nombre"
+                        optionValue="mone_Id"
+                        placeholder="Seleccione una moneda"
+                        [ngClass]="{'ng-invalid ng-dirty': submitted && form.controls['mone_B'].invalid}"></p-dropdown> -->
+
+                        <p-autoComplete
+                        formControlName="moneb"
+                        [suggestions]="monedaBfill"
+                        (completeMethod)="filterMonedaB($event)"
+                        (onSelect)="onMonedaBSelect($event)"
+                        field="mone_Nombre"
+                        placeholder="Seleccionar una moneda"
+                        [dropdown]="true"
+                        [ngClass]="{'ng-invalid ng-dirty': submitted && form.controls['moneb'].invalid}" />
+
+
+                    <small class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['moneb'].invalid" style="color: red !important;">El campo es requerido.</small>
+                </div>
+
+                <div class="field col-12 md:col-2">
+                  <label>
+                    Valor
+                    <span *ngIf="submitted && form.controls['taca_ValorB'].invalid" style="color: red">*</span> <!-- Asterisco rojo condicionado -->
+                  </label>
+                    <input type="number" formControlName="taca_ValorB" value="1" class="p-inputtext"  [ngClass]="{'ng-invalid ng-dirty': submitted && form.controls['taca_ValorB'].invalid}">
+                    <small class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['taca_ValorB'].invalid" style="color: red !important;">El campo es requerido.</small>
+                </div>
+            </form>
+        </div>
+
+      <div style="display: flex;justify-content: end;">
+        <div>
+          <button (click)="Guardar()" class="btn btn-guardar" pButton pRipple type="button" label="Guardar" icon="pi pi-save"></button>
+        </div>
+        <button (click)="CerrarTasaCambio()" style="margin-left: 2%;" class=" p-button-secondary" pButton pRipple type="button" label="Cancelar" icon="pi pi-times"></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+<!-- Detalles  -->
+  <div class="grid" *ngIf="Detail">
+    <div class="col-12">
+      <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; height: 42px;">
+          <div style="width: 20%; display: flex; align-items: center;"> <!-- Añadido margin-top -->
+              <button (click)="CerrarTasaCambio()" class="p-button-link" pButton pRipple type="button" label="Regresar" icon="pi pi-arrow-left" style="box-shadow: none !important"></button>
+          </div>
+          <div style="flex: 1; text-align: center;">
+              <h1 class="text-center mt-4">Detalle Tasa de Cambio</h1>
+          </div>
+          <div style="width: 20%;"></div> <!-- Empty div to balance the layout -->
+      </div>
+
+      <hr>
+        <div class="p-fluid p-formgrid grid">
+          <div class="field col-12 md:col-4 " style="position: relative; height: 10%;">
+            <div class="field rows">
+              <label for="Codigo" style="font-weight: 800;">No:</label>
+            </div>
+            <div class="field rows">
+              <label for="Codigo">{{ detalle_taca_Id }}</label>
+            </div>
+          </div>
+
+          <div class="field col-12 md:col-4" style="position: relative;">
+            <div class="field rows">
+              <label for="Municipio" style="font-weight: 800;">Moneda A:</label>
+            </div>
+            <div class="field rows">
+                <label for="Municipio">{{ detalle_taca_ValorA }}</label> &nbsp;<label for="Municipio">{{ detalle_moneda_A }}</label>
+            </div>
+          </div>
+
+          <div class="field col-12 md:col-4" style="position: relative;">
+            <div class="field rows">
+              <label for="Municipio" style="font-weight: 800;">Moneda B:</label>
+            </div>
+            <div class="field rows">
+                <label for="Municipio">{{ detalle_taca_ValorB }}</label> &nbsp;<label for="Municipio">{{ detalle_moneda_B }}</label>
+            </div>
+          </div>
+
+        </div>
+        <div style="position: relative;top:-20px;">
+          <div class="card-title">
+            <h1>Auditoría</h1>
+          </div>
+          <p-table [value]="Datos" styleClass="mt-2">
+            <ng-template pTemplate="header">
+              <tr>
+                <th style="width:200px; font-weight: bold;">Acción</th>
+                <th style="width:200px; font-weight: bold;">Usuario</th>
+                <th style="width:200px; font-weight: bold;">Fecha</th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-transaction>
+              <tr>
+                <td style="width:200px;">Creado</td>
+                <td style="width:200px">{{ detalle_usuaCreacion }}</td>
+                <td style="width:200px">{{ detalle_FechausuaCreacion }}</td>
+              </tr>
+              <tr>
+                <td style="width:200px;">Modificado</td>
+                <td style="width:200px">{{ detalle_usuaModificacion }}</td>
+                <td style="width:200px">{{ detalle_FechausuaModificacion}}</td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
+
+
+      </div>
+    </div>
+  </div>
+
+
+  <!-- modal de eliminar -->
+  <p-dialog [(visible)]="Delete" header="Confirmación" [modal]="true" [style]="{width:'450px'}">
+    <div class="flex align-items-center justify-content-center">
+      <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+      <span>¿Está seguro de eliminar la tasa de cambio <span style="font-weight: 600;">{{moneda1}} → {{moneda2}}</span>?</span>
+    </div>
+    <ng-template pTemplate="footer">
+      <button pButton pRipple icon="pi pi-trash" class="p-button p-button-primary" label="Eliminar" (click)="Eliminar()"></button>
+      <button pButton pRipple icon="pi pi-times" class="p-button-outlined p-button-primary" label="Cancelar" (click)="Delete = false"></button>
+    </ng-template>
+  </p-dialog>
+
+    <!-- Modal de Confirmar -->
+<p-dialog [(visible)]="Edit" header="Confirmación" [modal]="true" [style]="{width:'450px'}">
+  <div class="flex align-items-center justify-content-center">
+      <i class="pi pi-pencil mr-3" style="font-size: 2rem"></i>
+      <span>¿Está seguro de editar la tasa de cambio  <span style="font-weight: 600">{{moneda1}} → {{moneda2}}</span
+          >?</span>
+  </div>
+  <ng-template pTemplate="footer">
+    <button pButton pRipple icon="pi pi-pencil" class="p-button p-button-primary" label="Aceptar" (click)="EditarG()"></button>
+    <button pButton pRipple icon="pi pi-times" class="p-button-outlined p-button-primary" label="Cancelar" (click)="Edit = false"></button>
+  </ng-template>
+</p-dialog>
+
+
+
+
+
+
+

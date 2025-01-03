@@ -1,0 +1,1155 @@
+<p-toast></p-toast>
+<style>
+
+.p-tabPanel .p-tabview-panel {
+    overflow: hidden;
+    padding: 0;
+}
+
+.card {
+    padding: 1rem;
+    margin: 1rem 0;
+    overflow-x: auto;
+}
+
+.grid {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.col-6 {
+    flex: 0 0 50%;
+    max-width: 50%;
+    padding: 1rem;
+}
+
+.button-group {
+    display: flex;
+    justify-content: space-between;
+}
+
+
+
+
+    .estado-llego,
+    .EnCamino {
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        background-color: #f28b82;
+        color: #b71c1c;
+        padding: 0.2rem 1.5rem;
+        border-radius: 0.25rem;
+        font-weight: bold;
+        min-width: 4rem;
+        text-align: center;
+    }
+
+    .EnCamino {
+        background-color: #81c784;
+        color: #1b5e20;
+    }
+</style>
+<div class="grid" *ngIf="Index">
+    <div class="col-12">
+        <div class="card">
+            <h1 class="text-center mt-4">Fletes</h1>
+            <hr />
+            <div class="grid mt-2">
+                <div class="col-12">
+                    <button
+                        (click)="CrearFlete()"
+                        pButton
+                        label="Nuevo"
+                        icon="pi pi-plus"
+                        class="mr-2"
+                    ></button>
+                </div>
+            </div>
+
+            <p-table
+                #dt
+                [value]="fletes"
+                styleClass="mt-2"
+                responsiveLayout="scroll"
+                [rows]="10"
+                [globalFilterFields]="[
+                    'codigo',
+                    'encargado',
+                    'estado',
+                    'destino',
+                    'flen_FechaHoraEstablecidaDeLlegada'
+                ]"
+                [paginator]="true"
+                [showCurrentPageReport]="true"
+                currentPageReportTemplate="Mostrando {first} al {last} de {totalRecords} entradas"
+                [rowHover]="true"
+            >
+                <ng-template pTemplate="caption">
+                    <div
+                        class="flex flex-column md:flex-row md:justify-content-between md:align-items-center"
+                    >
+                        <span class="block mt-2 md:mt-0 p-input-icon-left">
+                            <i style="color: white" class="pi pi-search"></i>
+                            <input
+                                style="color: white"
+                                pInputText
+                                type="text"
+                                (input)="onGlobalFilter(dt, $event)"
+                                placeholder="Buscar..."
+                                class="w-full sm:w-auto"
+                            />
+                        </span>
+                    </div>
+                </ng-template>
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th style="color: white" class="text-center">
+                            Acciones
+                        </th>
+                        <th
+                            style="color: white"
+                            pSortableColumn="codigo"
+                            class="text-center"
+                        >
+                        Código <p-sortIcon field="codigo"></p-sortIcon>
+                        </th>
+                        <th
+                            style="color: white"
+                            pSortableColumn="encargado"
+                            class="text-center"
+                        >
+                            Encargado
+                            <p-sortIcon field="encargado"></p-sortIcon>
+                        </th>
+                        <th
+                            style="color: white"
+                            pSortableColumn="estado"
+                            class="text-center"
+                        >
+                            Estado <p-sortIcon field="estado"></p-sortIcon>
+                        </th>
+                        <th
+                            style="color: white"
+                            pSortableColumn="destino"
+                            class="text-center"
+                        >
+                            Destino <p-sortIcon field="destino"></p-sortIcon>
+                        </th>
+                        <th
+                            style="color: white"
+                            pSortableColumn="flen_FechaHoraEstablecidaDeLlegada"
+                            class="text-center"
+                        >
+                            Tiempo Establecido
+                            <p-sortIcon
+                                field="flen_FechaHoraEstablecidaDeLlegada"
+                            ></p-sortIcon>
+                        </th>
+                    </tr>
+                </ng-template>
+
+
+
+<ng-template pTemplate="body" let-flete>
+    <tr (click)="selectFlete(flete)">         <td class="text-center" style="width: 3%; min-width: 10rem">
+            <p-splitButton
+                (onDropdownClick)="rowactual = flete"
+                label="Acciones"
+                icon="pi pi-cog"
+                [model]="flete.items"
+                styleClass="p-button-secondary"
+            ></p-splitButton>
+        </td>
+        <td class="text-center" style="width: 3%; min-width: 10rem">
+            {{ flete.codigo }}
+        </td>
+        <td class="text-center">
+            {{ flete.encargado }}
+        </td>
+        <td class="text-center">
+            <span [ngClass]="{
+                'estado-llego': flete.estado === 'Llego',
+                EnCamino: flete.estado !== 'Llego'
+            }">
+                {{ flete.estado }}
+            </span>
+        </td>
+        <td class="text-center">
+            {{ flete.destino }}
+        </td>
+        <td class="text-center">
+            {{ flete.flen_FechaHoraEstablecidaDeLlegada }}
+        </td>
+    </tr>
+</ng-template>
+
+            </p-table>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+<!-- si llegooo -->
+
+<div class="grid" *ngIf="Verificacion">
+    <div class="col-12">
+        <div class="card">
+            <h2 class="text-center">Verificación Flete</h2>
+            <p-tabView orientation="center">
+                <p-tabPanel header="Detalles">
+                    <form [formGroup]="verificarForm" class="p-fluid p-formgrid grid">
+                        <div class="field col-12 md:col-6">
+                            <label>Fecha y hora de llegada:</label>
+                            <p-calendar
+                                formControlName="flen_FechaHoraLlegada"
+                                [showIcon]="true"
+                                [showTime]="true"
+                                [hourFormat]="24"
+                                dateFormat="yy-mm-dd"
+                                placeholder="YY/MM/DD HH:MM"
+                                [ngClass]="{
+                                    'ng-invalid ng-dirty':
+                                        submitted &&
+                                        verificarForm.controls['flen_FechaHoraLlegada'].invalid
+                                }"
+                            ></p-calendar>
+                            <small
+                                class="ng-dirty ng-invalid"
+                                *ngIf="submitted && verificarForm.controls['flen_FechaHoraLlegada'].invalid"
+                                style="color: red !important"
+                            >El campo es requerido</small>
+                        </div>
+                        <div class="field col-12">
+                            <div class="text-900 font-semibold text-lg mt-5 mb-3 border-bottom-1 surface-border py-3">Insumos Pendientes</div>
+                            <p-table [value]="pendientes"                styleClass="mt-2"
+                            >
+                                <ng-template pTemplate="header">
+                                    <tr>
+                                        <th></th>
+                                        <th>Descripción</th>
+                                        <th>Unidad de Medida</th>
+                                        <th>Bodega</th>
+                                        <th>Cantidad</th>
+                                    </tr>
+                                </ng-template>
+                                <ng-template pTemplate="body" let-insumo
+                                let-i="rowIndex">
+                                    <tr>
+                                        <td>
+                                            <p-checkbox [binary]="true" (onChange)="onCheckboxChange($event, insumo, i)" [(ngModel)]="insumo.verificado" [inputId]="insumo.insu_Descripcion"></p-checkbox>
+                                        </td>
+                                        <td>
+                                            <label for="{{insumo.insu_Descripcion}}" style="word-break: break-word;" class="font-medium ml-2" [ngClass]="{'line-through': insumo.verificado}">{{insumo.insu_Descripcion}}</label>
+                                        </td>
+                                        <td>{{ insumo.unme_Nombre }}</td>
+                                        <td>{{ insumo.bode_Descripcion }}</td>
+                                        <td>
+                                            <input type="number" pInputText [value]="insumo.flde_Cantidad" readonly style="width: 5rem;">
+                                        </td>
+                                    </tr>
+                                </ng-template>
+                            </p-table>
+
+                            <div class="text-900 font-semibold text-lg mt-5 mb-3 border-bottom-1 surface-border py-3">Insumos Verificados</div>
+                            <p-table [value]="verificados"                 styleClass="mt-2"
+                            >
+                                <ng-template pTemplate="header">
+                                    <tr>
+                                        <th></th>
+                                        <th>Descripción</th>
+                                        <th>Unidad de Medida</th>
+                                        <th>Bodega</th>
+                                        <th>Cantidad</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </ng-template>
+                                <ng-template pTemplate="body" let-insumo let-i="rowIndex">
+                                    <tr [formGroupName]="i">
+                                        <td>
+                                            <p-checkbox [binary]="true" [(ngModel)]="insumo.verificado" [inputId]="insumo.insu_Descripcion" disabled="true"></p-checkbox>
+                                        </td>
+                                        <td>
+                                            <label for="{{insumo.insu_Descripcion}}" style="word-break: break-word;" class="font-medium ml-2" [ngClass]="{'line-through': insumo.verificado}">{{insumo.insu_Descripcion}}</label>
+                                        </td>
+                                        <td>{{ insumo.unme_Nombre }}</td>
+                                        <td>{{ insumo.bode_Descripcion }}</td>
+
+                                        <td>
+                                            <input type="number" pInputText [value]="insumo.flde_Cantidad" formControlName="flde_Cantidad" (change)="onCantidadChange($event, insumo, i)" min="1" [max]="cantidadesOriginales[insumo.flde_Id]" style="width: 5rem;">
+                                            <small *ngIf="getDetalleFormGroup(i).controls['flde_Cantidad'].hasError('required')" style="color: red !important;">La cantidad es requerida.</small>
+                                            <small *ngIf="getDetalleFormGroup(i).controls['flde_Cantidad'].hasError('min')" style="color: red !important;">La cantidad debe ser mayor que cero.</small>
+                                            <small *ngIf="getDetalleFormGroup(i).controls['flde_Cantidad'].hasError('max')" style="color: red !important;">La cantidad no puede ser mayor que la cantidad original.</small>
+                                        </td>
+                                        <td>
+                                            <button class="p-button p-button-icon-only p-button-rounded p-button-text" (click)="revertirInsumo(insumo, i)" pTooltip="Revertir" tooltipPosition="top">
+                                                <i class="pi pi-undo"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </ng-template>
+                            </p-table>
+
+                        </div>
+
+                    </form>
+                    <div style="display: flex; justify-content: end">
+                        <button
+                            (click)="finalizarVerificacion()"
+                            class="btn btn-guardar"
+                            pButton
+                            pRipple
+                            type="button"
+                            label="Listo"
+                            icon="pi pi-caret-right"
+                        ></button>
+                        <button
+                            (click)="CancelarVerificacion()"
+                            style="margin-left: 2%"
+                            class="p-button-secondary"
+                            pButton
+                            pRipple
+                            type="button"
+                            label="Cancelar"
+                            icon="pi pi-trash"
+                        ></button>
+                    </div>
+                </p-tabPanel>
+            </p-tabView>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+<!-- FUNCIONA VERIFICACION -->
+<!-- <div class="grid" *ngIf="Verificacion">
+    <div class="col-12">
+        <div class="card">
+            <h2 class="text-center">Verificación Flete</h2>
+            <p-tabView orientation="center">
+                <p-tabPanel header="Detalles">
+                    <form [formGroup]="verificarForm" class="p-fluid p-formgrid grid">
+                        <div class="field col-12 md:col-6">
+                            <label>Fecha y hora de llegada:</label>
+                            <p-calendar
+                                formControlName="flen_FechaHoraLlegada"
+                                [showIcon]="true"
+                                [showTime]="true"
+                                [hourFormat]="24"
+                                dateFormat="yy-mm-dd"
+                                placeholder="YY/MM/DD HH:MM"
+                                [ngClass]="{
+                                    'ng-invalid ng-dirty':
+                                        submitted &&
+                                        verificarForm.controls['flen_FechaHoraLlegada'].invalid
+                                }"
+                            ></p-calendar>
+                            <small
+                                class="ng-dirty ng-invalid"
+                                *ngIf="submitted && verificarForm.controls['flen_FechaHoraLlegada'].invalid"
+                                style="color: red !important"
+                            >El campo es requerido</small>
+                        </div>
+                        <div class="field col-12">
+                            <div class="text-900 font-semibold text-lg mt-5 mb-3 border-bottom-1 surface-border py-3">Insumos Pendientes</div>
+                            <p-table [value]="pendientes" styleClass="p-datatable-striped">
+                                <ng-template pTemplate="header">
+                                    <tr>
+                                        <th></th>
+                                        <th>Descripción</th>
+                                        <th>Unidad de Medida</th>
+                                        <th>Bodega</th>
+                                        <th>Cantidad</th>
+                                    </tr>
+                                </ng-template>
+                                <ng-template pTemplate="body" let-insumo let-i="rowIndex">
+                                    <tr>
+                                        <td>
+                                            <p-checkbox [binary]="true" (onChange)="onCheckboxChange($event, insumo, i)" [(ngModel)]="insumo.verificado" [inputId]="insumo.insu_Descripcion"></p-checkbox>
+                                        </td>
+                                        <td>
+                                            <label for="{{insumo.insu_Descripcion}}" style="word-break: break-word;" class="font-medium ml-2" [ngClass]="{'line-through': insumo.verificado}">{{insumo.insu_Descripcion}}</label>
+                                        </td>
+                                        <td>{{ insumo.unme_Nombre }}</td>
+                                        <td>{{ insumo.bode_Descripcion }}</td>
+                                        <td>{{ insumo.flde_Cantidad }}</td>
+                                    </tr>
+                                </ng-template>
+                            </p-table>
+
+                            <div class="text-900 font-semibold text-lg mt-5 mb-3 border-bottom-1 surface-border py-3">Insumos Verificados</div>
+                            <p-table [value]="verificados" styleClass="p-datatable-striped">
+                                <ng-template pTemplate="header">
+                                    <tr>
+                                        <th></th>
+                                        <th>Descripción</th>
+                                        <th>Unidad de Medida</th>
+                                        <th>Bodega</th>
+                                        <th>Cantidad</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </ng-template>
+                                <ng-template pTemplate="body" let-insumo let-i="rowIndex">
+                                    <tr>
+                                        <td>
+                                            <p-checkbox [binary]="true" [(ngModel)]="insumo.verificado" [inputId]="insumo.insu_Descripcion" disabled="true"></p-checkbox>
+                                        </td>
+                                        <td>
+                                            <label for="{{insumo.insu_Descripcion}}" style="word-break: break-word;" class="font-medium ml-2" [ngClass]="{'line-through': insumo.verificado}">{{insumo.insu_Descripcion}}</label>
+                                        </td>
+                                        <td>{{ insumo.unme_Nombre }}</td>
+                                        <td>{{ insumo.bode_Descripcion }}</td>
+                                        <td>{{ insumo.flde_Cantidad }}</td>
+                                        <td>
+                                            <button class="p-button p-button-icon-only p-button-rounded p-button-text" (click)="revertirInsumo(insumo, i)" pTooltip="Revertir" tooltipPosition="top">
+                                                <i class="pi pi-undo"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </ng-template>
+                            </p-table>
+                        </div>
+
+                    </form>
+                    <div style="display: flex; justify-content: end">
+                        <button
+                            (click)="finalizarVerificacion()"
+                            class="btn btn-guardar"
+                            pButton
+                            pRipple
+                            type="button"
+                            label="Listo"
+                            icon="pi pi-caret-right"
+                        ></button>
+                        <button
+                            (click)="CancelarVerificacion()"
+                            style="margin-left: 2%"
+                            class="p-button-secondary"
+                            pButton
+                            pRipple
+                            type="button"
+                            label="Cancelar"
+                            icon="pi pi-trash"
+                        ></button>
+                    </div>
+                </p-tabPanel>
+            </p-tabView>
+        </div>
+    </div>
+</div> -->
+
+<div class="grid" *ngIf="CreateEdit">
+    <div class="col-12">
+        <div class="card">
+            <h2 class="text-center">
+                {{ Edit ? "Editar Etapa" : "Nuevo Flete" }}
+            </h2>
+            <p-tabView orientation="center" [(activeIndex)]="Indexactivo">
+                <p-tabPanel header="Datos Generales">
+                    <form [formGroup]="form" class="p-fluid p-formgrid grid">
+                        <div class="field col-12 md:col-6">
+                            <label>Fecha y hora de salida:</label>
+                            <p-calendar
+                                formControlName="flen_FechaHoraSalida"
+                                [showIcon]="true"
+                                [showTime]="true"
+                                [hourFormat]="12"
+                                dateFormat="yy-mm-dd"
+                                placeholder="YY/MM/DD HH:MM"
+                                [ngClass]="{
+                                    'ng-invalid ng-dirty':
+                                        submitted &&
+                                        form.controls['flen_FechaHoraSalida'].invalid
+                                }"
+                            ></p-calendar>
+                            <small
+                                class="ng-dirty ng-invalid"
+                                *ngIf="
+                                    submitted &&
+                                    form.controls['flen_FechaHoraSalida'].invalid
+                                "
+                                style="color: red !important"
+                                >El campo es requerido</small
+                            >
+                        </div>
+                        <div class="field col-12 md:col-6">
+                            <label>Fecha y hora establecida</label>
+                            <p-calendar
+                                formControlName="flen_FechaHoraEstablecidaDeLlegada"
+                                [showIcon]="true"
+                                [showTime]="true"
+                                [hourFormat]="12"
+                                dateFormat="yy-mm-dd"
+                                placeholder="YY/MM/DD HH:MM"
+                                [ngClass]="{
+                                    'ng-invalid ng-dirty':
+                                        submitted &&
+                                        form.controls['flen_FechaHoraEstablecidaDeLlegada'].invalid
+                                }"
+                            ></p-calendar>
+                            <small
+                                class="ng-dirty ng-invalid"
+                                *ngIf="
+                                    submitted &&
+                                    form.controls['flen_FechaHoraEstablecidaDeLlegada'].invalid
+                                "
+                                style="color: red !important"
+                                >El campo es requerido</small
+                            >
+                        </div>
+                        <div class="field col-12 md:col-6">
+                            <label>Encargado</label>
+                            <p-autoComplete
+                                formControlName="encargado"
+                                [suggestions]="filtradoEmpleado"
+                                (completeMethod)="filterEmpleado($event)"
+                                (onSelect)="onEncargadoSelect($event)"
+                                field="empleado"
+                                [ngClass]="{
+                                    'ng-invalid ng-dirty':
+                                        submitted &&
+                                        form.controls['encargado'].invalid
+                                }"
+                            >
+                            </p-autoComplete>
+                            <small
+                                class="ng-dirty ng-invalid"
+                                *ngIf="
+                                    submitted &&
+                                    form.controls['encargado'].invalid
+                                "
+                                style="color: red !important"
+                                >El campo es requerido</small
+                            >
+                        </div>
+                        <div class="field col-12 md:col-6">
+                            <label>Supervisor de Salida</label>
+                            <p-autoComplete
+                                formControlName="supervisorsalida"
+                                [suggestions]="filtradoEmpleado"
+                                (completeMethod)="filterEmpleado($event)"
+                                (onSelect)="onSupervisorSalidaSelect($event)"
+                                field="empleado"
+                                [ngClass]="{
+                                    'ng-invalid ng-dirty':
+                                        submitted &&
+                                        form.controls['supervisorsalida']
+                                            .invalid
+                                }"
+                            />
+                            <small
+                                class="ng-dirty ng-invalid"
+                                *ngIf="
+                                    submitted &&
+                                    form.controls['supervisorsalida'].invalid
+                                "
+                                style="color: red !important"
+                                >El campo es requerido</small
+                            >
+                        </div>
+                        <div class="field col-12 md:col-6">
+                            <label>Supervisor de Llegada</label>
+                            <p-autoComplete
+                                formControlName="supervisorllegada"
+                                [suggestions]="filtradoEmpleado"
+                                (completeMethod)="filterEmpleado($event)"
+                                (onSelect)="onSupervisorLlegadaSelect($event)"
+                                field="empleado"
+                                [ngClass]="{
+                                    'ng-invalid ng-dirty':
+                                        submitted &&
+                                        form.controls['supervisorllegada']
+                                            .invalid
+                                }"
+                            />
+                            <small
+                                class="ng-dirty ng-invalid"
+                                *ngIf="
+                                    submitted &&
+                                    form.controls['supervisorllegada'].invalid
+                                "
+                                style="color: red !important"
+                                >El campo es requerido</small
+                            >
+                        </div>
+                        <div class="field col-12 md:col-6">
+                            <label>Ubicación de salida</label>
+                            <p-autoComplete
+                                formControlName="salida"
+                                placeholder="--Seleccione una opción--"
+                                [suggestions]="filtradoBodegas"
+                                (completeMethod)="filterBodegas($event)"
+                                (onSelect)="onBodegaSalidaSelect($event)"
+                                field="bode_Descripcion"
+                                [ngClass]="{
+                                    'ng-invalid ng-dirty':
+                                        submitted &&
+                                        form.controls['salida'].invalid
+                                }"
+                                [dropdown]="true"
+                            />
+
+                            <small
+                                class="ng-dirty ng-invalid"
+                                *ngIf="
+                                    submitted && form.controls['salida'].invalid
+                                "
+                                style="color: red !important"
+                                >El campo es requerido</small
+                            >
+                        </div>
+                        <div class="field col-12 md:col-6">
+                            <label>Es Proyecto</label>
+                            <br />
+
+                            <p-inputSwitch
+                                formControlName="flen_DestinoProyecto"
+                                [(ngModel)]="valSwitch"
+                                style="margin-top: 0.5rem"
+                                (onChange)="onSwitchChange($event)"
+                            ></p-inputSwitch>
+                        </div>
+                        <div class="field col-12 md:col-6">
+                            <label>Ubicación de llegada</label>
+                            <p-autoComplete
+                                formControlName="llegada"
+                                [placeholder]="placeholderLlegada"
+                                [suggestions]="filtradoBodegas"
+                                (completeMethod)="filterBodegas($event)"
+                                (onSelect)="onBodegaLlegadaSelect($event)"
+                                field="bode_Descripcion"
+                                [ngClass]="{
+                                    'ng-invalid ng-dirty':
+                                        submitted &&
+                                        form.controls['llegada'].invalid
+                                }"
+                                [dropdown]="true"
+                            ></p-autoComplete>
+                            <small
+                                class="ng-dirty ng-invalid"
+                                *ngIf="
+                                    submitted &&
+                                    form.controls['llegada'].invalid
+                                "
+                                style="color: red !important"
+                                >El campo es requerido</small
+                            >
+                        </div>
+                    </form>
+                    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: 1rem;">
+                        <button
+                            (click)="Cancelar()"
+                            class="p-button-secondary"
+                            pButton
+                            pRipple
+                            type="button"
+                            label="Cancelar"
+                            icon="pi pi-times"
+                            style="background-color: black; color: white; border-color: black;"
+                        ></button>
+                        <button
+                            (click)="Guardar()"
+                            class="btn btn-guardar"
+                            pButton
+                            pRipple
+                            type="button"
+                            label="Siguiente"
+                            icon="pi pi-chevron-right"
+                            style="background-color: #f0e68c; color: black; border-color: #f0e68c;"
+                        ></button>
+                    </div>
+                </p-tabPanel>
+
+                <p-tabPanel header="Suministros">
+                    <div style="overflow-x: auto;">
+                        <div class="grid">
+                            <div class="col-12 md:col-6">
+                                <div class="card" style="overflow-x: auto;">
+                                    <h3>Insumos Disponibles</h3>
+                                    <p-table [value]="insumos" style="margin-bottom: 2rem;">
+                                        <ng-template pTemplate="header">
+                                            <tr>
+                                                <th>Acciones</th>
+                                                <th>Descripción</th>
+                                                <th>Stock</th>
+                                                <th>Unidad de Medida</th>
+                                                <th>Material</th>
+                                                <th>Bodega</th>
+                                            </tr>
+                                        </ng-template>
+                                        <ng-template pTemplate="body" let-insumo>
+                                            <tr>
+                                                <td>
+                                                    <button icon="pi pi-plus" pButton label="Agregar" (click)="agregarInsumo(insumo)" *ngIf="!insumoAgregado(insumo.codigo)"></button>
+                                                </td>
+                                                <td>{{ insumo.insu_Descripcion }}</td>
+                                                <td>
+                                                    <input type="number" pInputText [value]="insumo.bopi_Stock" readonly style="width: 5rem;">
+                                                </td>
+                                                <td>{{ insumo.unme_Nombre }}</td>
+                                                <td>{{ insumo.mate_Descripcion }}</td>
+                                                <td>{{ insumo.bode_Descripcion }}</td>
+                                            </tr>
+                                        </ng-template>
+                                    </p-table>
+                                </div>
+                            </div>
+                            <div class="col-12 md:col-6">
+                                <div class="card" style="overflow-x: auto;">
+                                    <h3>Insumos Seleccionados</h3>
+                                    <p-table [value]="insumosSeleccionados" style="margin-bottom: 2rem;">
+                                        <ng-template pTemplate="header">
+                                            <tr>
+                                                <th>Descripción</th>
+                                                <th>Cantidad</th>
+                                                <th>Material</th>
+                                                <th>Bodega</th>
+                                                <th>Acciones</th>
+                                            </tr>
+                                        </ng-template>
+                                        <ng-template pTemplate="body" let-insumo>
+                                            <tr>
+                                                <td>{{ insumo.insu_Descripcion }}</td>
+                                                <td>
+                                                    <input
+                                                        type="number"
+                                                        pInputText
+                                                        [(ngModel)]="insumo.cantidad"
+                                                        (ngModelChange)="actualizarCantidad(insumo)"
+                                                        [min]="1"
+                                                        [max]="insumo.bopi_Stock"
+                                                        style="width: 5rem;">
+                                                    <div *ngIf="insumo.cantidadError" style="color: red;">{{ insumo.cantidadError }}</div>
+                                                </td>
+                                                <td>{{ insumo.mate_Descripcion }}</td>
+                                                <td>{{ insumo.bode_Descripcion }}</td>
+                                                <td>
+                                                    <button pButton label="Eliminar" (click)="eliminarInsumo(insumo)"></button>
+                                                </td>
+                                            </tr>
+                                        </ng-template>
+                                    </p-table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: 1rem;">
+                        <button
+                            (click)="Indexactivo = 0"
+                            class="p-button-secondary"
+                            pButton
+                            pRipple
+                            type="button"
+                            label="Anterior"
+                            icon="pi pi-chevron-left"
+                            style="background-color: black; color: white; border-color: black;"
+                        ></button>
+                        <button
+                            (click)="finalizar()"
+                            class="btn btn-guardar"
+                            pButton
+                            pRipple
+                            type="button"
+                            label="Finalizar"
+                            icon="pi pi-check"
+                            style="background-color: #f0e68c; color: black; border-color: #f0e68c;"
+                        ></button>
+                    </div>
+                </p-tabPanel>
+            </p-tabView>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+<!-- NEW_CHANGES -->
+
+<div class="grid" *ngIf="IndexIncidencias">
+    <div class="col-12">
+        <div class="card">
+            <h2 class="text-center mt-4">{{ titulo }}</h2>
+            <hr />
+            <div class="grid mt-2">
+                <div class="col-12">
+                    <button
+                        (click)="CrearIncidencia()"
+                        pButton
+                        label="Nuevo"
+                        icon="pi pi-plus"
+                        class="mr-2"
+                    ></button>
+                <button (click)="regresarIndex()" style="margin-left: 73%;" class=" p-button-outlined" pButton pRipple type="button" label="Regresar" icon="pi pi-arrow-left"></button>
+
+                </div>
+            </div>
+
+            <p-table
+                #dt
+                [value]="incidencias"
+                styleClass="mt-2"
+                responsiveLayout="scroll"
+                [rows]="10"
+                [globalFilterFields]="[
+                    'codigo',
+                    'flcc_DescripcionIncidencia',
+                    'flcc_FechaHoraIncidencia',
+                    'flen_FechaHoraEstablecidaDeLlegada'
+                ]"
+                [paginator]="true"
+                [showCurrentPageReport]="true"
+                currentPageReportTemplate="Mostrando {first} al {last} de {totalRecords} entradas"
+                [rowHover]="true"
+            >
+                <ng-template pTemplate="caption">
+                    <div
+                        class="flex flex-column md:flex-row md:justify-content-between md:align-items-center"
+                    >
+                        <span class="block mt-2 md:mt-0 p-input-icon-left">
+                            <i style="color: white" class="pi pi-search"></i>
+                            <input
+                                style="color: white"
+                                pInputText
+                                type="text"
+                                (input)="onGlobalFilter(dt, $event)"
+                                placeholder="Buscar..."
+                                class="w-full sm:w-auto"
+                            />
+                        </span>
+                    </div>
+                </ng-template>
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th style="color: white" class="text-center">
+                            Acciones
+                        </th>
+                        <th
+                            style="color: white"
+                            pSortableColumn="codigo"
+                            class="text-center"
+                        >
+                        Código <p-sortIcon field="codigo"></p-sortIcon>
+                        </th>
+                        <th
+                            style="color: white"
+                            pSortableColumn="encargado"
+                            class="text-center"
+                        >
+                            Incidencia
+                            <p-sortIcon field="encargado"></p-sortIcon>
+                        </th>
+                        <th
+                            style="color: white"
+                            pSortableColumn="estado"
+                            class="text-center"
+                        >
+                            Fecha de Incidencia <p-sortIcon field="estado"></p-sortIcon>
+                        </th>
+                        <th
+                            style="color: white"
+                            pSortableColumn="estado"
+                            class="text-center"
+                        >
+                        Tiempo Establecido Flete <p-sortIcon field="estado"></p-sortIcon>
+                        </th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-incidencia>
+                    <tr (click)="selectIncidencia(incidencia)">
+                        <td
+                            class="text-center"
+                            style="width: 3%; min-width: 10rem"
+                        >
+                            <p-splitButton
+                                (onDropdownClick)="rowactualIncidencia = flete"
+                                label="Acciones"
+                                icon="pi pi-cog"
+                                [model]="itemsIncidencias"
+                                styleClass="p-button-secondary"
+                            ></p-splitButton>
+                        </td>
+                        <td
+                            class="text-center"
+                            style="width: 3%; min-width: 10rem"
+                        >
+                            {{ incidencia.codigo }}
+                        </td>
+                        <td class="text-center">
+                            {{ incidencia.flcc_DescripcionIncidencia }}
+                        </td>
+                        <td class="text-center">
+                            {{ incidencia.flcc_FechaHoraIncidencia }}
+                        </td>
+                        <td class="text-center">
+                            {{ incidencia.flen_FechaHoraEstablecidaDeLlegada }}
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+    </div>
+</div>
+
+<div class="grid" *ngIf="createIncidencia">
+    <div class="col-12">
+
+        <div class="card">
+            <h2 class="text-center mt-2">{{ titulo }}</h2>
+            <hr>
+            <div class=" mt-2 grid">
+                <form [formGroup]="formIncidencias" class="grid col-12 p-fluid p-formgrid">
+                    <div class="field col-12 md:col-6">
+                        <label>Descripción:</label>
+                        <textarea [rows]="2" [cols]="30" pInputTextarea [autoResize]="true" [autoResize]="true"
+                        class="col-6" (keydown)="ValidarTextoNumeros($event)"
+                            [ngClass]="{'ng-invalid ng-dirty': submitted && formIncidencias.controls['flcc_DescripcionIncidencia'].invalid}"
+                            type="text" class="p-inputtextarea" formControlName="flcc_DescripcionIncidencia"></textarea>
+                        <small class="ng-dirty ng-invalid" *ngIf="submittedIncidencia && formIncidencias.controls['flcc_DescripcionIncidencia'].invalid"
+                            style="color: red !important;">El campo es requerido</small>
+                    </div>
+
+                    <div class="field col-12 md:col-6">
+                        <label>Fecha y hora de incidencia:</label>
+                        <p-calendar
+                            formControlName="flcc_FechaHoraIncidencia"
+                            [showIcon]="true"
+                            [showTime]="true"
+                            [hourFormat]="24"
+                            dateFormat="yy-mm-dd"
+                            placeholder="YY/MM/DD HH:MM"
+                            [ngClass]="{
+                                'ng-invalid ng-dirty':
+                                    submittedIncidencia &&
+                                    formIncidencias.controls['flcc_FechaHoraIncidencia'].invalid
+                            }"
+                        ></p-calendar>
+                        <small
+                            class="ng-dirty ng-invalid"
+                            *ngIf="submittedIncidencia && formIncidencias.controls['flcc_FechaHoraIncidencia'].invalid"
+                            style="color: red !important"
+                        >El campo es requerido</small>
+                    </div>
+
+                </form>
+            </div>
+            <div style="display: flex;justify-content: end;" >
+                <button (click)="GuardarIncidencia()"  class="btn btn-guardar" pButton pRipple type="button" label="Guardar" icon="pi pi-save"></button>
+                <button (click)="CerrarIncidencia()" style="margin-left: 2%;" class=" p-button-secondary" pButton pRipple type="button" label="Cancelar" icon="pi pi-trash"></button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<p-dialog [(visible)]="deleteIncidencia" header="Confirmar" [modal]="true" [style]="{width:'450px'}">
+    <div class="flex align-items-center justify-content-center">
+        <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+        <span>Está seguro de eliminarlo?</span>
+    </div>
+    <ng-template pTemplate="footer">
+        <button pButton pRipple icon="pi pi-times" class="p-button-outlined p-button-primary" label="No" (click)="deleteIncidencia = false"></button>
+        <button pButton pRipple icon="pi pi-check" class="p-button-outlined p-button-primary" label="Si" (click)="Eliminar1()"></button>
+    </ng-template>
+</p-dialog>
+<!-- END_NEW_CHANGES -->
+
+
+
+
+
+
+
+
+
+
+<!-- VERIFICACION SI EDICIONNNNN -->
+<div class="grid" *ngIf="DetalleVerificacion">
+    <div class="col-12">
+        <div class="card invoice">
+            <div class="invoice-header" style="display: flex; justify-content: space-between;">
+                <div>
+                    <h1>Verificación Flete - {{ flete.flen_FechaHoraLlegada | date:'short' }}</h1>
+                    <h2>{{ flete.encargado }}</h2>
+                </div>
+                <div class="invoice-details" style="text-align: right;">
+                    <p>Código Flete: {{ flete.codigo }}</p>
+                    <p>Fecha de Salida: {{ flete.flen_FechaHoraSalida | date:'short' }}</p>
+                    <p>Fecha de Llegada: {{ flete.flen_FechaHoraLlegada | date:'short' }}</p>
+                    <p>Destino: {{ flete.flen_DestinoProyecto ? 'Proyecto' : 'Bodega' }}</p>
+                    <p>Destino Nombre: {{ flete.flen_DestinoProyecto ? flete.bopr_Nombre : flete.boll_Nombre }}</p>
+                </div>
+            </div>
+            <hr />
+            <div class="invoice-address" style="margin-bottom: 20px;">
+                <div class="bill-to">
+                    <h4>Enviado por</h4>
+                    <p>{{ flete.supervisorsalida }}</p>
+                </div>
+                <div class="ship-to" style="margin-left: 40px;">
+                    <h4>Recibido por</h4>
+                    <p>{{ flete.supervisorllegada }}</p>
+                </div>
+            </div>
+            <hr />
+            <br>
+<br><br>
+
+            <div class="invoice-body" style="margin-bottom: 20px;">
+                <div *ngIf="verificados.length > 0" style="margin-bottom: 20px;">
+                    <h5>Insumos Recibidos</h5>
+                    <p-table [value]="verificados">
+                        <ng-template pTemplate="header">
+                            <tr>
+                                <th>Descripción</th>
+                                <th>Unidad de Medida</th>
+                                <th>Bodega</th>
+                                <th>Cantidad</th>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-detalle>
+                            <tr>
+                                <td>{{ detalle.insu_Descripcion }}</td>
+                                <td>{{ detalle.unme_Nombre }}</td>
+                                <td>{{ detalle.bode_Descripcion }}</td>
+                                <td>{{ detalle.flde_Cantidad }}</td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
+                </div>
+                <br>
+                <br>
+                <div *ngIf="noVerificados.length > 0" style="margin-bottom: 20px;">
+                    <h5>Perdidas</h5>
+                    <p-table [value]="noVerificados">
+                        <ng-template pTemplate="header">
+                            <tr>
+                                <th>Descripción</th>
+                                <th>Unidad de Medida</th>
+                                <th>Bodega</th>
+                                <th>Cantidad</th>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-detalle>
+                            <tr>
+                                <td>{{ detalle.insu_Descripcion }}</td>
+                                <td>{{ detalle.unme_Nombre }}</td>
+                                <td>{{ detalle.bode_Descripcion }}</td>
+                                <td>{{ detalle.flde_Cantidad }}</td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
+                </div>
+<br>
+<br>
+                <div *ngIf="incidencias.length > 0" style="margin-bottom: 20px;">
+                    <h5>Incidencias</h5>
+                    <p-table [value]="incidencias">
+                        <ng-template pTemplate="header">
+                            <tr>
+                                <th>Descripción</th>
+                                <th>Fecha y Hora</th>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-incidencia>
+                            <tr>
+                                <td>{{ incidencia.flcc_DescripcionIncidencia }}</td>
+                                <td>{{ incidencia.flcc_FechaHoraIncidencia }}</td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
+                </div>
+            </div>
+            <div class="invoice-footer">
+                <button
+                    (click)="regresarIndex()"
+                    class="p-button-secondary"
+                    pButton
+                    pRipple
+                    type="button"
+                    label="Regresar"
+                    icon="pi pi-arrow-left"
+                ></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<style>
+.invoice {
+    padding: 2rem;
+    /* background-color: #fff; */
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+}
+
+.invoice-header {
+    margin-bottom: 20px;
+}
+
+.invoice-address {
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.invoice-body {
+    margin-bottom: 20px;
+}
+
+.invoice-body > div {
+    margin-bottom: 20px;
+}
+
+.invoice-footer {
+    margin-top: 20px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+
+h2, h3 {
+    margin: 0 0 1rem 0;
+}
+
+hr {
+    margin: 1rem 0;
+    border: 0;
+    border-top: 1px solid #e0e0e0;
+}
+</style>
+
+
+
+
+
+
+
+
+
+<!-- // modal verificacion -->
+<!-- <p-confirmDialog
+header="Confirmación"
+icon="pi pi-exclamation-triangle"
+acceptLabel="Sí"
+rejectLabel="No"
+acceptIcon="pi pi-check"
+rejectIcon="pi pi-times"
+(accept)="confirmarFinalizacion()"
+(reject)="cancelarFinalizacion()">
+</p-confirmDialog>
+ -->

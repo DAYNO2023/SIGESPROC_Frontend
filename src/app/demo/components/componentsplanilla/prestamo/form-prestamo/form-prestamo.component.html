@@ -1,0 +1,1675 @@
+<p-toast></p-toast>
+<div class="loader-container" *ngIf="prestamoService.cargando">
+    <div class="loader">
+        <span></span>
+    </div>
+</div>
+<div
+    id="simoncho"
+    class="p-fluid p-grid p-4"
+    [class]="!empl_Id ? 'card' : ''"
+    [style]="
+        !empl_Id
+            ? 'flex-grow: 1; display: flex; flex-direction: column;justify-content: space-between;'
+            : 'display: flex; flex-direction: column;justify-content: space-between; position: relative;'
+    "
+>
+    <div
+        class="flex justify-content-start align-items-center"
+        style="height: 42px"
+        *ngIf="!empl_Id && !mostrarPantallaDetalle"
+    >
+        <a
+            (click)="botonRegresarClick()"
+            pButton
+            style="display: inline-flex; justify-self: start; max-width: 120px"
+            icon="pi pi-arrow-left"
+            label="Regresar"
+            class="mr-2 p-button-link"
+        ></a>
+        <h1 class="text-center mt-4" style="flex-grow: 1; padding-right: 10%">
+            {{ prestamo.pres_Id ? "Editar" : "Nuevo" }} Préstamo
+        </h1>
+    </div>
+    <hr *ngIf="!empl_Id" />
+
+    <p-fieldset
+        [legend]="prestamo.pres_Id ? 'Editar Préstamo' : 'Nuevo Préstamo'"
+        [toggleable]="true"
+        class="line-height-3 m-0"
+        *ngIf="empl_Id && !mostrarPantallaDetalle && !isRegresarVisible"
+    >
+        <div class="formgrid grid">
+            <div class="field col">
+                <label for="descripcion"
+                    >Descripción
+                    <span
+                        style="color: red"
+                        *ngIf="submitted && !prestamo.pres_Descripcion"
+                        >*</span
+                    ></label
+                >
+                <input
+                    type="text"
+                    pInputText
+                    id="descripcion"
+                    [(ngModel)]="prestamo.pres_Descripcion"
+                    maxlength="300"
+                    pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\s]*"
+                    (input)="handleInput($event)"
+                    (paste)="validarPegar($event)"
+                    [ngClass]="{
+                        'ng-invalid ng-dirty':
+                            submitted && !prestamo.pres_Descripcion
+                    }"
+                />
+                <!-- || (submitted && prestamo.pres_Descripcion && !validarDescripcion()) -->
+                <small
+                    style="color: red"
+                    class="ng-dirty ng-invalid"
+                    *ngIf="submitted && !prestamo.pres_Descripcion"
+                    >El campo es requerido.</small
+                >
+                <small
+                    style="color: red"
+                    class="ng-dirty ng-invalid"
+                    *ngIf="
+                        submitted &&
+                        prestamo.pres_Descripcion &&
+                        !validarDescripcion()
+                    "
+                    >Descripción inválida.</small
+                >
+            </div>
+            <div class="field col">
+                <label for="inputMonto"
+                    >Monto
+                    <span
+                        style="color: red"
+                        *ngIf="submitted && !prestamo.pres_Monto"
+                        >*</span
+                    ></label
+                >
+                <p-inputNumber
+                    id="inputMonto"
+                    [(ngModel)]="prestamo.pres_Monto"
+                    [disabled]="!habilitadoParaEditar"
+                    (onBlur)="calcularCuota()"
+                    mode="decimal"
+                    [maxlength]="
+                        globalMoneda.getState().mone_Abreviatura.length + 13
+                    "
+                    [max]="99999999"
+                    [minFractionDigits]="2"
+                    [maxFractionDigits]="2"
+                    (input)="handleInput($event, 'monto')"
+                    (paste)="validarPegar($event, 'monto')"
+                    [prefix]="globalMoneda.getState().mone_Abreviatura + ' '"
+                    [ngClass]="{
+                        'ng-invalid ng-dirty':
+                            (submitted && !prestamo.pres_Monto) ||
+                            (submitted &&
+                                prestamo.pres_Monto &&
+                                !validarMonto())
+                    }"
+                />
+                <small
+                    style="color: red"
+                    class="ng-dirty ng-invalid"
+                    *ngIf="submitted && !prestamo.pres_Monto"
+                    >El campo es requerido.</small
+                >
+                <small
+                    style="color: red"
+                    class="ng-dirty ng-invalid"
+                    *ngIf="submitted && prestamo.pres_Monto && !validarMonto()"
+                    >El monto es inválido.</small
+                >
+            </div>
+        </div>
+        <div class="formgrid grid">
+            <div class="field col">
+                <label for="nacimiento"
+                    >Fecha del Primer Pago
+                    <span
+                        style="color: red"
+                        *ngIf="submitted && !prestamo.pres_FechaPrimerPago"
+                        >*</span
+                    ></label
+                >
+                <p-calendar
+                    [showIcon]="true"
+                    inputId="icon"
+                    [(ngModel)]="prestamo.pres_FechaPrimerPago"
+                    autofocus
+                    [disabled]="!habilitadoParaEditar"
+                    [minDate]="minDate"
+                    [ngClass]="{
+                        'ng-invalid ng-dirty':
+                            submitted && !pres_FechaPrimerPago
+                    }"
+                    appendTo="body"
+                ></p-calendar>
+                <small
+                    style="color: red"
+                    class="ng-dirty ng-invalid"
+                    *ngIf="submitted && !pres_FechaPrimerPago"
+                    >El campo es requerido.</small
+                >
+            </div>
+            <div class="field col">
+                <label for="pagos"
+                    >Número de pagos
+                    <span
+                        style="color: red"
+                        *ngIf="submitted && !prestamo.pres_Pagos"
+                        >*</span
+                    ></label
+                >
+                <p-inputNumber
+                    id="pagos"
+                    [maxlength]="8"
+                    [max]="99999999"
+                    [(ngModel)]="prestamo.pres_Pagos"
+                    [disabled]="!habilitadoParaEditar"
+                    (input)="handleInput($event, 'monto')"
+                    (paste)="validarPegar($event, 'pres_Pagos')"
+                    (onBlur)="calcularCuota()"
+                    [ngClass]="{
+                        'ng-invalid ng-dirty':
+                            (submitted && !prestamo.pres_Pagos) ||
+                            (submitted &&
+                                prestamo.pres_Pagos &&
+                                !validarNumPagos())
+                    }"
+                />
+                <small
+                    style="color: red"
+                    class="ng-dirty ng-invalid"
+                    *ngIf="submitted && !prestamo.pres_Pagos"
+                    >El campo es requerido.</small
+                >
+                <small
+                    style="color: red"
+                    class="ng-dirty ng-invalid"
+                    *ngIf="
+                        submitted && prestamo.pres_Pagos && !validarNumPagos()
+                    "
+                    >El campo es inválido.</small
+                >
+            </div>
+        </div>
+        <div class="formgrid grid">
+            <div class="field col">
+                <label for="tieneInteres">Tiene Interés</label>
+                <p-checkbox
+                    [style]="{
+                        position: 'relative',
+                        top: '-4px',
+                        right: '-5px'
+                    }"
+                    [binary]="true"
+                    [disabled]="!habilitadoParaEditar"
+                    [(ngModel)]="tieneInteres"
+                    inputId="tieneInteres"
+                    (onChange)="this.submitted = false"
+                />
+            </div>
+            <div class="field col" style="min-width: 50%" *ngIf="tieneInteres">
+                <label for="tasa"
+                    >Tasa de Interés
+                    <span
+                        style="color: red"
+                        *ngIf="submitted && !prestamo.pres_TasaInteres"
+                        >*</span
+                    ></label
+                >
+                <p-inputNumber
+                    id="tasa"
+                    [maxlength]="
+                        globalMoneda.getState().mone_Abreviatura.length + 13
+                    "
+                    [max]="99999999"
+                    suffix=" %"
+                    mode="decimal"
+                    [minFractionDigits]="1"
+                    [maxFractionDigits]="3"
+                    [(ngModel)]="prestamo.pres_TasaInteres"
+                    [disabled]="!habilitadoParaEditar"
+                    (onBlur)="calcularCuota()"
+                    (input)="handleInput($event, 'monto')"
+                    (paste)="validarPegar($event, 'monto')"
+                    [ngClass]="{
+                        'ng-invalid ng-dirty':
+                            submitted && !this.prestamo.pres_TasaInteres
+                    }"
+                />
+                <small
+                    style="color: red"
+                    class="ng-dirty ng-invalid"
+                    *ngIf="submitted && !this.prestamo.pres_TasaInteres"
+                    >El campo es requerido.</small
+                >
+            </div>
+        </div>
+        <div class="formgrid grid">
+            <div class="field col" *ngIf="tieneInteres">
+                <label for="interes">Interés por Cuota</label>
+                <span *ngIf="interes" class="campo-calculo">{{
+                    (prestamo.pres_Pagos && interes
+                        ? interes / prestamo.pres_Pagos
+                        : 0
+                    )
+                        | currency
+                            : globalMoneda.getState().mone_Abreviatura + " "
+                }}</span>
+                <span *ngIf="!interes" class="campo-calculo">{{
+                    0
+                        | currency
+                            : globalMoneda.getState().mone_Abreviatura + " "
+                }}</span>
+            </div>
+            <div class="field col" style="max-width: 50%">
+                <label for="frec">Cuota</label>
+                <span *ngIf="cuota" class="campo-calculo">{{
+                    cuota
+                        | currency
+                            : globalMoneda.getState().mone_Abreviatura + " "
+                }}</span>
+                <span *ngIf="!cuota" class="campo-calculo">{{
+                    0
+                        | currency
+                            : globalMoneda.getState().mone_Abreviatura + " "
+                }}</span>
+            </div>
+            <div class="field col" style="max-width: 50%" *ngIf="!tieneInteres">
+                <label for="totalApagar">Total a Pagar</label>
+                <span *ngIf="cuota" class="campo-calculo">{{
+                    (cuota && prestamo.pres_Pagos
+                        ? cuota * prestamo.pres_Pagos
+                        : 0
+                    )
+                        | currency
+                            : globalMoneda.getState().mone_Abreviatura + " "
+                }}</span>
+                <span *ngIf="!cuota" class="campo-calculo">{{
+                    0
+                        | currency
+                            : globalMoneda.getState().mone_Abreviatura + " "
+                }}</span>
+            </div>
+        </div>
+        <div class="formgrid grid" *ngIf="tieneInteres">
+            <div class="field col">
+                <label for="interesTotal">Interés Total</label>
+                <span *ngIf="interes" class="campo-calculo">{{
+                    interes
+                        | currency
+                            : globalMoneda.getState().mone_Abreviatura + " "
+                }}</span>
+                <span *ngIf="!interes" class="campo-calculo">{{
+                    0
+                        | currency
+                            : globalMoneda.getState().mone_Abreviatura + " "
+                }}</span>
+            </div>
+            <div class="field col" style="max-width: 50%">
+                <label for="totalApagar">Total a Pagar</label>
+                <span *ngIf="cuota" class="campo-calculo">{{
+                    (cuota && prestamo.pres_Pagos
+                        ? cuota * prestamo.pres_Pagos
+                        : 0
+                    )
+                        | currency
+                            : globalMoneda.getState().mone_Abreviatura + " "
+                }}</span>
+                <span *ngIf="!cuota" class="campo-calculo">{{
+                    0
+                        | currency
+                            : globalMoneda.getState().mone_Abreviatura + " "
+                }}</span>
+            </div>
+        </div>
+        <div class="flex justify-content-end">
+            <div class="formgrid grid">
+                <div class="field col">
+                    <button
+                        pButton
+                        type="button"
+                        label="Guardar"
+                        (click)="guardar()"
+                        icon="pi pi-save"
+                    ></button>
+                </div>
+                <div class="field col">
+                    <button
+                        pButton
+                        type="button"
+                        label="Limpiar"
+                        (click)="limpiar()"
+                        class="p-button-secondary"
+                        iconPos="left"
+                    >
+                        <img
+                            alt="button icon"
+                            style="max-width: 16px; margin-right: 5px"
+                            src="../../../../../../assets/icons/broom-icon.png"
+                        />
+                    </button>
+                </div>
+            </div>
+        </div>
+    </p-fieldset>
+
+    <div>
+        <div class="formgrid grid" *ngIf="!empl_Id">
+            <div class="field col">
+                <label for="dni"
+                    >Colaborador
+                    <span
+                        style="color: red"
+                        *ngIf="submitted && !prestamo.empl_Id"
+                        >*</span
+                    ></label
+                >
+                <p-autoComplete
+                    [(ngModel)]="prestamo.empleado"
+                    [suggestions]="filtradoEmpleado"
+                    (completeMethod)="filterEmpleado($event)"
+                    (onSelect)="onEmpleadoSelect($event)"
+                    [disabled]="!habilitadoParaEditar"
+                    field="empleado"
+                    dropdown="true"
+                    (input)="handleInput($event, 'empl_DNI')"
+                    (paste)="validarPegar($event, 'empl_DNI')"
+                    placeholder="Seleccione un colaborador"
+                    [ngClass]="{
+                        'ng-invalid ng-dirty': submitted && !prestamo.empl_Id
+                    }"
+                />
+                <small
+                    class="ng-dirty ng-invalid"
+                    *ngIf="submitted && !prestamo.empleado && !prestamo.empl_Id"
+                    style="color: red !important"
+                    >El campo es requerido.</small
+                >
+                <small
+                    style="color: red"
+                    class="ng-dirty ng-invalid"
+                    *ngIf="submitted && prestamo.empleado && !prestamo.empl_Id"
+                    >Opción no encontrada.</small
+                >
+            </div>
+            <div class="field col"></div>
+        </div>
+        <div class="formgrid grid" *ngIf="!empl_Id">
+            <div class="field col">
+                <label for="descripcion"
+                    >Descripción
+                    <span
+                        style="color: red"
+                        *ngIf="submitted && !prestamo.pres_Descripcion"
+                        >*</span
+                    ></label
+                >
+                <input
+                    type="text"
+                    pInputText
+                    id="descripcion"
+                    [(ngModel)]="prestamo.pres_Descripcion"
+                    maxlength="300"
+                    (input)="handleInput($event)"
+                    (paste)="validarPegar($event)"
+                    [ngClass]="{
+                        'ng-invalid ng-dirty':
+                            (submitted && !prestamo.pres_Descripcion) ||
+                            (submitted &&
+                                prestamo.pres_Descripcion &&
+                                !validarDescripcion())
+                    }"
+                />
+                <small
+                    style="color: red"
+                    class="ng-dirty ng-invalid"
+                    *ngIf="submitted && !prestamo.pres_Descripcion"
+                    >El campo es requerido.</small
+                >
+                <small
+                    style="color: red"
+                    class="ng-dirty ng-invalid"
+                    *ngIf="
+                        submitted &&
+                        prestamo.pres_Descripcion &&
+                        !validarDescripcion()
+                    "
+                    >Descripción inválida.</small
+                >
+            </div>
+            <div class="field col">
+                <label for="inputMonto"
+                    >Monto
+                    <span
+                        style="color: red"
+                        *ngIf="submitted && !prestamo.pres_Monto"
+                        >*</span
+                    ></label
+                >
+                <p-inputNumber
+                    id="inputMonto"
+                    [(ngModel)]="prestamo.pres_Monto"
+                    [disabled]="!habilitadoParaEditar"
+                    (onBlur)="calcularCuota()"
+                    [maxlength]="
+                        globalMoneda.getState().mone_Abreviatura.length + 13
+                    "
+                    [max]="99999999"
+                    mode="decimal"
+                    [minFractionDigits]="2"
+                    [maxFractionDigits]="2"
+                    (input)="handleInput($event, 'monto')"
+                    (paste)="validarPegar($event, 'monto')"
+                    [prefix]="globalMoneda.getState().mone_Abreviatura + ' '"
+                    [ngClass]="{
+                        'ng-invalid ng-dirty':
+                            (submitted && !prestamo.pres_Monto) ||
+                            (submitted &&
+                                prestamo.pres_Monto &&
+                                !validarMonto())
+                    }"
+                />
+                <small
+                    style="color: red"
+                    class="ng-dirty ng-invalid"
+                    *ngIf="submitted && !prestamo.pres_Monto"
+                    >El campo es requerido.</small
+                >
+                <small
+                    style="color: red"
+                    class="ng-dirty ng-invalid"
+                    *ngIf="submitted && prestamo.pres_Monto && !validarMonto()"
+                    >El monto es inválido.</small
+                >
+            </div>
+        </div>
+        <div class="formgrid grid" *ngIf="!empl_Id">
+            <div class="field col">
+                <label for="nacimiento"
+                    >Fecha del Primer Pago
+                    <span
+                        style="color: red"
+                        *ngIf="submitted && !prestamo.pres_FechaPrimerPago"
+                        >*</span
+                    ></label
+                >
+                <p-calendar
+                    [showIcon]="true"
+                    inputId="icon"
+                    [(ngModel)]="prestamo.pres_FechaPrimerPago"
+                    autofocus
+                    [disabled]="!habilitadoParaEditar"
+                    [minDate]="minDate"
+                    [ngClass]="{
+                        'ng-invalid ng-dirty':
+                            submitted && !pres_FechaPrimerPago
+                    }"
+                ></p-calendar>
+                <small
+                    style="color: red"
+                    class="ng-dirty ng-invalid"
+                    *ngIf="submitted && !pres_FechaPrimerPago"
+                    >El campo es requerido.</small
+                >
+            </div>
+            <div class="field col">
+                <label for="pagos"
+                    >Número de pagos
+                    <span
+                        style="color: red"
+                        *ngIf="submitted && !prestamo.pres_Pagos"
+                        >*</span
+                    ></label
+                >
+                <p-inputNumber
+                    id="pagos"
+                    [maxlength]="8"
+                    [max]="99999999"
+                    [(ngModel)]="prestamo.pres_Pagos"
+                    [disabled]="!habilitadoParaEditar"
+                    (onBlur)="calcularCuota()"
+                    (input)="handleInput($event, 'monto')"
+                    (paste)="validarPegar($event, 'pres_Pagos')"
+                    [ngClass]="{
+                        'ng-invalid ng-dirty':
+                            (submitted && !prestamo.pres_Pagos) ||
+                            (submitted &&
+                                prestamo.pres_Pagos &&
+                                !validarNumPagos())
+                    }"
+                />
+                <small
+                    style="color: red"
+                    class="ng-dirty ng-invalid"
+                    *ngIf="submitted && !prestamo.pres_Pagos"
+                    >El campo es requerido.</small
+                >
+                <small
+                    style="color: red"
+                    class="ng-dirty ng-invalid"
+                    *ngIf="
+                        submitted && prestamo.pres_Pagos && !validarNumPagos()
+                    "
+                    >El campo es inválido.</small
+                >
+            </div>
+        </div>
+        <div class="formgrid grid" *ngIf="!empl_Id">
+            <div class="field col">
+                <label for="tieneInteres">Tiene Interés</label>
+                <p-checkbox
+                    [style]="{
+                        position: 'relative',
+                        top: '-4px',
+                        right: '-5px'
+                    }"
+                    [binary]="true"
+                    [disabled]="!habilitadoParaEditar"
+                    [(ngModel)]="tieneInteres"
+                    inputId="tieneInteres"
+                    (onChange)="this.submitted = false"
+                />
+            </div>
+            <div class="field col" style="min-width: 50%" *ngIf="tieneInteres">
+                <label for="tasa"
+                    >Tasa de Interés
+                    <span
+                        style="color: red"
+                        *ngIf="submitted && !prestamo.pres_TasaInteres"
+                        >*</span
+                    ></label
+                >
+                <p-inputNumber
+                    id="tasa"
+                    [maxlength]="
+                        globalMoneda.getState().mone_Abreviatura.length + 13
+                    "
+                    [max]="99999999"
+                    suffix=" %"
+                    mode="decimal"
+                    [minFractionDigits]="1"
+                    [maxFractionDigits]="3"
+                    [(ngModel)]="prestamo.pres_TasaInteres"
+                    [disabled]="!habilitadoParaEditar"
+                    (input)="handleInput($event, 'monto')"
+                    (paste)="validarPegar($event, 'monto')"
+                    (onBlur)="calcularCuota()"
+                    [ngClass]="{
+                        'ng-invalid ng-dirty':
+                            submitted && !this.prestamo.pres_TasaInteres
+                    }"
+                />
+                <small
+                    style="color: red"
+                    class="ng-dirty ng-invalid"
+                    *ngIf="submitted && !this.prestamo.pres_TasaInteres"
+                    >El campo es requerido.</small
+                >
+            </div>
+        </div>
+        <div class="formgrid grid" *ngIf="!empl_Id">
+            <div class="field col" *ngIf="tieneInteres">
+                <label for="interes">Interés por Cuota</label>
+                <span *ngIf="interes" class="campo-calculo">{{
+                    (prestamo.pres_Pagos && interes
+                        ? interes / prestamo.pres_Pagos
+                        : 0
+                    )
+                        | currency
+                            : globalMoneda.getState().mone_Abreviatura + " "
+                }}</span>
+                <span *ngIf="!interes" class="campo-calculo">{{
+                    0
+                        | currency
+                            : globalMoneda.getState().mone_Abreviatura + " "
+                }}</span>
+            </div>
+            <div class="field col" style="max-width: 50%">
+                <label for="cuota">Cuota {{ prestamo.fec }}</label>
+                <span *ngIf="cuota" class="campo-calculo">{{
+                    cuota
+                        | currency
+                            : globalMoneda.getState().mone_Abreviatura + " "
+                }}</span>
+                <span *ngIf="!cuota" class="campo-calculo">{{
+                    0
+                        | currency
+                            : globalMoneda.getState().mone_Abreviatura + " "
+                }}</span>
+            </div>
+            <div class="field col" style="max-width: 50%" *ngIf="!tieneInteres">
+                <label for="totalApagar">Total a Pagar</label>
+                <span *ngIf="cuota" class="campo-calculo">{{
+                    (cuota && prestamo.pres_Pagos
+                        ? cuota * prestamo.pres_Pagos
+                        : 0
+                    )
+                        | currency
+                            : globalMoneda.getState().mone_Abreviatura + " "
+                }}</span>
+                <span *ngIf="!cuota" class="campo-calculo">{{
+                    0
+                        | currency
+                            : globalMoneda.getState().mone_Abreviatura + " "
+                }}</span>
+            </div>
+        </div>
+        <div class="formgrid grid" *ngIf="!empl_Id && tieneInteres">
+            <div class="field col">
+                <label for="interesTotal">Interés Total</label>
+                <span *ngIf="interes" class="campo-calculo">{{
+                    interes
+                        | currency
+                            : globalMoneda.getState().mone_Abreviatura + " "
+                }}</span>
+                <span *ngIf="!interes" class="campo-calculo">{{
+                    0
+                        | currency
+                            : globalMoneda.getState().mone_Abreviatura + " "
+                }}</span>
+            </div>
+            <div class="field col" style="max-width: 50%">
+                <label for="totalApagar">Total a Pagar</label>
+                <span *ngIf="cuota" class="campo-calculo">{{
+                    (cuota && prestamo.pres_Pagos
+                        ? cuota * prestamo.pres_Pagos
+                        : 0
+                    )
+                        | currency
+                            : globalMoneda.getState().mone_Abreviatura + " "
+                }}</span>
+                <span *ngIf="!cuota" class="campo-calculo">{{
+                    0
+                        | currency
+                            : globalMoneda.getState().mone_Abreviatura + " "
+                }}</span>
+            </div>
+        </div>
+        <div class="formgrid grid" *ngIf="mostrarMsjLimite">
+            <div class="field col" *ngIf="tieneInteres"></div>
+            <div class="field col text-primary" style="font-size: smaller">
+                <div>
+                    El salario del colaborador es de:
+                    {{
+                        !empl_Id
+                            ? (this.empl_Salario
+                              | currency
+                                  : globalMoneda.getState().mone_Abreviatura +
+                                        " ")
+                            : (this.empleadoService.empleado.salarioPromedio
+                              | currency
+                                  : globalMoneda.getState().mone_Abreviatura +
+                                        " ")
+                    }}
+                </div>
+                <div>
+                    Las deducciones del colaborador suman:
+                    {{
+                        this.calcularSumaDeDeducciones()
+                            | currency
+                                : globalMoneda.getState().mone_Abreviatura +
+                                      " "
+                    }}.
+                </div>
+                <div>
+                    Las cuotas de los préstamos en proceso suman:
+                    {{
+                        sumaDeCuotasDePrestamosPendientes
+                            | currency
+                                : globalMoneda.getState().mone_Abreviatura +
+                                      " "
+                    }}.
+                </div>
+                <div>
+                    La capacidad de pago del colaborador es de:
+                    {{
+                        capacidadDePagoPorCuota
+                            | currency
+                                : globalMoneda.getState().mone_Abreviatura +
+                                      " "
+                    }}.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="flex justify-content-end" *ngIf="!empl_Id">
+        <div class="formgrid grid">
+            <div class="field col">
+                <button
+                    pButton
+                    type="button"
+                    label="Guardar"
+                    (click)="guardar()"
+                    icon="pi pi-save"
+                ></button>
+            </div>
+            <div class="field col">
+                <button
+                    pButton
+                    type="button"
+                    label="Cancelar"
+                    (click)="botonRegresarClick()"
+                    class="p-button-secondary"
+                    icon="pi pi-times"
+                ></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div
+    class="flex justify-content-center p-4"
+    [class]="isRegresarVisible ? 'card' : ''"
+    style="overflow-x: auto; flex-direction: column"
+    *ngIf="prestamoService.prestamos.length > 0 && !mostrarPantallaDetalle"
+>
+    <div
+        *ngIf="isRegresarVisible"
+        class="flex justify-content-between align-items-center mb-4"
+    >
+        <a
+            (click)="cancelarImpresion()"
+            pButton
+            style="
+                display: inline-flex;
+                justify-self: end;
+                max-width: 140px;
+                min-width: 140px;
+                align-self: end;
+            "
+            icon="pi pi-arrow-left"
+            label="Ir al formulario"
+            class="mr-2 p-button-link"
+        ></a>
+        <h3 class="mb-0 text-center" style="flex-grow: 1; padding-right: 20%">
+            Historial
+        </h3>
+    </div>
+    <!-- Cmavio -->
+    <p-table
+        *ngIf="empl_Id && !isRegresarVisible"
+        #tabla
+        [value]="prestamoService.prestamos"
+        styleClass="bac mt-2"
+        [tableStyle]="{ background: '#000' }"
+        responsiveLayout="scroll"
+        [rows]="10"
+        [globalFilterFields]="[
+            'codigo',
+            'pres_Descripcion',
+            'estadoPrestamo',
+            'pres_Monto',
+            'pres_TasaInteres',
+            'total',
+            'cuota',
+            'interes',
+            'frec_Descripcion',
+            'pres_Pagos',
+            'pagosRestantes',
+            'fechaPrimerPago',
+            'fechaUltimoPago'
+        ]"
+        [rows]="10"
+        [paginator]="true"
+        dataKey="codigo"
+        [expandedRowKeys]="expandedRows"
+        [showCurrentPageReport]="true"
+        currentPageReportTemplate="Mostrando {first} al {last} de {totalRecords} entradas"
+        [rowHover]="true"
+        [rowsPerPageOptions]="[10, 25, 50, 100]"
+    >
+        <ng-template pTemplate="caption">
+            <div
+                class="flex flex-column md:flex-row md:justify-content-between md:align-items-center"
+            >
+                <span class="block mt-2 md:mt-0 p-input-icon-left">
+                    <i style="color: white" class="pi pi-search"></i>
+                    <input
+                        style="color: white"
+                        pInputText
+                        type="text"
+                        (input)="filtrar(tabla, $event)"
+                        placeholder="Buscar..."
+                        class="w-full sm:w-auto"
+                    />
+                </span>
+                <div class="registros">
+                    <p-dropdown
+                        [options]="tabla.rowsPerPageOptions"
+                        [(ngModel)]="tabla.rows"
+                        [style]="{ 'margin-right': '5px' }"
+                        [autoWidth]="false"
+                    >
+                    </p-dropdown>
+                    <span
+                        style="
+                            color: #fff0c6;
+                            font-weight: 700;
+                            margin-top: 7px;
+                        "
+                    >
+                        Registros por página
+                    </span>
+                </div>
+            </div>
+        </ng-template>
+        <ng-template pTemplate="header">
+            <tr>
+                <th style="width: 3rem; max-width: 3rem"></th>
+                <th style="color: white; max-width: 500px" class="text-center">
+                    Acciones
+                </th>
+                <th
+                    style="color: white"
+                    class="text-center"
+                    [pSortableColumn]="'codigo'"
+                    class="text-center"
+                >
+                    <div class="flex justify-content-center align-items-center">
+                        No.
+                        <p-sortIcon [field]="'codigo'"></p-sortIcon>
+                    </div>
+                </th>
+                <th
+                    style="color: white; min-width: 145px"
+                    class="text-center"
+                    [pSortableColumn]="'estadoPrestamo'"
+                >
+                    <div class="flex justify-content-center align-items-center">
+                        Estado Préstamo
+                        <p-sortIcon [field]="'estadoPrestamo'"></p-sortIcon>
+                    </div>
+                </th>
+                <th
+                    *ngFor="let columna of columnas"
+                    [style.background]="'#000'"
+                    class="text-center text-primary"
+                    [pSortableColumn]="columna.prop"
+                >
+                    <div
+                        class="flex justify-content-center align-items-center"
+                        style="color: white"
+                    >
+                        {{ columna.titulo }}
+                        <p-sortIcon [field]="columna.prop"></p-sortIcon>
+                    </div>
+                </th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-prestamo let-expanded="expanded">
+            <tr (click)="seleccionarPrestamo(prestamo)">
+                <td>
+                    <button
+                        type="button"
+                        pButton
+                        pRipple
+                        [pRowToggler]="prestamo"
+                        class="p-button-text p-button-rounded p-button-plain"
+                        [icon]="
+                            expanded
+                                ? 'pi pi-chevron-down'
+                                : 'pi pi-chevron-right'
+                        "
+                    ></button>
+                </td>
+                <td class="text-center">
+                    <p-splitButton
+                        label="Acciones"
+                        icon="pi pi-cog"
+                        [model]="items"
+                        appendTo="body"
+                        styleClass="p-button-secondary"
+                        class="custom-splitbutton"
+                    ></p-splitButton>
+                </td>
+                <td class="text-center">
+                    <span class="p-column-title">codigo</span>
+                    {{ prestamo.codigo }}
+                </td>
+                <td class="text-center">
+                    <span class="p-column-title">estadoPrestamo</span>
+                    <span
+                        style="
+                            display: flex;
+                            justify-content: center;
+                            align-items: center;
+                        "
+                        class="text-span"
+                        [ngClass]="
+                            prestamo.estadoPrestamo === 'Cancelado'
+                                ? 'estado-activo'
+                                : 'estado-inactivo'
+                        "
+                        >{{ prestamo.estadoPrestamo }}</span
+                    >
+                </td>
+                <ng-container *ngFor="let columna of columnas">
+                    <td
+                        *ngIf="
+                            columna.prop !== 'pres_Monto' &&
+                            columna.prop !== 'total' &&
+                            columna.prop !== 'cuota' &&
+                            columna.prop !== 'interes' &&
+                            columna.prop !== 'pres_Abonado'
+                        "
+                        style="width: 14%; min-width: 10rem"
+                        class="text-center"
+                    >
+                        <span class="p-column-title">{{ columna.titulo }}</span>
+                        {{ prestamo[columna.prop] }}
+                    </td>
+                    <td
+                        *ngIf="
+                            columna.prop === 'pres_Monto' ||
+                            columna.prop === 'total' ||
+                            columna.prop === 'cuota' ||
+                            columna.prop === 'interes' ||
+                            columna.prop === 'pres_Abonado'
+                        "
+                        style="width: 14%; min-width: 10rem; text-align: right"
+                    >
+                        <span class="p-column-title">{{ columna.titulo }}</span>
+                        {{
+                            prestamo[columna.prop]
+                                | currency
+                                    : globalMoneda.getState().mone_Abreviatura +
+                                          " "
+                        }}
+                    </td>
+                </ng-container>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="rowexpansion" let-prestamo>
+            <tr>
+                <td colspan="7">
+                    <div class="p-3">
+                        <p-table
+                            [tableStyle]="{ background: '#000' }"
+                            [value]="prestamo.abonos"
+                            dataKey="abpr_Id"
+                            responsiveLayout="scroll"
+                        >
+                            <ng-template pTemplate="header">
+                                <tr>
+                                    <th
+                                        style="color: white"
+                                        class="text-center"
+                                    >
+                                        Editar
+                                    </th>
+                                    <th
+                                        style="color: white"
+                                        class="text-center"
+                                        [pSortableColumn]="codigo"
+                                    >
+                                        No.
+                                        <p-sortIcon
+                                            [field]="codigo"
+                                        ></p-sortIcon>
+                                    </th>
+                                    <th
+                                        style="color: white"
+                                        class="text-center"
+                                        [pSortableColumn]="
+                                            abpr_DeducidoEnPlanilla
+                                        "
+                                    >
+                                        Método de Pago
+                                        <p-sortIcon
+                                            [field]="abpr_DeducidoEnPlanilla"
+                                        ></p-sortIcon>
+                                    </th>
+                                    <th
+                                        style="color: white"
+                                        class="text-center"
+                                        *ngFor="let columna of columnasAbonos"
+                                        [pSortableColumn]="columna.prop"
+                                    >
+                                        {{ columna.titulo }}
+                                        <p-sortIcon
+                                            [field]="columna.prop"
+                                        ></p-sortIcon>
+                                    </th>
+                                </tr>
+                            </ng-template>
+                            <ng-template pTemplate="body" let-abono>
+                                <tr
+                                    (click)="
+                                        seleccionarPrestamo(prestamo);
+                                        seleccionarAbono(abono)
+                                    "
+                                >
+                                    <td
+                                        style="color: white"
+                                        class="text-center"
+                                    >
+                                        <span
+                                            *ngIf="
+                                                !abono[
+                                                    'abpr_DeducidoEnPlanilla'
+                                                ]
+                                            "
+                                        >
+                                            <p-button
+                                                *ngIf="abono['codigo'] === 1"
+                                                icon="pi pi-pencil"
+                                                (click)="
+                                                    mostrarModalAbonar(abono)
+                                                "
+                                            />
+                                        </span>
+                                    </td>
+                                    <td
+                                        style="color: white"
+                                        class="text-center"
+                                    >
+                                        {{ abono["codigo"] }}
+                                    </td>
+                                    <td class="text-center">
+                                        <span
+                                            style="
+                                                display: flex;
+                                                justify-content: center;
+                                                align-items: center;
+                                                width: 100%;
+                                            "
+                                            class="text-span"
+                                            [ngClass]="
+                                                abono.abpr_DeducidoEnPlanilla
+                                                    ? 'estado-pendiente'
+                                                    : 'otro-estado'
+                                            "
+                                            >{{
+                                                abono.abpr_DeducidoEnPlanilla
+                                                    ? "Planilla"
+                                                    : "Abono"
+                                            }}</span
+                                        >
+                                    </td>
+                                    <ng-container
+                                        *ngFor="let columna of columnasAbonos"
+                                    >
+                                        <td
+                                            *ngIf="
+                                                columna.prop !==
+                                                'abpr_MontoAbonado'
+                                            "
+                                            style="color: white"
+                                            class="text-center"
+                                        >
+                                            {{ abono[columna.prop] }}
+                                        </td>
+                                        <td
+                                            *ngIf="
+                                                columna.prop ===
+                                                'abpr_MontoAbonado'
+                                            "
+                                            style="color: white"
+                                            class="text-center"
+                                        >
+                                            {{
+                                                abono[columna.prop]
+                                                    | currency
+                                                        : globalMoneda.getState()
+                                                              .mone_Abreviatura +
+                                                              " "
+                                            }}
+                                        </td>
+                                    </ng-container>
+                                </tr>
+                            </ng-template>
+                            <ng-template pTemplate="emptymessage">
+                                <tr>
+                                    <td
+                                        colspan="6"
+                                        style="color: white"
+                                        class="text-center"
+                                    >
+                                        No hay abonos en este préstamo.
+                                    </td>
+                                </tr>
+                            </ng-template>
+                        </p-table>
+                    </div>
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+    <div
+        id="pdfContainer"
+        [ngClass]="{ 'pdf-container-active': isPdfVisible }"
+    ></div>
+    <button
+        *ngIf="empl_Id && !isRegresarVisible"
+        pButton
+        type="button"
+        label="Imprimir"
+        style="max-width: 150px; position: absolute; bottom: 76px; right: 65px"
+        class="p-button-primary"
+        (click)="mostrarPrevisualizacion()"
+        icon="pi pi-print"
+    ></button>
+</div>
+
+<div class="grid" *ngIf="mostrarPantallaDetalle">
+    <div class="col-12">
+        <div class="card">
+            <div
+                class="flex justify-content-start align-items-center"
+                style="height: 42px"
+            >
+                <a
+                    (click)="mostrarPantallaDetalle = false"
+                    pButton
+                    style="display: inline-flex; max-width: 160px"
+                    icon="pi pi-arrow-left"
+                    label="Ir al formulario"
+                    class="mr-2 p-button-link"
+                ></a>
+                <h3
+                    class="text-center mt-4"
+                    style="flex-grow: 1; padding-right: 15%"
+                >
+                    Detalle Préstamo
+                </h3>
+            </div>
+            <hr />
+            <div class="p-fluid p-formgrid grid">
+                <div
+                    class="field col-12 md:col-4"
+                    style="position: relative; height: 10%"
+                >
+                    <div class="field rows">
+                        <label for="codigo" style="font-weight: 800">No:</label>
+                    </div>
+                    <div class="field rows">
+                        <label for="codigo">{{ prestamoTemp.codigo }}</label>
+                    </div>
+                </div>
+                <div
+                    class="field col-12 md:col-4"
+                    style="position: relative; height: 10%"
+                >
+                    <div class="field rows">
+                        <label for="estado" style="font-weight: 800"
+                            >Estado del préstamo:</label
+                        >
+                    </div>
+                    <div class="field rows">
+                        <label for="estado">{{
+                            prestamoTemp.estadoPrestamo
+                        }}</label>
+                    </div>
+                </div>
+                <ng-container *ngFor="let columna of columnas">
+                    <div
+                        class="field col-12 md:col-4"
+                        style="position: relative; height: 10%"
+                        *ngIf="
+                            columna.prop === 'pres_Monto' ||
+                            columna.prop === 'total' ||
+                            columna.prop === 'cuota' ||
+                            columna.prop === 'interes' ||
+                            columna.prop === 'pres_Abonado'
+                        "
+                    >
+                        <div class="field rows">
+                            <label
+                                for="{{ columna.titulo }}"
+                                style="font-weight: 800"
+                                >{{ columna.titulo }}:</label
+                            >
+                        </div>
+                        <div class="field rows">
+                            <label
+                                for="{{ columna.titulo }}"
+                                style="text-align: right"
+                                >{{
+                                    prestamoTemp[columna.prop]
+                                        | currency
+                                            : globalMoneda.getState()
+                                                  .mone_Abreviatura + " "
+                                }}</label
+                            >
+                        </div>
+                    </div>
+                    <div
+                        class="field col-12 md:col-4"
+                        style="position: relative; height: 10%"
+                        *ngIf="
+                            columna.prop !== 'pres_Monto' &&
+                            columna.prop !== 'total' &&
+                            columna.prop !== 'cuota' &&
+                            columna.prop !== 'interes' &&
+                            columna.prop !== 'pres_Abonado'
+                        "
+                    >
+                        <div class="field rows">
+                            <label
+                                for="{{ columna.titulo }}"
+                                style="font-weight: 800"
+                                >{{ columna.titulo }}:</label
+                            >
+                        </div>
+                        <div class="field rows">
+                            <label for="{{ columna.titulo }}">{{
+                                prestamoTemp[columna.prop]
+                            }}</label>
+                        </div>
+                    </div>
+                </ng-container>
+            </div>
+            <div
+                style="position: relative; top: -20px"
+                *ngIf="prestamoTemp.abonos.length > 0"
+            >
+                <div class="card-title mt-6">
+                    <h1>Abonos</h1>
+                </div>
+                <p-table
+                    [value]="prestamoTemp.abonos"
+                    styleClass=" mt-2"
+                    [tableStyle]="{ background: '#000' }"
+                >
+                    <ng-template pTemplate="header">
+                        <tr>
+                            <th
+                                style="
+                                    width: 200px;
+                                    font-weight: 800;
+                                    color: white;
+                                "
+                            >
+                                No.
+                            </th>
+                            <th
+                                style="
+                                    width: 200px;
+                                    font-weight: 800;
+                                    color: white;
+                                "
+                                *ngFor="let columna of columnasAbonos"
+                            >
+                                {{ columna.titulo }}
+                            </th>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-abono>
+                        <tr>
+                            <td style="color: white">
+                                {{ abono["codigo"] }}
+                            </td>
+                            <ng-container
+                                *ngFor="let columna of columnasAbonos"
+                            >
+                                <td
+                                    *ngIf="columna.prop !== 'abpr_MontoAbonado'"
+                                    style="width: 200px"
+                                >
+                                    {{ abono[columna.prop] }}
+                                </td>
+                                <td
+                                    *ngIf="columna.prop === 'abpr_MontoAbonado'"
+                                    style="width: 200px"
+                                >
+                                    {{
+                                        abono[columna.prop]
+                                            | currency
+                                                : globalMoneda.getState()
+                                                      .mone_Abreviatura + " "
+                                    }}
+                                </td>
+                            </ng-container>
+                        </tr>
+                    </ng-template>
+                </p-table>
+            </div>
+            <div style="position: relative; top: -20px">
+                <div class="card-title mt-6">
+                    <h1>Auditoría</h1>
+                </div>
+                <p-table
+                    [value]="tablaVacia"
+                    styleClass=" mt-2"
+                    [tableStyle]="{ background: '#000' }"
+                >
+                    <ng-template pTemplate="header">
+                        <tr>
+                            <th
+                                style="
+                                    width: 200px;
+                                    font-weight: 800;
+                                    color: white;
+                                "
+                            >
+                                Acción
+                            </th>
+                            <th
+                                style="
+                                    width: 200px;
+                                    font-weight: 800;
+                                    color: white;
+                                "
+                            >
+                                Usuario
+                            </th>
+                            <th
+                                style="
+                                    width: 200px;
+                                    font-weight: 800;
+                                    color: white;
+                                "
+                            >
+                                Fecha
+                            </th>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-transaction>
+                        <tr>
+                            <td style="width: 200px">Creado</td>
+                            <td style="width: 200px">
+                                {{ prestamoTemp.usuaCreacion }}
+                            </td>
+                            <td style="width: 200px">
+                                {{ prestamoTemp.fechaCreacion }}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="width: 200px">Modificado</td>
+                            <td style="width: 200px">
+                                {{ prestamoTemp.usuaModificacion }}
+                            </td>
+                            <td style="width: 200px">
+                                {{ prestamoTemp.fechaModificacion }}
+                            </td>
+                        </tr>
+                    </ng-template>
+                </p-table>
+            </div>
+            <!-- <div
+                style="
+                    display: flex;
+                    justify-content: flex-end;
+                    margin-top: 1rem;
+                    grid-gap: 5px;
+                "
+            >
+                <button
+                    (click)="mostrarPantallaDetalle = false"
+                    pButton
+                    icon="pi pi-arrow-left"
+                    type="button"
+                    label="Ir al formulario"
+                    style="max-width: 180px"
+                    class="p-button-outlined"
+                ></button>
+            </div> -->
+        </div>
+    </div>
+</div>
+<p-dialog
+    [(visible)]="mostrarModalEliminar"
+    header="Confirmación"
+    [modal]="true"
+    [style]="{ width: '450px' }"
+>
+    <div class="flex align-items-center justify-content-center">
+        <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+        <span *ngIf="mostrarModalEliminar"
+            >¿Está seguro de eliminar el préstamo
+            <span style="font-weight: 600"
+                >{{ prestamoTemp.pres_Descripcion }} con un monto de
+                {{
+                    prestamoTemp.pres_Monto
+                        | currency
+                            : globalMoneda.getState().mone_Abreviatura + " "
+                }}</span
+            >?</span
+        >
+    </div>
+    <ng-template pTemplate="footer">
+        <button
+            pButton
+            pRipple
+            icon="pi pi-trash"
+            class="p-button-primary"
+            label="Eliminar"
+            (click)="eliminar()"
+        ></button>
+        <button
+            pButton
+            pRipple
+            icon="pi pi-times"
+            class="p-button-outlined p-button-primary"
+            label="Cancelar"
+            (click)="mostrarModalEliminar = false"
+        ></button>
+    </ng-template>
+</p-dialog>
+<p-dialog
+    [(visible)]="mostrarModalEditar"
+    header="Confirmación"
+    [modal]="true"
+    [style]="{ width: '450px' }"
+>
+    <div class="flex align-items-center justify-content-center">
+        <i class="pi pi-pencil mr-3" style="font-size: 2rem"></i>
+        <span *ngIf="mostrarModalEditar"
+            >¿Está seguro de editar el préstamo
+            <span style="font-weight: 600"
+                >{{ prestamo.pres_Descripcion }} con un monto de
+                {{
+                    prestamo.pres_Monto
+                        | currency
+                            : globalMoneda.getState().mone_Abreviatura + " "
+                }}</span
+            >?</span
+        >
+    </div>
+    <ng-template pTemplate="footer">
+        <button
+            pButton
+            pRipple
+            icon="pi pi-pencil"
+            class="p-button-primary"
+            label="Aceptar"
+            (click)="insertarEditar()"
+        ></button>
+        <button
+            pButton
+            pRipple
+            icon="pi pi-times"
+            class="p-button-outlined p-button-primary"
+            label="Cancelar"
+            (click)="mostrarModalEditar = false"
+        ></button>
+    </ng-template>
+</p-dialog>
+<p-dialog
+    [(visible)]="mostrarModalAbono"
+    [header]="abono.abpr_Id ? 'Editar Abono' : 'Nuevo Abono'"
+    [modal]="true"
+    [style]="{ width: '450px', top: '-10vh' }"
+>
+    <!-- position="top" -->
+    <div class="formgrid grid">
+        <div class="field col">
+            <label for="inputMontoAbono"
+                >Monto
+                <span
+                    style="color: red"
+                    *ngIf="submittedAbono && !abono.abpr_MontoAbonado"
+                    >*</span
+                ></label
+            >
+            <p-inputNumber
+                id="inputMontoAbono"
+                [(ngModel)]="abono.abpr_MontoAbonado"
+                mode="decimal"
+                [maxlength]="
+                    globalMoneda.getState().mone_Abreviatura.length + 13
+                "
+                [max]="99999999"
+                [minFractionDigits]="2"
+                [maxFractionDigits]="2"
+                (input)="handleInput($event, 'monto')"
+                (paste)="validarPegar($event, 'monto')"
+                [prefix]="globalMoneda.getState().mone_Abreviatura + ' '"
+                [ngClass]="{
+                    'ng-invalid ng-dirty':
+                        (submittedAbono && !this.abono.abpr_MontoAbonado) ||
+                        (submittedAbono &&
+                            this.abono.abpr_MontoAbonado &&
+                            !validarMontoAbonado())
+                }"
+            />
+            <small
+                style="color: red"
+                class="ng-dirty ng-invalid"
+                *ngIf="submittedAbono && !this.abono.abpr_MontoAbonado"
+                >El campo es requerido.</small
+            >
+            <small
+                style="color: red"
+                class="ng-dirty ng-invalid"
+                *ngIf="
+                    submittedAbono &&
+                    this.abono.abpr_MontoAbonado &&
+                    !validarMontoAbonado() &&
+                    this.montoMaximoAabonar
+                "
+                >El monto máximo a abonar es
+                {{
+                    this.montoMaximoAabonar
+                        | currency
+                            : globalMoneda.getState().mone_Abreviatura + " "
+                }}.</small
+            >
+            <small
+                style="color: red"
+                class="ng-dirty ng-invalid"
+                *ngIf="
+                    submittedAbono &&
+                    this.abono.abpr_MontoAbonado &&
+                    !validarMontoAbonado() &&
+                    !this.montoMaximoAabonar
+                "
+                >El campo es inválido.</small
+            >
+        </div>
+        <div class="field col">
+            <label for="fecha"
+                >Fecha del Abono
+                <span
+                    style="color: red"
+                    *ngIf="submittedAbono && !abono.abpr_Fecha"
+                    >*</span
+                ></label
+            >
+            <p-calendar
+                [showIcon]="true"
+                inputId="icon"
+                [(ngModel)]="abono.abpr_Fecha"
+                autofocus
+                [minDate]="minDateAbono"
+                [maxDate]="maxDateAbono"
+                position="bottom"
+                appendTo="body"
+                [ngClass]="{
+                    'ng-invalid ng-dirty': submittedAbono && !abono.abpr_Fecha
+                }"
+            ></p-calendar>
+            <small
+                style="color: red"
+                class="ng-dirty ng-invalid"
+                *ngIf="submittedAbono && !this.abono.abpr_Fecha"
+                >El campo es requerido.</small
+            >
+        </div>
+    </div>
+    <ng-template pTemplate="footer">
+        <button
+            pButton
+            pRipple
+            icon="pi pi-save"
+            class="p-button-primary"
+            label="Guardar"
+            (click)="guardarAbono()"
+        ></button>
+        <button
+            pButton
+            pRipple
+            icon="pi pi-times"
+            class="p-button-outlined p-button-primary"
+            label="Cancelar"
+            (click)="mostrarModalAbono = false"
+        ></button>
+    </ng-template>
+</p-dialog>
+
+<p-dialog
+    [(visible)]="mostrarModalConfirmacion"
+    header="Confirmación"
+    [modal]="true"
+    [style]="{ width: '450px' }"
+>
+    <div class="flex align-items-center justify-content-center">
+        <i
+            [class]="
+                abono.abpr_Id
+                    ? 'pi pi-pencil mr-3'
+                    : 'pi pi-exclamation-triangle mr-3'
+            "
+            style="font-size: 2rem"
+        ></i>
+        <span *ngIf="mostrarModalConfirmacion"
+            >¿Está seguro de
+            {{
+                abono.abpr_Id
+                    ? "editar el abono del préstamo"
+                    : "abonar " +
+                      (abono.abpr_MontoAbonado
+                          | currency
+                              : currency
+                              : globalMoneda.getState().mone_Abreviatura +
+                                    " ") +
+                      " al préstamo"
+            }}
+            <span style="font-weight: 600"
+                >{{ prestamoTemp.pres_Descripcion }} con un monto de
+                {{
+                    prestamoTemp.pres_Monto
+                        | currency
+                            : globalMoneda.getState().mone_Abreviatura + " "
+                }}</span
+            >?</span
+        >
+    </div>
+    <ng-template pTemplate="footer">
+        <button
+            pButton
+            pRipple
+            [icon]="abono.abpr_Id ? 'pi pi-pencil' : 'pi pi-save'"
+            class="p-button-primary"
+            [label]="abono.abpr_Id ? 'Aceptar' : 'Guardar'"
+            (click)="insertarEditarAbono()"
+        ></button>
+        <button
+            pButton
+            pRipple
+            icon="pi pi-times"
+            class="p-button-outlined p-button-primary"
+            label="Cancelar"
+            (click)="mostrarModalConfirmacion = false; mostrarModalAbono = true"
+        ></button>
+    </ng-template>
+</p-dialog>

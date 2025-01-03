@@ -1,0 +1,36 @@
+.card {
+    background-color: var(--surface-card);
+    color: var(--text-color);
+    border-radius: 12px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+  }
+  
+  .text-md {
+    font-size: 1rem;
+  }
+  
+  .text-lg {
+    font-size: 1.25rem;
+  }
+  
+  .flex {
+    display: flex;
+    align-items: center;
+  }
+  
+  .ml-2 {
+    margin-left: 0.5rem;
+  }
+  
+  .mr-2 {
+    margin-right: 0.5rem;
+  }
+  
+  .p-3 {
+    padding: 1.5rem;
+  }
+  
+  .p-4 {
+    padding: 2rem;
+  }
+  

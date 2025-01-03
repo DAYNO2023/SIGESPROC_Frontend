@@ -1,0 +1,69 @@
+<!-- Componente de notificaciones para mostrar mensajes -->
+<p-toast></p-toast>
+
+<!-- Card para el formulario de generación de reportes -->
+<div class="card p-mb-4">
+  <div class="card-header">
+    <h2>
+      Generar Reporte Venta por Empresa
+      <i 
+        pTooltip="Seleccione una empresa de la lista desplegable. Luego haga clic en 'Generar Reporte' para obtener el reporte en PDF." 
+        tooltipPosition="top" 
+        class="pi pi-info-circle ml-2" 
+        style="font-size: 1.2rem; cursor: pointer;"
+      ></i>
+    </h2>
+  </div>
+  <div class="card-body">
+    <form [formGroup]="reportForm" (ngSubmit)="generateReport()" class="grid col-12 p-fluid p-formgrid">
+      
+      <!-- Campo para seleccionar la Empresa -->
+      <div class="field col-12 md:col-6">
+        <label for="empresa">
+            Empresa
+            <span *ngIf="submitted && campoRequerido " class="required-asterisk">*</span>
+            <span *ngIf="submitted && noOptionFound " class="required-asterisk">*</span>
+        </label>
+        <p-autoComplete 
+          id="empresa" 
+          formControlName="empresa" 
+          [suggestions]="filteredEmpresas" 
+          (completeMethod)="filterEmpresa($event)" 
+          field="text" 
+          [dropdown]="true" 
+          class="w-full"
+          [ngClass]="{'ng-invalid ng-dirty': submitted && (campoRequerido || noOptionFound)}"
+        ></p-autoComplete>
+        <small class="ng-dirty ng-invalid" *ngIf="submitted && campoRequerido" style="color: red !important;">
+            El campo es requerido.
+        </small>
+        <small class="ng-dirty ng-invalid" *ngIf="submitted && noOptionFound && !campoRequerido" style="color: red !important;">
+            Opción no encontrada.
+        </small>
+    </div>
+    
+
+      <!-- Botones para Generar Reporte -->
+      <div class="field col-12" style="display: flex; justify-content: flex-end;">
+        <div class="button-group d-flex justify-content-end" style="margin-right: 12px;">
+          <button type="submit" pButton label="Generar Reporte" icon="pi pi-file-pdf"></button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Card para el contenedor de PDF -->
+<div class="card">
+  <div class="card-header">
+    <h2>Vista del Reporte</h2>
+  </div>
+  <div class="card-body">
+    <div id="pdfContainer" style="width: 100%; height: 800px; position: relative;">
+      <!-- Spinner de carga -->
+      <div class="loader-container" *ngIf="loading">
+        <div class="loader"><span></span></div>
+      </div>
+    </div>
+  </div>
+</div>

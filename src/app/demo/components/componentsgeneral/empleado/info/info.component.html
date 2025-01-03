@@ -1,0 +1,728 @@
+<p-toast></p-toast>
+<div class="p-fluid p-grid">
+    <div class="formgrid grid">
+        <div
+            style="
+                display: flex;
+                flex-direction: column;
+                flex-grow: 1;
+                max-width: 50%;
+            "
+        >
+            <div class="field col">
+                <label for="dni"
+                    >DNI
+                    <span
+                        style="color: red"
+                        *ngIf="submitted && !empleado.empl_DNI"
+                        >*</span
+                    ></label
+                >
+                <input
+                    #emplDNIInput
+                    type="text"
+                    pInputText
+                    maxlength="13"
+                    id="dni"
+                    [(ngModel)]="empleado.empl_DNI"
+                    required
+                    autofocus
+                    pattern="[0-9]*"
+                    (input)="handleInput($event, 'empl_DNI')"
+                    (paste)="validarPegar($event, 'empl_DNI')"
+                    [ngClass]="{
+                        'ng-invalid ng-dirty':
+                            (submitted && !empleado.empl_DNI) ||
+                            (submitted && empleado.empl_DNI && !validarDNI())
+                    }"
+                />
+                <small
+                    style="color: red"
+                    class="ng-dirty ng-invalid"
+                    *ngIf="submitted && !empleado.empl_DNI"
+                    >El campo es requerido.</small
+                >
+                <small
+                    style="color: red"
+                    class="ng-dirty ng-invalid"
+                    *ngIf="
+                        submitted &&
+                        empleado.empl_DNI &&
+                        empleado.empl_DNI.length !== 13
+                    "
+                    >El DNI del empleado debe ser de 13 dígitos.</small
+                >
+                <small
+                    style="color: red"
+                    class="ng-dirty ng-invalid"
+                    *ngIf="
+                        submitted &&
+                        empleado.empl_DNI &&
+                        empleado.empl_DNI.length === 13 &&
+                        !validarDNI()
+                    "
+                    >El DNI del empleado es inválido.</small
+                >
+            </div>
+            <div class="field col">
+                <label for="nacimiento"
+                    >Fecha de Nacimiento
+                    <span
+                        style="color: red"
+                        *ngIf="submitted && !empleado.empl_FechaNacimiento"
+                        >*</span
+                    ></label
+                >
+                <p-calendar
+                    [showIcon]="true"
+                    inputId="icon"
+                    [(ngModel)]="empleado.empl_FechaNacimiento"
+                    autofocus
+                    [maxDate]="maxDate"
+                    [minDate]="minDate"
+                    [ngClass]="{
+                        'ng-invalid ng-dirty':
+                            submitted && !empleado.empl_FechaNacimiento
+                    }"
+                ></p-calendar>
+                <small
+                    style="color: red"
+                    class="ng-dirty ng-invalid"
+                    *ngIf="submitted && !empleado.empl_FechaNacimiento"
+                    >El campo es requerido.</small
+                >
+            </div>
+            <div class="field col">
+                <label for="nombre"
+                    >Nombre
+                    <span
+                        style="color: red"
+                        *ngIf="submitted && !empleado.empl_Nombre"
+                        >*</span
+                    ></label
+                >
+                <input
+                    #emplNombreInput
+                    type="text"
+                    pInputText
+                    id="nombre"
+                    maxlength="50"
+                    [(ngModel)]="empleado.empl_Nombre"
+                    required
+                    (input)="handleInput($event, 'empl_Nombre')"
+                    (paste)="validarPegar($event)"
+                    autofocus
+                    [ngClass]="{
+                        'ng-invalid ng-dirty':
+                            (submitted && !empleado.empl_Nombre) ||
+                            (submitted &&
+                                empleado.empl_Nombre &&
+                                !validarNombre())
+                    }"
+                />
+                <small
+                    style="color: red"
+                    class="ng-dirty ng-invalid"
+                    *ngIf="submitted && !empleado.empl_Nombre"
+                    >El campo es requerido.</small
+                >
+                <small
+                    style="color: red"
+                    class="ng-dirty ng-invalid"
+                    *ngIf="
+                        submitted && empleado.empl_Nombre && !validarNombre()
+                    "
+                    >El nombre es inválido.</small
+                >
+            </div>
+            <div class="field col">
+                <label for="apellido"
+                    >Apellido
+                    <span
+                        style="color: red"
+                        *ngIf="submitted && !empleado.empl_Apellido"
+                        >*</span
+                    ></label
+                >
+                <input
+                    #emplApellidoInput
+                    type="text"
+                    pInputText
+                    id="apellido"
+                    maxlength="50"
+                    [(ngModel)]="empleado.empl_Apellido"
+                    required
+                    (input)="handleInput($event, 'empl_Apellido')"
+                    (paste)="validarPegar($event)"
+                    autofocus
+                    [ngClass]="{
+                        'ng-invalid ng-dirty':
+                            (submitted && !empleado.empl_Apellido) ||
+                            (submitted &&
+                                empleado.empl_Apellido &&
+                                !validarApellido())
+                    }"
+                />
+                <small
+                    style="color: red"
+                    class="ng-dirty ng-invalid"
+                    *ngIf="submitted && !empleado.empl_Apellido"
+                    >El campo es requerido.</small
+                >
+                <small
+                    style="color: red"
+                    class="ng-dirty ng-invalid"
+                    *ngIf="
+                        submitted &&
+                        empleado.empl_Apellido &&
+                        !validarApellido()
+                    "
+                    >El apellido es inválido.</small
+                >
+            </div>
+        </div>
+        <div
+            class="field col"
+            style="
+                max-width: 50%;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            "
+        >
+            <p-fileUpload
+                id="p-fileupload"
+                #fileUploader
+                name="demo[]"
+                accept="image/*"
+                (onSelect)="seleccionarImagen($event)"
+                [customUpload]="true"
+                [multiple]="false"
+                chooseLabel="Subir"
+                [showUploadButton]="false"
+                [showCancelButton]="false"
+                [auto]="true"
+                class="w-full"
+            >
+                <ng-template pTemplate="content">
+                    <div
+                        class="image-upload-container"
+                        (click)="abrirExploradorDeArchivos()"
+                    >
+                        <ng-container
+                            *ngIf="
+                                !urlImagen && !empleado.empl_Imagen;
+                                else showImage
+                            "
+                        >
+                            <div
+                                class="h-full flex flex-column justify-content-center align-items-center"
+                            >
+                                <i
+                                    class="pi pi-upload text-900 text-2xl mb-3"
+                                ></i>
+                                <span class="font-bold text-900 text-xl mb-3"
+                                    >Subir Fotografía</span
+                                >
+                            </div>
+                        </ng-container>
+                        <ng-template #showImage>
+                            <div
+                                class="h-full flex flex-column justify-content-center align-items-center"
+                            >
+                                <button
+                                    id="botonQuitarFoto"
+                                    pButton
+                                    type="button"
+                                    (click)="QuitarFoto($event)"
+                                    icon="pi pi-times"
+                                ></button>
+                                <img
+                                    [src]="
+                                        urlImagen ||
+                                        sanitizarUrl(
+                                            empleadoService.BaseUrl +
+                                                empleado.empl_Imagen
+                                        )
+                                    "
+                                    alt="Imagen seleccionada"
+                                    class="image-preview"
+                                />
+                            </div>
+                        </ng-template>
+                    </div>
+                </ng-template>
+            </p-fileUpload>
+        </div>
+    </div>
+    <div class="formgrid grid">
+        <div class="field col">
+            <label for="telefono"
+                >Teléfono
+                <span
+                    style="color: red"
+                    *ngIf="submitted && !empleado.empl_Telefono"
+                    >*</span
+                ></label
+            >
+            <input
+                type="tel"
+                pInputText
+                id="nombre"
+                [(ngModel)]="empleado.empl_Telefono"
+                required
+                maxlength="20"
+                (input)="handleInput($event, 'empl_Telefono')"
+                (paste)="validarPegar($event, 'empl_Telefono')"
+                autofocus
+                [ngClass]="{
+                    'ng-invalid ng-dirty':
+                        (submitted && !empleado.empl_Telefono) ||
+                        (submitted &&
+                            empleado.empl_Telefono &&
+                            !validarTelefono())
+                }"
+            />
+            <small
+                style="color: red"
+                class="ng-dirty ng-invalid"
+                *ngIf="submitted && !empleado.empl_Telefono"
+                >El campo es requerido.</small
+            >
+            <small
+                style="color: red"
+                class="ng-dirty ng-invalid"
+                *ngIf="
+                    submitted && empleado.empl_Telefono && !validarTelefono()
+                "
+                >El número de teléfono es inválido.</small
+            >
+        </div>
+        <div class="field col">
+            <label for="correo"
+                >Correo electrónico
+                <span
+                    style="color: red"
+                    *ngIf="submitted && !empleado.empl_CorreoElectronico"
+                    >*</span
+                ></label
+            >
+            <input
+                type="email"
+                pInputText
+                id="correo"
+                [(ngModel)]="empleado.empl_CorreoElectronico"
+                required
+                maxlength="50"
+                (input)="handleInput($event, 'empl_CorreoElectronico')"
+                (paste)="validarPegar($event, 'empl_CorreoElectronico')"
+                autofocus
+                [ngClass]="{
+                    'ng-invalid ng-dirty':
+                        submitted && !empleado.empl_CorreoElectronico
+                }"
+            />
+            <small
+                style="color: red"
+                class="ng-dirty ng-invalid"
+                *ngIf="submitted && !empleado.empl_CorreoElectronico"
+                >El campo es requerido.</small
+            >
+            <small
+                class="ng-dirty ng-invalid"
+                style="color: red"
+                *ngIf="
+                    submitted &&
+                    empleado.empl_CorreoElectronico &&
+                    !validarCorreo()
+                "
+                >El correo electrónico es inválido.</small
+            >
+        </div>
+    </div>
+    <div class="formgrid grid">
+        <div class="field col">
+            <label for="sexo"
+                >Sexo
+                <span
+                    style="color: red"
+                    *ngIf="submitted && !empleado.empl_Sexo"
+                    >*</span
+                ></label
+            >
+            <div class="formgrid grid">
+                <div class="field-radiobutton col-6">
+                    <p-radioButton
+                        id="sexo"
+                        name="sexo"
+                        value="Femenino"
+                        [(ngModel)]="empleado.empl_Sexo"
+                    ></p-radioButton>
+                    <label for="sexo">Femenino</label>
+                </div>
+                <div class="field-radiobutton col-6">
+                    <p-radioButton
+                        id="sexo"
+                        name="sexo"
+                        value="Masculino"
+                        [(ngModel)]="empleado.empl_Sexo"
+                    ></p-radioButton>
+                    <label for="sexo">Masculino</label>
+                </div>
+            </div>
+            <small
+                style="color: red"
+                class="ng-dirty ng-invalid"
+                *ngIf="submitted && !empleado.empl_Sexo"
+                >El campo es requerido.</small
+            >
+        </div>
+        <div class="field col">
+            <label for="esci"
+                >Estado Civil
+                <span style="color: red" *ngIf="submitted && !empleado.civi_Id"
+                    >*</span
+                ></label
+            >
+            <p-autoComplete
+                [(ngModel)]="empleado.estadoCivil"
+                [suggestions]="filtradoEstadosCiviles"
+                (completeMethod)="filterEstadosCiviles($event)"
+                (onSelect)="onEstadoCivilSelect($event)"
+                field="civi_Descripcion"
+                dropdown="true"
+                (input)="handleInput($event, 'civi_Id')"
+                placeholder="Seleccione un estado civil"
+                [ngClass]="{
+                    'ng-invalid ng-dirty': submitted && !empleado.civi_Id
+                }"
+            />
+            <small
+                style="color: red"
+                class="ng-dirty ng-invalid"
+                *ngIf="submitted && !empleado.estadoCivil && !empleado.civi_Id"
+                >El campo es requerido.</small
+            >
+            <small
+                style="color: red"
+                class="ng-dirty ng-invalid"
+                *ngIf="submitted && empleado.estadoCivil && !empleado.civi_Id"
+                >Opción no encontrada.</small
+            >
+        </div>
+    </div>
+    <div class="formgrid grid">
+        <div class="field col">
+            <label for="departamento"
+                >Departamento donde reside
+                <span style="color: red" *ngIf="submitted && !empleado.esta_Id"
+                    >*</span
+                ></label
+            >
+            <p-autoComplete
+                [(ngModel)]="empleado.estado"
+                [suggestions]="filtradoEstados"
+                (completeMethod)="filterEstados($event)"
+                (onSelect)="onEstadoSelect($event)"
+                field="esta_Nombre"
+                dropdown="true"
+                (input)="handleInput($event, 'esta_Id')"
+                placeholder="Seleccione un departamento"
+                [ngClass]="{
+                    'ng-invalid ng-dirty': submitted && !empleado.esta_Id
+                }"
+            />
+            <small
+                style="color: red"
+                class="ng-dirty ng-invalid"
+                *ngIf="submitted && !empleado.estado && !empleado.esta_Id"
+                >El campo es requerido.</small
+            >
+            <small
+                style="color: red"
+                class="ng-dirty ng-invalid"
+                *ngIf="submitted && empleado.estado && !empleado.esta_Id"
+                >Opción no encontrada.</small
+            >
+        </div>
+        <div class="field col">
+            <label for="ciudad"
+                >Ciudad donde reside
+                <span style="color: red" *ngIf="submitted && !empleado.ciud_Id"
+                    >*</span
+                ></label
+            >
+            <p-autoComplete
+                [(ngModel)]="empleado.ciudad"
+                [suggestions]="filtradoCiudades"
+                (completeMethod)="filterCiudades($event)"
+                (onSelect)="onCiudadSelect($event)"
+                field="ciud_Descripcion"
+                dropdown="true"
+                (input)="handleInput($event, 'ciud_Id')"
+                placeholder="Seleccione una ciudad"
+                [ngClass]="{
+                    'ng-invalid ng-dirty': submitted && !empleado.ciud_Id
+                }"
+            />
+            <small
+                style="color: red"
+                class="ng-dirty ng-invalid"
+                *ngIf="submitted && !empleado.ciudad && !empleado.ciud_Id"
+                >El campo es requerido.</small
+            >
+            <small
+                style="color: red"
+                class="ng-dirty ng-invalid"
+                *ngIf="submitted && empleado.ciudad && !empleado.ciud_Id"
+                >Opción no encontrada.</small
+            >
+        </div>
+    </div>
+    <div class="formgrid grid">
+        <div class="field col">
+            <label for="banco"
+                >Banco destino para pagos
+                <span style="color: red" *ngIf="submitted && !empleado.banc_Id"
+                    >*</span
+                ></label
+            >
+            <p-autoComplete
+                [(ngModel)]="empleado.banco"
+                [suggestions]="filtradoBancos"
+                (completeMethod)="filterBancos($event)"
+                (onSelect)="onBancoSelect($event)"
+                field="banc_Descripcion"
+                dropdown="true"
+                (input)="handleInput($event, 'banc_Id')"
+                placeholder="Seleccione un banco"
+                [ngClass]="{
+                    'ng-invalid ng-dirty': submitted && !empleado.banc_Id
+                }"
+            />
+            <small
+                style="color: red"
+                class="ng-dirty ng-invalid"
+                *ngIf="submitted && !empleado.banco && !empleado.banc_Id"
+                >El campo es requerido.</small
+            >
+            <small
+                style="color: red"
+                class="ng-dirty ng-invalid"
+                *ngIf="submitted && empleado.banco && !empleado.banc_Id"
+                >Opción no encontrada.</small
+            >
+            <!-- *ngIf="submitted && filtradoBancos.length === 0" -->
+        </div>
+        <div class="field col">
+            <label for="num-cuenta-bancaria">No. De cuenta bancaria</label>
+            <input
+                type="text"
+                pInputText
+                maxlength="30"
+                id="nombre"
+                [(ngModel)]="empleado.empl_NoBancario"
+                required
+                (input)="handleInput($event, 'empl_NoBancario')"
+                (paste)="validarPegar($event, 'empl_NoBancario')"
+                autofocus
+                [ngClass]="{
+                    'ng-invalid ng-dirty':
+                        (submitted && !empleado.empl_NoBancario) ||
+                        (submitted &&
+                            empleado.empl_NoBancario &&
+                            !validarCuenta())
+                }"
+            />
+            <small
+                style="color: red"
+                class="ng-dirty ng-invalid"
+                *ngIf="submitted && !empleado.empl_NoBancario"
+                >El número de cuenta bancaria es requerida.</small
+            >
+            <small
+                style="color: red"
+                class="ng-dirty ng-invalid"
+                *ngIf="
+                    submitted && empleado.empl_NoBancario && !validarCuenta()
+                "
+                >El número de cuenta bancaria es inválido.</small
+            >
+        </div>
+    </div>
+    <div class="formgrid grid">
+        <div class="field col" style="max-width: 50%">
+            <label for="cargo"
+                >Cargo
+                <span style="color: red" *ngIf="submitted && !empleado.carg_Id"
+                    >*</span
+                ></label
+            >
+            <p-autoComplete
+                [(ngModel)]="empleado.cargo"
+                [suggestions]="filtradoCargos"
+                (completeMethod)="filterCargos($event)"
+                (onSelect)="onCargoSelect($event)"
+                field="carg_Descripcion"
+                dropdown="true"
+                (input)="handleInput($event, 'carg_Id')"
+                (paste)="validarPegar($event)"
+                placeholder="Seleccione un cargo"
+                [ngClass]="{
+                    'ng-invalid ng-dirty': submitted && !empleado.carg_Id
+                }"
+            />
+            <small
+                style="color: red"
+                class="ng-dirty ng-invalid"
+                *ngIf="submitted && !empleado.cargo && !empleado.carg_Id"
+                >El campo es requerido.</small
+            >
+            <small
+                style="color: red"
+                class="ng-dirty ng-invalid"
+                *ngIf="submitted && empleado.cargo && !empleado.carg_Id"
+                >Opción no encontrada.</small
+            >
+        </div>
+        <div class="field col" *ngIf="empleado.carg_Id !== 1">
+            <label for="frecuencia-pago"
+                >Frecuencia de pago
+                <span style="color: red" *ngIf="submitted && !empleado.frec_Id"
+                    >*</span
+                ></label
+            >
+            <p-autoComplete
+                [(ngModel)]="empleado.frecuencia"
+                [suggestions]="filtradoFrecuencias"
+                (completeMethod)="filterFrecuencias($event)"
+                (onSelect)="onFrecuenciaSelect($event)"
+                field="frecuencia"
+                dropdown="true"
+                (input)="handleInput($event, 'frec_Id')"
+                (paste)="validarPegar($event, 'frec_Descripcion')"
+                placeholder="Seleccione una frecuencia"
+                [ngClass]="{
+                    'ng-invalid ng-dirty': submitted && !empleado.frec_Id
+                }"
+            />
+            <small
+                style="color: red"
+                class="ng-dirty ng-invalid"
+                *ngIf="submitted && !empleado.frecuencia && !empleado.frec_Id"
+                >El campo es requerido.</small
+            >
+            <small
+                style="color: red"
+                class="ng-dirty ng-invalid"
+                *ngIf="submitted && empleado.frecuencia && !empleado.frec_Id"
+                >Opción no encontrada.</small
+            >
+        </div>
+    </div>
+    <div class="formgrid grid" *ngIf="empleado.carg_Id !== 1">
+        <div class="field col" style="max-width: 50%">
+            <label for="inputSalario"
+                >Salario
+                <span
+                    style="color: red"
+                    *ngIf="submitted && !empleado.empl_Salario"
+                    >*</span
+                ></label
+            >
+            <p-inputNumber
+                id="inputSalario"
+                [(ngModel)]="empleado.empl_Salario"
+                mode="decimal"
+                [max]="99999999"
+                maxlength="16"
+                [minFractionDigits]="2"
+                [maxFractionDigits]="2"
+                [prefix]="globalMoneda.getState().mone_Abreviatura + ' '"
+                (input)="handleInput($event, 'empl_Salario')"
+                (paste)="validarPegar($event, 'empl_Salario')"
+                [ngClass]="{
+                    'ng-invalid ng-dirty':
+                        submitted &&
+                        this.empleado.carg_Id !== 1 &&
+                        !this.empleado.empl_Salario
+                }"
+            />
+            <small
+                style="color: red"
+                class="ng-dirty ng-invalid"
+                *ngIf="
+                    submitted &&
+                    this.empleado.carg_Id !== 1 &&
+                    !this.empleado.empl_Salario
+                "
+                >El campo es requerido.</small
+            >
+        </div>
+    </div>
+    <div
+        *ngIf="empleado.empl_Id"
+        class="flex justify-content-end w-100 mb-3"
+        style="gap: 20px"
+    >
+        <button
+            pButton
+            type="button"
+            label="Guardar"
+            (click)="guardar(true)"
+            icon="pi pi-save"
+        ></button>
+        <button
+            pButton
+            type="button"
+            label="Cancelar"
+            class="p-button-secondary"
+            (click)="botonCancelarClick()"
+            icon="pi pi-times"
+        ></button>
+    </div>
+    <div class="flex justify-content-end w-100">
+        <button
+            pButton
+            type="button"
+            label="Siguiente"
+            (click)="guardar()"
+            icon="pi pi-arrow-right"
+        ></button>
+    </div>
+</div>
+<p-dialog
+    [(visible)]="mostrarModalConfirmacion"
+    header="Confirmación"
+    [modal]="true"
+    [style]="{ width: '450px' }"
+>
+    <div class="flex align-items-center justify-content-center">
+        <i class="pi pi-pencil mr-3" style="font-size: 2rem"></i>
+        <span *ngIf="mostrarModalConfirmacion"
+            >¿Está seguro de editar el colaborador
+            <span style="font-weight: 600">{{
+                empleado.empl_Nombre + " " + empleado.empl_Apellido
+            }}</span>
+            ?</span
+        >
+    </div>
+    <ng-template pTemplate="footer">
+        <button
+            pButton
+            pRipple
+            icon="pi pi-pencil"
+            class="p-button-primary"
+            label="Aceptar"
+            (click)="editarEmpleado()"
+        ></button>
+        <button
+            pButton
+            pRipple
+            icon="pi pi-times"
+            class="p-button-outlined p-button-primary"
+            label="Cancelar"
+            (click)="mostrarModalConfirmacion = false"
+        ></button>
+    </ng-template>
+</p-dialog>

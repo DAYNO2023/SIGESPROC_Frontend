@@ -1,0 +1,7 @@
+.high-z-index-dropdown .ui-dropdown-panel {
+  z-index: 1050 !important;
+}
+
+.p-dialog {
+  z-index: 1000 !important;
+}/*# sourceMappingURL=cotizacion.component.css.map */

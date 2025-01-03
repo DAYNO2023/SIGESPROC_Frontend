@@ -1,0 +1,314 @@
+<style>
+      .custom-input-container {
+    margin-bottom: 15px;
+}
+
+
+::ng-deep .custom-splitbutton .p-splitbutton-defaultbutton {
+    display: none; /* Oculta el botón izquierdo */
+}
+
+
+::ng-deep .custom-splitbutton .p-splitbutton-menubutton {
+    width: 133.73px;
+    height: 29.49px;
+    display: flex;
+    align-items: center;
+    padding: 0.5rem;
+    border-radius: 5px;
+    position: relative;
+}
+
+
+::ng-deep .custom-splitbutton .p-splitbutton-menubutton .p-button-label {
+    display: flex;
+    align-items: center;
+}
+
+
+::ng-deep .custom-splitbutton .p-splitbutton-menubutton::before {
+    content: '\e94a   Acciones ';
+    font-family: 'PrimeIcons', sans-serif;
+    font-size: 1rem;
+    display: inline-flex;
+    align-items: center;
+    margin-right: 17px;
+}
+
+
+/* Añadir el icono de engranaje a la izquierda del texto */
+::ng-deep .custom-splitbutton .p-splitbutton-menubutton::before {
+    position: relative;
+}
+
+
+
+
+::ng-deep .custom-splitbutton .p-splitbutton-menubutton .p-button-icon-right .p-icon-wrapper{
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    margin-left: 0;
+}
+
+
+  .spinner-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+</style>
+<p-toast></p-toast>
+<div class="loader-container" *ngIf="loading">
+  <div class="loader">
+      <span></span>
+  </div>
+</div>
+<div class="grid" *ngIf="Index">
+  <div class="col-12">
+    <div class="card">
+      <!-- Título de la sección -->
+      <h1 class="text-center mt-2">Frecuencias</h1>
+      <hr>
+      <div class="grid mt-2">
+        <div class="col-12">
+          <!-- Botón para crear una nueva frecuencia -->
+          <button (click)="CrearFrecuencia()" pButton icon="pi pi-plus" label="Nuevo" class="mr-2"></button>
+        </div>
+      </div>
+      <div class="spinner-container" *ngIf="isLoading">
+        <p-progressSpinner styleClass="w-4rem h-4rem" strokeWidth="8" fill="var(--surface-ground)" animationDuration=".5s"></p-progressSpinner>
+      </div>
+      <!-- Tabla para listar frecuencias -->
+      <p-table #dt [value]="frecuencias" styleClass="mt-2" responsiveLayout="scroll" [rows]="10"
+        [globalFilterFields]="['codigo','frec_Descripcion','frec_NumeroDias']"  [tableStyle]="{ background: '#000' }"
+        [rowsPerPageOptions]="[10,25,50,100]"
+        [paginator]="true" [showCurrentPageReport]="true"
+        currentPageReportTemplate="Mostrando {first} al {last} de {totalRecords} entradas" [rowHover]="true">
+        <!-- Filtro de búsqueda -->
+        <ng-template pTemplate="caption">
+          <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+            <span class="block mt-2 md:mt-0 p-input-icon-left">
+              <i style="color: white;" class="pi pi-search"></i>
+              <input style="color: white;" pInputText type="text" (input)="onGlobalFilter(dt, $event)"
+                placeholder="Buscar..." class="w-full sm:w-auto" />
+            </span>
+            <div class="registros">
+              <p-dropdown [options]="dt.rowsPerPageOptions" [(ngModel)]="dt.rows" [style]="{ 'margin-right': '5px' }"  [autoWidth]="false"></p-dropdown>
+
+              <span style="color: #FFF0C6; font-weight: 700; margin-top: 7px;"> Registros por página</span>
+          </div>
+          </div>
+        </ng-template>
+        <!-- Encabezado de la tabla -->
+        <ng-template pTemplate="header">
+          <tr>
+            <th style="color: white;" class="text-center">Acciones</th>
+            <th style="color: white;" pSortableColumn="frec_Id" class="text-center">No. <p-sortIcon
+                field="frec_Id"></p-sortIcon></th>
+            <th style="color: white;" pSortableColumn="frec_Descripcion" class="text-center">Descripción <p-sortIcon
+                field="frec_Descripcion"></p-sortIcon></th>
+            <th style="color: white;" pSortableColumn="frec_NumeroDias" class="text-center">Número de Días <p-sortIcon
+                field="frec_NumeroDias"></p-sortIcon></th>
+          </tr>
+        </ng-template>
+        <!-- Cuerpo de la tabla -->
+        <ng-template pTemplate="body" let-frecuencia>
+          <tr (click)="selectFrecuencia(frecuencia)">
+            <td class="text-center">
+              <!-- Botón de acciones -->
+              <p-splitButton
+              label="Acciones"
+                            class="custom-splitbutton"
+                            [model]="items"
+                            styleClass="p-button-secondary"
+                            appendTo="body"
+                                icon="pi pi-cog"
+                ></p-splitButton>
+
+            </td>
+            <td class="text-center">
+              <span class="p-column-title">No.</span>
+              {{frecuencia.codigo}}
+            </td>
+            <td class="text-center">
+              <span class="p-column-title">Descripción</span>
+              {{frecuencia.frec_Descripcion}}
+            </td>
+            <td class="text-center">
+              <span class="p-column-title">Número de Días</span>
+              {{frecuencia.frec_NumeroDias}}
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="6" class="text-center">
+              
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </div>
+</div>
+
+<div class="grid" *ngIf="Create">
+  <div class="col-12">
+    <div class="card">
+      <div class="flex" style="width: 100%; margin: 0 auto; display: flex; align-items: center; height: 42px;">
+        <div style="width: 20%; display: flex; align-items: center; height: 12.5%;">
+            <button (click)="CerrarFrecuencia()" class="p-button-link" pButton pRipple type="button" label="Regresar" icon="pi pi-arrow-left" style="box-shadow: none !important"></button>
+        </div>
+        <div style="flex-grow: 1; display: flex; justify-content: center; align-items: center;">
+            <h1 class="text-center mt-4">{{ titulo }} Frecuencia</h1>
+        </div>
+        <div style="width: 20%;"></div> <!-- Empty div to balance the space on the right -->
+    </div>
+      <hr>
+
+
+
+      <!-- Formulario para crear o editar frecuencia -->
+      <form [formGroup]="form" class="grid col-12 p-fluid p-formgrid">
+        <div class="field col-12 md:col-6">
+          <label>Descripción 
+            <span class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['frec_Descripcion'].invalid"
+            style="color: red !important;">
+              *
+            </span>
+          </label>
+          <input (input)="handleInput($event)" maxlength="50"
+            [ngClass]="{'ng-invalid ng-dirty': submitted && form.controls['frec_Descripcion'].invalid}"
+            type="text" class="p-inputtext" formControlName="frec_Descripcion">
+          <small class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['frec_Descripcion'].invalid"
+            style="color: red !important;">El campo es requerido.</small>
+        </div>
+        <div class="field col-12 md:col-6">
+          <label>Número de Días 
+            <span class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['frec_NumeroDias'].invalid"
+            style="color: red !important;">
+              *
+            </span>
+          </label>
+          <input 
+          (input)="handleInputNumero($event)" maxlength="8"
+          [ngClass]="{'ng-invalid ng-dirty': submitted && form.controls['frec_NumeroDias'].invalid}"
+            type="text" class="p-inputtext" formControlName="frec_NumeroDias" >
+          <small class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['frec_NumeroDias'].invalid"
+            style="color: red !important;">El campo es requerido.</small>
+        </div>
+      </form>
+
+      <!-- Botones para guardar o cancelar -->
+      <div style="display: flex; justify-content: end;">
+        <button (click)="Guardar()" class="btn btn-guardar" pButton pRipple type="button" label="Guardar"
+          icon="pi pi-save"></button>
+        <button (click)="CerrarFrecuencia()" style="margin-left: 2%;" class="p-button-secondary" pButton
+          pRipple type="button" label="Cancelar" icon="pi pi-times"></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="grid" *ngIf="Detail">
+  <div class="col-12">
+    <div class="card">
+      <div class="flex" style="width: 100%; margin: 0 auto; display: flex; align-items: center; height: 42px;">
+        <div style="width: 20%; display: flex; align-items: center; height: 12.5%;">
+            <button (click)="CerrarFrecuencia()" class="p-button-link" pButton pRipple type="button" label="Regresar" icon="pi pi-arrow-left" style="box-shadow: none !important"></button>
+        </div>
+        <div style="flex-grow: 1; display: flex; justify-content: center; align-items: center;">
+            <h1 class="text-center mt-4">Detalle Frecuencia</h1>
+        </div>
+        <div style="width: 20%;"></div> <!-- Empty div to balance the space on the right -->
+    </div>
+      <hr>
+      <!-- Detalle de frecuencia -->
+      <div class="p-fluid p-formgrid grid">
+        <div class="field col-12 md:col-4">
+          <div class="field rows">
+            <label for="Codigo" style="font-weight: 800;">No:</label>
+          </div>
+          <div class="field rows">
+            <label for="Codigo">{{ detalle_frec_Id }}</label>
+          </div>
+        </div>
+        <div class="field col-12 md:col-4">
+          <div class="field rows">
+            <label for="Descripcion" style="font-weight: 800;">Descripción:</label>
+          </div>
+          <div class="field rows">
+            <label for="Descripcion">{{ detalle_frec_Descripcion }}</label>
+          </div>
+        </div>
+        <div class="field col-12 md:col-4">
+          <div class="field rows">
+            <label for="NumeroDias" style="font-weight: 800;">Número de Días:</label>
+          </div>
+          <div class="field rows">
+            <label for="NumeroDias">{{ detalle_frec_NumeroDias }}</label>
+          </div>
+        </div>
+      </div>
+      <!-- Sección de auditoría -->
+      <div class="card-title">
+        <h1>Auditoría</h1>
+      </div>
+      <p-table [value]="Datos" styleClass="mt-2">
+        <ng-template pTemplate="header">
+          <tr>
+            <th style="width:200px; font-weight: bold;">Acción</th>
+            <th style="width:200px; font-weight: bold;">Usuario</th>
+            <th style="width:200px; font-weight: bold;">Fecha</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-transaction>
+          <tr>
+            <td style="width:200px;">Creado</td>
+            <td style="width:200px">{{ detalle_usuaCreacion }}</td>
+            <td style="width:200px">{{ detalle_frec_FechaCreacion }}</td>
+          </tr>
+          <tr>
+            <td style="width:200px;">Modificado</td>
+            <td style="width:200px">{{ detalle_usuaModificacion }}</td>
+            <td style="width:200px">{{ detalle_frec_FechaModificacion }}</td>
+          </tr>
+        </ng-template>
+      </p-table>
+      <!-- Botón para regresar -->
+    </div>
+  </div>
+</div>
+
+<!-- Diálogo de confirmación para eliminar frecuencia -->
+<p-dialog [(visible)]="Delete" header="Confirmación" [modal]="true" [style]="{width:'450px'}">
+  <div class="flex align-items-center justify-content-center">
+    <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+    <span>¿Está seguro de eliminar la Frecuencia
+      <span style="font-weight: 600">{{selectedFrecuencia?.frec_Descripcion}}</span>?</span>
+  </div>
+  <ng-template pTemplate="footer">
+    <button pButton pRipple icon="pi pi-trash" type="button" label="Eliminar" 
+      (click)="confirmarEliminar()"></button>
+    <button pButton pRipple icon="pi pi-times" class="p-button-outlined p-button-primary" label="Cancelar"
+      (click)="Delete = false"></button>
+  </ng-template>
+</p-dialog>
+
+<!-- Diálogo de confirmación para editar frecuencia -->
+<p-dialog [(visible)]="Edit" header="Confirmación" [modal]="true" [style]="{width:'450px'}">
+  <div class="flex align-items-center justify-content-center">
+    <i class="pi pi-pencil mr-3" style="font-size: 2rem"></i>
+    <span>¿Está seguro de editar la Frecuencia
+      <span style="font-weight: 600">{{form.value.frec_Descripcion}}</span>?</span>
+  </div>
+  <ng-template pTemplate="footer">
+    <button  pButton pRipple icon="pi pi-pencil" type="button" label="Aceptar" 
+      (click)="GuardarEdicion()"></button>
+    <button pButton pRipple icon="pi pi-times" class="p-button-outlined p-button-primary" label="Cancelar"
+      (click)="Edit = false"></button>
+  </ng-template>
+</p-dialog>

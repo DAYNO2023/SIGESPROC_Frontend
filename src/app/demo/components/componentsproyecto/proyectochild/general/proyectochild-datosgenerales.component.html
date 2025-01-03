@@ -1,0 +1,162 @@
+<div *ngIf="isLoading" class="loader-container">
+    <div class="loader">
+        <span></span>
+    </div>
+</div>
+<div *ngIf="!isLoading">
+    <!-- Formulario -->
+    <div class="flex flex-row align-items-center flex-wrap" style="gap: 15px;">
+        <!-- Campos -->
+        <div class="field" [style]="{width: '49%'}">
+            <label for="proy_TipoDescripcion">Tipo de Proyecto 
+                <small class="ng-dirty ng-invalid" *ngIf="submitted && !proyecto.tipr_Descripcion">*</small>
+            </label>
+            <p-autoComplete [(ngModel)]="proyecto.tipr_Descripcion" [suggestions]="filteredTiposProyecto"
+             (completeMethod)="filterTipoProyecto($event)" [dropdown]="true" (input)="allowOnlyAlphanumeric($event)"
+             (keydown)="ValidarTextoNumeros($event)"
+             (ngModelChange)="detectTipoProyecto()"
+            [ngClass]="{'ng-invalid ng-dirty' : submitted && (!proyecto.tipr_Descripcion || isOptionTipoProyectoNotFound) }">
+            </p-autoComplete>
+            <small class="ng-dirty ng-invalid" *ngIf="submitted && !proyecto.tipr_Descripcion">El campo es requerido.</small>
+            <small class="ng-dirty ng-invalid" *ngIf="submitted && isOptionTipoProyectoNotFound  && proyecto.tipr_Descripcion">Opción no encontrada.</small>
+        </div>
+        <div class="field" [style]="{width: '49%'}">
+            <label for="proy_Nombre">Nombre del proyecto 
+                <small class="ng-dirty ng-invalid" *ngIf="submitted && !proyecto.proy_Nombre">*</small>
+            </label>
+            <input  type="text" pInputText id="proy_Nombre" [maxlength]="100" [(ngModel)]="proyecto.proy_Nombre"  
+            autofocus [ngClass]="{'ng-invalid ng-dirty' : submitted && (!proyecto.proy_Nombre || exists)}"
+            (input)="allowOnlyAlphanumeric($event)" (keydown)="ValidarTextoNumeros($event)"
+            (ngModelChange)="existeNombre()"/>
+            <small class="ng-dirty ng-invalid" *ngIf="submitted && !proyecto.proy_Nombre">El campo es requerido.</small>
+        </div>
+        <div class="field" [style]="{width: '49%'}">
+            <label for="proy_Descripcion">Descripción del proyecto 
+                <small class="ng-dirty ng-invalid" *ngIf="submitted && !proyecto.proy_Descripcion">*</small>
+            </label>
+            <textarea rows="2" cols="10"
+            pInputTextarea [autoResize]="true" id="proy_Descripcion" 
+            [(ngModel)]="proyecto.proy_Descripcion" autofocus [maxlength]="200" 
+            [ngClass]="{'ng-invalid ng-dirty' : submitted && !proyecto.proy_Descripcion}"></textarea>
+            <small class="ng-dirty ng-invalid" *ngIf="submitted && !proyecto.proy_Descripcion">El campo es requerido.</small>
+        </div>
+
+        <!-- Fechas -->
+        <div class="field" [style]="{width: '49%'}">
+            <label for="proy_FechaInicio">Fecha de Inicio 
+                <small class="ng-dirty ng-invalid" *ngIf="submitted && !proyecto.proy_FechaInicio">*</small>
+            </label>
+            <p-calendar  [showIcon]="true" [minDate]="defaultDatabaseDate" 
+            dateFormat="dd/mm/yy" id="proy_FechaInicio" [(ngModel)]="proyecto.proy_FechaInicio"  autofocus [ngClass]="{'ng-invalid ng-dirty' : submitted && !proyecto.proy_FechaInicio}"></p-calendar>
+            <small class="ng-dirty ng-invalid" *ngIf="submitted && !proyecto.proy_FechaInicio">El campo es requerido.</small>
+        </div>
+        <div class="field" [style]="{width: '49%'}">
+            <label for="proy_FechaFin">Fecha de Finalización 
+                <small class="ng-dirty ng-invalid" *ngIf="submitted && !proyecto.proy_FechaFin">*</small>
+            </label>
+            <p-calendar   [showIcon]="true" [minDate]="proyecto.proy_FechaInicio || defaultDatabaseDate" 
+            dateFormat="dd/mm/yy" id="proy_FechaFin" [(ngModel)]="proyecto.proy_FechaFin"  autofocus [ngClass]="{'ng-invalid ng-dirty' : submitted && !proyecto.proy_FechaFin}"></p-calendar>
+            <small class="ng-dirty ng-invalid" *ngIf="submitted && !proyecto.proy_FechaFin">El campo es requerido.</small>
+        </div>
+        <div class="field" [style]="{width: '49%'}">
+            <label for="clie_NombreCompleto">Cliente 
+                <small class="ng-dirty ng-invalid" *ngIf="submitted && !proyecto.clie_NombreCompleto">*</small>
+            </label>
+            <p-autoComplete  [(ngModel)]="proyecto.clie_NombreCompleto" [suggestions]="filteredClientes"
+             (completeMethod)="filterClientes($event)" field="" [dropdown]="true" 
+            [ngClass]="{'ng-invalid ng-dirty' : submitted && (!proyecto.clie_NombreCompleto || isOptionClienteNotFound) }"
+            (input)="allowOnlyAlphanumeric($event)"
+            (ngModelChange)="detectCliente()"
+                        (keydown)="ValidarTextoNumeros($event)">
+            </p-autoComplete>
+            <small class="ng-dirty ng-invalid" *ngIf="submitted && !proyecto.clie_NombreCompleto">El campo es requerido.</small>
+            <small class="ng-dirty ng-invalid" *ngIf="submitted && isOptionClienteNotFound && proyecto.clie_NombreCompleto">Opción no encontrada.</small>
+        </div>
+        <div *ngIf="proyecto.proy_Id" class="field" [style]="{width: '49%'}">
+            <label for="frecuencia-pago">Frecuencia de pago <span style="color: red;" *ngIf="submitted && !proyecto.frecuencia">*</span></label>
+            <p-autoComplete
+                [(ngModel)]="proyecto.frecuencia"
+                [suggestions]="filteredFrecuencias"
+                (completeMethod)="filterFrecuencias($event)"
+                dropdown="true"
+                (ngModelChange)="detectFrecuencia()"
+                (input)="allowOnlyAlphanumeric($event)"
+                        (keydown)="ValidarTextoNumeros($event)"
+                [ngClass]="{
+                    'ng-invalid ng-dirty': submitted && (!proyecto.frecuencia || isOptionFrecuenciaNotFound)
+                }"
+            />
+            <small
+                style="color: red"
+                class="ng-dirty ng-invalid"
+                *ngIf="submitted && !proyecto.frecuencia"
+                >El campo es requerido.</small
+            >
+            <small
+                style="color: red"
+                class="ng-dirty ng-invalid"
+                *ngIf="submitted && isOptionFrecuenciaNotFound && proyecto.frecuencia"
+                >Opción no encontrada.</small
+            >
+        </div>
+        <div class="field" [style]="{width: '49%'}">
+            <label for="esta_Nombre">Departamento o Estado 
+                <small class="ng-dirty ng-invalid" *ngIf="submitted && !proyecto.esta_Nombre">*</small>
+            </label>
+            <p-autoComplete [(ngModel)]="proyecto.esta_Nombre" [suggestions]="filteredEstados"
+             (completeMethod)="filterEstados($event)" [dropdown]="true"
+            (ngModelChange)="filtrarCiudades()"
+            (input)="allowOnlyAlphanumeric($event)"
+                        (keydown)="ValidarTextoNumeros($event)"
+            [ngClass]="{'ng-invalid ng-dirty' : submitted && (!proyecto.esta_Nombre || isOptionEstadoNotFound) }">
+            </p-autoComplete>
+            <small class="ng-dirty ng-invalid" *ngIf="submitted && !proyecto.esta_Nombre">El campo es requerido.</small>
+            <small class="ng-dirty ng-invalid" *ngIf="submitted && isOptionEstadoNotFound && proyecto.esta_Nombre">Opción no encontrada.</small>
+        </div>
+        <div class="field" [style]="{width: '49%'}">
+            <label for="ciud_Descripcion">Ciudad o Municipio 
+                <small class="ng-dirty ng-invalid" *ngIf="submitted && !proyecto.ciud_Descripcion">*</small>
+            </label>
+            <p-autoComplete  [(ngModel)]="proyecto.ciud_Descripcion" [suggestions]="filteredCiudades"
+             (completeMethod)="filterCiudades($event)" field="" [dropdown]="true" (input)="allowOnlyAlphanumeric($event)"
+             (keydown)="ValidarTextoNumeros($event)" 
+             (ngModelChange)="detectCiudad()"
+            [ngClass]="{'ng-invalid ng-dirty' : submitted && (!proyecto.ciud_Descripcion || isOptionCiudadNotFound) }">
+            </p-autoComplete>
+            <small class="ng-dirty ng-invalid" *ngIf="submitted && !proyecto.ciud_Descripcion">El campo es requerido.</small>
+            <small class="ng-dirty ng-invalid" *ngIf="submitted && isOptionCiudadNotFound && proyecto.ciud_Descripcion">Opción no encontrada.</small>
+        </div>
+        <div class="field" [style]="{width: '100%'}">
+            <label>Dirección exacta del proyecto 
+                <small class="ng-dirty ng-invalid" *ngIf="submitted && !proyecto.proy_DireccionExacta">*</small>
+            </label>
+            <textarea [(ngModel)]="proyecto.proy_DireccionExacta" rows="5" cols="30"
+            pInputTextarea [autoResize]="true" [maxLength]="100"
+            [ngClass]="{'ng-invalid ng-dirty' : submitted && !proyecto.proy_DireccionExacta}"></textarea>
+            <small class="ng-dirty ng-invalid" *ngIf="submitted && !proyecto.proy_DireccionExacta">El campo es requerido.</small>
+        </div>
+    </div>
+    <!-- Botones -->
+    <div class="flex justify-content-end mb-4">
+        <div class="flex flex-row" style="gap: 10px;">
+            <button #guardarButton (click)="guardarDatosGenerales()" pButton pRipple type="button" label="Guardar"
+            icon="pi pi-save" ></button>
+            <button (click)="buttonLimpiar()" class="p-button-secondary" pButton pRipple type="button" label="Limpiar" icon="pi pi-trash"></button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Confirmar Editar-->
+<p-dialog [(visible)]="editarProyectoDialog" header="Confirmación" [modal]="true" [style]="{width:'450px'}">
+    <!-- Cuerpo Modal -->
+        <div class="flex align-items-center justify-content-center">
+            <i class="pi pi-pencil mr-3" style="font-size: 2rem"></i>
+            <span *ngIf="proyecto">¿Está seguro que desea editar los <b>datos generales</b> del proyecto <b>{{proyecto.proy_Nombre}}</b>?</span>
+        </div>
+
+    <!-- Botones -->
+    <ng-template pTemplate="footer">
+            <button pButton pRipple icon="pi pi-pencil" class="p-button-primary" label="Aceptar" (click)="guardarDatosGenerales()"></button>
+        <button pButton pRipple icon="pi pi-times" class="p-button-outlined p-button-primary" label="Cancelar" (click)="editarProyectoDialog = false"></button>
+    </ng-template>
+</p-dialog>

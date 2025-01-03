@@ -1,0 +1,262 @@
+<p-toast></p-toast>
+
+<!-- <div class="spinner-container" *ngIf="isLoading">
+    <p-progressSpinner styleClass="w-4rem h-4rem" strokeWidth="8" fill="var(--surface-ground)" animationDuration=".5s"></p-progressSpinner>
+  </div> -->
+
+  <div class="loader-container" *ngIf="isLoading">
+    <div class="loader">
+        <span></span>
+    </div>
+  </div>
+<div class="grid" *ngIf="Index">
+    <div class="col-12">
+        <div class="card">
+            <h1 class="text-center mt-4">Categorías</h1>
+            <hr>
+            <div class="grid mt-2">
+                <div class="col-12">
+                    <button (click)="CrearCategoria()" pButton label="Nuevo" icon="pi pi-plus" class="mr-2"></button>
+                </div>
+            </div>
+
+
+            <p-table #dt [value]="categorias" styleClass="mt-2" responsiveLayout="scroll" [rows]="10"
+                [globalFilterFields]="['codigo','cate_Descripcion']"
+                [paginator]="true" [showCurrentPageReport]="true" [tableStyle]="{ background: '#000' }"
+                currentPageReportTemplate="Mostrando {first} al {last} de {totalRecords} entradas" [rowHover]="true" [rowsPerPageOptions]="[10,25,50,100]">
+                <ng-template pTemplate="caption">
+                    <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+                        <span class="block mt-2 md:mt-0 p-input-icon-left">
+                            <i style="color: white;" class="pi pi-search"></i>
+                            <input style="color: white;" pInputText type="text" (input)="onGlobalFilter(dt, $event)"
+                                placeholder="Buscar..." class="w-full sm:w-auto" />
+                        </span>
+                        <div class="registros">
+
+                            <p-dropdown [options]="dt.rowsPerPageOptions" [(ngModel)]="dt.rows" [style]="{ 'margin-right': '5px' }"  [autoWidth]="false"></p-dropdown>
+
+                            <span style="color: #FFF0C6; font-weight: 700; margin-top: 7px;"> Registros por página</span>
+                        </div>
+                    </div>
+
+                </ng-template>
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th style="color: white;" class="text-center">Acciones</th>
+                        <th style="color: white;" pSortableColumn="codigo" class="text-center">No.<p-sortIcon field="codigo"></p-sortIcon></th>
+                        <th style="color: white;" pSortableColumn="cate_Descripcion" class="text-center">Categoría <p-sortIcon field="cate_Descripcion"></p-sortIcon></th>
+                    </tr>
+                </ng-template>
+                <!-- <ng-template pTemplate="emptymessage">
+                    <tr>
+                      <td colspan="6" class="text-center">
+                        <div class="loader-container" *ngIf="isLoading">
+                            <div class="loader">
+                                <span></span>
+                            </div>
+                          </div>
+                      </td>
+                    </tr>
+                  </ng-template> -->
+                                <!--Inicio loader-->
+                                <!-- <ng-template pTemplate="emptymessage">
+                                    <tr>
+                                      <td colspan="6" class="text-center">
+                                        <div class="loader-container" *ngIf="isLoading">
+                                          <div class="loader"></div>
+                                        </div>
+                                      </td>
+                                    </tr>
+                                  </ng-template> -->
+                                <!-- Fin loader -->
+
+                <ng-template pTemplate="body" let-categoria>
+                    <tr>
+                        <td class="text-center" style="width:5%; min-width:15rem;">
+                            <p-splitButton (onDropdownClick)="rowactual = categoria" label="Acciones" icon="pi pi-cog" [model]="items" styleClass="p-button-secondary" appendTo="body" class="custom-splitbutton"></p-splitButton>
+                        </td>
+                        <td class="text-center" style="width:5%; min-width:15rem;">
+                            {{categoria.codigo}}
+                        </td>
+                        <td class="text-center">
+                            {{categoria.cate_Descripcion}}
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+    </div>
+</div>
+
+<div class="grid" *ngIf="CrearEditar">
+    <div class="col-12">
+        <div class="card">
+            <div class="flex" style="width: 100%; display: flex; align-items: center; height: 42px;">
+                <!-- Back Button Section -->
+                <div style="width: 20%; display: flex; align-items: center; justify-content: flex-start;">
+                    <button (click)="Cancelar()" class="p-button-link" pButton pRipple type="button" label="Regresar" icon="pi pi-arrow-left" style="box-shadow: none !important;"></button>
+                </div>
+
+                <!-- Centered Title Section -->
+                <div style="flex-grow: 1; display: flex; justify-content: center; align-items: center;">
+                    <h1 class="text-center mt-4">{{ titulo }} Categoría</h1>
+                </div>
+
+                <!-- Optional Empty Div for Right-Side Balancing -->
+                <div style="width: 20%;"></div>
+            </div>
+
+            <hr>
+            <div class="mt-2 grid">
+                <form [formGroup]="form" class="grid col-12 p-fluid p-formgrid">
+                    <div class="field col-6">
+                        <label>Categoría
+                            <small
+                                style="display: inline-block; color: red !important;"
+                                class="ng-dirty ng-invalid"
+                                *ngIf="submitted && form.controls['cate_Descripcion'].invalid"
+                            >
+                                *
+                            </small> </label>
+                        <input (keydown)="ValidarTexto($event)" (input)="allowOnlyAlphanumeric($event)"
+                                maxlength="50"
+                               [ngClass]="{'ng-invalid ng-dirty': submitted && form.controls['cate_Descripcion'].invalid}"
+                               type="text" class="p-inputtext" formControlName="cate_Descripcion">
+                        <small class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['cate_Descripcion'].invalid"
+                               style="color: red !important;">El campo es requerido.</small>
+                    </div>
+                </form>
+            </div>
+            <div style="display: flex; justify-content: end;">
+                <button (click)="confirmGuardar()" class="btn btn-guardar" pButton pRipple type="button" label="Guardar" icon="pi pi-save"></button>
+                <button (click)="Cancelar()" style="margin-left: 2%;" class=" p-button-secondary" pButton pRipple type="button" label="Cancelar" icon="pi pi-times"></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<p-dialog [(visible)]="modaleliminar" header="Confirmación" [modal]="true" [style]="{width:'450px'}">
+    <div class="flex align-items-center justify-content-center">
+        <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+        <span>¿Está seguro de eliminar <span style="font-weight: 600;"> {{categoria.cate_Descripcion}}</span>?</span>
+    </div>
+    <ng-template pTemplate="footer">
+        <!-- <button pButton pRipple icon="pi pi-check"  label="Sí" (click)="EliminarCategoria()"></button> -->
+        <button pButton pRipple icon="pi pi-trash" type="button" label="Eliminar" (click)="EliminarCategoria()"></button>
+        <button pButton pRipple icon="pi pi-times" class="p-button-outlined p-button-primary" label="Cancelar" (click)="modaleliminar = false"></button>
+    </ng-template>
+</p-dialog>
+
+<p-dialog [(visible)]="confirmProveedorDialog" header="Confirmación" [modal]="true" [style]="{width:'450px'}">
+    <div class="flex align-items-center justify-content-center">
+        <i class="pi pi-pencil mr-3" style="font-size: 2rem"></i>
+        <span>¿Está seguro de editar esta categoría: <span style="font-weight: 600;"> {{form.controls['cate_Descripcion'].value}}</span>?</span>
+    </div>
+    <ng-template pTemplate="footer">
+        <!-- <button pButton pRipple icon="pi pi-check"  label="Sí" (click)="confirmarActualizacion()"></button> -->
+        <button
+        pButton
+        pRipple
+        icon="pi pi-pencil"
+        type="button"
+        label="Aceptar"
+        (click)="confirmarActualizacion()">
+    </button>
+        <button pButton pRipple icon="pi pi-times" class="p-button-outlined p-button-primary" label="Cancelar" (click)="confirmProveedorDialog = false"></button>
+    </ng-template>
+</p-dialog>
+
+<div class="grid" *ngIf="detalles">
+    <div class="col-12">
+        <div class="card">
+            <div class="flex" style="width: 100%; display: flex; align-items: center; height: 42px;">
+                <!-- Back Button Section -->
+                <div style="width: 20%; display: flex; align-items: center; justify-content: flex-start;">
+                    <button (click)="Cancelar()" class="p-button-link" pButton pRipple type="button" label="Regresar" icon="pi pi-arrow-left" style="box-shadow: none !important;"></button>
+                </div>
+
+                <!-- Centered Title Section -->
+                <div style="flex-grow: 1; display: flex; justify-content: center; align-items: center;">
+                    <h1 class="text-center mt-4">Detalle Categoría</h1>
+                </div>
+
+                <!-- Optional Empty Div for Right-Side Balancing -->
+                <div style="width: 20%;"></div>
+            </div>
+    <hr>
+            <div *ngIf="categoria">
+                <div class="p-fluid p-formgrid grid">
+                    <div class="field col-12 md:col-4" style="position: relative; height: 10%;">
+                        <div class="field rows">
+                            <label for="Codigo" style="font-weight: 800;">No:</label>
+                        </div>
+                        <div class="field rows">
+                            <label for="Codigo">{{categoria.codigo}}</label>
+                        </div>
+                    </div>
+                    <div class="field col-12 md:col-4" style="position: relative;">
+                        <div class="field rows">
+                            <label for="Categoria" style="font-weight: 800;">Categoría:</label>
+                        </div>
+                        <div class="field rows">
+                            <label for="Categoria">{{categoria.cate_Descripcion}}</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="position: relative; top: -20px;">
+                <div class="card-title">
+                    <h1>Auditoría</h1>
+                </div>
+                <p-table #dt [value]="categoriass" styleClass="mt-2">
+                    <ng-template pTemplate="header">
+                        <tr>
+                            <th style="width:200px; font-weight: bold;">Acción</th>
+                            <th style="width:200px; font-weight: bold;">Usuario</th>
+                            <th style="width:200px; font-weight: bold;">Fecha</th>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body">
+                        <tr>
+                            <td style="width:200px;">Creado</td>
+                            <td style="width:200px;">{{ categoria.usuarioCreacion }}</td>
+                            <td style="width:200px;">{{ categoria.cate_FechaCreacion }}</td>
+                        </tr>
+                        <tr>
+                            <td style="width:200px;">Modificado</td>
+                            <td style="width:200px;">{{ categoria.usuarioModificacion }}</td>
+                            <td style="width:200px;">{{ categoria.cate_FechaModificacion }}</td>
+                        </tr>
+                    </ng-template>
+                </p-table>
+            </div>
+        </div>
+    </div>
+</div>
+<!--Fin de los detalles-->
+
+
+
+
+<!-- modal editar -->
+<!-- Modal para Confirmar Edición -->
+<p-dialog [(visible)]="confirmProveedorDialog" header="Confirmación" [modal]="true" [style]="{width:'450px'}">
+    <div class="flex align-items-center justify-content-center">
+      <i class="pi pi-pencil mr-3" style="font-size: 2rem"></i>
+      <span>¿Está seguro de editar esta categoría <span style="font-weight: 600;">{{form.controls['cate_Descripcion'].value}}</span>?</span>
+    </div>
+    <ng-template pTemplate="footer">
+      <!-- <button pButton pRipple icon="pi pi-check" label="Sí" (click)="confirmarActualizacion()"></button> -->
+      <button
+        pButton
+        pRipple
+        icon="pi pi-pencil"
+        type="button"
+        label="Aceptar"
+        (click)="confirmarActualizacion()">
+    </button>
+        <button pButton pRipple icon="pi pi-times" class="p-button-outlined p-button-primary" label="Cancelar" (click)="confirmProveedorDialog = false"></button>
+    </ng-template>
+  </p-dialog>

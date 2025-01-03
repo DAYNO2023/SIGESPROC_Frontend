@@ -1,0 +1,1618 @@
+
+<style>
+    .mi-borde {
+        border: 2px solid black;
+        transition: border-color 0.3s ease; /* Transición suave en el borde */
+    }
+
+    .mi-borde:hover {
+        border-color: #fff0c6; /* Cambia el color del borde al hacer hover */
+    }
+
+    .layout-topbar .topbar-menu li.topbar-item ul {
+    position: absolute !important;
+    left: -239px !important;
+    top: 47px !important;
+    width: 350px !important;
+    height: 1500% !important;
+    transition: none !important;
+    cursor: auto !important;
+    bottom: -7.4rem !important;
+    right: 0 !important;
+    color: var(--text-color) !important;
+    background: #000000 !important;
+    box-shadow: var(--box-shadow) !important;
+}
+
+
+
+.list-content {
+    word-wrap: break-word; /* Permite que las palabras largas se rompan y ajusten al ancho del contenedor */
+    word-break: break-all; /* Rompe las palabras largas si es necesario */
+    white-space: normal; /* Permite que el texto ocupe varias líneas */
+    overflow: hidden; /* Evita que el texto desborde el contenedor */
+}
+
+
+.resaltado {
+    background-color: #333333; /* Gris claro */
+    color: #000; /* Color del texto */
+    font-weight: bold; /* Para hacer que el texto sea más prominente */
+}
+
+.mi-borde {
+    border-left: 5px solid;
+    padding-left: 10px;
+    margin-bottom: 15px; /* Añadir más separación entre las notificaciones */
+}
+
+.alerta.mi-borde {
+    border-left-color: red;
+}
+
+.notificacion.mi-borde {
+    border-left-color: green;
+}
+
+.tipo-notificacion {
+    font-size: 16px; /* Tamaño de fuente para el tipo de notificación */
+    margin-bottom: 5px; /* Separación entre el tipo y la descripción */
+}
+
+.descripcion-notificacion {
+    font-size: 14px; /* Tamaño de fuente para la descripción */
+}
+
+.no-leida {
+    background-color: #333333; /* Gris oscuro para las no leídas */
+    transition: background-color 0.3s ease;
+}
+
+.no-leida:hover {
+    background-color: #555555; /* Gris claro al hacer hover */
+}
+
+
+
+
+
+
+</style>
+<p-toast
+    key="confirm"
+    (onClose)="onReject()"
+    [baseZIndex]="5000"
+    [showTransformOptions]="'translateX(-100%)'"
+    [showTransitionOptions]="'1000ms'"
+    [hideTransitionOptions]="'1000ms'"
+    [showTransformOptions]="'translateY(-100%)'"
+    >
+
+        <ng-template let-message pTemplate="message" >
+            <div class="flex flex-column"style="flex: 1">
+                <div class="flex align-items-center ">
+                  <div class="informacion">
+                        <img style="width: 20px;" class="border-circle" [src]="'assets/layout/images/logo-sigesproc.png'">
+                    <span class="font-bold text-900">
+                        Sigesproc
+                    </span>
+                    </div>
+                  </div>
+                <div class="font-medium text-lg my-3 text-900">
+                    {{ message.summary }}
+                </div>
+                <p-button size="small" label="Reply" (onClick)="onConfirm()" />
+            </div>
+        </ng-template>
+</p-toast>
+<div class="layout-topbar">
+        <!-- <button (click)="sendNotification()">Activiar notificaiones</button> -->
+        <div class="topbar-start">
+        <button #menubutton type="button" class="topbar-menubutton p-link p-trigger" (click)="onMenuButtonClick()">
+            <i class="pi pi-bars"></i>
+        </button>
+
+        <app-breadcrumb class="topbar-breadcrumb"></app-breadcrumb>
+    </div>
+    <div class="layout-topbar-menu-section">
+        <app-sidebar></app-sidebar>
+    </div>
+    <div class="topbar-end">
+        <ul class="topbar-menu  ">
+     <!-- notificaciones -->
+     <div class="icon-bell" >
+        <li #profile class="profile-item topbar-item" >
+            <a pStyleClass="@next" enterFromClass="ng-hidden" enterActiveClass="px-scalein" leaveToClass="ng-hidden" leaveActiveClass="px-fadeout" [hideOnOutsideClick]="true" pRipple class="cursor-pointer" style="padding-top: 10px;" >
+                <i class="pi pi-bell mr-4 p-text-secondary" *ngIf="campana" pBadge [value]="valor"></i>
+                <i class="pi pi-bell mr-4 p-text-secondary"  *ngIf="!campana" ></i>
+            </a>
+
+            <ul class="topbar-menu active-topbar-menu p-4 w-30rem z-5 ng-hidden border-round"
+            style="display: block; padding: 0; margin: 0; list-style: none; max-height: 300px;
+            overflow-y: auto; overflow-x: hidden;">
+                <li role="menuitem" class="m-0 mb-3 mt-2">
+                    <div  style="color: #fff0c6;" class="flex" style="width: 100%; margin: 0 auto; display: flex; align-items: center;">
+                        <div style="color: #fff0c6; display: flex; justify-content: center; align-items: center; height: 12.5%;">
+                            <h3 style="margin-bottom: 0;">Notificaciones</h3>
+                        </div>
+
+
+                    </div>
+
+
+                    <hr>
+                </li>
+
+                <div *ngFor="let notificacion of notificaciones; let i = index"
+     class="list-item mi-borde"
+     [ngClass]="{
+       'alerta': !notificacion.napu_AlertaOnoti,
+       'notificacion': notificacion.napu_AlertaOnoti,
+       'no-leida': notificacion.leida === 'No Leida'
+     }">
+
+
+      <li role="menuitem" class="m-0 mb-3 mt-2" (click)="leer(notificacion.napu_Id, notificacion)">
+          <div class="list-content">
+              <div class="tipo-notificacion" style="display: flex; justify-content: space-between; align-items: center;">
+                  <span style="color: #ffffff; font-weight: bold;">
+                      {{ notificacion.napu_AlertaOnoti ? 'Notificación' : 'Alerta' }}
+                  </span>
+                  <button pButton icon="pi pi-check" class="p-button-rounded p-button-success p-button-sm"
+                          *ngIf="notificacion.leida === 'No Leida'"></button>
+              </div>
+              <a [href]="[notificacion.napu_Ruta]" class="list-link">
+              <div class="descripcion-notificacion" style="margin-top: 10px;">
+                  <span style="color: #ffffff;">
+                      {{ notificacion.descripcion }}
+                  </span>
+              </div>
+              <div class="fecha-notificacion" style="text-align: right; margin-top: 10px;">
+                  <span style="color: #fff0c6; margin-right: 10px; display: inline-block;">
+                      {{ notificacion.fecha }}
+                  </span>
+              </div>
+            </a>
+          </div>
+      </li>
+
+</div>
+
+           <hr>
+            </ul>
+        </li>
+    </div>
+        <!-- Perfil -->
+            <li #profile class="profile-item topbar-item " >
+                <a pStyleClass="@next" enterFromClass="ng-hidden" enterActiveClass="px-scalein" leaveToClass="ng-hidden" leaveActiveClass="px-fadeout" [hideOnOutsideClick]="true" pRipple class="cursor-pointer">
+                   <div class="usuario">
+                    <div class="informacion" *ngFor="let usuario of Usuario">
+                        <img class="border-circle"  *ngIf="usuario.empl_Imagen"  [src]="sanitizarUrl(urlHost + usuario.empl_Imagen)"> 
+                        <a class="nombre">{{usuario.usua_Usuario}}</a>
+                    </div>
+                    <div class="arrow-user">
+                        <i class="pi pi-chevron-down"></i>
+                    </div>
+                </div>
+                </a>
+
+             <!--Profile settings-->
+
+
+             <div class="body ng-hidden" >
+                <div class="card">
+                  <div id="constructionFrame">
+                  <div id="outerCraneContainer">
+                  <div class="buildings">
+                      <div></div>
+                      <div class="1"></div>
+                      <div class="2"></div>
+                      <div class="3"></div>
+                      <div class="4"></div>
+                  </div>
+                  <div class="crane craneThree">
+                      <div class="line lineOne"></div>
+                      <div class="line lineTwo"></div>
+                      <div class="line lineThree"></div>
+                      <div class="stand"></div>
+                      <div class="weight"></div>
+                      <div class="cabin"></div>
+                      <div class="arm"></div>
+                  </div>
+                  <div class="crane craneTwo">
+                      <div class="line lineOne"></div>
+                      <div class="line lineTwo"></div>
+                      <div class="line lineThree"></div>
+                      <div class="stand"></div>
+                      <div class="weight"></div>
+                      <div class="cabin"></div>
+                      <div class="arm"></div>
+                  </div>
+                  <div class="crane craneOne">
+                      <div class="line lineOne"></div>
+                      <div class="line lineTwo"></div>
+                      <div class="line lineThree"></div>
+                      <div class="stand"></div>
+                      <div class="weight"></div>
+                      <div class="cabin"></div>
+                      <div class="arm"></div>
+                  </div>
+              </div>
+            </div>
+                      <div class="for" *ngFor="let usuario of Usuario">
+                      <div class="banner">
+                        <img *ngIf="usuario.empl_Imagen"  [src]="sanitizarUrl(empleadoService.BaseUrl + usuario.empl_Imagen)">
+                   </div>
+                   <div class="user-info"  >
+                   <h2 class="name">{{usuario.usua_Usuario}}</h2>
+                   <div class="title">{{usuario.nombre_Empleado}}</div>
+                   <div class="buttons">
+                    <p-button icon="pi pi-pencil"     pTooltip="Reestablecer contraseña"     tooltipPosition="bottom" 
+                    [rounded]="true"   (click)="ReestablecerUsuario()" />
+                    <p-button icon="pi pi-google" [rounded]="true" pTooltip="Reestablecer Correo"     tooltipPosition="top"
+                    style="margin-left: -40px;"  (click)="EditarUsuario()"  />
+                   </div>
+                   <div class="actions">
+                     <div class="follow-info">
+                     </div>
+                     <div class="follow-btn"> <!--Botones de cerrar sesion-->
+                     </div>
+                   </div>
+                   <hr style="color: #fff0c6; border-width: 2px 0 0 0;">
+                   <div class="cerrar-cargo">
+                   <div class="desc" style="text-align: center; font-weight: 600; " > {{usuario.carg_Descripcion}}</div>
+                   <div class="close"><p-button  icon="pi pi-sign-out" (click)="CerrarSesion()" label="Cerrar sesión" [text]="true" />
+                   </div>
+                  </div>
+                   </div>
+                 </div>
+                </div>
+               </div>
+             <!--end profile settings-->
+
+                <ul class="topbar-menu active-topbar-menu p-4 w-15rem z-5 ng-hidden border-round">
+                    <li role="menuitem" class="m-0 mb-3">
+                        <a href="#" class="flex align-items-center hover:text-primary-500 transition-duration-200" pStyleClass="@grandparent" enterFromClass="ng-hidden" enterActiveClass="px-scalein" leaveToClass="ng-hidden" leaveActiveClass="px-fadeout">
+                            <i class="pi pi-fw pi-cog mr-2"></i>
+                            <span>Configuracion</span>
+                        </a>
+                    </li>
+                    <li role="menuitem" class="m-0">
+                        <a (click)="cerrarSesion()" href="#" class="flex align-items-center hover:text-primary-500 transition-duration-200" pStyleClass="@grandparent" enterFromClass="ng-hidden" enterActiveClass="px-scalein" leaveToClass="ng-hidden" leaveActiveClass="px-fadeout">
+                            <i class="pi pi-fw pi-sign-out mr-2"></i>
+                            <span>Cerrar sesion</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+
+
+        </ul>
+
+
+    </div>
+</div>
+
+<p-dialog [(visible)]="Correo" [modal]="true" [style]="{width:'450px'}">
+  <div class="text">
+    <h2 style="margin-bottom: 10px;">{{ titulo }}</h2>
+  </div>
+    <form [formGroup]="form" class="grid col-12 p-fluid p-formgrid">
+      <input *ngIf="Correo " class="col-6" id="empl_CorreoElectronico" pInputText
+        [ngClass]="{'ng-invalid ng-dirty': submitted && form.controls['empl_CorreoElectronico'].invalid}"
+        class="p-inputtext" formControlName="empl_CorreoElectronico">
+        
+      <input *ngIf="contra" class="col-6" id="usua_Clave" pInputText
+        [ngClass]="{'ng-invalid ng-dirty': submitted && form.controls['usua_Clave'].invalid}"
+        class="p-inputtext" formControlName="usua_Clave" placeholder="Nueva contraseña">
+    </form>
+  <ng-template pTemplate="footer">
+    <div class="botones">
+    <button pButton pRipple icon="pi pi-pencil" class=" p-button-primary" label="Aceptar"
+      (click)="GuardarCorreo()"></button>
+    <button pButton pRipple icon="pi pi-times" class="p-button-outlined p-button-primary" label="Cancelar"
+      (click)="CloseDialog()"></button>
+      </div>
+  </ng-template>
+</p-dialog>
+
+
+
+<!--Modales de confirmacion-->
+<p-dialog [(visible)]="modalContra" header="Confirmación" [modal]="true" [style]="{width:'450px'}">
+    <div class="flex align-items-center justify-content-center">
+        <i class="pi pi-key mr-3" style="font-size: 2rem"></i>
+        <span>¿Está seguro de cambiar tu contraseña?</span>
+    </div>
+    <ng-template pTemplate="footer">
+        <button pButton pRipple icon="pi pi-pencil" class=" p-button-primary" label="Aceptar"
+            (click)="GuardarCorreo()"></button>
+        <button pButton pRipple icon="pi pi-times" class="p-button-outlined p-button-primary" label="Cancelar"
+            (click)="CloseDialog()"></button>
+    </ng-template>
+</p-dialog>
+<!--Fin del Modal de confirmacion-->
+
+
+<!--Inicio del Modal para guardar-->
+<p-dialog [(visible)]="modalCorreo" header="Confirmación" [modal]="true" [style]="{width:'450px'}">
+    <div class="flex align-items-center justify-content-center">
+        <i class="pi pi-google mr-3" style="font-size: 2rem"></i>
+        <span>¿Está seguro que deseas editar tu correo a  <span style="font-weight: 600;">{{form.value.empl_CorreoElectronico}}</span>?</span>
+    </div>
+    <ng-template pTemplate="footer">
+        <button pButton pRipple icon="pi pi-pencil" class=" p-button-primary" label="Aceptar"
+            (click)="GuardarCorreo()"></button>
+        <button pButton pRipple icon="pi pi-times" class="p-button-outlined p-button-primary" label="Cancelar"
+            (click)="CloseDialog()"></button>
+    </ng-template>
+</p-dialog>
+<!--Fin del Modal para gu
+<!--Fin de modales de confirmacion-->
+<style>
+/*Inicio de la parte superior*/
+#outerCraneContainer {
+  position: absolute;
+    width: 100%;
+    height: 38%;
+    bottom: 253px;
+    right: 1px;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    box-shadow: inset 0 -60px 0 -30px #000000;
+    background: #fff0c6;
+    border-radius: -1px;
+}
+.buildings {
+  height: 84.9673202614379px;
+  width: 100%;
+  left: 0;
+}
+.buildings div {
+  height: inherit;
+  width: 42.48366013071895px;
+  background: #000000;
+  position: absolute;
+  bottom: 10%;
+}
+.buildings div:after {
+  content: '';
+  width: 80%;
+  height: 60%;
+  left: 10%;
+  bottom: 30%;
+  background: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAMAAAAGCAYAAAAG5SQMAAAAFElEQVQImWP4////fwYYIJKDEwAAfPsP8eFXG40AAAAASUVORK5CYII=") repeat;
+  position: absolute;
+}
+.buildings div:nth-of-type(1) {
+  width: 42.48366013071895px;
+  height: 21.241830065359476px;
+  right: 37%;
+  bottom: 18%;
+}
+.buildings div:nth-of-type(1):after {
+  bottom: 11%;
+}
+.buildings div:nth-of-type(2) {
+  width: 48.552754435107374px;
+  height: 28.322440087145967px;
+  right: 30%;
+  bottom: 35%;
+  transform: rotate(180deg);
+}
+.buildings div:nth-of-type(2):after {
+  width: 60%;
+  left: 11%;
+}
+.buildings div:nth-of-type(3) {
+  width: 24.276377217553687px;
+  height: 37.76325344952796px;
+  left: 40%;
+  bottom: 35%;
+}
+.buildings div:nth-of-type(3):after {
+  bottom: 0;
+  width: 20%;
+  height: 85%;
+  left: 70%;
+}
+.buildings div:nth-of-type(4) {
+  width: 84.9673202614379px;
+  height: 21.241830065359476px;
+  left: 24%;
+  bottom: 20%;
+}
+.buildings div:nth-of-type(4):after {
+  background: none;
+}
+.buildings div:nth-of-type(5) {
+  width: 61.794414735591204px;
+  height: 67.97385620915033px;
+  left: 47%;
+  bottom: 10%;
+}
+.buildings div:nth-of-type(5):after {
+  bottom: 0;
+  width: 40%;
+  height: 85%;
+  left: 20%;
+}
+.crane,
+.buildings {
+  position: absolute;
+  bottom: 0;
+}
+.crane div {
+  border-radius: 2px;
+  position: absolute;
+}
+.crane .line {
+  border: none;
+  background: #000000;
+  outline: 1px solid transparent;
+  z-index: 0;
+}
+.crane .lineOne {
+  width: 60%;
+  left: 11%;
+  top: 0;
+}
+.crane .lineTwo {
+  width: 19%;
+  right: 8%;
+  top: 0;
+}
+.crane .line.lineThree {
+  height: 30%;
+  top: 22%;
+  left: 9%;
+}
+.crane .line.lineThree:after {
+  content: '';
+  position: absolute;
+  height: 0.2em;
+  width: 9000%;
+  background: #000000;
+  display: block;
+  bottom: 0;
+  left: -4500%;
+  border: solid 1px #000000;
+}
+.craneTwo .line.lineThree:after {
+  height: 0.1em;
+}
+.craneThree .line.lineThree:after {
+  height: 0.05em;
+}
+.stand {
+  height: 100%;
+  width: 5%;
+  right: 25%;
+  z-index: 1;
+  background: linear-gradient(to top, #000000, #161616);
+}
+.craneTwo .stand {
+  background: linear-gradient(to top, #000000, #161616);
+}
+.craneThree .stand {
+  background: linear-gradient(to top, #000000, #161616);
+}
+.weight {
+  height: 20%;
+  width: 8%;
+  right: 4%;
+  top: 12%;
+  z-index: 2;
+  background: #161616;
+}
+.craneTwo .weight {
+  background: #161616;
+}
+.craneThree .weight {
+  background: #161616;
+}
+.cabin {
+  height: 9%;
+  width: 12%;
+  right: 24%;
+  top: 20%;
+  z-index: 2;
+  background: #161616;
+}
+.cabin:after {
+  content: '';
+  position: absolute;
+  height: 10%;
+  width: 100%;
+  background: #fff;
+  display: block;
+  top: 60%;
+  left: 0;
+}
+.craneTwo .cabin {
+  background: #000000;
+}
+.craneThree .cabin {
+  background: #000000;
+}
+.arm {
+  height: 7%;
+  width: 100%;
+  top: 15%;
+  z-index: 3;
+  background: #000000;
+}
+.craneTwo .arm {
+  background: #000000;
+}
+.craneThree .arm {
+  background: #000000;
+}
+.crane div.arm {
+  border-top-left-radius: 10px;
+}
+.brick {
+  height: 6%;
+  width: 9%;
+  bottom: 0;
+  left: 40%;
+  background: #000000;
+}
+.brickTwo {
+  left: 48%;
+}
+.brickThree {
+  bottom: 5.5%;
+  left: 44%;
+}
+.craneOne {
+  width: 260px;
+  height: 169.9346405228758px;
+  left: 20%;
+}
+.craneOne div {
+  border: solid 1px #000000;
+}
+.craneOne .line {
+  height: 1px;
+}
+.craneOne .lineThree {
+  width: 1px;
+}
+.craneTwo {
+  width: 200px;
+  height: 130.718954248366px;
+  transform: scaleX(-1);
+  left: 40%;
+  z-index: -1;
+}
+.craneTwo div {
+  border: solid 1px #000000;
+}
+.craneTwo .line {
+  height: 0.769230769230769px;
+}
+.craneTwo .lineThree {
+  width: 0.714285714285714px;
+  animation-delay: 3s;
+}
+.craneTwo .cabin,
+.craneTwo .arm,
+.craneTwo .picker,
+.craneTwo .weight {
+  animation-delay: 3s;
+}
+.craneThree {
+  width: 130px;
+  height: 84.9673202614379px;
+  left: 60%;
+  z-index: -1;
+}
+.craneThree div {
+  border: solid 1px #000000;
+}
+.craneThree .line {
+  height: 0.5px;
+}
+.craneThree .lineThree {
+  width: 0.5px;
+  animation-delay: 1.5s;
+}
+.craneThree .brickThree {
+  bottom: 5%;
+}
+.craneThree .brickOne,
+.craneThree .brickTwo {
+  bottom: 0;
+}
+.craneThree .cabin,
+.craneThree .arm,
+.craneThree .picker,
+.craneThree .weight {
+  animation-delay: 1.5s;
+}
+.crane {
+  perspective: 600px;
+}
+.lineOne {
+  transform-origin: right 0;
+  animation: moveLineOne 12s infinite alternate;
+}
+.lineTwo {
+  transform-origin: top left;
+  animation: moveLineTwo 12s infinite alternate;
+}
+.lineThree {
+  transform-origin: right center;
+  animation: moveLineThree 12s ease-in-out infinite alternate;
+}
+.cabin,
+.arm,
+.picker {
+  transform-origin: 80% center;
+  animation: moveCrane 12s infinite alternate;
+}
+.weight {
+  transform-origin: 0 center;
+  animation: moveWeight 12s infinite alternate;
+}
+html {
+  -ms-text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+}
+html,
+body {
+  height: 100%;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  background: linear-gradient(to top, #000000, #000000);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-shadow: 1px 1px 1px rgba(0,0,0,0.004);
+}
+#content {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-family: Ubuntu;
+  color: #fff;
+}
+#content h1,
+#content p {
+  margin: -8rem 0 0 1rem;
+}
+#content p {
+  margin-top: 0.5rem;
+}
+#license {
+  position: absolute;
+  bottom: 0;
+  right: 5px;
+}
+@-moz-keyframes moveCrane {
+  0%, 20% {
+    transform: rotateY(0);
+  }
+  70%, 100% {
+    transform: rotateY(45deg);
+  }
+}
+@-webkit-keyframes moveCrane {
+  0%, 20% {
+    transform: rotateY(0);
+  }
+  70%, 100% {
+    transform: rotateY(45deg);
+  }
+}
+@-o-keyframes moveCrane {
+  0%, 20% {
+    transform: rotateY(0);
+  }
+  70%, 100% {
+    transform: rotateY(45deg);
+  }
+}
+@keyframes moveCrane {
+  0%, 20% {
+    transform: rotateY(0);
+  }
+  70%, 100% {
+    transform: rotateY(45deg);
+  }
+}
+@-moz-keyframes moveWeight {
+  0%, 20% {
+    transform: rotateY(0) translateX(0);
+  }
+  70%, 100% {
+    transform: rotateY(45deg) translateX(-50%);
+  }
+}
+@-webkit-keyframes moveWeight {
+  0%, 20% {
+    transform: rotateY(0) translateX(0);
+  }
+  70%, 100% {
+    transform: rotateY(45deg) translateX(-50%);
+  }
+}
+@-o-keyframes moveWeight {
+  0%, 20% {
+    transform: rotateY(0) translateX(0);
+  }
+  70%, 100% {
+    transform: rotateY(45deg) translateX(-50%);
+  }
+}
+@keyframes moveWeight {
+  0%, 20% {
+    transform: rotateY(0) translateX(0);
+  }
+  70%, 100% {
+    transform: rotateY(45deg) translateX(-50%);
+  }
+}
+@-moz-keyframes moveLineOne {
+  0%, 20% {
+    transform: rotateY(0) rotateZ(-10deg);
+  }
+  70%, 100% {
+    transform: rotateY(45deg) rotateZ(-10deg);
+  }
+}
+@-webkit-keyframes moveLineOne {
+  0%, 20% {
+    transform: rotateY(0) rotateZ(-10deg);
+  }
+  70%, 100% {
+    transform: rotateY(45deg) rotateZ(-10deg);
+  }
+}
+@-o-keyframes moveLineOne {
+  0%, 20% {
+    transform: rotateY(0) rotateZ(-10deg);
+  }
+  70%, 100% {
+    transform: rotateY(45deg) rotateZ(-10deg);
+  }
+}
+@keyframes moveLineOne {
+  0%, 20% {
+    transform: rotateY(0) rotateZ(-10deg);
+  }
+  70%, 100% {
+    transform: rotateY(45deg) rotateZ(-10deg);
+  }
+}
+@-moz-keyframes moveLineTwo {
+  0%, 20% {
+    transform: rotateY(0) rotateZ(29deg);
+  }
+  70%, 100% {
+    transform: rotateY(15deg) rotateZ(29deg);
+  }
+}
+@-webkit-keyframes moveLineTwo {
+  0%, 20% {
+    transform: rotateY(0) rotateZ(29deg);
+  }
+  70%, 100% {
+    transform: rotateY(15deg) rotateZ(29deg);
+  }
+}
+@-o-keyframes moveLineTwo {
+  0%, 20% {
+    transform: rotateY(0) rotateZ(29deg);
+  }
+  70%, 100% {
+    transform: rotateY(15deg) rotateZ(29deg);
+  }
+}
+@keyframes moveLineTwo {
+  0%, 20% {
+    transform: rotateY(0) rotateZ(29deg);
+  }
+  70%, 100% {
+    transform: rotateY(15deg) rotateZ(29deg);
+  }
+}
+@-moz-keyframes moveLineThree {
+  0% {
+    transform: translate(0, 0);
+  }
+  20% {
+    transform: translate(2500%, -18%);
+  }
+  60% {
+    transform: translate(11000%, -25%);
+  }
+  70% {
+    transform: translate(9100%, -25%);
+    height: 30%;
+  }
+  90%, 100% {
+    transform: translate(9100%, -15%);
+    height: 80%;
+  }
+}
+@-webkit-keyframes moveLineThree {
+  0% {
+    transform: translate(0, 0);
+  }
+  20% {
+    transform: translate(2500%, -18%);
+  }
+  60% {
+    transform: translate(11000%, -25%);
+  }
+  70% {
+    transform: translate(9100%, -25%);
+    height: 30%;
+  }
+  90%, 100% {
+    transform: translate(9100%, -15%);
+    height: 80%;
+  }
+}
+@-o-keyframes moveLineThree {
+  0% {
+    transform: translate(0, 0);
+  }
+  20% {
+    transform: translate(2500%, -18%);
+  }
+  60% {
+    transform: translate(11000%, -25%);
+  }
+  70% {
+    transform: translate(9100%, -25%);
+    height: 30%;
+  }
+  90%, 100% {
+    transform: translate(9100%, -15%);
+    height: 80%;
+  }
+}
+@keyframes moveLineThree {
+  0% {
+    transform: translate(0, 0);
+  }
+  20% {
+    transform: translate(2500%, -18%);
+  }
+  60% {
+    transform: translate(11000%, -25%);
+  }
+  70% {
+    transform: translate(9100%, -25%);
+    height: 30%;
+  }
+  90%, 100% {
+    transform: translate(9100%, -15%);
+    height: 80%;
+  }
+}
+  .main {
+    position: relative;
+    height: 2vh;
+    z-index: -10;
+    background: linear-gradient(to top, #1b1d1d, rgba(255, 255, 255, 0.75));
+  }
+
+  .buttons{
+    display: flex;
+    justify-content: space-evenly;
+    flex-wrap: nowrap;
+    flex-direction: row;
+    align-items: flex-start;
+    box-shadow: inset;
+    margin-top: -2px;
+  }
+
+  .cerrar-cargo{
+    display: flex;
+    justify-content: space-around;
+    flex-direction: row-reverse;
+}
+
+
+  .vl {
+    border-left: 2px solid #fff0c6;
+    height: 33px;
+    position: relative;
+    left: 48%;
+    margin-left: -3px;
+    top: 0;
+}
+  /* body {
+    font-size: 12px;
+    font-family: "Josefin Sans", "Roboto", sans-serif;
+    color: rgba(255, 255, 255, 0.75);
+    overflow: hidden;
+    background-color: #252627;
+  } */
+
+
+
+  .crane__list,
+  .skyscrappers__list,
+  .tree__container {
+    position: absolute;
+    width: 100%;
+    bottom: 0;
+  }
+
+  .advice {
+    display: flex;
+    height: 50vh;
+    width: 100vw;
+    flex-flow: column nowrap;
+    justify-content: center;
+    align-items: center;
+  }
+  .advice__title {
+    font-size: 3rem;
+    text-align: center;
+  }
+  .advice__description {
+    margin-top: 1rem;
+    font-size: 2rem;
+    text-align: center;
+  }
+  .advice__description span:first-child {
+    margin-right: -0.7rem;
+  }
+  .advice__description span:last-child {
+    margin-left: -0.7rem;
+  }
+
+  .city-stuff {
+    display: flex;
+    position: absolute;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    bottom: 0;
+    overflow: hidden;
+    box-shadow: inset 0 -60px 0 -30px #000000;
+  }
+
+  .skyscrappers__list {
+    width: 100%;
+    height: 86.6666666667px;
+    left: 0;
+  }
+  .skyscrappers__list .skyscrapper__item {
+    position: absolute;
+    height: inherit;
+    bottom: 15%;
+    width: 43.3333333333px;
+    background: linear-gradient(115deg, #000000 73%, #000000 73%, #000000 100%);
+  }
+  .skyscrappers__list .skyscrapper__item::after {
+    content: "";
+    position: absolute;
+    width: 80%;
+    height: 80%;
+    left: 10%;
+    bottom: 10%;
+    background: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAMAAAAGCAYAAAAG5SQMAAAAFElEQVQImWP4////fwYYIJKDEwAAfPsP8eFXG40AAAAASUVORK5CYII=") space;
+  }
+  .skyscrappers__list .skyscrapper__item:last-child:not(:only-child) {
+    background: #000000;
+  }
+  .skyscrappers__list .skyscrapper-1 {
+    width: 121.3333333333px;
+    height: 138.6666666667px;
+    right: 25%;
+    bottom: 0;
+    z-index: 10;
+    transform: rotate(180deg);
+  }
+  @media screen and (max-width: 450px) {
+    .skyscrappers__list .skyscrapper-1 {
+      display: none;
+    }
+  }
+  .skyscrappers__list .skyscrapper-2 {
+    width: 60.6666666667px;
+    height: 69.3333333333px;
+    right: 35%;
+    bottom: 0;
+    z-index: 10;
+    transform: rotate(180deg);
+    bottom: 10%;
+  }
+  @media screen and (max-width: 900px) {
+    .skyscrappers__list .skyscrapper-2 {
+      display: none;
+    }
+  }
+  @media screen and (max-width: 450px) {
+    .skyscrappers__list .skyscrapper-1 {
+      display: none;
+    }
+  }
+  .skyscrappers__list .skyscrapper-3 {
+    width: 40.4444444444px;
+    height: 46.2222222222px;
+    right: 45%;
+    bottom: 0;
+    z-index: 10;
+    transform: rotate(180deg);
+    height: 115.5555555556px;
+  }
+  @media screen and (max-width: 900px) {
+    .skyscrappers__list .skyscrapper-3 {
+      display: none;
+    }
+  }
+  @media screen and (max-width: 450px) {
+    .skyscrappers__list .skyscrapper-1 {
+      display: none;
+    }
+  }
+  .skyscrappers__list .skyscrapper-4 {
+    width: 30.3333333333px;
+    height: 34.6666666667px;
+    right: 55%;
+    bottom: 0;
+    z-index: 10;
+    transform: rotate(180deg);
+    height: 86.6666666667px;
+  }
+  .skyscrappers__list .skyscrapper-4::after {
+    width: 20%;
+    height: 60%;
+    left: 25%;
+  }
+  @media screen and (max-width: 450px) {
+    .skyscrappers__list .skyscrapper-1 {
+      display: none;
+    }
+  }
+  .skyscrappers__list .skyscrapper-5 {
+    width: 24.2666666667px;
+    height: 27.7333333333px;
+    right: 65%;
+    bottom: 0;
+    z-index: 10;
+    transform: rotate(180deg);
+    width: 7%;
+    right: 67%;
+    height: 50%;
+    z-index: 11;
+  }
+  .skyscrappers__list .skyscrapper-5::after {
+    height: 0;
+  }
+  @media screen and (max-width: 450px) {
+    .skyscrappers__list .skyscrapper-1 {
+      display: none;
+    }
+  }
+
+  .crane-cabin,
+  .crane-arm,
+  .crane-picker {
+    transform-origin: 80% center;
+    -webkit-animation: crane__movement 12s infinite alternate;
+            animation: crane__movement 12s infinite alternate;
+  }
+
+  .crane__list {
+    width: 260px;
+    height: 173.3333333333px;
+    z-index: 0;
+    perspective: 600px;
+  }
+  .crane__list .crane__item {
+    position: absolute;
+    border: solid 1px #000000;
+    border-radius: 2px;
+  }
+  .crane__list .crane-cable {
+    width: 1px;
+    height: 1px;
+    border: none;
+    outline: 1px solid transparent;
+    background: #000000;
+    z-index: 0;
+  }
+  .crane__list .crane-cable-1 {
+    width: 60%;
+    top: 0;
+    left: 11%;
+    transform-origin: right 0;
+    -webkit-animation: cable-1__movement 12s infinite alternate;
+            animation: cable-1__movement 12s infinite alternate;
+  }
+  .crane__list .crane-cable-2 {
+    width: 19%;
+    top: 0;
+    right: 8%;
+    transform-origin: top left;
+    -webkit-animation: cable-2__movement 12s infinite alternate;
+            animation: cable-2__movement 12s infinite alternate;
+  }
+  .crane__list .crane-cable-3 {
+    height: 30%;
+    top: 22%;
+    left: 9%;
+    transform-origin: right center;
+    -webkit-animation: cable-3__movement 12s ease-in-out infinite alternate;
+            animation: cable-3__movement 12s ease-in-out infinite alternate;
+  }
+  .crane__list .crane-cable-3::after {
+    content: "";
+    display: block;
+    position: absolute;
+    height: 0.2em;
+    width: 9000%;
+    bottom: 0;
+    left: -4500%;
+    background: #000000;
+    border: 1px solid #000000;
+  }
+  .crane__list .crane-stand {
+    width: 5%;
+    height: 100%;
+    right: 25%;
+    z-index: 1;
+    background: linear-gradient(to top, #000000, #1a1919);
+  }
+  .crane__list .crane-weight {
+    width: 8%;
+    height: 20%;
+    right: 4%;
+    top: 12%;
+    z-index: 2;
+    background: #000000;
+    transform-origin: 0 center;
+    -webkit-animation: crane-weight__movement 12s infinite alternate;
+            animation: crane-weight__movement 12s infinite alternate;
+  }
+  .crane__list .crane-cabin {
+    width: 12%;
+    height: 9%;
+    right: 24%;
+    top: 20%;
+    z-index: 2;
+    background: #000000;
+  }
+  .crane__list .crane-cabin::after {
+    content: "";
+    display: block;
+    position: absolute;
+    width: 100%;
+    height: 10%;
+    top: 60%;
+    left: 0;
+    background: white;
+  }
+  .crane__list .crane-arm {
+    width: 100%;
+    height: 7%;
+    top: 15%;
+    border-top-left-radius: 10px;
+    z-index: 3;
+    background: #000000;
+  }
+
+  .crane-1 {
+    left: 20%;
+    z-index: 10;
+  }
+
+  .crane-2 {
+    left: 30%;
+    z-index: 10;
+    bottom: -1rem;
+    z-index: -1;
+    transform: scale(0.75) scaleX(-1);
+  }
+  @media screen and (max-width: 900px) {
+    .crane-2 {
+      display: none;
+    }
+  }
+  .crane-2 .crane-cable-3 {
+    -webkit-animation-delay: 3s;
+            animation-delay: 3s;
+  }
+
+  .crane-3 {
+    left: 40%;
+    z-index: 10;
+    bottom: -0.5rem;
+    transform: scale(0.8);
+  }
+  @media screen and (max-width: 900px) {
+    .crane-3 {
+      z-index: -1;
+      transform: scale(0.75) scaleX(-1);
+    }
+  }
+  @media screen and (max-width: 900px) {
+    .crane-3 {
+      display: none;
+    }
+  }
+  .crane-3 .crane-cable-3 {
+    -webkit-animation-delay: 4.5s;
+            animation-delay: 4.5s;
+  }
+
+  .tree__container {
+    width: 100%;
+    height: 62.6666666667px;
+    left: 0;
+    margin-bottom: 4px;
+  }
+
+  .tree__item {
+    display: flex;
+    flex-flow: column nowrap;
+    position: absolute;
+    justify-content: flex-end;
+    align-items: center;
+    left: 60%;
+  }
+
+  .tree__trunk {
+    order: 2;
+    display: block;
+    position: absolute;
+    width: 4px;
+    height: 8px;
+    margin-top: 8px;
+    border-radius: 2px;
+    background: #000000;
+  }
+
+  .tree__leaves {
+    order: 1;
+    position: relative;
+    border-top: 0 solid transparent;
+    border-right: 4px solid transparent;
+    border-bottom: 32px solid #000000;
+    border-left: 4px solid transparent;
+  }
+  .tree__leaves::after {
+    content: "";
+    position: absolute;
+    height: 100%;
+    left: -4px;
+    border-top: 0;
+    border-right: 0;
+    border-bottom: 32px solid rgb(31, 31, 31);
+    border-left: 4px solid transparent;
+  }
+
+  .tree-1 {
+    left: 66%;
+  }
+  @media screen and (max-width: 768px) {
+    .tree-1 {
+      display: none;
+    }
+  }
+
+  .tree-2 {
+    left: 67%;
+  }
+  @media screen and (max-width: 768px) {
+    .tree-2 {
+      display: none;
+    }
+  }
+
+  .tree-4 {
+    left: 57%;
+  }
+
+  .tree-5 {
+    left: 58%;
+  }
+
+  .tree-7 {
+    left: 51%;
+  }
+  @media screen and (max-width: 450px) {
+    .tree-7 {
+      display: none;
+    }
+  }
+
+  .tree-8 {
+    left: 52%;
+  }
+  @media screen and (max-width: 450px) {
+    .tree-8 {
+      display: none;
+    }
+  }
+
+  @-webkit-keyframes cable-1__movement {
+    0%, 20% {
+      transform: rotateY(0) rotateZ(-10deg);
+    }
+    70%, 100% {
+      transform: rotateY(45deg) rotateZ(-10deg);
+    }
+  }
+
+  @keyframes cable-1__movement {
+    0%, 20% {
+      transform: rotateY(0) rotateZ(-10deg);
+    }
+    70%, 100% {
+      transform: rotateY(45deg) rotateZ(-10deg);
+    }
+  }
+  @-webkit-keyframes cable-2__movement {
+    0%, 20% {
+      transform: rotateY(0) rotateZ(29deg);
+    }
+    70%, 100% {
+      transform: rotateY(15deg) rotateZ(29deg);
+    }
+  }
+  @keyframes cable-2__movement {
+    0%, 20% {
+      transform: rotateY(0) rotateZ(29deg);
+    }
+    70%, 100% {
+      transform: rotateY(15deg) rotateZ(29deg);
+    }
+  }
+  @-webkit-keyframes cable-3__movement {
+    0% {
+      transform: translate(0, 0);
+    }
+    20% {
+      transform: translate(2500%, -18%);
+    }
+    60% {
+      transform: translate(11000%, -25%);
+    }
+    70% {
+      height: 30%;
+      transform: translate(9100%, -25%);
+    }
+    90%, 100% {
+      height: 80%;
+      transform: translate(9100%, -15%);
+    }
+  }
+  @keyframes cable-3__movement {
+    0% {
+      transform: translate(0, 0);
+    }
+    20% {
+      transform: translate(2500%, -18%);
+    }
+    60% {
+      transform: translate(11000%, -25%);
+    }
+    70% {
+      height: 30%;
+      transform: translate(9100%, -25%);
+    }
+    90%, 100% {
+      height: 80%;
+      transform: translate(9100%, -15%);
+    }
+  }
+  @-webkit-keyframes crane__movement {
+    0%, 20% {
+      transform: rotateY(0);
+    }
+    70%, 100% {
+      transform: rotateY(45deg);
+    }
+  }
+  @keyframes crane__movement {
+    0%, 20% {
+      transform: rotateY(0);
+    }
+    70%, 100% {
+      transform: rotateY(45deg);
+    }
+  }
+  @-webkit-keyframes crane-weight__movement {
+    0%, 20% {
+      transform: rotateY(0) translateX(0);
+    }
+    70%, 100% {
+      transform: rotateY(45deg) translateX(-50%);
+    }
+  }
+  @keyframes crane-weight__movement {
+    0%, 20% {
+      transform: rotateY(0) translateX(0);
+    }
+    70%, 100% {
+      transform: rotateY(45deg) translateX(-50%);
+    }
+  }
+
+
+.body {
+    left: -187px;
+    top: 25px;
+    font-size: 16px;
+    color: #404040;
+    font-family: Montserrat, sans-serif;
+    /* background-image: linear-gradient(to bottom right, #ff9eaa 0% 65%, #e860ff 95% 100%); */
+    background-position: center;
+    background-attachment: fixed;
+    margin: 0;
+    padding: 2rem 0;
+    display: grid;
+    place-items: center;
+    position: absolute;
+    box-sizing: border-box;
+    z-index: 1000;
+  }
+  .card {
+    background-color: rgb(25, 25, 26) ;
+    max-width: 360px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border-radius: 2rem;
+    box-shadow: 0px 1rem 1.5rem rgba(0,0,0,0.5);
+  }
+  .card .banner {
+    /* background-image: url("https://images.unsplash.com/photo-1545703549-7bdb1d01b734?ixlib=rb-1.2.1&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=400&fit=max&ixid=eyJhcHBfaWQiOjE0NTg5fQ"); */
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    height: 11rem;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    box-sizing: border-box;
+  }
+  .card .banner img {
+    background-color: transparent;
+    width: 8rem;
+    height: 8rem;
+    box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.3);
+    border-radius: 50%;
+    transform: translateY(-5%);
+    transition: transform 200ms cubic-bezier(0.18, 0.89, 0.32, 1.28);
+  }
+  /* .card .banner svg:hover {
+    transform: translateY(50%) scale(1.3);
+  } */
+  .card .menu {
+    width: 100%;
+    height: 5.5rem;
+    padding: 1rem;
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-end;
+    position: relative;
+    box-sizing: border-box;
+  }
+  .card .menu .opener {
+    width: 2.5rem;
+    height: 2.5rem;
+    position: relative;
+    border-radius: 50%;
+    transition: background-color 100ms ease-in-out;
+  }
+  .card .menu .opener:hover {
+    background-color: #fff0c6;
+  }
+  .card .menu .opener span {
+    background-color: #404040;
+    width: 0.4rem;
+    height: 0.4rem;
+    position: absolute;
+    top: 0;
+    left: calc(50% - 0.2rem);
+    border-radius: 50%;
+  }
+  .card .menu .opener span:nth-child(1) {
+    top: 0.45rem;
+  }
+  .card .menu .opener span:nth-child(2) {
+    top: 1.05rem;
+  }
+  .card .menu .opener span:nth-child(3) {
+    top: 1.65rem;
+  }
+  .card h2.name {
+    text-align: center;
+    padding: 0 2rem 0.5rem;
+    margin: 0;
+    color: #fff0c6;
+  }
+  .card .title {
+    color: #fff0c6;
+    font-size: 0.85rem;
+    text-align: center;
+    padding: 0 2rem 1.2rem;
+  }
+  .card .actions {
+    padding: 0 2rem -0.2rem;
+    display: flex;
+    flex-direction: column;
+    order: 99;
+  }
+  .card .actions .follow-info {
+    padding: 0 0 1rem;
+    display: flex;
+  }
+  .card .actions .follow-info h2 {
+    text-align: center;
+    width: 50%;
+    margin: 0;
+    box-sizing: border-box;
+  }
+  .card .actions .follow-info h2 a {
+    text-decoration: none;
+    padding: 0.8rem;
+    display: flex;
+    flex-direction: column;
+    border-radius: 0.8rem;
+    transition: background-color 100ms ease-in-out;
+  }
+  .card .actions .follow-info h2 a span {
+    color: #1c9eff;
+    font-weight: bold;
+    transform-origin: bottom;
+    transform: scaleY(1.3);
+    transition: color 100ms ease-in-out;
+  }
+  .card .actions .follow-info h2 a small {
+    color: #afafaf;
+    font-size: 0.85rem;
+    font-weight: normal;
+  }
+  .card .actions .follow-info h2 a:hover {
+    background-color: #f2f2f2;
+  }
+  .card .actions .follow-info h2 a:hover span {
+    color: #007ad6;
+  }
+  .card .actions .follow-btn button {
+    color: inherit;
+    font: inherit;
+    font-weight: bold;
+    background-color: #ffd01a;
+    width: 100%;
+    border: none;
+    padding: 1rem;
+    outline: none;
+    box-sizing: border-box;
+    border-radius: 1.5rem/50%;
+    transition: background-color 100ms ease-in-out, transform 200ms cubic-bezier(0.18, 0.89, 0.32, 1.28);
+  }
+  .card .actions .follow-btn button:hover {
+    background-color: #efb10a;
+    transform: scale(1.1);
+  }
+  .card .actions .follow-btn button:active {
+    background-color: #e8a200;
+    transform: scale(1);
+  }
+  .card .desc {
+    text-align: justify;
+    padding: 5px 2rem 0px 1.5rem;
+     order: 100;
+    color: #fff0c6;
+  }
+  </style>

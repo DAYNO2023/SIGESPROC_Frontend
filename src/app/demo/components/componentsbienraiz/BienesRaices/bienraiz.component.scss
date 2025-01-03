@@ -1,0 +1,346 @@
+.floating-button-container {
+  position: fixed;
+  bottom: 20px;
+  right: 40px;
+  z-index: 1000;
+}
+
+
+.floating-button-container .large-button {
+  width: 90px;
+  height: 40px;
+  // font-size: 12px;
+  font-size: 0.8rem;
+  padding: 0.5rem 1rem;
+}
+.spinner-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh; /* O la altura que necesites */
+}
+
+.hidden-spinner {
+  display: none;
+}
+.estado-abierto {
+  background-color: green;
+  color: white;
+  padding: 0.2rem 0.5rem;
+  border-radius: 5px;
+}
+
+.estado-cerrado {
+  background-color: red;
+  color: white;
+  padding: 0.2rem 0.5rem;
+  border-radius: 5px;
+
+}
+.floating-button-container .large-button .pi {
+  font-size: 24px;
+}
+
+::ng-deep .project-item {
+  margin-bottom: 1rem;
+}
+::ng-deep .project-card {
+  backdrop-filter: blur(10px);
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+}
+::ng-deep .checkbox-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+::ng-deep .project-details {
+  margin-right: 10px;
+}
+::ng-deep .project-title {
+  font-weight: bold;
+}
+::ng-deep .project-description,
+::ng-deep .project-address {
+  font-size: 0.9em;
+  color: #ccc;
+}
+::ng-deep .modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+.custom-mr {
+  margin-right: 2.0rem;
+}
+.custom-ml {
+  margin-left: 4.0rem;
+}
+///Css para el input de imagenes
+::ng-deep .p-fileupload-buttonbar {
+  display: none;
+}
+::ng-deep .image-preview {
+  max-height: 300px; /* Aumentar la altura máxima */
+  max-width: 95%; /* Ajustar el ancho máximo */
+}
+::ng-deep .p-fileupload-files.ng-star-inserted > .ng-star-inserted > .p-fileupload-row > div {
+  display: none !important;
+}
+
+::ng-deep .p-fileupload-files.ng-star-inserted > .ng-star-inserted > .p-fileupload-row > div:last-child {
+  display: block !important;
+}
+
+::ng-deep .p-fileupload-files.ng-star-inserted > .ng-star-inserted > .p-fileupload-row > div:last-child > .p-element.p-button-icon-only.p-button.p-component {
+  width: 24px !important;
+  height: 24px !important;
+  position: absolute !important;
+  top: 8px !important;
+  right: 8px !important;
+}
+
+.image-upload-container {
+  border: 3px dotted rgba(255, 255, 255, 0.795);
+  border-radius: 5px;
+  padding: 1rem;
+  width: 90%;
+  min-height: 250px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f9f9f9;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+::ng-deep #p-fileupload {
+  max-width: 350px;
+}
+
+::ng-deep .p-fileupload-content {
+
+  min-height: 364px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.image-upload-container:hover {
+  cursor: pointer;
+  background-color: rgba(0, 0, 0, 0.1);
+}
+.upload-placeholder {
+display: flex;
+flex-direction: column;
+justify-content: center;
+align-items: center;
+text-align: center;
+gap: 10px;
+}
+
+.upload-placeholder i {
+font-size: 3rem;
+}
+
+.upload-placeholder span {
+margin-bottom: 0.5rem;
+}
+.custom-icon-size {
+font-size: 5rem; /* Aumenta el tamaño del ícono */
+}
+
+//Fin del css de imagenes
+.link-container {
+  display: flex;
+  align-items: center;
+}
+
+.link-text {
+  margin-right: 10px;
+  text-decoration: none;
+  color: #ffffff; /* Cambia este color según tu diseño */
+}
+
+.btn-regresar, .btn-finalizar {
+  font-size: 0.8rem;
+  padding: 0.5rem 1rem;
+}
+
+.d-flex {
+  display: flex;
+}
+.align-items-center {
+  align-items: center;
+}
+.justify-content-between {
+  justify-content: space-between;
+}
+.mt-2 {
+  margin-top: 0.5rem;
+}
+.mb-2 {
+  margin-bottom: 0.5rem;
+}
+.doc-item {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+.doc-item i {
+  flex: 0 0 15%;
+}
+.doc-name {
+  flex: 0 0 60%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.doc-item button {
+  flex: 0 0 10%;
+  font-size: 0.4rem; 
+  padding: 0.1rem 0.2rem; 
+  border-radius: 3px;
+  height: 24px; 
+}
+
+
+::ng-deep .p-listbox .p-listbox-item {
+  background-color: transparent !important;
+  color: inherit !important;
+  border: none !important;
+}
+
+::ng-deep .p-listbox .p-listbox-item:hover {
+  background-color: transparent !important;
+  color: inherit !important;
+}
+
+::ng-deep .p-listbox .p-listbox-item:focus {
+  background-color: transparent !important;
+  color: inherit !important;
+}
+
+::ng-deep .p-listbox .p-listbox-item.p-highlight {
+  background-color: transparent !important;
+  color: inherit !important;
+  border: none !important;
+}
+
+
+
+::ng-deep .custom-splitbutton .p-splitbutton-defaultbutton {
+  display: none; /* Oculta el botón izquierdo */
+}
+
+::ng-deep .custom-splitbutton .p-splitbutton-menubutton {
+  width: 133.73px;
+  height: 29.49px;
+  display: flex;
+  align-items: center; 
+  padding: 0.5rem;
+  border-radius: 5px;
+  position: relative; 
+}
+
+::ng-deep .custom-splitbutton .p-splitbutton-menubutton .p-button-label {
+  display: flex;
+  align-items: center;
+}
+
+::ng-deep .custom-splitbutton .p-splitbutton-menubutton::before {
+  content: '\e94a   Acciones ';
+  font-family: 'PrimeIcons', sans-serif; 
+  font-size: 1rem; 
+  font-weight: 550;
+  display: inline-flex; 
+  align-items: center; 
+  margin-right: 17px;
+}
+
+/* Añadir el icono de engranaje a la izquierda del texto */
+::ng-deep .custom-splitbutton .p-splitbutton-menubutton::before {
+  position: relative; 
+}
+
+
+::ng-deep .custom-splitbutton .p-splitbutton-menubutton .p-button-icon-right .p-icon-wrapper{
+  position: absolute;
+  right: 10px; 
+  top: 50%;
+  transform: translateY(-50%);
+  margin-left: 0; 
+}
+
+::ng-deep .custom-modal .p-dialog .p-dialog-content  {
+background-color: #000 !important;
+}
+
+::ng-deep .custom-modal .p-dialog .p-dialog-header  {
+background-color: #000 !important;
+}
+
+::ng-deep .custom-dialog .p-dialog-footer {
+  background-color: #000 !important;
+  padding: 1rem !important;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+::ng-deep .custom-dialog .p-dialog-footer .p-button {
+  margin: 0 0.5rem;
+}
+
+::ng-deep .custom-dialog .p-dialog-footer button {
+  background-color: #000;
+  color: #000;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+}
+
+::ng-deep .p-card{
+background: var(--surface-card);
+
+}
+.project-item {
+background: var(--surface-card);
+}
+// ::ng-deep .custom-footer-dialog .p-dialog-footer .custom-footer {
+//   background-color: #000 !important; /* Cambia el color del fondo a negro */
+// }
+
+
+
+// .loader-container {
+//   position: relative;
+//   display: flex;
+//   justify-content: center;
+//   align-items: center;
+//   height: 100px; /* Ajusta según el tamaño del loader y la tabla */
+//   width: 100%;
+//   z-index: 1000; /* Asegura que esté encima de otros contenidos */
+// }
+
+
+// .loader {
+//   --d: 23px;
+//   width: 6px;
+//   height: 6px;
+//   border-radius: 200%;
+//   color: var(--primary-900);
+//   box-shadow: 
+//     calc(1*var(--d))      calc(0*var(--d))     0 0,
+//     calc(0.707*var(--d))  calc(0.707*var(--d)) 0 1px,
+//     calc(0*var(--d))      calc(1*var(--d))     0 2px,
+//     calc(-0.707*var(--d)) calc(0.707*var(--d)) 0 3px,
+//     calc(-1*var(--d))     calc(0*var(--d))     0 4px,
+//     calc(-0.707*var(--d)) calc(-0.707*var(--d))0 5px,
+//     calc(0*var(--d))      calc(-1*var(--d))    0 6px;
+//   animation: l27 1s infinite steps(8);
+// }
+
+// @keyframes l27 {
+//   100% { transform: rotate(1turn); }
+// }

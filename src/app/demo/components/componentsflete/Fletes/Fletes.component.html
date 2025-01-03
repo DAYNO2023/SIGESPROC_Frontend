@@ -1,0 +1,4099 @@
+<p-toast></p-toast>
+<div class="loader-container" *ngIf="loading">
+    <div class="loader">
+        <span></span>
+    </div>
+</div>
+<style>
+    .no-items-message {
+        text-align: center;
+        font-size: 18px;
+        padding: 15px;
+        margin: 20px auto;
+        width: 80%;
+    }
+
+    .custom-input-container {
+        margin-bottom: 15px;
+    }
+
+    ::ng-deep .custom-splitbutton .p-splitbutton-defaultbutton {
+        display: none;
+    }
+
+    ::ng-deep .custom-splitbutton .p-splitbutton-menubutton {
+        width: 133.73px;
+        height: 29.49px;
+        display: flex;
+        align-items: center;
+        padding: 0.5rem;
+        border-radius: 5px;
+        position: relative;
+    }
+
+    ::ng-deep .custom-splitbutton .p-splitbutton-menubutton .p-button-label {
+        display: flex;
+        align-items: center;
+    }
+
+    ::ng-deep .custom-splitbutton .p-splitbutton-menubutton::before {
+        content: "\e94a   Acciones ";
+        font-family: "PrimeIcons", sans-serif;
+        font-size: 1rem;
+        display: inline-flex;
+        align-items: center;
+        margin-right: 17px;
+    }
+
+    ::ng-deep .custom-splitbutton .p-splitbutton-menubutton::before {
+        position: relative;
+    }
+
+    ::ng-deep
+        .custom-splitbutton
+        .p-splitbutton-menubutton
+        .p-button-icon-right
+        .p-icon-wrapper {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        margin-left: 0;
+    }
+
+    .custom-input {
+        width: 100%;
+        padding: 10px;
+        margin-top: 5px;
+        margin-bottom: 5px;
+        border: 1px solid #f0e68c;
+        border-radius: 4px;
+        box-sizing: border-box;
+        font-size: 14px;
+    }
+
+    .custom-error {
+        color: #d9534f;
+        font-size: 12px;
+        margin-top: 5px;
+        margin-bottom: 0;
+    }
+
+    .item .error {
+        color: #f0e68c;
+        font-size: 0.875rem;
+    }
+
+    .button-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        margin-top: 1rem;
+    }
+
+    .btn-guardar {
+        margin-left: auto;
+    }
+
+    .drag-drop-container {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .drag-container {
+        border: 1px solid #ccc;
+        min-height: 200px;
+        width: 45%;
+        padding: 10px;
+        /* background: #f9f9f9; */
+    }
+
+    .insumo-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 5px;
+        border: 1px solid #ddd;
+        margin-bottom: 5px;
+        /* background: #fff; */
+        cursor: move;
+    }
+
+    .insumo-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 5px;
+        border: 1px solid #ddd;
+        margin-bottom: 5px;
+        /* background: #fff; */
+        cursor: move;
+    }
+
+    :host ::ng-deep {
+        .p-button-label {
+            flex: 0;
+            white-space: nowrap;
+        }
+
+        .scrollable {
+            scroll-behavior: smooth;
+            max-height: 70vh;
+        }
+    }
+
+    :host {
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background-color: var(--gray-500);
+            border-radius: 20px;
+        }
+    }
+
+    .cdk-drag-preview {
+        box-sizing: border-box;
+        border-radius: 4px;
+        box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2),
+            0 8px 10px 1px rgba(0, 0, 0, 0.14),
+            0 3px 14px 2px rgba(0, 0, 0, 0.12);
+    }
+
+    .cdk-drag-placeholder {
+        opacity: 0.25;
+    }
+
+    .cdk-drag-animating {
+        transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+    }
+    */
+
+/* DRAGGGGGGGGGG */
+
+.p-tabPanel .p-tabview-panel {
+        overflow: hidden;
+        padding: 0;
+    }
+
+    .card {
+        padding: 1rem;
+        margin: 1rem 0;
+        overflow-x: auto;
+    }
+
+    .grid {
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+    .col-6 {
+        flex: 0 0 50%;
+        max-width: 50%;
+        padding: 1rem;
+    }
+
+    .button-group {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .estado-llego,
+    .EnCamino {
+        background-color: red;
+        color: white;
+        padding: 0.2rem 0.5rem;
+        border-radius: 4px;
+    }
+
+    .EnCamino {
+        background-color: green;
+        color: white;
+        padding: 0.2rem 0.5rem;
+        border-radius: 4px;
+    }
+
+    .container {
+        display: flex;
+        flex-direction: column;
+        padding: 10px;
+    }
+
+    .row {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .col-6 {
+        flex: 1;
+        padding: 10px;
+        margin: 0 5px;
+    }
+
+    .drop-list {
+        min-height: 200px;
+        width: 100%;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        background-color: black;
+        overflow-y: scroll;
+        padding: 10px;
+        /* border: 1px solid #ffffff; */
+    }
+
+    .insumos-list {
+        max-height: 400px;
+        overflow-y: auto;
+        border-radius: 8px;
+        background-color: black;
+        padding: 10px;
+        /* border: 1px solid #ffffff;  */
+    }
+
+    .item {
+        border: 0;
+        border-radius: 5px;
+        cursor: grab;
+        padding: 10px;
+        margin-bottom: 5px;
+        color: #ffffff;
+        background-color: #19191ade;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        transition: background-color 0.2s;
+    }
+
+    .item:hover {
+        background-color: #555;
+        color: #ffffff;
+    }
+
+    .item.selected {
+        background-color: #2a2a2a5e;
+        color: #2a2a2a5e;
+    }
+
+    .cdk-drop-list-dragging .cdk-drag {
+        transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+        color: #ffffff;
+    }
+
+    .item-dragging .item.selected:not(.cdk-drag-placeholder) {
+        opacity: 0.3;
+        color: #ffffff;
+    }
+
+    .btn-seleccionar-todos {
+        background-color: #f0e68c;
+        color: black;
+        border-color: #f0e68c;
+        margin-bottom: 10px;
+        padding: 5px 10px;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    .btn-seleccionar-todos:hover {
+        background-color: #d4c057;
+    }
+
+    .btn-deseleccionar-todos {
+        background-color: black;
+        color: #f0e68c;
+        border-color: black;
+        margin-bottom: 10px;
+        padding: 5px 10px;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    .btn-deseleccionar-todos:hover {
+        background-color: black;
+    }
+
+    .button-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        margin-top: 1rem;
+    }
+
+    .p-button-secondary {
+        background-color: black;
+        color: white;
+        border-color: black;
+    }
+
+    .btn-guardar {
+        background-color: #f0e68c;
+        color: black;
+        border-color: #f0e68c;
+    }
+    .estado-llego,
+    .EnCamino {
+        background-color: #5e010c;
+        color: white;
+        padding: 0.2rem 0.5rem;
+        border-radius: 4px;
+    }
+
+    .EnCamino {
+        background-color: #3c7300;
+        color: white;
+        padding: 0.2rem 0.5rem;
+        border-radius: 4px;
+    }
+
+    .spinner-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+    }
+
+    .hidden-spinner {
+        display: none;
+    }
+</style>
+
+<div class="grid" *ngIf="Index">
+    <div class="col-12">
+        <div class="card">
+            <h1 class="text-center mt-2">Fletes</h1>
+            <hr
+                style="border: none; height: 0.7px; background-color: #3b3b3c"
+            />
+            <div class="grid mt-2">
+                <div class="col-12">
+                    <button
+                        *ngIf="puedeCrearFlete"
+                        (click)="CrearFlete()"
+                        pButton
+                        label="Nuevo"
+                        icon="pi pi-plus"
+                        class="mr-2"
+                    ></button>
+                </div>
+            </div>
+
+            <p-table
+                #dt
+                [value]="fletes"
+                styleClass="mt-2"
+                responsiveLayout="scroll"
+                [rows]="10"
+                [globalFilterFields]="[
+                    'codigo',
+                    'encargado',
+                    'destino',
+                    'flen_FechaHoraEstablecidaDeLlegada',
+                    'estado'
+                ]"
+                [rows]="10"
+                [paginator]="true"
+                [showCurrentPageReport]="true"
+                currentPageReportTemplate="Mostrando {first} al {last} de {totalRecords} entradas"
+                [rowHover]="true"
+                [tableStyle]="{ background: '#000' }"
+                [rowsPerPageOptions]="[10, 25, 50, 100]"
+            >
+                <ng-template pTemplate="caption">
+                    <div
+                        class="flex flex-column md:flex-row md:justify-content-between md:align-items-center"
+                    >
+                        <span class="block mt-2 md:mt-0 p-input-icon-left">
+                            <i style="color: white" class="pi pi-search"></i>
+                            <input
+                                style="color: white"
+                                pInputText
+                                type="text"
+                                (input)="onGlobalFilter(dt, $event)"
+                                placeholder="Buscar..."
+                                class="w-full sm:w-auto"
+                            />
+                        </span>
+                        <div class="registros">
+                            <p-dropdown
+                                [options]="dt.rowsPerPageOptions"
+                                [(ngModel)]="dt.rows"
+                                [style]="{ 'margin-right': '5px' }"
+                                [autoWidth]="false"
+                            ></p-dropdown>
+
+                            <span
+                                style="
+                                    color: #fff0c6;
+                                    font-weight: 700;
+                                    margin-top: 7px;
+                                "
+                            >
+                                Registros por página</span
+                            >
+                        </div>
+                    </div>
+                </ng-template>
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th style="color: white" class="text-center">
+                            Acciones
+                        </th>
+                        <th
+                            style="color: white"
+                            pSortableColumn="flen_Id"
+                            class="text-center"
+                        >
+                            No. <p-sortIcon field="codigo"></p-sortIcon>
+                        </th>
+                        <th
+                            style="color: white"
+                            pSortableColumn="encargado"
+                            class="text-center"
+                        >
+                            Encargado
+                            <p-sortIcon field="encargado"></p-sortIcon>
+                        </th>
+
+                        <th
+                            style="color: white"
+                            pSortableColumn="destino"
+                            class="text-center"
+                        >
+                            Destino <p-sortIcon field="destino"></p-sortIcon>
+                        </th>
+                        <th
+                            style="color: white"
+                            pSortableColumn="flen_FechaHoraEstablecidaDeLlegada"
+                            class="text-center"
+                        >
+                            Tiempo Establecido
+                            <p-sortIcon
+                                field="flen_FechaHoraEstablecidaDeLlegada"
+                            ></p-sortIcon>
+                        </th>
+                        <th
+                            style="color: white"
+                            pSortableColumn="estado"
+                            class="text-center"
+                        >
+                            Estado <p-sortIcon field="estado"></p-sortIcon>
+                        </th>
+                    </tr>
+                </ng-template>
+
+                <!--Inicio loader-->
+                <ng-template pTemplate="emptymessage">
+                    <tr>
+                        <td colspan="6" class="text-center">
+                            <!-- Mostrar loader mientras está cargando -->
+                            <!-- <div class="loader-container" *ngIf="loading">
+                                <div class="loader">
+                                    <span></span>
+                                </div>
+                            </div> -->
+                            <!-- Mostrar mensaje si no hay fletes relacionados después de la carga -->
+                            <span
+                                *ngIf="
+                                    !loading &&
+                                    fletes.length === 0 &&
+                                    !usuario.usua_EsAdministrador
+                                "
+                                class="text-span"
+                            >
+                                {{ loadedTableMessage }}
+                            </span>
+                        </td>
+                    </tr>
+                </ng-template>
+
+                <!--Fin loader-->
+
+                <ng-template pTemplate="body" let-flete>
+                    <tr (click)="selectFlete(flete)">
+                        <td
+                            class="text-center"
+                            style="width: 3%; min-width: 10rem"
+                        >
+                            <p-splitButton
+                                label="Acciones"
+                                class="custom-splitbutton"
+                                [model]="flete.items"
+                                styleClass="p-button-secondary"
+                                (onDropdownClick)="rowactual = flete"
+                                appendTo="body"
+                                icon="pi pi-cog"
+                            ></p-splitButton>
+                        </td>
+                        <td
+                            class="text-center"
+                            style="width: 3%; min-width: 10rem"
+                        >
+                            {{ flete.codigo }}
+                        </td>
+                        <td class="text-center">
+                            {{ flete.encargado }}
+                        </td>
+
+                        <td class="text-center">
+                            {{ flete.destino }}
+                        </td>
+                        <td class="text-center">
+                            {{ flete.flen_FechaHoraEstablecidaDeLlegada }}
+                        </td>
+                        <td class="text-center">
+                            <span
+                                [ngClass]="{
+                                    'estado-activo':
+                                        flete.estado === 'Recibido',
+                                    'estado-inactivo':
+                                        flete.estado !== 'Recibido'
+                                }"
+                            >
+                                <span class="text-span">
+                                    {{ flete.estado }}
+                                </span>
+                            </span>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+    </div>
+</div>
+
+<!-- FORMULARIO DE CREACION/EDICION -->
+<div class="grid" *ngIf="CreateEdit">
+    <div class="col-12">
+        <div class="card">
+            <div
+                class="flex"
+                style="
+                    width: 100%;
+                    margin: 0 auto;
+                    display: flex;
+                    align-items: center;
+                "
+            >
+                <div
+                    style="
+                        width: 20%;
+                        display: flex;
+                        align-items: center;
+                        height: 12.5%;
+                    "
+                >
+                    <button
+                        (click)="Cancelar()"
+                        class="p-button-link"
+                        pButton
+                        pRipple
+                        type="button"
+                        label="Regresar"
+                        icon="pi pi-arrow-left"
+                        style="box-shadow: none !important"
+                    ></button>
+                </div>
+                <div
+                    style="
+                        flex-grow: 1;
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                    "
+                >
+                    <h1 class="text-center mt-2">{{ tituloFlete }} Flete</h1>
+                </div>
+                <div style="width: 20%"></div>
+            </div>
+
+            <!-- <div class="mb-4 flex flex-row justify-content-between align-items-center"
+            >
+                <div class="flex flex-column">
+                    <h2 class="text-center">{{ tituloFlete }}</h2>
+                </div>
+                <div class="flex">
+                    <button
+                        (click)="Cancelar()"
+                        pButton
+                        pRipple
+                        type="button"
+                        class="p-button-link"
+                        label="Regresar"
+                        icon="pi pi-arrow-left"
+                    ></button>
+                </div>
+            </div> -->
+
+            <p-tabView
+                orientation="center"
+                [(activeIndex)]="Indexactivo"
+                (onChange)="onTabChange($event)"
+            >
+                <p-tabPanel header="Datos Generales">
+                    <form [formGroup]="form" class="p-fluid p-formgrid grid">
+                        <div class="field col-12 md:col-6">
+                            <label style="display: inline-block"
+                                >Fecha y hora de salida&nbsp;</label
+                            >
+                            <small
+                                style="display: inline-block"
+                                *ngIf="
+                                    submitted &&
+                                    form.controls['flen_FechaHoraSalida']
+                                        .invalid
+                                "
+                                style="color: red !important"
+                                >*</small
+                            >
+                            <p-calendar
+                                formControlName="flen_FechaHoraSalida"
+                                [showIcon]="true"
+                                [showTime]="true"
+                                [hourFormat]="12"
+                                dateFormat="yy-mm-dd"
+                                appendTo="body"
+                                placeholder="YY/MM/DD HH:MM"
+                                [ngClass]="{
+                                    'ng-invalid ng-dirty':
+                                        submitted &&
+                                        form.controls['flen_FechaHoraSalida']
+                                            .invalid
+                                }"
+                                [minDate]="minDate"
+                            ></p-calendar>
+                            <small
+                                class="ng-dirty ng-invalid"
+                                *ngIf="
+                                    submitted &&
+                                    form.controls['flen_FechaHoraSalida']
+                                        .invalid
+                                "
+                                style="color: red !important"
+                                >El campo es requerido.</small
+                            >
+                        </div>
+
+                        <div class="field col-12 md:col-6">
+                            <label style="display: inline-block"
+                                >Fecha y hora establecida de
+                                llegada&nbsp;</label
+                            >
+                            <small
+                                style="display: inline-block"
+                                *ngIf="
+                                    submitted &&
+                                    form.controls[
+                                        'flen_FechaHoraEstablecidaDeLlegada'
+                                    ].invalid
+                                "
+                                style="color: red !important"
+                                >*</small
+                            >
+                            <p-calendar
+                                formControlName="flen_FechaHoraEstablecidaDeLlegada"
+                                [showIcon]="true"
+                                [showTime]="true"
+                                [hourFormat]="12"
+                                dateFormat="yy-mm-dd"
+                                appendTo="body"
+                                placeholder="YY/MM/DD HH:MM"
+                                [ngClass]="{
+                                    'ng-invalid ng-dirty':
+                                        submitted &&
+                                        form.controls[
+                                            'flen_FechaHoraEstablecidaDeLlegada'
+                                        ].invalid
+                                }"
+                                [minDate]="minDate"
+                            ></p-calendar>
+                            <small
+                                class="ng-dirty ng-invalid"
+                                *ngIf="
+                                    submitted &&
+                                    form.controls[
+                                        'flen_FechaHoraEstablecidaDeLlegada'
+                                    ].invalid
+                                "
+                                style="color: red !important"
+                                >El campo es requerido.</small
+                            >
+                            <small
+                                class="ng-dirty ng-invalid"
+                                *ngIf="submitted && form.errors?.validarFechas"
+                                style="color: red !important"
+                                >La fecha y hora de llegada no puede ser menor
+                                que la de salida.</small
+                            >
+                        </div>
+
+                        <!-- Campo para Encargado -->
+                        <div class="field col-12 md:col-6">
+                            <label style="display: inline-block"
+                                >Encargado&nbsp;</label
+                            >
+                            <small
+                                style="display: inline-block"
+                                *ngIf="
+                                    submitted &&
+                                    form.controls['encargado'].invalid
+                                "
+                                style="color: red !important"
+                                >*</small
+                            >
+
+                            <!-- AutoComplete para seleccionar el encargado -->
+                            <p-autoComplete
+                                placeholder="Seleccione un encargado"
+                                formControlName="encargado"
+                                [suggestions]="filtradoEmpleado"
+                                (completeMethod)="filterEmpleado($event)"
+                                (onSelect)="onEncargadoSelect($event)"
+                                field="empleado"
+                                appendTo="body"
+                                [dropdown]="true"
+                                [ngClass]="{
+                                    'ng-invalid ng-dirty':
+                                        submitted &&
+                                        form.controls['encargado'].invalid
+                                }"
+                            ></p-autoComplete>
+                            <!-- Encargado -->
+                            <small
+                                *ngIf="submitted"
+                                style="color: red !important"
+                            >
+                                {{ Error_Encargado }}
+                            </small>
+                        </div>
+
+                        <!-- Campo para Supervisor de Salida -->
+                        <div class="field col-12 md:col-6">
+                            <label style="display: inline-block"
+                                >Supervisor de Salida&nbsp;</label
+                            >
+                            <small
+                                style="display: inline-block"
+                                *ngIf="
+                                    submitted &&
+                                    form.controls['supervisorsalida'].invalid
+                                "
+                                style="color: red !important"
+                                >*</small
+                            >
+                            <!-- AutoComplete para seleccionar el supervisor de salida -->
+                            <p-autoComplete
+                                [dropdown]="true"
+                                placeholder="Seleccione un supervisor"
+                                formControlName="supervisorsalida"
+                                [suggestions]="filtradoEmpleado"
+                                (completeMethod)="filterEmpleado($event)"
+                                (onSelect)="onSupervisorSalidaSelect($event)"
+                                field="empleado"
+                                appendTo="body"
+                                [ngClass]="{
+                                    'ng-invalid ng-dirty':
+                                        submitted &&
+                                        form.controls['supervisorsalida']
+                                            .invalid
+                                }"
+                            ></p-autoComplete>
+
+                            <small
+                                *ngIf="submitted"
+                                style="color: red !important"
+                            >
+                                {{ Error_SupervisorSalida }}
+                            </small>
+                        </div>
+
+                        <!-- Campo para Supervisor de Llegada -->
+                        <div class="field col-12 md:col-6">
+                            <label style="display: inline-block"
+                                >Supervisor de Llegada&nbsp;</label
+                            >
+                            <small
+                                style="display: inline-block"
+                                *ngIf="
+                                    submitted &&
+                                    form.controls['supervisorllegada'].invalid
+                                "
+                                style="color: red !important"
+                                >*</small
+                            >
+
+                            <!-- AutoComplete para seleccionar el supervisor de llegada -->
+                            <p-autoComplete
+                                [dropdown]="true"
+                                placeholder="Seleccione un supervisor"
+                                formControlName="supervisorllegada"
+                                [suggestions]="filtradoEmpleado"
+                                (completeMethod)="filterEmpleado($event)"
+                                (onSelect)="onSupervisorLlegadaSelect($event)"
+                                field="empleado"
+                                appendTo="body"
+                                [ngClass]="{
+                                    'ng-invalid ng-dirty':
+                                        submitted &&
+                                        form.controls['supervisorllegada']
+                                            .invalid
+                                }"
+                            ></p-autoComplete>
+
+                            <small
+                                *ngIf="submitted"
+                                style="color: red !important"
+                            >
+                                {{ Error_SupervisorLLegada }}
+                            </small>
+                        </div>
+
+                        <!-- Espacio vacío -->
+                        <div class="field col-12 md:col-6"></div>
+
+                        <!-- Switch para Proyecto en Salida -->
+                        <div class="field col-12 md:col-6">
+                            <label>¿Dirigido a Proyecto en Salida?</label>
+                            <br />
+                            <p-inputSwitch
+                                formControlName="flen_SalidaProyecto"
+                                [(ngModel)]="valSwitchSalida"
+                                [ngStyle]="{ 'margin-top': '0.5rem' }"
+                                (onChange)="onSwitchSalidaChange($event)"
+                            ></p-inputSwitch>
+                        </div>
+
+                        <!-- Condicional: Mostrar Proyecto de Salida o Bodega de Salida -->
+                        <ng-container
+                            *ngIf="valSwitchSalida; else bodegaTemplateSalida"
+                        >
+                            <!-- Proyecto de Salida -->
+                            <div class="field col-12 md:col-6">
+                                <label style="display: inline-block"
+                                    >Proyecto de Salida&nbsp;</label
+                                >
+                                <small
+                                    style="display: inline-block"
+                                    *ngIf="
+                                        submitted &&
+                                        form.controls['salida'].invalid
+                                    "
+                                    style="color: red !important"
+                                    >*</small
+                                >
+                                <p-autoComplete
+                                    formControlName="salida"
+                                    placeholder="Seleccione un proyecto de salida"
+                                    [suggestions]="filtradoProyectosSalida"
+                                    (completeMethod)="
+                                        filterProyectosSalida($event)
+                                    "
+                                    (onSelect)="onProyectoSalidaSelect($event)"
+                                    field="proy_Nombre"
+                                    [dropdown]="true"
+                                    [ngClass]="{
+                                        'ng-invalid ng-dirty':
+                                            submitted &&
+                                            form.controls['salida'].invalid
+                                    }"
+                                ></p-autoComplete>
+                                <small
+                                    class="ng-dirty ng-invalid"
+                                    *ngIf="
+                                        submitted &&
+                                        form.controls['salida'].invalid
+                                    "
+                                    style="color: red !important"
+                                    >{{ Error_ProyectoSalida }}</small
+                                >
+                            </div>
+
+                            <!-- Etapa de Salida -->
+                            <div class="field col-12 md:col-6">
+                                <label style="display: inline-block"
+                                    >Etapa de Salida&nbsp;</label
+                                >
+                                <small
+                                    style="display: inline-block"
+                                    *ngIf="
+                                        submitted &&
+                                        form.controls['etapaSalida'].invalid
+                                    "
+                                    style="color: red !important"
+                                    >*</small
+                                >
+                                <p-autoComplete
+                                    formControlName="etapaSalida"
+                                    placeholder="Seleccione una etapa"
+                                    [suggestions]="filtradoEtapasSalida"
+                                    (completeMethod)="
+                                        filterEtapasSalida($event)
+                                    "
+                                    (onClear)="resetEtapasSalida()"
+                                    (onSelect)="onEtapaSalidaSelect($event)"
+                                    field="etap_Descripcion"
+                                    appendTo="body"
+                                    [dropdown]="true"
+                                    [ngClass]="{
+                                        'ng-invalid ng-dirty':
+                                            submitted &&
+                                            form.controls['etapaSalida'].invalid
+                                    }"
+                                ></p-autoComplete>
+                                <small
+                                    class="ng-dirty ng-invalid"
+                                    *ngIf="
+                                        submitted &&
+                                        form.controls['etapaSalida'].invalid
+                                    "
+                                    style="color: red !important"
+                                    >{{ Error_EtapaSalida }}</small
+                                >
+                            </div>
+
+                            <!-- Actividad de Salida -->
+                            <div class="field col-12 md:col-6">
+                                <label style="display: inline-block"
+                                    >Actividad de Salida&nbsp;</label
+                                >
+                                <small
+                                    style="display: inline-block"
+                                    *ngIf="
+                                        submitted &&
+                                        form.controls['actividadSalida'].invalid
+                                    "
+                                    style="color: red !important"
+                                    >*</small
+                                >
+                                <p-autoComplete
+                                    formControlName="actividadSalida"
+                                    placeholder="Seleccione una actividad"
+                                    [suggestions]="filtradoActividadesSalida"
+                                    (completeMethod)="
+                                        filterActividadesSalida($event)
+                                    "
+                                    (onSelect)="onActividadSalidaSelect($event)"
+                                    field="acti_Descripcion"
+                                    appendTo="body"
+                                    [dropdown]="true"
+                                    [emptyMessage]="
+                                        actividadesMessage
+                                            ? actividadesMessage
+                                            : 'No activities found'
+                                    "
+                                    [ngClass]="{
+                                        'ng-invalid ng-dirty':
+                                            submitted &&
+                                            form.controls['actividadSalida']
+                                                .invalid
+                                    }"
+                                ></p-autoComplete>
+                                <small
+                                    class="ng-dirty ng-invalid"
+                                    *ngIf="
+                                        submitted &&
+                                        form.controls['actividadSalida'].invalid
+                                    "
+                                    style="color: red !important"
+                                    >{{ Error_ActividadSalida }}</small
+                                >
+                            </div>
+                        </ng-container>
+
+                        <!-- Bodega de Salida -->
+                        <ng-template #bodegaTemplateSalida>
+                            <div class="field col-12 md:col-6">
+                                <label style="display: inline-block"
+                                    >Bodega de Salida&nbsp;</label
+                                >
+                                <small
+                                    style="display: inline-block"
+                                    *ngIf="
+                                        submitted &&
+                                        form.controls['bodegaSalida'].invalid
+                                    "
+                                    style="color: red !important"
+                                    >*</small
+                                >
+                                <p-autoComplete
+                                    formControlName="bodegaSalida"
+                                    placeholder="Seleccione una bodega"
+                                    [suggestions]="filtradoBodegasSalida"
+                                    (completeMethod)="
+                                        filterBodegasSalida($event)
+                                    "
+                                    (onSelect)="onBodegaSalidaSelect($event)"
+                                    field="bode_Descripcion"
+                                    appendTo="body"
+                                    [dropdown]="true"
+                                    [ngClass]="{
+                                        'ng-invalid ng-dirty':
+                                            submitted &&
+                                            form.controls['salida'].invalid
+                                    }"
+                                ></p-autoComplete>
+                                <small
+                                    class="ng-dirty ng-invalid"
+                                    *ngIf="
+                                        submitted &&
+                                        form.controls['bodegaSalida'].invalid
+                                    "
+                                    style="color: red !important"
+                                    >{{ Error_BodegaSalida }}</small
+                                >
+                            </div>
+                        </ng-template>
+
+                        <div class="field col-12 md:col-6">
+                            <label>¿Dirigido a Proyecto?</label>
+                            <br />
+                            <p-inputSwitch
+                                formControlName="flen_DestinoProyecto"
+                                [(ngModel)]="valSwitch"
+                                [ngStyle]="{ 'margin-top': '0.5rem' }"
+                                (onChange)="onSwitchChange($event)"
+                            ></p-inputSwitch>
+                        </div>
+
+                        <!-- Condicional: Mostrar Proyecto de Llegada o Bodega de Llegada -->
+                        <div class="field col-12 md:col-6">
+                            <label style="display: inline-block"
+                                >Ubicación de llegada&nbsp;</label
+                            >
+                            <small
+                                style="display: inline-block"
+                                *ngIf="
+                                    submitted &&
+                                    form.controls['llegada'].invalid
+                                "
+                                style="color: red !important"
+                                >*</small
+                            >
+                            <ng-container
+                                *ngIf="valSwitch; else bodegaTemplate"
+                            >
+                                <!-- Proyecto de Llegada -->
+                                <p-autoComplete
+                                    formControlName="llegada"
+                                    appendTo="body"
+                                    [placeholder]="placeholderLlegada"
+                                    [suggestions]="filtradoProyectos"
+                                    (completeMethod)="filterProyectos($event)"
+                                    (onSelect)="onProyectoSelect($event)"
+                                    field="proy_Nombre"
+                                    [dropdown]="true"
+                                    [ngClass]="{
+                                        'ng-invalid ng-dirty':
+                                            submitted &&
+                                            form.controls['llegada'].invalid
+                                    }"
+                                ></p-autoComplete>
+                                <small
+                                    class="ng-dirty ng-invalid"
+                                    *ngIf="
+                                        submitted &&
+                                        form.controls['llegada'].invalid
+                                    "
+                                    style="color: red !important"
+                                    >{{ Error_Proyecto }}</small
+                                >
+                            </ng-container>
+                            <!-- Bodega de Llegada -->
+                            <ng-template #bodegaTemplate>
+                                <p-autoComplete
+                                    formControlName="llegada"
+                                    appendTo="body"
+                                    [placeholder]="placeholderLlegada"
+                                    [suggestions]="filtradoBodegas"
+                                    (completeMethod)="filterBodegas($event)"
+                                    (onSelect)="onBodegaLlegadaSelect($event)"
+                                    field="bode_Descripcion"
+                                    [dropdown]="true"
+                                    [ngClass]="{
+                                        'ng-invalid ng-dirty':
+                                            submitted &&
+                                            form.controls['llegada'].invalid
+                                    }"
+                                ></p-autoComplete>
+                                <small
+                                    class="ng-dirty ng-invalid"
+                                    *ngIf="
+                                        submitted &&
+                                        form.controls['llegada'].invalid
+                                    "
+                                    style="color: red !important"
+                                    >{{ Error_BodegaLlegada }}</small
+                                >
+                            </ng-template>
+                        </div>
+
+                        <!-- Etapa para Proyecto de Llegada -->
+                        <div class="field col-12 md:col-6" *ngIf="valSwitch">
+                            <label style="display: inline-block"
+                                >Etapa&nbsp;</label
+                            >
+                            <small
+                                style="display: inline-block"
+                                *ngIf="
+                                    submitted && form.controls['etapa'].invalid
+                                "
+                                style="color: red !important"
+                                >*</small
+                            >
+                            <p-autoComplete
+                                formControlName="etapa"
+                                placeholder="Seleccione una etapa"
+                                [suggestions]="filtradoEtapas"
+                                (completeMethod)="filterEtapas($event)"
+                                (onSelect)="onEtapaSelect($event)"
+                                field="etap_Descripcion"
+                                appendTo="body"
+                                [emptyMessage]="
+                                    etapasMessage
+                                        ? etapasMessage
+                                        : 'No stages found'
+                                "
+                                [dropdown]="true"
+                                [ngClass]="{
+                                    'ng-invalid ng-dirty':
+                                        submitted &&
+                                        form.controls['etapa'].invalid
+                                }"
+                            ></p-autoComplete>
+                            <small
+                                class="ng-dirty ng-invalid"
+                                *ngIf="
+                                    submitted && form.controls['etapa'].invalid
+                                "
+                                style="color: red !important"
+                                >{{ Error_Etapa }}</small
+                            >
+                        </div>
+
+                        <!-- Actividad para Proyecto de Llegada -->
+                        <div class="field col-12 md:col-6" *ngIf="valSwitch">
+                            <label style="display: inline-block"
+                                >Actividad&nbsp;</label
+                            >
+                            <small
+                                style="display: inline-block"
+                                *ngIf="
+                                    submitted &&
+                                    form.controls['actividad'].invalid
+                                "
+                                style="color: red !important"
+                                >*</small
+                            >
+                            <p-autoComplete
+                                formControlName="actividad"
+                                placeholder="Seleccione una actividad"
+                                [suggestions]="filtradoActividades"
+                                (completeMethod)="filterActividades($event)"
+                                (onSelect)="onActividadSelect($event)"
+                                field="acti_Descripcion"
+                                appendTo="body"
+                                [dropdown]="true"
+                                [ngClass]="{
+                                    'ng-invalid ng-dirty':
+                                        submitted &&
+                                        form.controls['actividad'].invalid
+                                }"
+                            ></p-autoComplete>
+                            <small
+                                class="ng-dirty ng-invalid"
+                                *ngIf="
+                                    submitted &&
+                                    form.controls['actividad'].invalid
+                                "
+                                style="color: red !important"
+                                >{{ Error_Actividad }}</small
+                            >
+                        </div>
+                    </form>
+                     <div style="display: flex; justify-content: end"  *ngIf="identityFlete === 'editar'">
+                <button
+                    (click)="ModalEditarFlete()"
+                    class="p-button-primary"
+                    pButton
+                    pRipple
+                    type="button"
+                    label="Guardar"
+                    icon="pi pi-save"
+                ></button>
+                <button
+                    (click)="Cancelar()"
+                    style="margin-left: 2%"
+                    class="p-button-secondary"
+                    pButton
+                    pRipple
+                    type="button"
+                    label="Cancelar"
+                    icon="pi pi-times"
+                ></button>
+            </div>
+<br>
+                    <div style="display: flex; justify-content: end">
+                        <button
+                            (click)="Guardar()"
+                            pButton
+                            pRipple
+                            type="button"
+                            label="Siguiente"
+                            icon="pi pi-arrow-right"
+                        ></button>
+                    </div>
+                </p-tabPanel>
+
+                <p-tabPanel header="Suministros" [disabled]="!form.valid">
+                    <div class="container" style="overflow-x: auto">
+                        <div class="row"></div>
+
+                        <div class="row" *ngIf="valSwitchSalida">
+                            <div class="col-12">
+                                <p>Mostrar Equipos de Seguridad</p>
+                                <p-inputSwitch
+                                    [(ngModel)]="
+                                        mostrarEquiposSeguridadPorActividad
+                                    "
+                                    (onChange)="
+                                        onToggleDragViewActividadEtapa()
+                                    "
+                                ></p-inputSwitch>
+                            </div>
+                        </div>
+
+                        <!-- Drag-and-Drop de Insumos por Actividad y Etapa -->
+                        <div
+                            *ngIf="
+                                valSwitchSalida &&
+                                itemsGroupInsumosActividadEtapa1.length === 0 &&
+                                itemsGroupInsumosActividadEtapa2.length === 0 &&
+                                !mostrarEquiposSeguridadPorActividad
+                            "
+                        >
+                            <p class="no-items-message">
+                                No hay insumos disponibles para esta actividad y
+                                etapa.
+                            </p>
+                        </div>
+
+                        <div
+                            *ngIf="
+                                valSwitchSalida &&
+                                (itemsGroupInsumosActividadEtapa1.length > 0 ||
+                                    itemsGroupInsumosActividadEtapa2.length >
+                                        0) &&
+                                !mostrarEquiposSeguridadPorActividad
+                            "
+                            cdkDropListGroup
+                        >
+                            <div class="row">
+                                <div class="col-6">
+                                    <h3>
+                                        Insumos Disponibles por Actividad y
+                                        Etapa
+                                    </h3>
+                                    <button
+                                        (click)="
+                                            selectAllItemsInsumosActividadEtapa()
+                                        "
+                                        class="btn btn-seleccionar-todos"
+                                        pButton
+                                        type="button"
+                                        label="Seleccionar Todos"
+                                        icon="pi pi-check"
+                                    ></button>
+                                    <div
+                                        class="insumos-list"
+                                        appMultiSelect
+                                        [items]="
+                                            itemsGroupInsumosActividadEtapa1
+                                        "
+                                    >
+                                        <multi-drag-drop
+                                            [items]="
+                                                itemsGroupInsumosActividadEtapa1
+                                            "
+                                            (itemsRemoved)="
+                                                itemsRemovedActividadEtapa(
+                                                    $event,
+                                                    1
+                                                )
+                                            "
+                                            (itemsAdded)="
+                                                itemsAddedActividadEtapa(
+                                                    $event,
+                                                    1
+                                                )
+                                            "
+                                            (itemsUpdated)="
+                                                itemsUpdatedActividadEtapa(
+                                                    $event,
+                                                    1
+                                                )
+                                            "
+                                            (selectionChanged)="
+                                                selectionChangedActividadEtapa(
+                                                    $event,
+                                                    1
+                                                )
+                                            "
+                                        >
+                                            <ng-template let-item>
+                                                <div class="item">
+                                                    <div class="row">
+                                                        <div class="col-6">
+                                                            <p>
+                                                                <strong
+                                                                    >Descripción:</strong
+                                                                >
+                                                                {{
+                                                                    item.insu_Descripcion
+                                                                }}
+                                                            </p>
+                                                        </div>
+                                                        <div class="col-6">
+                                                            <p>
+                                                                <strong
+                                                                    >Stock:</strong
+                                                                >
+                                                                {{
+                                                                    item.bopi_Stock
+                                                                }}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-6">
+                                                            <p>
+                                                                <strong
+                                                                    >Unidad de
+                                                                    Medida:</strong
+                                                                >
+                                                                {{
+                                                                    item.unme_Nombre
+                                                                }}
+                                                            </p>
+                                                        </div>
+                                                        <div class="col-6">
+                                                            <p>
+                                                                <strong
+                                                                    >Material:</strong
+                                                                >
+                                                                {{
+                                                                    item.mate_Descripcion
+                                                                }}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </ng-template>
+                                        </multi-drag-drop>
+                                    </div>
+                                </div>
+
+                                <div class="col-6">
+                                    <h3>
+                                        Insumos Seleccionados por Actividad y
+                                        Etapa
+                                    </h3>
+                                    <button
+                                        (click)="
+                                            deselectAllItemsInsumosActividadEtapa()
+                                        "
+                                        class="btn btn-deseleccionar-todos"
+                                        pButton
+                                        type="button"
+                                        label="Deseleccionar Todos"
+                                        icon="pi pi-times"
+                                    ></button>
+                                    <div class="insumos-list">
+                                        <multi-drag-drop
+                                            [items]="
+                                                itemsGroupInsumosActividadEtapa2
+                                            "
+                                            (itemsRemoved)="
+                                                itemsRemovedActividadEtapa(
+                                                    $event,
+                                                    2
+                                                )
+                                            "
+                                            (itemsAdded)="
+                                                itemsAddedActividadEtapa(
+                                                    $event,
+                                                    2
+                                                )
+                                            "
+                                            (itemsUpdated)="
+                                                itemsUpdatedActividadEtapa(
+                                                    $event,
+                                                    2
+                                                )
+                                            "
+                                            (selectionChanged)="
+                                                selectionChangedActividadEtapa(
+                                                    $event,
+                                                    2
+                                                )
+                                            "
+                                        >
+                                            <ng-template let-item>
+                                                <div class="item">
+                                                    <div class="row">
+                                                        <div class="col-6">
+                                                            <p>
+                                                                <strong
+                                                                    >Descripción:</strong
+                                                                >
+                                                                {{
+                                                                    item.insu_Descripcion
+                                                                }}
+                                                            </p>
+                                                        </div>
+                                                        <div class="col-6">
+                                                            <p>
+                                                                <strong
+                                                                    >Stock
+                                                                    Restante:</strong
+                                                                >
+                                                            </p>
+                                                            <h3>
+                                                                {{
+                                                                    calculateStockActividadEtapa(
+                                                                        item
+                                                                    )
+                                                                }}
+                                                            </h3>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-6">
+                                                            <p>
+                                                                <strong
+                                                                    >Unidad de
+                                                                    Medida:</strong
+                                                                >
+                                                                {{
+                                                                    item.unme_Nombre
+                                                                }}
+                                                            </p>
+                                                        </div>
+                                                        <div class="col-6">
+                                                            <p>
+                                                                <strong
+                                                                    >Material:</strong
+                                                                >
+                                                                {{
+                                                                    item.mate_Descripcion
+                                                                }}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                    <div
+                                                        class="row custom-input-container"
+                                                    >
+                                                        <div class="col-12">
+                                                            <p>
+                                                                <strong
+                                                                    >Cantidad:</strong
+                                                                >
+                                                            </p>
+                                                            <input
+                                                                type="number"
+                                                                [(ngModel)]="
+                                                                    item.cantidad
+                                                                "
+                                                                (ngModelChange)="
+                                                                    onCantidadChangeActividadEtapa(
+                                                                        item
+                                                                    )
+                                                                "
+                                                                (keypress)="
+                                                                    onCantidadKeyPressActividadEtapa(
+                                                                        $event,
+                                                                        item
+                                                                    )
+                                                                "
+                                                                class="custom-input"
+                                                                required
+                                                            />
+                                                            <p
+                                                                class="custom-error"
+                                                                *ngIf="
+                                                                    item.cantidadError
+                                                                "
+                                                            >
+                                                                {{
+                                                                    item.cantidadError
+                                                                }}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </ng-template>
+                                        </multi-drag-drop>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- DRAG EQUIPOS DE SEGURIDAD POR ACTIVIDAD POR ETAPA
+                          -->
+                        <div
+                            *ngIf="
+                                valSwitchSalida &&
+                                mostrarEquiposSeguridadPorActividad &&
+                                itemsGroupEquiposActividadEtapa1.length === 0 &&
+                                itemsGroupEquiposActividadEtapa2.length === 0
+                            "
+                        >
+                            <p class="no-items-message">
+                                No hay equipos de seguridad disponibles para
+                                esta actividad y etapa.
+                            </p>
+                        </div>
+                        <div
+                            *ngIf="
+                                valSwitchSalida &&
+                                mostrarEquiposSeguridadPorActividad &&
+                                (itemsGroupEquiposActividadEtapa1.length > 0 ||
+                                    itemsGroupEquiposActividadEtapa2.length > 0)
+                            "
+                            cdkDropListGroup
+                        >
+                            <div class="row">
+                                <div class="col-6">
+                                    <h3>
+                                        Equipos de Seguridad Disponibles por
+                                        Actividad y Etapa
+                                    </h3>
+                                    <button
+                                        (click)="
+                                            selectAllItemsEquiposActividadEtapa()
+                                        "
+                                        class="btn btn-seleccionar-todos"
+                                        pButton
+                                        type="button"
+                                        label="Seleccionar Todos"
+                                        icon="pi pi-check"
+                                    ></button>
+                                    <div
+                                        class="equipos-list"
+                                        appMultiSelect
+                                        [items]="
+                                            itemsGroupEquiposActividadEtapa1
+                                        "
+                                    >
+                                        <multi-drag-drop
+                                            [items]="
+                                                itemsGroupEquiposActividadEtapa1
+                                            "
+                                            (itemsRemoved)="
+                                                itemsRemovedEquipoActividadEtapa(
+                                                    $event,
+                                                    1
+                                                )
+                                            "
+                                            (itemsAdded)="
+                                                itemsAddedEquipoActividadEtapa(
+                                                    $event,
+                                                    1
+                                                )
+                                            "
+                                            (itemsUpdated)="
+                                                itemsUpdatedEquipoActividadEtapa(
+                                                    $event,
+                                                    1
+                                                )
+                                            "
+                                            (selectionChanged)="
+                                                selectionChangedEquipoActividadEtapa(
+                                                    $event,
+                                                    1
+                                                )
+                                            "
+                                        >
+                                            <ng-template let-item>
+                                                <div class="item">
+                                                    <div class="row">
+                                                        <div class="col-6">
+                                                            <p>
+                                                                <strong
+                                                                    >Descripción:</strong
+                                                                >
+                                                                {{
+                                                                    item.equs_Nombre
+                                                                }}
+                                                            </p>
+                                                        </div>
+                                                        <div class="col-6">
+                                                            <p>
+                                                                <strong
+                                                                    >Stock:</strong
+                                                                >
+                                                                {{
+                                                                    item.bopi_Stock
+                                                                }}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </ng-template>
+                                        </multi-drag-drop>
+                                    </div>
+                                </div>
+
+                                <div class="col-6">
+                                    <h3>
+                                        Equipos de Seguridad Seleccionados por
+                                        Actividad y Etapa
+                                    </h3>
+                                    <button
+                                        (click)="
+                                            deselectAllItemsEquiposActividadEtapa()
+                                        "
+                                        class="btn btn-deseleccionar-todos"
+                                        pButton
+                                        type="button"
+                                        label="Deseleccionar Todos"
+                                        icon="pi pi-times"
+                                    ></button>
+                                    <div class="equipos-list">
+                                        <multi-drag-drop
+                                            [items]="
+                                                itemsGroupEquiposActividadEtapa2
+                                            "
+                                            (itemsRemoved)="
+                                                itemsRemovedEquipoActividadEtapa(
+                                                    $event,
+                                                    2
+                                                )
+                                            "
+                                            (itemsAdded)="
+                                                itemsAddedEquipoActividadEtapa(
+                                                    $event,
+                                                    2
+                                                )
+                                            "
+                                            (itemsUpdated)="
+                                                itemsUpdatedEquipoActividadEtapa(
+                                                    $event,
+                                                    2
+                                                )
+                                            "
+                                            (selectionChanged)="
+                                                selectionChangedEquipoActividadEtapa(
+                                                    $event,
+                                                    2
+                                                )
+                                            "
+                                        >
+                                            <ng-template let-item>
+                                                <div class="item">
+                                                    <div class="row">
+                                                        <div class="col-6">
+                                                            <p>
+                                                                <strong
+                                                                    >Descripción:</strong
+                                                                >
+                                                                {{
+                                                                    item.equs_Nombre
+                                                                }}
+                                                            </p>
+                                                        </div>
+                                                        <div class="col-6">
+                                                            <p>
+                                                                <strong
+                                                                    >Stock
+                                                                    Restante:</strong
+                                                                >
+                                                                {{
+                                                                    calculateStockEquipoActividadEtapa(
+                                                                        item
+                                                                    )
+                                                                }}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                    <div
+                                                        class="row custom-input-container"
+                                                    >
+                                                        <div class="col-12">
+                                                            <p>
+                                                                <strong
+                                                                    >Cantidad:</strong
+                                                                >
+                                                            </p>
+                                                            <input
+                                                                type="number"
+                                                                [(ngModel)]="
+                                                                    item.cantidad
+                                                                "
+                                                                (ngModelChange)="
+                                                                    onCantidadChangeEquipoActividadEtapa(
+                                                                        item
+                                                                    )
+                                                                "
+                                                                (keypress)="
+                                                                    onCantidadKeyPressEquipoActividadEtapa(
+                                                                        $event,
+                                                                        item
+                                                                    )
+                                                                "
+                                                                class="custom-input"
+                                                                required
+                                                            />
+                                                            <p
+                                                                class="custom-error"
+                                                                *ngIf="
+                                                                    item.cantidadError
+                                                                "
+                                                            >
+                                                                {{
+                                                                    item.cantidadError
+                                                                }}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </ng-template>
+                                        </multi-drag-drop>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row" *ngIf="!valSwitchSalida">
+                            <div class="col-12">
+                                <p>Equipos de Seguridad</p>
+                                <p-inputSwitch
+                                    [(ngModel)]="mostrarEquiposSeguridad"
+                                    (onChange)="onToggleDragView()"
+                                ></p-inputSwitch>
+                            </div>
+                        </div>
+
+                        <!-- GRAG INSUMOS POR BODEGA -->
+                        <div
+                            *ngIf="
+                                !valSwitchSalida &&
+                                !mostrarEquiposSeguridad &&
+                                itemsGroup1.length === 0 &&
+                                itemsGroup2.length === 0
+                            "
+                        >
+                            <p class="no-items-message">
+                                No hay insumos disponibles para la bodega
+                                seleccionada.
+                            </p>
+                        </div>
+
+                        <!-- Mostrar el drag incluso si itemsGroup1 está vacío pero itemsGroup2 tiene elementos -->
+                        <div
+                            *ngIf="
+                                !valSwitchSalida &&
+                                !mostrarEquiposSeguridad &&
+                                (itemsGroup1.length > 0 ||
+                                    itemsGroup2.length > 0)
+                            "
+                            cdkDropListGroup
+                        >
+                            <div class="row">
+                                <div class="col-6">
+                                    <h3>Insumos Disponibles</h3>
+                                    <button
+                                        (click)="selectAllItems()"
+                                        class="btn btn-seleccionar-todos"
+                                        pButton
+                                        type="button"
+                                        label="Seleccionar Todos"
+                                        icon="pi pi-check"
+                                    ></button>
+                                    <div
+                                        class="insumos-list"
+                                        appMultiSelect
+                                        [items]="itemsGroup1"
+                                        [selectedItems]="selectedItemsGroup1"
+                                    >
+                                        <multi-drag-drop
+                                            [items]="itemsGroup1"
+                                            (itemsRemoved)="
+                                                itemsRemoved($event, 1)
+                                            "
+                                            (itemsAdded)="itemsAdded($event, 1)"
+                                            (itemsUpdated)="
+                                                itemsUpdated($event, 1)
+                                            "
+                                            (selectionChanged)="
+                                                selectionChanged($event, 1)
+                                            "
+                                        >
+                                            <ng-template let-item>
+                                                <div class="item">
+                                                    <div class="row">
+                                                        <div class="col-6">
+                                                            <p>
+                                                                <strong
+                                                                    >Descripción:</strong
+                                                                >
+                                                                {{
+                                                                    item.insu_Descripcion
+                                                                }}
+                                                            </p>
+                                                        </div>
+                                                        <div class="col-6">
+                                                            <p>
+                                                                <strong
+                                                                    >Stock:</strong
+                                                                >
+                                                                {{
+                                                                    item.bopi_Stock
+                                                                }}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-6">
+                                                            <p>
+                                                                <strong
+                                                                    >Unidad de
+                                                                    Medida:</strong
+                                                                >
+                                                                {{
+                                                                    item.unme_Nombre
+                                                                }}
+                                                            </p>
+                                                        </div>
+                                                        <div class="col-6">
+                                                            <p>
+                                                                <strong
+                                                                    >Material:</strong
+                                                                >
+                                                                {{
+                                                                    item.mate_Descripcion
+                                                                }}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </ng-template>
+                                        </multi-drag-drop>
+                                    </div>
+                                </div>
+
+                                <div class="col-6">
+                                    <h3>Insumos Seleccionados</h3>
+                                    <button
+                                        (click)="deselectAllItems()"
+                                        class="btn btn-deseleccionar-todos"
+                                        pButton
+                                        type="button"
+                                        label="Deseleccionar Todos"
+                                        icon="pi pi-times"
+                                    ></button>
+                                    <div class="insumos-list">
+                                        <multi-drag-drop
+                                            [items]="itemsGroup2"
+                                            (itemsRemoved)="
+                                                itemsRemoved($event, 2)
+                                            "
+                                            (itemsAdded)="itemsAdded($event, 2)"
+                                            (itemsUpdated)="
+                                                itemsUpdated($event, 2)
+                                            "
+                                            (selectionChanged)="
+                                                selectionChanged($event, 2)
+                                            "
+                                        >
+                                            <ng-template let-item>
+                                                <div class="item">
+                                                    <div class="row">
+                                                        <div class="col-6">
+                                                            <p>
+                                                                <strong
+                                                                    >Descripción:</strong
+                                                                >
+                                                                {{
+                                                                    item.insu_Descripcion
+                                                                }}
+                                                            </p>
+                                                        </div>
+                                                        <div class="col-6">
+                                                            <p>
+                                                                <strong
+                                                                    >Stock
+                                                                    Restante:</strong
+                                                                >
+                                                            </p>
+                                                            <h3>
+                                                                {{
+                                                                    calculateStock(
+                                                                        item
+                                                                    )
+                                                                }}
+                                                            </h3>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-6">
+                                                            <p>
+                                                                <strong
+                                                                    >Unidad de
+                                                                    Medida:</strong
+                                                                >
+                                                                {{
+                                                                    item.unme_Nombre
+                                                                }}
+                                                            </p>
+                                                        </div>
+                                                        <div class="col-6">
+                                                            <p>
+                                                                <strong
+                                                                    >Material:</strong
+                                                                >
+                                                                {{
+                                                                    item.mate_Descripcion
+                                                                }}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                    <div
+                                                        class="row custom-input-container"
+                                                    >
+                                                        <div class="col-12">
+                                                            <p>
+                                                                <strong
+                                                                    >Cantidad:</strong
+                                                                >
+                                                            </p>
+                                                            <input
+                                                                type="number"
+                                                                [(ngModel)]="
+                                                                    item.cantidad
+                                                                "
+                                                                (ngModelChange)="
+                                                                    onCantidadChange(
+                                                                        item
+                                                                    )
+                                                                "
+                                                                (keypress)="
+                                                                    onCantidadKeyPress(
+                                                                        $event,
+                                                                        item
+                                                                    )
+                                                                "
+                                                                class="custom-input"
+                                                                required
+                                                            />
+                                                            <p
+                                                                class="custom-error"
+                                                                *ngIf="
+                                                                    item.cantidadError
+                                                                "
+                                                            >
+                                                                {{
+                                                                    item.cantidadError
+                                                                }}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </ng-template>
+                                        </multi-drag-drop>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- DRAG EQUIPOS DE SEGURIDAD POR BODEGA -->
+                        <div
+                            *ngIf="
+                                !valSwitchSalida &&
+                                mostrarEquiposSeguridad &&
+                                itemsGroupEquipos1.length === 0 &&
+                                itemsGroupEquipos2.length === 0
+                            "
+                        >
+                            <p class="no-items-message">
+                                No hay equipos de seguridad disponibles para la
+                                bodega seleccionada.
+                            </p>
+                        </div>
+                        <div
+                            *ngIf="
+                                !valSwitchSalida &&
+                                mostrarEquiposSeguridad &&
+                                (itemsGroupEquipos1.length > 0 ||
+                                    itemsGroupEquipos2.length > 0)
+                            "
+                            cdkDropListGroup
+                        >
+                            <div class="row">
+                                <div class="col-6">
+                                    <h3>Equipos de Seguridad Disponibles</h3>
+                                    <button
+                                        (click)="selectAllItemsEquipos()"
+                                        class="btn btn-seleccionar-todos"
+                                        pButton
+                                        type="button"
+                                        label="Seleccionar Todos"
+                                        icon="pi pi-check"
+                                    ></button>
+                                    <div
+                                        class="equipos-list"
+                                        appMultiSelect
+                                        [items]="itemsGroupEquipos1"
+                                        [selectedItems]="
+                                            selectedItemsGroupEquipos1
+                                        "
+                                    >
+                                        <multi-drag-drop
+                                            [items]="itemsGroupEquipos1"
+                                            (itemsRemoved)="
+                                                itemsRemovedEquipo($event, 1)
+                                            "
+                                            (itemsAdded)="
+                                                itemsAddedEquipo($event, 1)
+                                            "
+                                            (itemsUpdated)="
+                                                itemsUpdatedEquipo($event, 1)
+                                            "
+                                            (selectionChanged)="
+                                                selectionChangedEquipo(
+                                                    $event,
+                                                    1
+                                                )
+                                            "
+                                        >
+                                            <ng-template let-item>
+                                                <div class="item">
+                                                    <div class="row">
+                                                        <div class="col-6">
+                                                            <p>
+                                                                <strong
+                                                                    >Descripción:</strong
+                                                                >
+                                                                {{
+                                                                    item.equs_Nombre
+                                                                }}
+                                                            </p>
+                                                        </div>
+                                                        <div class="col-6">
+                                                            <p>
+                                                                <strong
+                                                                    >Stock:</strong
+                                                                >
+                                                                {{
+                                                                    item.bopi_Stock
+                                                                }}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </ng-template>
+                                        </multi-drag-drop>
+                                    </div>
+                                </div>
+
+                                <div class="col-6">
+                                    <h3>Equipos de Seguridad Seleccionados</h3>
+                                    <button
+                                        (click)="deselectAllItemsEquipos()"
+                                        class="btn btn-deseleccionar-todos"
+                                        pButton
+                                        type="button"
+                                        label="Deseleccionar Todos"
+                                        icon="pi pi-times"
+                                    ></button>
+                                    <div class="equipos-list">
+                                        <multi-drag-drop
+                                            [items]="itemsGroupEquipos2"
+                                            (itemsRemoved)="
+                                                itemsRemovedEquipo($event, 2)
+                                            "
+                                            (itemsAdded)="
+                                                itemsAddedEquipo($event, 2)
+                                            "
+                                            (itemsUpdated)="
+                                                itemsUpdatedEquipo($event, 2)
+                                            "
+                                            (selectionChanged)="
+                                                selectionChangedEquipo(
+                                                    $event,
+                                                    2
+                                                )
+                                            "
+                                        >
+                                            <ng-template let-item>
+                                                <div class="item">
+                                                    <div class="row">
+                                                        <div class="col-6">
+                                                            <p>
+                                                                <strong
+                                                                    >Descripción:</strong
+                                                                >
+                                                                {{
+                                                                    item.equs_Nombre
+                                                                }}
+                                                            </p>
+                                                        </div>
+                                                        <div class="col-6">
+                                                            <p>
+                                                                <strong
+                                                                    >Stock
+                                                                    Restante:</strong
+                                                                >
+                                                            </p>
+                                                            <h3>
+                                                                {{
+                                                                    calculateStockEquipo(
+                                                                        item
+                                                                    )
+                                                                }}
+                                                            </h3>
+                                                        </div>
+                                                    </div>
+                                                    <div
+                                                        class="row custom-input-container"
+                                                    >
+                                                        <div class="col-12">
+                                                            <p>
+                                                                <strong
+                                                                    >Cantidad:</strong
+                                                                >
+                                                            </p>
+                                                            <input
+                                                                type="number"
+                                                                [(ngModel)]="
+                                                                    item.cantidad
+                                                                "
+                                                                (ngModelChange)="
+                                                                    onCantidadChangeEquipo(
+                                                                        item
+                                                                    )
+                                                                "
+                                                                (keypress)="
+                                                                    onCantidadKeyPress(
+                                                                        $event,
+                                                                        item
+                                                                    )
+                                                                "
+                                                                class="custom-input"
+                                                                required
+                                                            />
+                                                            <p
+                                                                class="custom-error"
+                                                                *ngIf="
+                                                                    item.cantidadError
+                                                                "
+                                                            >
+                                                                {{
+                                                                    item.cantidadError
+                                                                }}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </ng-template>
+                                        </multi-drag-drop>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="button-container">
+                            <button
+                                (click)="Indexactivo = 0"
+                                class="p-button-secondary"
+                                pButton
+                                pRipple
+                                type="button"
+                                label="Anterior"
+                                icon="pi pi-arrow-left"
+                            ></button>
+                            <button
+                                (click)="finalizar()"
+                                class="btn btn-guardar"
+                                pButton
+                                pRipple
+                                type="button"
+                                label="Guardar"
+                                icon="pi pi-save"
+                            ></button>
+                        </div>
+                    </div>
+                </p-tabPanel>
+            </p-tabView>
+        </div>
+    </div>
+</div>
+<!-- FORMULARIO DE CREACION/EDICION -->
+
+<!-- VERIFICACION GENERAL -->
+<div class="grid" *ngIf="Verificacion">
+    <div class="col-12">
+        <div class="card">
+            <div
+                class="flex"
+                style="
+                    width: 100%;
+                    margin: 0 auto;
+                    display: flex;
+                    align-items: center;
+                    height: 42px;
+                "
+            >
+                <div
+                    style="
+                        width: 20%;
+                        display: flex;
+                        align-items: center;
+                        height: 12.5%;
+                    "
+                >
+                    <button
+                        (click)="regresarIndex()"
+                        class="p-button-link"
+                        pButton
+                        pRipple
+                        type="button"
+                        label="Regresar"
+                        icon="pi pi-arrow-left"
+                        style="box-shadow: none !important"
+                    ></button>
+                </div>
+                <div
+                    style="
+                        flex-grow: 1;
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                    "
+                >
+                    <h1 class="text-center mt-4">Verificación Flete</h1>
+                </div>
+                <div style="width: 20%"></div>
+            </div>
+
+            <!-- Agregar los Tabs -->
+            <p-tabView
+                orientation="center"
+                [(activeIndex)]="IndexactivoVerificacion"
+                (onChange)="onCambioTab($event)"
+            >
+                <!-- Tab 1: Verificación -->
+                <p-tabPanel header="Verificación">
+                    <form
+                        [formGroup]="verificarForm"
+                        class="p-fluid p-formgrid grid"
+                    >
+                        <div class="field col-12 md:col-6">
+                            <label>Fecha y hora de llegada</label>
+                            <p-calendar
+                                formControlName="flen_FechaHoraLlegada"
+                                [showIcon]="true"
+                                [showTime]="true"
+                                [hourFormat]="24"
+                                dateFormat="yy-mm-dd"
+                                appendTo="body"
+                                placeholder="YY/MM/DD HH:MM"
+                                [ngClass]="{
+                                    'ng-invalid ng-dirty':
+                                        submitted &&
+                                        verificarForm.controls[
+                                            'flen_FechaHoraLlegada'
+                                        ].invalid
+                                }"
+                            ></p-calendar>
+                            <small
+                                *ngIf="verificarForm.hasError('fechaInvalida')"
+                                style="color: red !important"
+                            >
+                                La fecha de llegada debe ser mayor que la fecha
+                                de salida.
+                            </small>
+
+                            <small
+                                class="ng-dirty ng-invalid"
+                                *ngIf="
+                                    submitted &&
+                                    verificarForm.controls[
+                                        'fechaInvalida'
+                                    ].invalid
+                                "
+                                style="color: red !important"
+                                >El campo es requerido.</small
+                            >
+                        </div>
+
+                        <!-- Switch para alternar entre Insumos y Equipos de Seguridad -->
+                        <div class="field col-12 md:col-6">
+                            <label for="mostrarVerificacionEquipos"
+                                >Mostrar</label
+                            >
+                            <p-inputSwitch
+                                id="mostrarVerificacionEquipos"
+                                [(ngModel)]="mostrarVerificacionEquipos"
+                                [ngModelOptions]="{ standalone: true }"
+                                (onChange)="onToggleVerificacionView()"
+                            ></p-inputSwitch>
+                            <span *ngIf="mostrarVerificacionEquipos"
+                                >Equipos de Seguridad</span
+                            >
+                            <span *ngIf="!mostrarVerificacionEquipos"
+                                >Insumos</span
+                            >
+                        </div>
+
+                        <!-- Contenedor para Insumos -->
+                        <div [hidden]="mostrarVerificacionEquipos">
+                            <div class="field col-12">
+                                <div class="grid">
+                                    <div class="col-6">
+                                        <div
+                                            class="text-900 font-semibold text-lg mt-5 mb-3 border-bottom-1 surface-border py-3"
+                                        >
+                                            Insumos No Recibidos
+                                        </div>
+                                        <p-table
+                                            [value]="pendientesInsumos"
+                                            styleClass="mt-2"
+                                        >
+                                            <ng-template pTemplate="header">
+                                                <tr>
+                                                    <th></th>
+                                                    <th>Descripción</th>
+                                                    <th>Unidad de Medida</th>
+                                                    <th>Cantidad</th>
+                                                </tr>
+                                            </ng-template>
+                                            <ng-template
+                                                pTemplate="body"
+                                                let-insumo
+                                                let-i="rowIndex"
+                                            >
+                                                <tr
+                                                    [formGroup]="
+                                                        verificarForm.get(
+                                                            'pendientesInsumos'
+                                                        ).controls[i]
+                                                    "
+                                                >
+                                                    <td>
+                                                        <p-checkbox
+                                                            [binary]="true"
+                                                            formControlName="verificado"
+                                                            (onChange)="
+                                                                onCheckboxChange(
+                                                                    $event,
+                                                                    insumo,
+                                                                    i
+                                                                )
+                                                            "
+                                                        ></p-checkbox>
+                                                    </td>
+                                                    <td>
+                                                        <label>{{
+                                                            insumo.insu_Descripcion
+                                                        }}</label>
+                                                    </td>
+                                                    <td>
+                                                        {{ insumo.unme_Nombre }}
+                                                    </td>
+                                                    <td>
+                                                        <input
+                                                            type="number"
+                                                            pInputText
+                                                            formControlName="flde_Cantidad"
+                                                            readonly
+                                                        />
+                                                    </td>
+                                                </tr>
+                                            </ng-template>
+                                        </p-table>
+                                    </div>
+                                    <div class="col-6">
+                                        <div
+                                            class="text-900 font-semibold text-lg mt-5 mb-3 border-bottom-1 surface-border py-3"
+                                        >
+                                            Insumos Verificados
+                                        </div>
+                                        <p-table
+                                            [value]="verificadosInsumos"
+                                            styleClass="mt-2"
+                                        >
+                                            <ng-template pTemplate="header">
+                                                <tr>
+                                                    <th></th>
+                                                    <th>Descripción</th>
+                                                    <th>Unidad de Medida</th>
+                                                    <th>Cantidad</th>
+                                                    <th>Revertir</th>
+                                                </tr>
+                                            </ng-template>
+                                            <ng-template
+                                                pTemplate="body"
+                                                let-insumo
+                                                let-i="rowIndex"
+                                            >
+                                                <tr
+                                                    [formGroup]="
+                                                        verificarForm.get(
+                                                            'verificadosInsumos'
+                                                        ).controls[i]
+                                                    "
+                                                >
+                                                    <td>
+                                                        <p-checkbox
+                                                            [binary]="true"
+                                                            formControlName="verificado"
+                                                            (onChange)="
+                                                                onCheckboxChange(
+                                                                    $event,
+                                                                    insumo,
+                                                                    i
+                                                                )
+                                                            "
+                                                            [checked]="true"
+                                                        ></p-checkbox>
+                                                    </td>
+                                                    <td>
+                                                        <label>{{
+                                                            insumo.insu_Descripcion
+                                                        }}</label>
+                                                    </td>
+                                                    <td>
+                                                        {{ insumo.unme_Nombre }}
+                                                    </td>
+                                                    <td>
+                                                        <input
+                                                            type="number"
+                                                            pInputText
+                                                            formControlName="flde_Cantidad"
+                                                            (ngModelChange)="
+                                                                onCantidadVerificacionChange(
+                                                                    $event,
+                                                                    insumo,
+                                                                    i
+                                                                )
+                                                            "
+                                                            (keypress)="
+                                                                onCantidadKeyPress2(
+                                                                    $event,
+                                                                    insumo
+                                                                )
+                                                            "
+                                                            min="1"
+                                                            [max]="
+                                                                cantidadesOriginales[
+                                                                    insumo
+                                                                        .flde_Id
+                                                                ]
+                                                            "
+                                                        />
+                                                    </td>
+                                                    <td>
+                                                        <button
+                                                            class="p-button p-button-icon-only p-button-rounded p-button-text"
+                                                            (click)="
+                                                                revertirInsumo(
+                                                                    insumo,
+                                                                    i
+                                                                )
+                                                            "
+                                                        >
+                                                            <i
+                                                                class="pi pi-undo"
+                                                            ></i>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            </ng-template>
+                                        </p-table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Contenedor para Equipos de Seguridad -->
+                        <div [hidden]="!mostrarVerificacionEquipos">
+                            <div class="field col-12">
+                                <div class="grid">
+                                    <div class="col-6">
+                                        <div
+                                            class="text-900 font-semibold text-lg mt-5 mb-3 border-bottom-1 surface-border py-3"
+                                        >
+                                            Equipos de Seguridad No Recibidos
+                                        </div>
+                                        <p-table
+                                            [value]="pendientesEquipos"
+                                            styleClass="mt-2"
+                                        >
+                                            <ng-template pTemplate="header">
+                                                <tr>
+                                                    <th>
+                                                        <p-checkbox
+                                                            [binary]="true"
+                                                            (onChange)="
+                                                                toggleSelectAllPendientes(
+                                                                    $event.checked
+                                                                )
+                                                            "
+                                                        ></p-checkbox>
+                                                    </th>
+                                                    <th>Equipo</th>
+                                                    <th>Descripción</th>
+                                                    <th>Cantidad</th>
+                                                </tr>
+                                            </ng-template>
+                                            <ng-template
+                                                pTemplate="body"
+                                                let-equipo
+                                                let-i="rowIndex"
+                                            >
+                                                <tr
+                                                    [formGroup]="
+                                                        verificarForm.get(
+                                                            'pendientesEquipos'
+                                                        ).controls[i]
+                                                    "
+                                                >
+                                                    <td>
+                                                        <p-checkbox
+                                                            [binary]="true"
+                                                            formControlName="verificado"
+                                                            (onChange)="
+                                                                onCheckboxChange(
+                                                                    $event,
+                                                                    equipo,
+                                                                    i
+                                                                )
+                                                            "
+                                                        ></p-checkbox>
+                                                    </td>
+                                                    <td>
+                                                        <label>{{
+                                                            equipo.equs_Nombre
+                                                        }}</label>
+                                                    </td>
+                                                    <td>
+                                                        {{
+                                                            equipo.equs_Descripcion
+                                                        }}
+                                                    </td>
+                                                    <td>
+                                                        <input
+                                                            type="number"
+                                                            pInputText
+                                                            formControlName="flde_Cantidad"
+                                                            readonly
+                                                        />
+                                                    </td>
+                                                </tr>
+                                            </ng-template>
+                                        </p-table>
+                                    </div>
+                                    <div class="col-6">
+                                        <div
+                                            class="text-900 font-semibold text-lg mt-5 mb-3 border-bottom-1 surface-border py-3"
+                                        >
+                                            Equipos de Seguridad Verificados
+                                        </div>
+                                        <p-table
+                                            [value]="verificadosEquipos"
+                                            styleClass="mt-2"
+                                        >
+                                            <ng-template pTemplate="header">
+                                                <tr>
+                                                    <th>
+                                                        <p-checkbox
+                                                            [binary]="true"
+                                                            (onChange)="
+                                                                toggleSelectAllVerificados(
+                                                                    $event.checked
+                                                                )
+                                                            "
+                                                        ></p-checkbox>
+                                                    </th>
+                                                    <th>Equipo</th>
+                                                    <th>Descripción</th>
+                                                    <th>Cantidad</th>
+                                                    <th>Acciones</th>
+                                                </tr>
+                                            </ng-template>
+                                            <ng-template
+                                                pTemplate="body"
+                                                let-equipo
+                                                let-i="rowIndex"
+                                            >
+                                                <tr
+                                                    [formGroup]="
+                                                        verificarForm.get(
+                                                            'verificadosEquipos'
+                                                        ).controls[i]
+                                                    "
+                                                >
+                                                    <td>
+                                                        <p-checkbox
+                                                            [binary]="true"
+                                                            formControlName="verificado"
+                                                            (onChange)="
+                                                                onCheckboxChange(
+                                                                    $event,
+                                                                    equipo,
+                                                                    i
+                                                                )
+                                                            "
+                                                            [checked]="true"
+                                                        ></p-checkbox>
+                                                    </td>
+                                                    <td>
+                                                        <label>{{
+                                                            equipo.equs_Nombre
+                                                        }}</label>
+                                                    </td>
+                                                    <td>
+                                                        {{
+                                                            equipo.equs_Descripcion
+                                                        }}
+                                                    </td>
+                                                    <td>
+                                                        <input
+                                                            type="number"
+                                                            pInputText
+                                                            formControlName="flde_Cantidad"
+                                                            (ngModelChange)="
+                                                                onCantidadVerificacionChange(
+                                                                    $event,
+                                                                    equipo,
+                                                                    i
+                                                                )
+                                                            "
+                                                            (keypress)="
+                                                                onCantidadKeyPress2(
+                                                                    $event,
+                                                                    equipo
+                                                                )
+                                                            "
+                                                            min="1"
+                                                            [max]="
+                                                                cantidadesOriginales[
+                                                                    equipo
+                                                                        .flde_Id
+                                                                ]
+                                                            "
+                                                        />
+                                                    </td>
+                                                    <td>
+                                                        <button
+                                                            class="p-button p-button-icon-only p-button-rounded p-button-text"
+                                                            (click)="
+                                                                revertirEquipo(
+                                                                    equipo,
+                                                                    i
+                                                                )
+                                                            "
+                                                        >
+                                                            <i
+                                                                class="pi pi-undo"
+                                                            ></i>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            </ng-template>
+                                        </p-table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+
+                    <div style="display: flex; justify-content: end">
+                        <button
+                            *ngIf="isFirstTab"
+                            pButton
+                            pRipple
+                            label="Siguiente"
+                            icon="pi pi-chevron-right"
+                            iconPos="right"
+                            (click)="goToNextTab()"
+                        ></button>
+                    </div>
+                </p-tabPanel>
+
+                <!-- Tab 2: Subida de Comprobante -->
+                <p-tabPanel
+                    header="Subir Comprobante"
+                    [disabled]="!verificarForm.valid"
+                >
+                    <div class="col-12">
+                        <div class="field upload-container">
+                            <label for="fileInput"
+                                >Comprobante de Llegada</label
+                            >
+                            <p-fileUpload
+                                #fileUploader
+                                name="comprobanteFile"
+                                accept=".pdf,.jpg,.jpeg,.png"
+                                (onSelect)="onFileSelected($event)"
+                                (onClear)="clearFileForm()"
+                                (onRemove)="clearFileForm()"
+                                [customUpload]="true"
+                                [multiple]="false"
+                                [showUploadButton]="false"
+                                [showCancelButton]="false"
+                                class="w-full"
+                                chooseLabel="Subir Archivo"
+                            >
+                                <ng-template pTemplate="content">
+                                    <div
+                                        class="image-upload-container"
+                                        (click)="fileUploader.choose()"
+                                    >
+                                        <ng-container
+                                            *ngIf="
+                                                !previewImage && !previewPDF;
+                                                else showPreview
+                                            "
+                                        >
+                                            <div
+                                                class="h-full flex flex-column justify-content-center align-items-center"
+                                            >
+                                                <i
+                                                    class="pi pi-upload text-900 text-2xl mb-3"
+                                                ></i>
+                                                <span
+                                                    class="font-bold text-900 text-xl mb-3"
+                                                    >Subir Archivo</span
+                                                >
+                                                <span
+                                                    class="font-medium text-600 text-md text-center"
+                                                    >Seleccione un Archivo</span
+                                                >
+                                            </div>
+                                        </ng-container>
+                                        <ng-template #showPreview>
+                                            <div
+                                                class="h-full flex flex-column justify-content-center align-items-center"
+                                            >
+                                                <ng-container
+                                                    *ngIf="previewImage"
+                                                >
+                                                    <img
+                                                        [src]="previewImage"
+                                                        alt="Previsualización del archivo"
+                                                        class="image-preview"
+                                                        style="height: 100px"
+                                                    />
+                                                </ng-container>
+                                                <ng-container
+                                                    *ngIf="previewPDF"
+                                                >
+                                                    <iframe
+                                                        [src]="previewPDF"
+                                                        style="
+                                                            width: 100%;
+                                                            height: 300px;
+                                                        "
+                                                        frameborder="0"
+                                                    ></iframe>
+                                                </ng-container>
+                                            </div>
+                                        </ng-template>
+                                    </div>
+                                </ng-template>
+                            </p-fileUpload>
+                            <small
+                                *ngIf="submitted && !file"
+                                style="color: red !important"
+                                >El campo es requerido.</small
+                            >
+                        </div>
+                        <button
+                            pButton
+                            pRipple
+                            label="Limpiar"
+                            icon="pi pi-trash"
+                            class="p-button-secondary clear-button"
+                            (click)="clearFileForm()"
+                        ></button>
+                    </div>
+                    <div class="button-container">
+                        <button
+                            *ngIf="isSecondTab"
+                            pButton
+                            class="p-button-secondary"
+                            pRipple
+                            label="Anterior"
+                            icon="pi pi-arrow-left"
+                            iconPos="left"
+                            (click)="goToPreviousTab()"
+                        ></button>
+
+                        <button
+                            *ngIf="isSecondTab"
+                            pButton
+                            pRipple
+                            label="Guardar"
+                            icon="pi pi-save"
+                            iconPos="right"
+                            (click)="finalizarVerificacion()"
+                        ></button>
+                    </div>
+                </p-tabPanel>
+            </p-tabView>
+        </div>
+    </div>
+</div>
+
+<!-- modal verificacion -->
+<p-dialog
+    [(visible)]="VeificarFlete"
+    header="Confirmación"
+    [modal]="true"
+    [style]="{ width: '450px' }"
+>
+    <div class="flex align-items-center justify-content-center">
+        <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+        <span
+            >¿Está seguro de Verificar la llegada de el Flete con código
+            <span style="font-weight: 600">{{ selectedFlete?.codigo }}</span> ?
+        </span>
+    </div>
+    <ng-template pTemplate="footer">
+        <button
+            pButton
+            pRipple
+            icon="pi pi-check"
+            class="p-button-outlined p-button-primary"
+            label="Si"
+            (click)="finalizarVerificacion()"
+        ></button>
+
+        <button
+            pButton
+            pRipple
+            icon="pi pi-times"
+            class="p-button-outlined p-button-primary"
+            label="No"
+            (click)="VeificarFlete = false"
+        ></button>
+    </ng-template>
+</p-dialog>
+
+<!-- VERIFICACION GENERAL -->
+
+<!-- VER VERIFICACION -->
+<div class="grid" *ngIf="DetalleVerificacion">
+    <div class="col-12">
+        <div class="card invoice">
+            <div
+                class="flex"
+                style="
+                    width: 100%;
+                    margin: 0 auto;
+                    display: flex;
+                    align-items: center;
+                    height: 42px;
+                "
+            >
+                <div
+                    style="
+                        width: 20%;
+                        display: flex;
+                        align-items: center;
+                        height: 12.5%;
+                    "
+                >
+                    <button
+                        (click)="regresarIndex()"
+                        class="p-button-link"
+                        pButton
+                        pRipple
+                        type="button"
+                        label="Regresar"
+                        icon="pi pi-arrow-left"
+                        style="box-shadow: none !important"
+                    ></button>
+                </div>
+
+                <div style="width: 20%"></div>
+            </div>
+
+            <div
+                class="invoice-header"
+                style="display: flex; justify-content: space-between"
+            >
+                <div>
+                    <h2>
+                        Verificación Flete -
+                        {{ flete.flen_FechaHoraLlegada | date : "short" }}
+                    </h2>
+                    <h3>Supervisor {{ flete.encargado }}</h3>
+                </div>
+                <div class="invoice-details" style="text-align: right">
+                    <p>Código Flete: {{ flete.codigo }}</p>
+                    <p>
+                        Fecha de Salida:
+                        {{ flete.flen_FechaHoraSalida | date : "short" }}
+                    </p>
+                    <p>
+                        Fecha de Llegada:
+                        {{ flete.flen_FechaHoraLlegada | date : "short" }}
+                    </p>
+                    <p>
+                        Destino:
+                        {{ flete.flen_DestinoProyecto ? "Proyecto" : "Bodega" }}
+                    </p>
+                    <p>
+                        Destino Nombre:
+                        {{
+                            flete.flen_DestinoProyecto
+                                ? flete.boat_Descripcion
+                                : flete.destino
+                        }}
+                    </p>
+                </div>
+            </div>
+            <hr />
+            <div class="invoice-address" style="margin-bottom: 20px">
+                <div class="bill-to">
+                    <h3>Enviado por</h3>
+                    <p>{{ flete.supervisorsalida }}</p>
+                </div>
+                <div class="ship-to" style="margin-left: 40px">
+                    <h3>Recibido por</h3>
+                    <p>{{ flete.supervisorllegada }}</p>
+                </div>
+            </div>
+            <hr />
+            <br />
+            <br />
+            <br />
+            <div class="invoice-body" style="margin-bottom: 20px">
+                <!-- Tabla para Insumos Verificados -->
+                <div
+                    *ngIf="verificadosInsumos.length > 0"
+                    style="margin-bottom: 20px"
+                >
+                    <h5>Insumos Llegaron</h5>
+                    <p-table [value]="verificadosInsumos">
+                        <ng-template pTemplate="header">
+                            <tr>
+                                <th>Descripción</th>
+                                <th>Unidad de Medida</th>
+                                <th>Cantidad</th>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-detalle>
+                            <tr>
+                                <td>{{ detalle.insu_Descripcion }}</td>
+                                <td>{{ detalle.unme_Nombre }}</td>
+                                <td>{{ detalle.flde_Cantidad }}</td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
+                </div>
+
+                <!-- Tabla para Insumos No Verificados -->
+                <div
+                    *ngIf="noVerificadosInsumos.length > 0"
+                    style="margin-bottom: 20px"
+                >
+                    <h5>Insumos No Llegaron</h5>
+                    <p-table [value]="noVerificadosInsumos">
+                        <ng-template pTemplate="header">
+                            <tr>
+                                <th>Descripción</th>
+                                <th>Unidad de Medida</th>
+                                <th>Cantidad</th>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-detalle>
+                            <tr>
+                                <td>{{ detalle.insu_Descripcion }}</td>
+                                <td>{{ detalle.unme_Nombre }}</td>
+                                <td>{{ detalle.flde_Cantidad }}</td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
+                </div>
+
+                <!-- Tabla para Equipos de Seguridad Verificados -->
+                <div
+                    *ngIf="verificadosEquipos.length > 0"
+                    style="margin-bottom: 20px"
+                >
+                    <h5>Equipos de Seguridad Llegaron</h5>
+                    <p-table [value]="verificadosEquipos">
+                        <ng-template pTemplate="header">
+                            <tr>
+                                <th>Equipo de Seguridad</th>
+                                <th>Descripción</th>
+                                <th>Cantidad</th>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-detalle>
+                            <tr>
+                                <td>{{ detalle.equs_Nombre }}</td>
+                                <td>{{ detalle.equs_Descripcion }}</td>
+                                <td>{{ detalle.flde_Cantidad }}</td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
+                </div>
+
+                <!-- Tabla para Equipos de Seguridad No Verificados -->
+                <div
+                    *ngIf="noVerificadosEquipos.length > 0"
+                    style="margin-bottom: 20px"
+                >
+                    <h5>Equipos de Seguridad No Llegaron</h5>
+                    <p-table [value]="noVerificadosEquipos">
+                        <ng-template pTemplate="header">
+                            <tr>
+                                <th>Equipo de Seguridad</th>
+                                <th>Descripción</th>
+                                <th>Cantidad</th>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-detalle>
+                            <tr>
+                                <td>{{ detalle.equs_Nombre }}</td>
+                                <td>{{ detalle.equs_Descripcion }}</td>
+                                <td>{{ detalle.flde_Cantidad }}</td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
+                </div>
+
+                <div *ngIf="incidencias.length > 0" style="margin-bottom: 20px">
+                    <h5>Incidencias</h5>
+                    <p-table [value]="incidencias">
+                        <ng-template pTemplate="header">
+                            <tr>
+                                <th>Descripción de la Incidencia</th>
+                                <th>Fecha y Hora</th>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-incidencia>
+                            <tr>
+                                <td>
+                                    {{ incidencia.flcc_DescripcionIncidencia }}
+                                </td>
+                                <td>
+                                    {{
+                                        incidencia.flcc_FechaHoraIncidencia
+                                            | date : "short"
+                                    }}
+                                </td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
+                </div>
+            </div>
+            <div class="invoice-footer"></div>
+        </div>
+    </div>
+</div>
+<!-- FIN DE VER VERIFICACION -->
+
+<style>
+    .invoice {
+        padding: 2rem;
+        /* background-color: #fff; */
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        margin-bottom: 2rem;
+    }
+
+    .invoice-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+
+    .company-details {
+        text-align: left;
+    }
+
+    .invoice-details {
+        text-align: right;
+    }
+
+    .invoice-address {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 2rem;
+    }
+
+    .invoice-body {
+        margin-bottom: 2rem;
+    }
+
+    .invoice-footer {
+        display: flex;
+        justify-content: end;
+        margin-top: 2rem;
+    }
+
+    h2,
+    h3 {
+        margin: 0 0 1rem 0;
+    }
+
+    hr {
+        margin: 1rem 0;
+        border: 0;
+        border-top: 1px solid #e0e0e0;
+    }
+</style>
+
+<!-- INCIDENCIAS -->
+
+<div class="grid" *ngIf="IndexIncidencias">
+    <div class="col-12">
+        <div class="card">
+            <div
+                class="mb-4"
+                class="flex flex-row justify-content-between align-items-center mb-4"
+            >
+                <div class="flex flex-column">
+                    <h2 class="text-center mt-4">{{ titulo }}</h2>
+                </div>
+                <div class="flex"></div>
+            </div>
+            <hr />
+            <div class="grid mt-2">
+                <div
+                    class="col-12"
+                    style="display: flex; justify-content: space-between"
+                >
+                    <button
+                        (click)="CrearIncidencia()"
+                        pButton
+                        label="Nuevo"
+                        icon="pi pi-plus"
+                        class="mr-2"
+                    ></button>
+                    <button
+                        (click)="regresarIndex()"
+                        pButton
+                        pRipple
+                        type="button"
+                        label="Regresar"
+                        icon="pi pi-arrow-left"
+                    ></button>
+                </div>
+            </div>
+
+            <p-table
+                #dt
+                [value]="incidencias"
+                styleClass="mt-2"
+                responsiveLayout="scroll"
+                [rows]="10"
+                [globalFilterFields]="[
+                    'codigo',
+                    'flcc_DescripcionIncidencia',
+                    'flcc_FechaHoraIncidencia',
+                    'flen_FechaHoraEstablecidaDeLlegada'
+                ]"
+                [paginator]="true"
+                [showCurrentPageReport]="true"
+                currentPageReportTemplate="Mostrando {first} al {last} de {totalRecords} entradas"
+                [rowHover]="true"
+            >
+                <ng-template pTemplate="caption">
+                    <div
+                        class="flex flex-column md:flex-row md:justify-content-between md:align-items-center"
+                    >
+                        <span class="block mt-2 md:mt-0 p-input-icon-left">
+                            <i style="color: white" class="pi pi-search"></i>
+                            <input
+                                style="color: white"
+                                pInputText
+                                type="text"
+                                (input)="onGlobalFilter(dt, $event)"
+                                placeholder="Buscar..."
+                                class="w-full sm:w-auto"
+                            />
+                        </span>
+                    </div>
+                </ng-template>
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th style="color: white" class="text-center">
+                            Acciones
+                        </th>
+                        <th
+                            style="color: white"
+                            pSortableColumn="codigo"
+                            class="text-center"
+                        >
+                            Código <p-sortIcon field="codigo"></p-sortIcon>
+                        </th>
+                        <th
+                            style="color: white"
+                            pSortableColumn="encargado"
+                            class="text-center"
+                        >
+                            Incidencia
+                            <p-sortIcon field="encargado"></p-sortIcon>
+                        </th>
+                        <th
+                            style="color: white"
+                            pSortableColumn="estado"
+                            class="text-center"
+                        >
+                            Fecha de Incidencia
+                            <p-sortIcon field="estado"></p-sortIcon>
+                        </th>
+                        <th
+                            style="color: white"
+                            pSortableColumn="estado"
+                            class="text-center"
+                        >
+                            Tiempo Establecido Flete
+                            <p-sortIcon field="estado"></p-sortIcon>
+                        </th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-incidencia>
+                    <tr (click)="selectIncidencia(incidencia)">
+                        <td
+                            class="text-center"
+                            style="width: 3%; min-width: 10rem"
+                        >
+                            <p-splitButton
+                                (onDropdownClick)="rowactualIncidencia = flete"
+                                label="Acciones"
+                                appendTo="body"
+                                icon="pi pi-cog"
+                                [model]="itemsIncidencias"
+                                styleClass="p-button-secondary"
+                            ></p-splitButton>
+                        </td>
+                        <td
+                            class="text-center"
+                            style="width: 3%; min-width: 10rem"
+                        >
+                            {{ incidencia.codigo }}
+                        </td>
+                        <td class="text-center">
+                            {{ incidencia.flcc_DescripcionIncidencia }}
+                        </td>
+                        <td class="text-center">
+                            {{ incidencia.flcc_FechaHoraIncidencia }}
+                        </td>
+                        <td class="text-center">
+                            {{ incidencia.flen_FechaHoraEstablecidaDeLlegada }}
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+    </div>
+</div>
+
+<div class="grid" *ngIf="createIncidencia">
+    <div class="col-12">
+        <div class="card">
+            <h2 class="text-center mt-2">{{ titulo }}</h2>
+            <hr />
+            <div class="mt-2 grid">
+                <form
+                    [formGroup]="formIncidencias"
+                    class="grid col-12 p-fluid p-formgrid"
+                >
+                    <div class="field col-12 md:col-6">
+                        <label>Descripción</label>
+                        <textarea
+                            [rows]="2"
+                            [cols]="30"
+                            pInputTextarea [autoResize]="true"
+                            [autoResize]="true"
+                            class="col-6"
+                            (keydown)="ValidarTextoNumeros($event)"
+                            [ngClass]="{
+                                'ng-invalid ng-dirty':
+                                    submitted &&
+                                    formIncidencias.controls[
+                                        'flcc_DescripcionIncidencia'
+                                    ].invalid
+                            }"
+                            type="text"
+                            class="p-inputtextarea"
+                            formControlName="flcc_DescripcionIncidencia"
+                        ></textarea>
+
+                        <small
+                            class="ng-dirty ng-invalid"
+                            *ngIf="
+                                submittedIncidencia &&
+                                formIncidencias.controls[
+                                    'flcc_DescripcionIncidencia'
+                                ].invalid
+                            "
+                            style="color: red !important"
+                            >El campo es requerido.</small
+                        >
+                    </div>
+
+                    <div class="field col-12 md:col-6">
+                        <label>Fecha y hora de incidencia</label>
+                        <p-calendar
+                            formControlName="flcc_FechaHoraIncidencia"
+                            [showIcon]="true"
+                            [showTime]="true"
+                            [hourFormat]="24"
+                            appendTo="body"
+                            dateFormat="yy-mm-dd"
+                            placeholder="YY/MM/DD HH:MM"
+                            [ngClass]="{
+                                'ng-invalid ng-dirty':
+                                    submittedIncidencia &&
+                                    formIncidencias.controls[
+                                        'flcc_FechaHoraIncidencia'
+                                    ].invalid
+                            }"
+                        ></p-calendar>
+                        <small
+                            class="ng-dirty ng-invalid"
+                            *ngIf="
+                                submittedIncidencia &&
+                                formIncidencias.controls[
+                                    'flcc_FechaHoraIncidencia'
+                                ].invalid
+                            "
+                            style="color: red !important"
+                            >El campo es requerido.</small
+                        >
+                    </div>
+                </form>
+            </div>
+            <div style="display: flex; justify-content: end">
+                <button
+                    (click)="GuardarIncidencia()"
+                    class="btn btn-guardar"
+                    pButton
+                    pRipple
+                    type="button"
+                    label="Guardar"
+                    icon="pi pi-save"
+                ></button>
+                <button
+                    (click)="CerrarIncidencia()"
+                    style="margin-left: 2%"
+                    class="p-button-secondary"
+                    pButton
+                    pRipple
+                    type="button"
+                    label="Cancelar"
+                    icon="pi pi-times"
+                ></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<p-dialog
+    [(visible)]="deleteIncidencia"
+    header="Confirmación"
+    [modal]="true"
+    [style]="{ width: '450px' }"
+>
+    <div class="flex align-items-center justify-content-center">
+        <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+        <span
+            >¿Está seguro de eliminar la Incidencia con código
+            <span style="font-weight: 600">{{
+                selectedIncidencia?.codigo
+            }}</span>
+            ?         </span
+        >
+    </div>
+    <ng-template pTemplate="footer">
+        <button
+            pButton
+            pRipple
+            icon="pi pi-trash"
+            type="button"
+            label="Eliminar"
+            (click)="Eliminar1()"
+        ></button>
+        <button
+            pButton
+            pRipple
+            icon="pi pi-times"
+            class="p-button-outlined p-button-primary"
+            label="Cancelar"
+            (click)="deleteIncidencia = false"
+        ></button>
+    </ng-template>
+</p-dialog>
+
+<!-- FIN DE INCIDENCIAS -->
+
+<!-- DETALLES -->
+
+<div class="grid" *ngIf="DetalleFlete">
+    <div class="col-12">
+        <div class="card">
+            <div
+                class="flex"
+                style="
+                    width: 100%;
+                    margin: 0 auto;
+                    display: flex;
+                    align-items: center;
+                    height: 42px;
+                "
+            >
+                <div
+                    style="
+                        width: 20%;
+                        display: flex;
+                        align-items: center;
+                        height: 12.5%;
+                    "
+                >
+                    <button
+                        (click)="regresarIndex()"
+                        class="p-button-link"
+                        pButton
+                        pRipple
+                        type="button"
+                        label="Regresar"
+                        icon="pi pi-arrow-left"
+                        style="box-shadow: none !important"
+                    ></button>
+                </div>
+                <div
+                    style="
+                        flex-grow: 1;
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                    "
+                >
+                    <h1 class="text-center mt-4">
+                        Detalle del Flete - {{ flete.flen_Id }}
+                    </h1>
+                </div>
+                <div style="width: 20%"></div>
+            </div>
+            <hr style="border: none; height: 2px; background-color: #3b3b3c" />
+            <div class="p-fluid p-formgrid grid">
+                <!-- Encabezado de detalles del flete -->
+                <div class="field col-12 md:col-4">
+                    <div class="field rows">
+                        <label for="Encargado" style="font-weight: 800"
+                            >Encargado</label
+                        >
+                    </div>
+                    <div class="field rows">
+                        <label for="Encargado">{{ flete.encargado }}</label>
+                    </div>
+                </div>
+                <div class="field col-12 md:col-4">
+                    <div class="field rows">
+                        <label for="SupervisorSalida" style="font-weight: 800"
+                            >Supervisor de Salida</label
+                        >
+                    </div>
+                    <div class="field rows">
+                        <label for="SupervisorSalida">{{
+                            flete.supervisorsalida
+                        }}</label>
+                    </div>
+                </div>
+                <div class="field col-12 md:col-4">
+                    <div class="field rows">
+                        <label for="SupervisorLlegada" style="font-weight: 800"
+                            >Supervisor de Llegada</label
+                        >
+                    </div>
+                    <div class="field rows">
+                        <label for="SupervisorLlegada">{{
+                            flete.supervisorllegada
+                        }}</label>
+                    </div>
+                </div>
+                <div class="field col-12 md:col-4">
+                    <div class="field rows">
+                        <label for="Salida" style="font-weight: 800"
+                            >Ubicación de Salida</label
+                        >
+                    </div>
+                    <div class="field rows">
+                        <label for="Salida">{{ flete.salida }}</label>
+                    </div>
+                </div>
+                <div class="field col-12 md:col-4">
+                    <div class="field rows">
+                        <label for="Llegada" style="font-weight: 800"
+                            >Ubicación de Llegada</label
+                        >
+                    </div>
+                    <div class="field rows">
+                        <label for="Llegada">{{ flete.destino }}</label>
+                    </div>
+                </div>
+                <div class="field col-12 md:col-4">
+                    <div class="field rows">
+                        <label for="FechaSalida" style="font-weight: 800"
+                            >Fecha de Salida</label
+                        >
+                    </div>
+                    <div class="field rows">
+                        <label for="FechaSalida">{{
+                            flete.flen_FechaHoraSalida | date : "short"
+                        }}</label>
+                    </div>
+                </div>
+                <div class="field col-12 md:col-4">
+                    <div class="field rows">
+                        <label
+                            for="FechaEstimadaLlegada"
+                            style="font-weight: 800"
+                            >Fecha Estimada de Llegada</label
+                        >
+                    </div>
+                    <div class="field rows">
+                        <label for="FechaEstimadaLlegada">{{
+                            flete.flen_FechaHoraEstablecidaDeLlegada
+                                | date : "short"
+                        }}</label>
+                    </div>
+                </div>
+                <div class="field col-12 md:col-4">
+                    <div class="field rows">
+                        <label for="FechaLlegada" style="font-weight: 800"
+                            >Fecha de Llegada</label
+                        >
+                    </div>
+                    <div class="field rows">
+                        <label for="FechaLlegada">{{
+                            flete.flen_FechaHoraLlegada | date : "short"
+                        }}</label>
+                    </div>
+                </div>
+                <div class="field col-12 md:col-4">
+                    <button
+                        (click)="verActaCompromisoDetalle(flete.flen_Id)"
+                        class="btn btn-guardar"
+                        pButton
+                        pRipple
+                        type="button"
+                        label="Acta Compromiso"
+                        icon="pi pi-print"
+                    ></button>
+                </div>
+            </div>
+            <hr />
+            <div class="p-fluid p-formgrid grid">
+                <!-- Insumos Verificados -->
+                <div class="col-12" *ngIf="verificadosInsumos.length > 0">
+                    <h4>Insumos Verificados</h4>
+                    <p-table [value]="verificadosInsumos" styleClass="mt-2">
+                        <ng-template pTemplate="header">
+                            <tr>
+                                <th>Descripción</th>
+                                <th>Unidad de Medida</th>
+                                <th>Cantidad</th>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-detalle>
+                            <tr>
+                                <td>{{ detalle.insu_Descripcion }}</td>
+                                <td>{{ detalle.unme_Nombre }}</td>
+                                <td>{{ detalle.flde_Cantidad }}</td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
+                </div>
+
+                <!-- Insumos No Verificados -->
+                <div class="col-12" *ngIf="noVerificadosInsumos.length > 0">
+                    <h4>Insumos No Verificados</h4>
+                    <p-table [value]="noVerificadosInsumos" styleClass="mt-2">
+                        <ng-template pTemplate="header">
+                            <tr>
+                                <th>Descripción</th>
+                                <th>Unidad de Medida</th>
+                                <th>Cantidad</th>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-detalle>
+                            <tr>
+                                <td>{{ detalle.insu_Descripcion }}</td>
+                                <td>{{ detalle.unme_Nombre }}</td>
+                                <td>{{ detalle.flde_Cantidad }}</td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
+                </div>
+
+                <!-- Equipos de Seguridad Verificados -->
+                <div class="col-12" *ngIf="verificadosEquipos.length > 0">
+                    <h4>Equipos de Seguridad Verificados</h4>
+                    <p-table [value]="verificadosEquipos" styleClass="mt-2">
+                        <ng-template pTemplate="header">
+                            <tr>
+                                <th>Descripción</th>
+                                <th>Cantidad</th>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-detalle>
+                            <tr>
+                                <td>{{ detalle.equs_Nombre }}</td>
+                                <td>{{ detalle.flde_Cantidad }}</td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
+                </div>
+
+                <!-- Equipos de Seguridad No Verificados -->
+                <div class="col-12" *ngIf="noVerificadosEquipos.length > 0">
+                    <h4>Equipos de Seguridad No Verificados</h4>
+                    <p-table [value]="noVerificadosEquipos" styleClass="mt-2">
+                        <ng-template pTemplate="header">
+                            <tr>
+                                <th>Descripción</th>
+                                <th>Cantidad</th>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-detalle>
+                            <tr>
+                                <td>{{ detalle.equs_Nombre }}</td>
+                                <td>{{ detalle.flde_Cantidad }}</td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
+                </div>
+
+                <!-- Incidencias -->
+                <div class="col-12" *ngIf="incidencias.length > 0">
+                    <h4>Incidencias</h4>
+                    <p-table [value]="incidencias" styleClass="mt-2">
+                        <ng-template pTemplate="header">
+                            <tr>
+                                <th>Descripción</th>
+                                <th>Fecha y Hora</th>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-incidencia>
+                            <tr>
+                                <td>
+                                    {{ incidencia.flcc_DescripcionIncidencia }}
+                                </td>
+                                <td>
+                                    {{
+                                        incidencia.flcc_FechaHoraIncidencia
+                                            | date : "short"
+                                    }}
+                                </td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
+                </div>
+
+                <!-- Auditoría -->
+                <div class="col-12">
+                    <h4>Auditoría</h4>
+                    <p-table [value]="[flete]" styleClass="mt-2">
+                        <ng-template pTemplate="header">
+                            <tr>
+                                <th style="width: 200px; font-weight: bold">
+                                    Acción
+                                </th>
+                                <th style="width: 200px; font-weight: bold">
+                                    Usuario
+                                </th>
+                                <th style="width: 200px; font-weight: bold">
+                                    Fecha
+                                </th>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-flete>
+                            <tr>
+                                <td style="width: 200px">Creado</td>
+                                <td style="width: 200px">
+                                    {{ flete.usuarioCreacion }}
+                                </td>
+                                <td style="width: 200px">
+                                    {{
+                                        flete.flen_FechaCreacion
+                                            | date : "short"
+                                    }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="width: 200px">Modificado</td>
+                                <td style="width: 200px">
+                                    {{ flete.usuarioModificacion }}
+                                </td>
+                                <td style="width: 200px">
+                                    {{
+                                        flete.flen_FechaModificacion
+                                            | date : "short"
+                                    }}
+                                </td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
+                </div>
+            </div>
+
+            <div
+                style="
+                    display: flex;
+                    justify-content: flex-end;
+                    margin-top: 1rem;
+                    grid-gap: 5px;
+                "
+            ></div>
+        </div>
+    </div>
+</div>
+
+<!-- FIN DE DETALLES -->
+
+<style>
+    .audit-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 1rem;
+    }
+
+    .audit-table th,
+    .audit-table td {
+        padding: 0.75rem;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .audit-table th {
+        background-color: #f4f4f4;
+    }
+
+    .audit-table tbody tr:hover {
+        background-color: #f9f9f9;
+    }
+</style>
+
+<!-- eliminar general -->
+
+<p-dialog
+    [(visible)]="DeleteFlete"
+    header="Confirmación"
+    [modal]="true"
+    [style]="{ width: '450px' }"
+>
+    <div class="flex align-items-center justify-content-center">
+        <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+        <span
+            >¿Está seguro de eliminar el Flete con código
+            <span style="font-weight: 600">{{ selectedFlete?.codigo }}</span> ?
+                    </span
+        >
+    </div>
+    <ng-template pTemplate="footer">
+        <button
+            pButton
+            pRipple
+            icon="pi pi-check"
+            class="p-button-outlined p-button-primary"
+            label="Si"
+            (click)="ConfirmarEliminar()"
+        ></button>
+
+        <button
+            pButton
+            pRipple
+            icon="pi pi-times"
+            class="p-button-outlined p-button-primary"
+            label="No"
+            (click)="DeleteFlete = false"
+        ></button>
+    </ng-template>
+</p-dialog>
+
+<p-dialog
+    [(visible)]="verificarFleteModal"
+    header="Confirmación"
+    [modal]="true"
+    [style]="{ width: '450px' }"
+>
+    <div class="flex align-items-center justify-content-center">
+        <i class="pi pi-check-circle mr-3" style="font-size: 2rem"></i>
+        <span>
+            ¿Está seguro de verificar el Flete con código
+            <span style="font-weight: 600">{{ selectedFlete?.codigo }}</span
+            >?
+        </span>
+    </div>
+    <ng-template pTemplate="footer">
+        <button
+            pButton
+            pRipple
+            icon="pi pi-check"
+            class="p-button-outlined p-button-primary"
+            label="Sí"
+            (click)="finalizarVerificacion()"
+        ></button>
+        <button
+            pButton
+            pRipple
+            icon="pi pi-times"
+            class="p-button-outlined p-button-primary"
+            label="No"
+            (click)="verificarFleteModal = false"
+        ></button>
+    </ng-template>
+</p-dialog>
+
+<p-dialog
+    [(visible)]="DeleteFlete"
+    header="Confirmación"
+    [modal]="true"
+    [style]="{ width: '450px' }"
+>
+    <div class="flex align-items-center justify-content-center">
+        <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+        <span
+            >¿Está seguro de eliminar el Flete con código
+            <span style="font-weight: 600">{{ selectedFlete?.codigo }}</span> ?
+                    </span
+        >
+    </div>
+    <ng-template pTemplate="footer">
+        <button
+            pButton
+            pRipple
+            icon="pi pi-trash"
+            type="button"
+            label="Eliminar"
+            (click)="ConfirmarEliminar()"
+        ></button>
+        <button
+            pButton
+            pRipple
+            icon="pi pi-times"
+            class="p-button-outlined p-button-primary"
+            label="Cancelar"
+            (click)="DeleteFlete = false"
+        ></button>
+    </ng-template>
+</p-dialog>
+
+<!-- MODAL EDICION -->
+<p-dialog
+    [(visible)]="modalEditar"
+    header="Confirmación"
+    [modal]="true"
+    [style]="{ width: '450px' }"
+>
+    <div class="flex align-items-center justify-content-center">
+        <i class="pi pi-pencil mr-3" style="font-size: 2rem"></i>
+        <span
+            >¿Está seguro de editar el Flete
+            <span style="font-weight: 600">{{ selectedFlete?.flen_Id }}</span
+            >?</span
+        >
+    </div>
+    <ng-template pTemplate="footer">
+        <button
+            pButton
+            pRipple
+            icon="pi pi-pencil"
+            type="button"
+            label="Aceptar"
+            (click)="CerrarModalEditarFlete()"
+        ></button>
+        <button
+            pButton
+            pRipple
+            icon="pi pi-times"
+            class="p-button-outlined p-button-primary"
+            label="Cancelar"
+            (click)="modalEditar = false"
+        ></button>
+    </ng-template>
+</p-dialog>
+
+<!-- VISTA DE REPORTESSSSSSSSSSSSSSS -->
+
+<div class="grid" *ngIf="showReporte">
+    <div class="col-12">
+        <div class="card invoice">
+            <div
+                class="invoice-header"
+                style="display: flex; justify-content: space-between"
+            >
+                <div>
+                    <button
+                        (click)="regresarIndex()"
+                        class="p-button-outlined"
+                        pButton
+                        pRipple
+                        type="button"
+                        label="Volver"
+                        icon="pi pi-arrow-left"
+                    ></button>
+                </div>
+                <div style="text-align: right">
+                    <button
+                        (click)="viewPDF('general')"
+                        pButton
+                        type="button"
+                        label="Reporte General"
+                        icon="pi pi-file-pdf"
+                        class="p-button-text"
+                    ></button>
+                    <button
+                        (click)="viewPDF('incidencias')"
+                        pButton
+                        type="button"
+                        label="Reporte de Incidencias"
+                        icon="pi pi-exclamation-circle"
+                        class="p-button-text"
+                    ></button>
+                    <button
+                        (click)="viewPDF('insumos')"
+                        pButton
+                        type="button"
+                        label="Reporte de Insumos"
+                        icon="pi pi-box"
+                        class="p-button-text"
+                    ></button>
+                </div>
+            </div>
+            <hr />
+            <div class="invoice-body">
+                <iframe
+                    [src]="pdfSrc"
+                    type="application/pdf"
+                    width="100%"
+                    height="600px"
+                ></iframe>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- DIVISOR DE PDF -->
+<div
+    *ngIf="isPdfVisible"
+    class="card"
+    style="position: relative; padding: 20px"
+>
+    <div
+        class="flex"
+        style="
+            width: 100%;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            height: 42px;
+        "
+    >
+        <div
+            style="
+                width: 20%;
+                display: flex;
+                align-items: center;
+                height: 12.5%;
+            "
+        >
+            <button
+                (click)="Cancelar()"
+                class="p-button-link"
+                pButton
+                pRipple
+                type="button"
+                label="Regresar"
+                icon="pi pi-arrow-left"
+                style="box-shadow: none !important"
+            ></button>
+        </div>
+        <div
+            style="
+                flex-grow: 1;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            "
+        >
+            <h1 class="text-center mt-4">Acta de Compromiso</h1>
+        </div>
+        <div style="width: 20%"></div>
+    </div>
+    <hr />
+
+    <div id="pdfContainer" class="pdf-container" style="margin-top: 40px">
+        <!-- El PDF se cargará aquí -->
+    </div>
+</div>
+
+<!-- DIVISOR DE PDF DETALLE -->
+<div
+    *ngIf="isPdfVisibleDetalle"
+    class="card"
+    style="position: relative; padding: 20px"
+>
+    <div
+        class="flex"
+        style="
+            width: 100%;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            height: 42px;
+        "
+    >
+        <div
+            style="
+                width: 20%;
+                display: flex;
+                align-items: center;
+                height: 12.5%;
+            "
+        >
+            <button
+                (click)="regresarDetalle()"
+                class="p-button-link"
+                pButton
+                pRipple
+                type="button"
+                label="Regresar"
+                icon="pi pi-arrow-left"
+                style="box-shadow: none !important"
+            ></button>
+        </div>
+        <div
+            style="
+                flex-grow: 1;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            "
+        >
+            <h1 class="text-center mt-4">Acta de Compromiso</h1>
+        </div>
+        <div style="width: 20%"></div>
+    </div>
+    <hr />
+
+    <div
+        id="pdfContainerDetalle"
+        class="pdf-container"
+        style="margin-top: 40px"
+    >
+        <!-- El PDF se cargará aquí -->
+    </div>
+</div>

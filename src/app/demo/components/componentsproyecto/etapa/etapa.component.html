@@ -1,0 +1,223 @@
+<p-toast ></p-toast>
+
+<div class="loader-container" *ngIf="loading">
+    <div class="loader">
+        <span></span>
+    </div>
+  </div>
+
+<div class="grid" *ngIf="Index">
+    <div class="col-12">
+        <div class="card">
+            <h1 class="text-center mt-2">Etapas</h1>
+            <hr>
+            <div class="grid mt-2">
+                <div class="col-12">
+                    <button (click)="CrearEtapa()" pButton label="Nuevo" icon="pi pi-plus" class="mr-2"></button>
+                </div>
+            </div>
+
+
+            <p-table  #dt [value]="etapas" styleClass="mt-2" responsiveLayout="scroll" [rows]="10"
+                [globalFilterFields]="['codigo','etap_Descripcion']" [tableStyle]="{ background: '#000' }"
+                [paginator]="true" [showCurrentPageReport]="true"
+                currentPageReportTemplate="Mostrando {first} al {last} de {totalRecords} entradas" [rowHover]="true" [tableStyle]="{ background: '#000' }" [rowsPerPageOptions]="[10,25,50,100]">
+                <ng-template pTemplate="caption">
+                    <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+                        <span class="block mt-2 md:mt-0 p-input-icon-left">
+                            <i style="color: white;" class="pi pi-search"></i>
+                            <input style="color: white;" pInputText type="text" (input)="onGlobalFilter(dt, $event)"
+                                placeholder="Buscar..." class="w-full sm:w-auto" />
+                        </span>
+                        <div class="registros">
+                            <p-dropdown
+                            [options]="dt.rowsPerPageOptions"
+                            [(ngModel)]="dt.rows"
+                            [style]="{ 'margin-right': '5px' }"
+                            [autoWidth]="false"
+                            />
+                            <span style="color: #fff0c6; font-weight: 700; margin-top: 7px;">Registros por página</span>
+                        </div>
+                    </div>
+                </ng-template>
+
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th style="color: white;" class="text-center">Acciones</th>
+
+                        <th style="color: white;" pSortableColumn="codigo"  class="text-center">No.<p-sortIcon field="codigo"></p-sortIcon></th>
+                        <th style="color: white;" pSortableColumn="etap_Descripcion" class="text-center">Etapa <p-sortIcon field="etap_Descripcion"></p-sortIcon></th>
+                    </tr>
+                </ng-template>
+                <!-- <ng-template pTemplate="emptymessage">
+                    <tr>
+                      <td colspan="6" class="text-center">
+                        <div class="loader-container" *ngIf="loading">
+                          <div class="loader"></div>
+                        </div>
+                      </td>
+                    </tr>
+                  </ng-template> -->
+                <ng-template pTemplate="body" let-etapa>
+                    <tr >
+                        <td class="text-center" style="width:5%; min-width:15rem;">
+                            <p-splitButton
+                            label="Acciones"
+                           class="custom-splitbutton"
+                            [model]="items"
+                            styleClass="p-button-secondary"
+                            (onDropdownClick)="rowactual = etapa"
+                            appendTo="body">
+                        </p-splitButton>
+                        </td>
+                        <td  class="text-center" style="width:5%; min-width:15rem;">
+                            {{etapa.codigo}}
+                        </td>
+                        <td  class="text-center">
+                            {{etapa.etap_Descripcion}}
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+    </div>
+</div>
+
+<div class="grid" *ngIf="CreateEdit">
+    <div class="col-12">
+        <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center; height: 42px;">
+                <!-- Contenedor del Botón Regresar -->
+                <div style="width: 20%; display: flex; align-items: center;">
+                    <button (click)="Cancelar()" class="p-button-link" pButton pRipple type="button" label="Regresar" icon="pi pi-arrow-left" style="box-shadow: none !important;"></button>
+                </div>
+
+                <!-- Contenedor del Título -->
+                <div style="flex: 1; text-align: center;">
+                    <h1 class="text-center mt-4">{{ Edit ? 'Editar Etapa' : 'Nueva Etapa' }}</h1>
+                </div>
+
+                <!-- Empty div to balance the layout -->
+                <div style="width: 20%;"></div>
+            </div>
+
+            <hr>
+
+            <div class="mt-2 grid">
+                <form [formGroup]="form" class="grid col-12 p-fluid p-formgrid">
+                    <div class="field col-6">
+                        <label>
+                            Etapa
+                            <span *ngIf="submitted && form.controls['etap_Descripcion'].invalid" style="color: red">*</span> <!-- Asterisco rojo condicionado -->
+                        </label>
+                        <input maxlength="100"
+                             (keydown)="ValidarTextoNumeros($event)" (input)="allowOnlyAlphanumeric($event)"
+                             [ngClass]="{'ng-invalid ng-dirty': submitted && (form.controls['etap_Descripcion'].invalid || form.controls['etap_Descripcion'].hasError('noSoloEspacios'))}"
+                             type="text" class="p-inputtext" formControlName="etap_Descripcion">
+                         <small class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['etap_Descripcion'].hasError('noSoloEspacios')"
+                             style="color: red !important;"></small>
+                         <small class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['etap_Descripcion'].invalid"
+                             style="color: red !important;">El campo es requerido.</small>
+                    </div>
+                </form>
+            </div>
+            <div style="display: flex;justify-content: end;">
+                <button (click)="Guardar()" class="btn btn-guardar" pButton pRipple type="button" label="Guardar" icon="pi pi-save"></button>
+                <button (click)="Cancelar()" style="margin-left: 2%;" class="p-button-secondary" pButton pRipple type="button" label="Cancelar" icon="pi pi-times"></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- modal de confirmar eliminar -->
+<p-dialog [(visible)]="modaleliminar" header="Confirmación" [modal]="true" [style]="{width:'450px'}">
+    <div class="flex align-items-center justify-content-center">
+        <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+        <span>¿Está seguro de eliminar la etapa <span style="font-weight: 600;"> {{Descripcion}}</span>?</span>
+    </div>
+    <ng-template pTemplate="footer">
+        <button pButton pRipple icon="pi pi-trash" label="Eliminar"(click)="EliminarEtapa()"></button>
+        <button pButton pRipple icon="pi pi-times" class="p-button-outlined p-button-primary" label="Cancelar"(click)="modaleliminar = false"></button>
+    </ng-template>
+</p-dialog>
+
+<!-- detlles -->
+<div class="grid" *ngIf="detalles">
+    <div class="col-12">
+        <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center; height: 12.5%; height: 42px;">
+                <div style="width: 20%; display: flex; align-items: center;">
+                    <button (click)="hola()" class="p-button-link" pButton pRipple type="button" label="Regresar" icon="pi pi-arrow-left" style="box-shadow: none !important"></button>
+                </div>
+                <div style="flex: 1; text-align: center;">
+                    <h1 class="text-center mt-4">Detalle Etapa</h1>
+                </div>
+                <div style="width: 20%;"></div> <!-- Empty div to balance the layout -->
+            </div>
+            <hr>
+            <div *ngIf="etapa">
+                <div class="p-fluid p-formgrid grid">
+                    <div class="field col-12 md:col-4" style="position: relative; height: 10%;">
+                        <div class="field rows">
+                            <label for="Codigo" style="font-weight: 800;">No:</label>
+                        </div>
+                        <div class="field rows">
+                            <label for="Codigo">{{etapa.codigo}}</label>
+                        </div>
+                    </div>
+                    <div class="field col-12 md:col-4" style="position: relative;">
+                        <div class="field rows">
+                            <label for="Etapa" style="font-weight: 800;">Etapa:</label>
+                        </div>
+                        <div class="field rows">
+                            <label for="Etapa">{{etapa.etap_Descripcion}}</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="position: relative; top: -20px;">
+                <div class="card-title">
+                    <h1>Auditoría</h1>
+                </div>
+                <p-table #dt [value]="etapass" styleClass="mt-2">
+                    <ng-template pTemplate="header">
+                        <tr>
+                            <th style="width:200px; font-weight: bold;">Acción</th>
+                            <th style="width:200px; font-weight: bold;">Usuario</th>
+                            <th style="width:200px; font-weight: bold;">Fecha</th>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body">
+                        <tr>
+                            <td style="width:200px;">Creado</td>
+                            <td style="width:200px;">{{ etapa.usuaCreacion }}</td>
+                            <td style="width:200px;">{{ etapa.etap_FechaCreacion }}</td>
+                        </tr>
+                        <tr>
+                            <td style="width:200px;">Modificado</td>
+                            <td style="width:200px;">{{ etapa.usuaModificacion }}</td>
+                            <td style="width:200px;">{{ etapa.etap_FechaModificacion }}</td>
+                        </tr>
+                    </ng-template>
+                </p-table>
+            </div>
+
+
+        </div>
+    </div>
+</div>
+
+  <!-- Modal de Confirmar -->
+<p-dialog [(visible)]="Edito" header="Confirmación" [modal]="true" [style]="{width:'450px'}">
+    <div class="flex align-items-center justify-content-center">
+        <i class="pi pi-pencil mr-3" style="font-size: 2rem"></i>
+        <span>¿Está seguro de editar la etapa  <span style="font-weight: 600">{{Descripcion}}</span
+            >?</span>
+    </div>
+    <ng-template pTemplate="footer">
+        <button pButton pRipple icon="pi pi-pencil"  label="Aceptar" (click)="modalEditar()"></button>
+        <button pButton pRipple icon="pi pi-times" class="p-button-outlined p-button-primary" label="Cancelar" (click)="Edito = false"></button>
+      </ng-template>
+</p-dialog>

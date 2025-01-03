@@ -1,0 +1,101 @@
+<div class="col-12">
+    <div class="card">
+        <div class="flex" style="width: 100%; margin: 0 auto; display: flex; align-items: center;">
+            <div style="width: 20%; display: flex; align-items: center; height: 12.5%;">
+                <button (click)="regresar()" class="p-button-link" pButton pRipple type="button" label="Regresar" icon="pi pi-arrow-left" style="box-shadow: none !important"></button>
+
+            </div>
+            <div style="flex-grow: 1; display: flex; justify-content: center; align-items: center;">
+                <h1>{{proyecto.proy_Nombre}}</h1>
+            </div>
+            <div style="width: 20%;"></div> 
+        </div>
+        
+        <hr>
+        <p style="color: #FFFFFF; font-size: 1.2em"><span style="color: #fff0c6;">Nota:</span> Seleccionando una tarea puedes: 'arrastrar' para ajustar o mover la tarea, 'doble click' para editar tarea, 'I' para  agregar incidencias y 'C' para agregar control de calidad</p>
+
+        <app-gantt></app-gantt>
+        <!-- Toolbar Container -->
+
+        <div class="grid">
+            <!-- Toolbar Container -->
+            <div class="toolbar-container">
+                <div class="input-switch-container">
+                    <p-inputSwitch
+                        id="collapseSwitch"
+                        offLabel="Expand Rows"
+                        (onChange)="this.handleCollapse()"
+                    ></p-inputSwitch>
+                    <label for="collapseSwitch" class="custom-label"
+                        >Colapsar</label
+                    >
+                </div>
+                <!-- <p-button
+                    severity="secondary"
+                    icon="pi pi-undo"
+                    label="Deshacer"
+                    class="mr-2"
+                    (onClick)="this.handleUndo()"
+                ></p-button>
+                <p-button
+                    severity="secondary"
+                    icon="pi pi-refresh"
+                    label="Rehacer"
+                    class="mr-2"
+                    (onClick)="this.handleRedo()"
+                ></p-button> -->
+                <p-button
+                    severity="secondary"
+                    icon="pi pi-file-pdf"
+                    label="Exportar a PDF"
+                    class="mr-2"
+                    (onClick)="this.exportPDF()"
+                ></p-button>
+                <p-button
+                    severity="secondary"
+                    icon="pi pi-image"
+                    label="Exportar a PNG"
+                    class="mr-2"
+                    (onClick)="this.exportPNG()"
+                ></p-button>
+                <!-- <p-button
+                    severity="secondary"
+                    icon="pi pi-file-excel"
+                    label="Exportar a Excel"
+                    class="mr-2"
+                    (onClick)="this.exportExcel()"
+                ></p-button> -->
+                <p-button
+                    severity="secondary"
+                    icon="pi pi-cloud-download"
+                    label="Exportar a MS Project"
+                    class="mr-2"
+                    (onClick)="this.exportMsProject()"
+                ></p-button>
+                <!-- <p-dropdown
+                class="custom-dd"
+                [options]="opciones" 
+                optionLabel="name" 
+                placeholder="Zoom"
+                [style]="{ minWidth: '110px', width: '100%'}" /> -->
+                <p-button
+                severity="secondary"
+                icon="pi pi-external-link"
+                label="Pantalla Completa"
+                class="mr-2"
+                (onClick)="this.handleFullScreen()"
+                ></p-button>
+                    <i
+                    class="pi pi-info-circle ml-2"
+                    pTooltip="Seleccionando una tarea:
+                    'I' para incidencias y
+                    'C' control de calidad"
+                    tooltipPosition="top"
+                    style="cursor: pointer; font-size: 1.2em; margin-left: -5%; align-self: center;"
+                ></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+

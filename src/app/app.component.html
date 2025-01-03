@@ -1,0 +1,14 @@
+<router-outlet>
+    <p-speedDial
+    @fadeAnimation
+    *ngIf="isScrollable"
+    [model]="tooltipItems" 
+    className="speeddial-bottom-right"
+    [showIcon]=" scrollHeight - scrollY <= 5 ? 'pi pi-plus' : 'pi pi-arrow-down'"
+    hideIcon="pi pi-times"
+    behavior="smooth"
+    direction="up-left"
+    [radius]="calculateRadius()" 
+    type="quarter-circle" 
+    (click)="scrollToBottom()"/>
+</router-outlet>

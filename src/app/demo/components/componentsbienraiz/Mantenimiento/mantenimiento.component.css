@@ -1,0 +1,20 @@
+.input-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.input-container input {
+  width: 100%;
+  padding: 0.5rem;
+  border: none;
+  outline: none;
+  font-size: 1rem;
+  text-align: center;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+}/*# sourceMappingURL=categoriaviatico.component.css.map */

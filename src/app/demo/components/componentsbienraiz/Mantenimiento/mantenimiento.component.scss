@@ -1,0 +1,99 @@
+.input-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+
+  .input-container input {
+    width: 100%;
+    padding: 0.5rem;
+    border: none;
+    outline: none;
+    font-size: 1rem;
+    text-align: center;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+  }
+
+  .loader-container {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100px; /* Ajusta según el tamaño del loader y la tabla */
+    width: 100%;
+    z-index: 1000; /* Asegura que esté encima de otros contenidos */
+  }
+  
+  
+  .loader {
+    --d: 23px;
+    width: 6px;
+    height: 6px;
+    border-radius: 200%;
+    color: var(--primary-900);
+    box-shadow:
+      calc(1*var(--d))      calc(0*var(--d))     0 0,
+      calc(0.707*var(--d))  calc(0.707*var(--d)) 0 1px,
+      calc(0*var(--d))      calc(1*var(--d))     0 2px,
+      calc(-0.707*var(--d)) calc(0.707*var(--d)) 0 3px,
+      calc(-1*var(--d))     calc(0*var(--d))     0 4px,
+      calc(-0.707*var(--d)) calc(-0.707*var(--d))0 5px,
+      calc(0*var(--d))      calc(-1*var(--d))    0 6px;
+    animation: l27 1s infinite steps(8);
+    margin-left: 20%;
+  }
+  
+  @keyframes l27 {
+    100% { transform: rotate(1turn); }
+  }
+  ::ng-deep .custom-splitbutton .p-splitbutton-defaultbutton {
+    display: none; /* Oculta el botón izquierdo */
+}
+
+
+::ng-deep .custom-splitbutton .p-splitbutton-menubutton {
+    width: 133.73px;
+    height: 29.49px;
+    display: flex;
+    align-items: center;
+    padding: 0.5rem;
+    border-radius: 5px;
+    position: relative;
+
+}
+::ng-deep .custom-splitbutton .p-splitbutton-menubutton .p-button-label {
+    display: flex;
+    align-items: center;
+}
+
+
+::ng-deep .custom-splitbutton .p-splitbutton-menubutton::before {
+    content: '\e94a   Acciones ';
+    font-family: 'PrimeIcons', sans-serif;
+    font-size: 1rem;
+    display: inline-flex;
+    align-items: center;
+    margin-right: 17px;
+}
+
+
+/* Añadir el icono de engranaje a la izquierda del texto */
+::ng-deep .custom-splitbutton .p-splitbutton-menubutton::before {
+    position: relative;
+}
+
+
+
+
+::ng-deep .custom-splitbutton .p-splitbutton-menubutton .p-button-icon-right .p-icon-wrapper{
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    margin-left: 0;
+}

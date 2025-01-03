@@ -1,0 +1,617 @@
+.image-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid #ccc;
+    height: 200px;
+    background-color: #333;
+    border-radius: 4px;
+}
+
+.image-center {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+  @keyframes l27 {
+    100% { transform: rotate(1turn); }
+  }
+
+//----------------
+.estado-abierto {
+    background-color: green;
+    color: white;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+  }
+
+  .estado-cerrado {
+    background-color: red;
+    color: white;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+  }
+
+  .estado-detalle {
+    background-color: rgb(4, 174, 177);
+    color: white;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+  }
+.imagenes-contenedor2 {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.imagen-lista2 {
+    width: auto;
+    height: auto;
+    max-width: 100px;
+    max-height: 100px;
+    object-fit: cover;
+    border-style: 1px solid #fff;
+}
+
+.imagen-principal2 {
+    max-width: 300px;  /* Máximo ancho de la imagen */
+    max-height: 300px; /* Máximo alto de la imagen */
+    width: 100%;       /* Ajuste al 100% del ancho del contenedor */
+    height: auto;      /* Mantener la proporción de la imagen */
+    object-fit: contain;  /* Escalar la imagen para que se ajuste dentro del contenedor sin recortarse */
+}
+
+
+
+
+
+//-----------------------
+
+
+.contenedor-principal {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    width: 280px;
+    height: 390px;
+}
+
+.tarjeta {
+    padding: 10px;
+    font-size: 12px;
+    width: 100%;
+    margin: 20px;
+    background-color: #1E1E1E;
+    border-radius: 5px;
+    color: 1px solid #FFF0C6;
+    height: 350px;
+}
+
+.lista-imagenes {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 20%;
+    background-color: #1E1E1E;
+    padding: 10px;
+    gap: 10px;
+}
+
+.imagenes-contenedor {
+    flex-grow: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.imagen-lista {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: border-color 0.15s;
+}
+
+.imagen-lista.borde-primario {
+    border-color: 1px solid #FFF0C6;
+}
+
+.boton-navegacion {
+    background: none;
+    border: none;
+    color: 1px solid #FFF0C6;
+    font-size: 24px;
+    cursor: pointer;
+    margin: 10px 0;
+}
+
+.imagen-principal-contenedor {
+    width: 80%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.imagen-seleccionada {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 500px;
+    border: 2px solid #FFF;
+}
+
+.imagen-principal {
+    width: 180px;
+    height: 300px;
+    max-width: 300px;  /* Limita el ancho de la imagen al contenedor */
+    max-height: 300px; /* Limita la altura de la imagen al contenedor */
+    object-fit: contain; /* Mantiene la proporción de la imagen sin recortarla */
+}
+
+.caja-subir {
+    width: 100%;
+    height: 300px;
+    border: 1px dashed #FFF;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    text-align: center;
+    color: #FFF;
+}
+
+.texto-subir {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.icono-subir {
+    width: 50px;
+    height: 50px;
+    margin-bottom: 10px;
+}
+
+.texto-subir p {
+    font-size: 18px;
+    margin: 0;
+}
+
+.texto-subir span {
+    font-size: 14px;
+    color: #999;
+}
+
+.botones {
+    margin-top: 0; /* Elimina el margen superior */
+    padding-top: 0; /* Asegura que no haya relleno superior */
+    display: flex;
+    justify-content: end;
+    align-items: center; /* Centra los botones verticalmente */
+    gap: 10px;
+    flex-wrap: wrap; /* Permite que los botones se muevan a la siguiente línea si es necesario */
+}
+
+/* Media query para ajustar en pantallas más pequeñas */
+@media (max-width: 768px) {
+    .botones {
+        flex-direction: column; /* Cambia la dirección a columna en pantallas más pequeñas */
+        gap: 5px; /* Reduce el espacio entre botones */
+    }
+}
+
+.flotante{
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 120px;
+    height: 40px;
+    // background-color: #007BFF;
+    // color: white;
+    border: none;
+    border-radius: 0%;
+    box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.3);
+    cursor: pointer;
+    z-index: 1000;
+}
+.flotante2{
+    position: fixed;
+    bottom: 20px;
+    right: 150px;
+    width: 120px;
+    height: 40px;
+    // background-color: #007BFF;
+    // color: white;
+    border: none;
+    border-radius: 0%;
+    box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.3);
+    cursor: pointer;
+    z-index: 1000;
+
+}
+
+.flotante3{
+    position: fixed;
+    bottom: 20px;
+
+    width: 120px;
+    height: 40px;
+    background-color: #000000;
+    // color: white;
+    border: none;
+    border-radius: 0%;
+    box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.3);
+    cursor: pointer;
+    z-index: 1000;
+
+}
+
+.tamano{
+    width: 110px;
+}
+
+// button[pButton] {
+//     padding: 10px 20px;
+//     border: none;
+//     border-radius: 5px;
+//     cursor: pointer;
+// }
+
+
+// button[pButton] .pi {
+//     margin-right: 8px;
+// }
+
+//---------------------
+/* ventabienraiz.component.css */
+
+/* ventabienraiz.component.scss */
+.prueba {
+    display: flex;
+    justify-content: center;
+  }
+  
+  .prueba2 {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
+    gap: 20px;
+  }
+  
+  .prueba3 {
+    width: 100%;
+    height: auto;
+  }
+  
+  .document-container {
+    margin-bottom: 20px;
+}
+
+
+.fieldset-responsive {
+    width: 130%;
+    max-width: 130%;
+    
+    overflow: hidden;
+    box-sizing: border-box;
+    
+}
+
+.card2 {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    overflow: auto;
+    padding: 16px;
+    max-width: 100%;
+    max-height: 710px;
+    background-color: #333;
+    box-sizing: border-box;
+    flex: 1 1 auto;
+}
+
+.responsive-iframe {
+    width: 100%;
+    height: 400px;
+    max-height: 500px;
+    border: none;
+}
+
+.responsive-image {
+    width: 100%;
+    height: 400px;
+    max-height: 500px;
+    object-fit: contain;
+}
+
+.flex-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.flex-item {
+    width: 100%;
+    box-sizing: border-box;
+    flex: 1 1 auto;
+}
+
+.document-container {
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+
+// .card2 {
+//     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+//     border-radius: 8px;
+//     overflow-y: auto;
+//     padding: 16px;
+//     background-color: #333;
+
+//     /* Ancho adaptable */
+//     width: 100%;
+//     max-width: 90%; /* Esto asegura que la tarjeta nunca supere el 90% del contenedor padre */
+//     margin: 0 auto; /* Centra la tarjeta horizontalmente */
+
+//     height: auto;
+//     max-height: 700px;
+// }
+
+// @media (max-width: 768px) {
+//     .card2 {
+//         max-width: 100%; /* Ocupa todo el ancho en pantallas pequeñas */
+//     }
+// }
+
+
+#pdfContent iframe {
+    width: 100%;
+    border: none;
+}
+
+
+
+
+
+
+  //------------------
+
+
+
+
+
+  .contenedor-principal2 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    width: 70%;
+    margin-left: 15%;
+    
+}
+
+.tarjeta2 {
+    padding: 10px;
+    font-size: 12px;
+    width: 70%;
+    height: 50%;
+    background-color: #1E1E1E;
+    border-radius: 5px;
+    color: #FFF;
+    padding: 30px;
+}
+
+.lista-imagenes2 {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 20%;
+    background-color: #1E1E1E;
+    padding: 10px;
+    gap: 10px;
+}
+
+.placeholder {
+    width: 100px;
+    height: 100px;
+    border: 2px dashed #FFF0C6;
+    border-radius: 5px;
+}
+
+
+
+.imagenes-contenedor2 {
+    flex-grow: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.imagen-lista2 {
+    width: 70px;
+    height: 70px;
+    object-fit: cover;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: border-color 0.15s;
+}
+
+.imagen-lista.borde-primario2 {
+    border-color: #FFF0C6;
+}
+
+.boton-navegacion2 {
+    background: none;
+    border: none;
+     color: #FFF0C6;
+     font-size: 24px;
+     cursor: pointer;
+     margin: 10px 0;
+ }
+
+.imagen-principal-contenedor2 {
+    width: 75%;
+    margin-left: 5%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.caja-subir2 {
+    width: 100%;
+    height: 300px;
+    border: 1px dashed #FFF;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    text-align: center;
+    color: #FFF;
+}
+
+@media (max-width: 768px) {
+    .contenedor-principal2 {
+        width: 100%;
+        margin-left: 0;
+    }
+
+    .tarjeta2 {
+        width: 100%;
+        padding: 1rem;
+    }
+
+    .botones {
+        flex-direction: column; /* Cambia la orientación a vertical en pantallas pequeñas */
+        gap: 0.5rem;
+    }
+
+    .lista-imagenes2 {
+        max-width: 100%;
+    }
+
+    .imagen-principal-contenedor2 {
+        width: 100%;
+    }
+}
+
+.texto-subir2 {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.icono-subir2 {
+    width: 50px;
+    height: 50px;
+    margin-bottom: 10px;
+}
+
+.texto-subir2 p {
+    font-size: 18px;
+    margin: 0;
+}
+
+.texto-subir2 span {
+    font-size: 14px;
+    color: #999;
+}
+
+.botones2 {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+    gap: 10px;
+}
+
+// button[pButton] {
+//     padding: 10px 20px;
+//     border: none;
+//     border-radius: 5px;
+//     cursor: pointer;
+
+    
+// }
+
+// .p-button-secondary {
+//     background-color: #1E1E1E;
+//     color: #FFC107;
+// }
+
+// button[pButton] .pi {
+//     margin-right: 8px;
+// }
+
+
+
+.spinner-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; 
+  }
+  
+  .hidden-spinner {
+    display: none;
+  }
+
+
+
+
+
+
+
+
+::ng-deep .custom-splitbutton .p-splitbutton-defaultbutton {
+    display: none; /* Oculta el botón izquierdo */
+}
+
+::ng-deep .custom-splitbutton .p-splitbutton-menubutton {
+    width: 133.73px;
+    height: 29.49px;
+    display: flex;
+    align-items: center; 
+    padding: 0.5rem;
+    border-radius: 5px;
+    position: relative; 
+}
+
+::ng-deep .custom-splitbutton .p-splitbutton-menubutton .p-button-label {
+    display: flex;
+    align-items: center;
+}
+
+::ng-deep .custom-splitbutton .p-splitbutton-menubutton::before {
+    content: '\e94a   Acciones ';
+    font-family: 'PrimeIcons', sans-serif; 
+    font-size: 1rem; 
+    display: inline-flex; 
+    align-items: center; 
+    margin-right: 17px;
+}
+
+/* Añadir el icono de engranaje a la izquierda del texto */
+::ng-deep .custom-splitbutton .p-splitbutton-menubutton::before {
+    position: relative; 
+}
+
+
+::ng-deep .custom-splitbutton .p-splitbutton-menubutton .p-button-icon-right .p-icon-wrapper{
+    position: absolute;
+    right: 10px; 
+    top: 50%;
+    transform: translateY(-50%);
+    margin-left: 0; 
+}

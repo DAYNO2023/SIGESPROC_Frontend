@@ -1,0 +1,416 @@
+<!-- Titulo Accion -->
+<div class="flex flex-column mb-4">
+    <h2>
+        {{
+            selectedRiesgo.length > 0
+                ? "Riesgo"
+                : riesgo?.geri_Id
+                ? "Editar Riesgo"
+                : "Nuevo Riesgo"
+        }}
+    </h2>
+</div>
+
+<!-- Formulario -->
+<div
+    *ngIf="!detalleRiesgo"
+    class="flex flex-row align-items-center flex-wrap"
+    style="gap: 15px"
+>
+    <!-- Campos -->
+    <div class="field" [style]="{ width: '49%' }">
+        <label for="geri_Descripcion">Descripción del riesgo
+            <small
+            class="ng-dirty ng-invalid"
+            *ngIf="submitted && !riesgo.geri_Descripcion"
+            >*</small>
+        </label>
+        <textarea rows="2" cols="10"
+            pInputTextarea [autoResize]="true"
+            id="geri_Descripcion"
+            [(ngModel)]="riesgo.geri_Descripcion"
+            autofocus [maxLength]="50"
+            [ngClass]="{
+                'ng-invalid ng-dirty': submitted && !riesgo.geri_Descripcion
+            }"
+        ></textarea>
+        <small
+            class="ng-dirty ng-invalid"
+            *ngIf="submitted && !riesgo.geri_Descripcion"
+            >El campo es requerido.</small
+        >
+    </div>
+    <div class="field" [style]="{ width: '49%' }">
+        <label for="geri_Probabilidad">Probabilidad del riesgo
+            <small
+            class="ng-dirty ng-invalid"
+            *ngIf="submitted && !riesgo.geri_Probabilidad"
+            >*</small>
+        </label>
+        <p-inputNumber
+            id="geri_Probabilidad"
+            [(ngModel)]="riesgo.geri_Probabilidad"
+            autofocus
+            mode="decimal"
+            suffix=" %"
+            [min]="0"
+            [max]="100"
+            [minFractionDigits]="2"
+            [maxFractionDigits]="2"
+            [ngClass]="{
+                'ng-invalid ng-dirty': submitted && !riesgo.geri_Probabilidad
+            }"
+        />
+        <small
+            class="ng-dirty ng-invalid"
+            *ngIf="submitted && !riesgo.geri_Probabilidad"
+            >El campo es requerido.</small
+        >
+    </div>
+    <div class="field" [style]="{ width: '49%' }">
+        <label for="geri_Impacto">Impacto del riesgo
+            <small
+            class="ng-dirty ng-invalid"
+            *ngIf="submitted && !riesgo.geri_Impacto"
+            >*</small>
+        </label>
+        <textarea rows="2" cols="10"
+            pInputTextarea [autoResize]="true"
+            id="geri_Impacto"
+            [(ngModel)]="riesgo.geri_Impacto"
+            autofocus [maxLength]="50"
+            [ngClass]="{
+                'ng-invalid ng-dirty': submitted && !riesgo.geri_Impacto
+            }"
+        ></textarea>
+        <small
+            class="ng-dirty ng-invalid"
+            *ngIf="submitted && !riesgo.geri_Impacto"
+            >El campo es requerido.</small
+        >
+    </div>
+    <div class="field" [style]="{ width: '49%' }">
+        <label for="geri_Mitigacion">Mitigación del riesgo
+            <small
+            class="ng-dirty ng-invalid"
+            *ngIf="submitted && !riesgo.geri_Mitigacion"
+            >*</small>
+        </label>
+        <textarea rows="2" cols="10"
+            pInputTextarea [autoResize]="true"
+            id="geri_Mitigacion"
+            [(ngModel)]="riesgo.geri_Mitigacion"
+            autofocus [maxLength]="50"
+            [ngClass]="{
+                'ng-invalid ng-dirty': submitted && !riesgo.geri_Mitigacion
+            }"
+        ></textarea>
+        <small
+            class="ng-dirty ng-invalid"
+            *ngIf="submitted && !riesgo.geri_Mitigacion"
+            >El campo es requerido.</small
+        >
+    </div>
+</div>
+
+<!-- Botones -->
+<div *ngIf="!detalleRiesgo" class="flex justify-content-end mb-4">
+    <div class="flex flex-row" style="gap: 10px">
+        <button
+            #guardarButton
+            (click)="guardarRiesgo()"
+            pButton
+            pRipple
+            type="button"
+            label="Guardar"
+            icon="pi pi-save"
+        ></button>
+        <button
+            (click)="buttonLimpiar()"
+            class="p-button-secondary"
+            pButton
+            pRipple
+            type="button"
+            label="Limpiar"
+            icon="pi pi-trash"
+        ></button>
+    </div>
+</div>
+
+<!-- Tabla de listar -->
+<p-table
+    *ngIf="!detalleRiesgo"
+    #dt
+    [value]="riesgos"
+    [columns]="cols"
+    responsiveLayout="scroll"
+    [rows]="10"
+    [globalFilterFields]="[
+        'row',
+        'geri_Descripcion',
+        'geri_Probabilidad',
+        'geri_Impacto',
+        'geri_Mitigacion'
+    ]"
+    [paginator]="true"
+    [showCurrentPageReport]="true"
+    currentPageReportTemplate="Mostrando {first} al {last} de {totalRecords} entradas"
+    selectionMode="multiple"
+    [rowHover]="true"
+    dataKey="id"
+    [rowsPerPageOptions]="[10, 25, 50, 100]"
+>
+    <!-- Encabezado de tabla -->
+    <ng-template pTemplate="caption">
+        <div class="flex">
+            <div
+                class="flex flex-column md:flex-row md:justify-content-start md:align-items-center"
+            >
+                <span class="block mt-2 md:mt-0 p-input-icon-left">
+                    <i class="pi pi-search"></i>
+                    <input
+                        pInputText
+                        type="text"
+                        (input)="onGlobalFilter(dt, $event)"
+                        placeholder="Buscar..."
+                        class="w-full sm:w-auto"
+                    />
+                </span>
+            </div>
+            <div class="registros">
+                <p-dropdown
+                    [options]="dt.rowsPerPageOptions"
+                    [(ngModel)]="dt.rows"
+                    [style]="{ 'margin-right': '5px' }"
+                    [autoWidth]="false"
+                ></p-dropdown>
+
+                <span style="color: #fff0c6; font-weight: 700; margin-top: 7px">
+                    Registros por página</span
+                >
+            </div>
+        </div>
+    </ng-template>
+
+    <!-- Header de tabla -->
+    <ng-template pTemplate="header">
+        <tr>
+            <th>Acciones</th>
+            <th class="text-center" pSortableColumn="row">
+                No. <p-sortIcon field="row"></p-sortIcon>
+            </th>
+            <th class="text-center" pSortableColumn="geri_Descripcion">
+                Descripción <p-sortIcon field="geri_Descripcion"></p-sortIcon>
+            </th>
+            <th class="text-center" pSortableColumn="geri_Probabilidad">
+                Probabilidad <p-sortIcon field="geri_Probabilidad"></p-sortIcon>
+            </th>
+            <th class="text-center" pSortableColumn="geri_Impacto">
+                Impacto <p-sortIcon field="geri_Impacto"></p-sortIcon>
+            </th>
+            <th class="text-center" pSortableColumn="geri_Mitigacion">
+                Mitigación <p-sortIcon field="geri_Mitigacion"></p-sortIcon>
+            </th>
+        </tr>
+    </ng-template>
+
+    <!-- Body de tabla -->
+    <ng-template pTemplate="body" let-riesgo let-i="rowIndex">
+        <tr>
+            <!-- Columna de Acciones -->
+            <td class="text-center" style="width: 5%; min-width: 10rem">
+                <p-splitButton
+                    appendTo="body"
+                    label="Acciones"
+                    icon="pi pi-cog"
+                    [model]="generarActionSplitButton(riesgo)"
+                    styleClass="p-button-secondary custom-splitbutton"
+                ></p-splitButton>
+            </td>
+
+            <!-- Contenido -->
+            <td class="text-center" style="width: 0.5%; min-width: 3rem">
+                <span class="p-column-title">No.</span>
+                {{ riesgo.row }}
+            </td>
+            <td class="text-center" style="width: 14%; min-width: 10rem">
+                <span class="p-column-title">Descripción</span>
+                {{ riesgo.geri_Descripcion }}
+            </td>
+            <td class="text-center" style="width: 14%; min-width: 10rem">
+                <span class="p-column-title">Probabilidad</span>
+                {{ riesgo.geri_Probabilidad }}
+            </td>
+            <td class="text-center" style="width: 14%; min-width: 10rem">
+                <span class="p-column-title">Impacto</span>
+                {{ riesgo.geri_Impacto }}
+            </td>
+            <td class="text-center" style="width: 14%; min-width: 10rem">
+                <span class="p-column-title">Mitigación</span>
+                {{ riesgo.geri_Mitigacion }}
+            </td>
+        </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+        <tr>
+            <td colspan="100">
+                <ng-container *ngIf="isTableLoading; else noData">
+                    <div class="loader-container">
+                        <div class="loader">
+                            <span></span>
+                        </div>
+                    </div>
+                </ng-container>
+                <ng-template #noData>
+                    {{ loadedTableMessage }}
+                </ng-template>
+            </td>
+        </tr>
+    </ng-template>
+</p-table>
+
+<!-- Ver Detalles -->
+<div *ngIf="detalleRiesgo">
+    <!-- Campos de detalle -->
+    <div class="flex flex-column mb-4">
+        <div
+            class="flex flew-row justify-content-between align-items-center flex-wrap"
+        >
+            <div
+                *ngFor="let property of getFilteredPropertyArray()"
+                style="width: 30%"
+            >
+                <div class="field rows">
+                    <label style="font-weight: 800">{{ property.key }}</label>
+                </div>
+                <div class="field rows">
+                    <label>{{ property.value }}</label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabla de auditoria -->
+    <p-table
+        [value]="selectedRiesgo"
+        responsiveLayout="scroll"
+        [rowHover]="true"
+        dataKey="id"
+    >
+        <ng-template pTemplate="header">
+            <tr>
+                <th>Acción</th>
+                <th>Usuario</th>
+                <th>Fecha</th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-riesgo>
+            <tr>
+                <td>Creación</td>
+                <td>{{ riesgo.usuaCreacion }}</td>
+                <td>
+                    {{
+                        riesgo.geri_FechaCreacion | date : "dd/mm/yy hh:mm:ss a"
+                    }}
+                </td>
+            </tr>
+            <tr>
+                <td>Modificación</td>
+                <td>{{ riesgo?.usuaModificacion || "N/a" }}</td>
+                <td>
+                    {{
+                        riesgo?.geri_FechaModificacion || "N/a"
+                            | date : "dd/mm/yy hh:mm:ss a"
+                    }}
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+
+    <!-- Boton regresar -->
+    <div class="flex justify-content-end mt-4">
+        <button
+            pButton
+            pRipple
+            label="Regresar"
+            icon="pi pi-fw pi-arrow-left"
+            (click)="cerrarDetalle()"
+        ></button>
+    </div>
+</div>
+<!-- Modal Eliminar -->
+<p-dialog
+    [(visible)]="deleteRiesgoDialog"
+    header="Confirmación"
+    [modal]="true"
+    [style]="{ width: '450px' }"
+>
+    <!-- Cuerpo Modal -->
+    <div class="flex align-items-center justify-content-center">
+        <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+        <span *ngIf="riesgo"
+            >¿Está seguro de eliminar el riesgo
+            <b>{{ riesgoDescripcion }}</b> del proyecto
+            <b>{{ proyecto.proy_Nombre }}</b
+            >?</span
+        >
+    </div>
+
+    <!-- Botones -->
+    <ng-template pTemplate="footer">
+        <button
+            pButton
+            pRipple
+            icon="pi pi-trash"
+            class="p-button-primary"
+            label="Eliminar"
+            (click)="confirmarEliminar()"
+        ></button>
+        <button
+            pButton
+            pRipple
+            icon="pi pi-times"
+            class="p-button-outlined p-button-primary"
+            label="Cancelar"
+            (click)="deleteRiesgoDialog = false"
+        ></button>
+    </ng-template>
+</p-dialog>
+<!-- Modal Confirmar Editar-->
+<p-dialog
+    [(visible)]="editarRiesgoDialog"
+    header="Confirmación"
+    [modal]="true"
+    [style]="{ width: '450px' }"
+>
+    <!-- Cuerpo Modal -->
+    <div class="flex align-items-center justify-content-center">
+        <i class="pi pi-pencil mr-3" style="font-size: 2rem"></i>
+        <span *ngIf="riesgo"
+            >¿Está seguro que desea editar el riesgo
+            <b>{{ riesgoDescripcion }}</b> del proyecto
+            <b>{{ proyecto.proy_Nombre }}</b
+            >?</span
+        >
+    </div>
+
+    <!-- Botones -->
+    <ng-template pTemplate="footer">
+        <button
+            pButton
+            pRipple
+            icon="pi pi-pencil"
+            class="p-button-primary"
+            label="Aceptar"
+            (click)="guardarRiesgo()"
+        ></button>
+        <button
+            pButton
+            pRipple
+            icon="pi pi-times"
+            class="p-button-outlined p-button-primary"
+            label="Cancelar"
+            (click)="editarRiesgoDialog = false"
+        ></button>
+    </ng-template>
+</p-dialog>

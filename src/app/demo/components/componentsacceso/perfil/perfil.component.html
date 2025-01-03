@@ -1,0 +1,175 @@
+  <header class="cd__intro">
+    <h1></h1>
+    <p></p>
+    <div class="cd__action">
+      <a title="" class="cd__btn back"></a>
+    </div>
+  </header>
+  <main class="cd__main">
+    <div class="profile-page">
+      <div class="content">
+        <div class="content__cover">
+          <div class="content__avatar"></div>
+          <div class="content__bull"><span></span><span></span><span></span><span></span><span></span>
+          </div>
+        </div>
+        <div class="content__actions"><a>
+            <span></span></a><a>
+            <span></span></a></div>
+        <div *ngIf="Usuario.length > 0; else noData">
+          <div class="content__title" *ngFor="let usuario of Usuario">
+            <h1>{{usuario.usua_Usuario}}</h1><span>{{usuario.nombre_Empleado}}</span>
+            <div class="content__description" style="margin-left: -41px;">
+              <div class="grid1">
+                <p>
+                  {{usuario.carg_Descripcion}}
+                </p>
+                <div class="editEmail" class="flex">
+                  <p>{{usuario.empl_CorreoElectronico}}</p>
+                  <p-button icon="pi pi-pencil" [text]="true" style="box-shadow:none !important"
+                    (click)="EditarUsuario()" />
+                </div>
+                <button pButton pRipple type="button" class="p-button-link" label="Reestablecer contraseña"
+                  (click)="ReestablecerUsuario()"></button>
+              </div>
+              <div class="grid2">
+                <p>{{ usuario.empl_FechaNacimiento | date:'yyyy/MM/dd' }}</p> <!--Fecha de nacimiento-->
+                <p>Administrador: {{usuario.usua_EsAdministrador === true ? 'Si' : usuario.usua_EsAdministrador ===
+                  false ? 'No' : 'N/A'}}</p>
+                <p>{{usuario.carg_Descripcion}}</p>
+              </div>
+              <style>
+                .content__description {
+                  display: flex;
+                  justify-content: space-around;
+                }
+              </style>
+
+            </div>
+          </div>
+        </div>
+        <ng-template #noData>
+          <p>No hay datos disponibles.</p> <!--Aqui va el spinner-->
+        </ng-template>
+        <ul class="content__list">
+          <!-- <li><span>65</span>Friends</li>
+          <li><span>43</span>Photos</li>
+          <li><span>21</span>Comments</li> -->
+        </ul>
+        <div class="content__button"><a class="button" href="#">
+            <div class="button__border"></div>
+            <div class="button__bg"></div>
+            <p class="button__text"></p>
+          </a></div>
+      </div>
+      <div class="bg">
+        <div class="main">
+          <section class="city-stuff">
+            <ul class="skyscrappers__list">
+              <li class="skyscrapper__item skyscrapper-1"></li>
+              <li class="skyscrapper__item skyscrapper-2"></li>
+              <li class="skyscrapper__item skyscrapper-3"></li>
+              <li class="skyscrapper__item skyscrapper-4"></li>
+              <li class="skyscrapper__item skyscrapper-5"></li>
+            </ul>
+            <ul class="tree__container">
+              <li class="tree__list">
+                <ul class="tree__item tree-1">
+                  <li class="tree__trunk"></li>
+                  <li class="tree__leaves"></li>
+                </ul>
+                <ul class="tree__item tree-2">
+                  <li class="tree__trunk"></li>
+                  <li class="tree__leaves"></li>
+                </ul>
+                <ul class="tree__item tree-3">
+                  <li class="tree__trunk"></li>
+                  <li class="tree__leaves"></li>
+                </ul>
+                <ul class="tree__item tree-4">
+                  <li class="tree__trunk"></li>
+                  <li class="tree__leaves"></li>
+                </ul>
+                <ul class="tree__item tree-5">
+                  <li class="tree__trunk"></li>
+                  <li class="tree__leaves"></li>
+                </ul>
+                <ul class="tree__item tree-6">
+                  <li class="tree__trunk"></li>
+                  <li class="tree__leaves"></li>
+                </ul>
+                <ul class="tree__item tree-7">
+                  <li class="tree__trunk"></li>
+                  <li class="tree__leaves"></li>
+                </ul>
+                <ul class="tree__item tree-8">
+                  <li class="tree__trunk"></li>
+                  <li class="tree__leaves"></li>
+                </ul>
+              </li>
+            </ul>
+            <ul class="crane__list crane-1">
+              <li class="crane__item crane-cable crane-cable-1"></li>
+              <li class="crane__item crane-cable crane-cable-2"></li>
+              <li class="crane__item crane-cable crane-cable-3"></li>
+              <li class="crane__item crane-stand"></li>
+              <li class="crane__item crane-weight"></li>
+              <li class="crane__item crane-cabin"></li>
+              <li class="crane__item crane-arm"></li>
+            </ul>
+            <ul class="crane__list crane-2">
+              <li class="crane__item crane-cable crane-cable-1"></li>
+              <li class="crane__item crane-cable crane-cable-2"></li>
+              <li class="crane__item crane-cable crane-cable-3"></li>
+              <li class="crane__item crane-stand"></li>
+              <li class="crane__item crane-weight"></li>
+              <li class="crane__item crane-cabin"></li>
+              <li class="crane__item crane-arm"></li>
+            </ul>
+            <ul class="crane__list crane-3">
+              <li class="crane__item crane-cable crane-cable-1"></li>
+              <li class="crane__item crane-cable crane-cable-2"></li>
+              <li class="crane__item crane-cable crane-cable-3"></li>
+              <li class="crane__item crane-stand"></li>
+              <li class="crane__item crane-weight"></li>
+              <li class="crane__item crane-cabin"></li>
+              <li class="crane__item crane-arm"></li>
+            </ul>
+          </section>
+        </div>
+      </div>
+      <div class="theme-switcher-wrapper" id="theme-switcher-wrapper"><span></span>
+        <ul>
+          <li><em class="is-active" data-theme="orange"></em></li>
+          <li><em data-theme="green"></em></li>
+          <li><em data-theme="purple"></em></li>
+          <li><em data-theme="blue"></em></li>
+        </ul>
+      </div>
+    </div>
+  </main>
+
+  <!--Seccion para los modales-->
+  <p-dialog [(visible)]="Correo" [modal]="true" [style]="{width:'450px'}">
+    <div class="text">
+      <h2 style="margin-bottom: 10px;">{{ titulo }}</h2>
+    </div>
+      <form [formGroup]="form" class="grid col-12 p-fluid p-formgrid">
+        <input *ngIf="Correo " class="col-6" id="empl_CorreoElectronico" pInputText
+          [ngClass]="{'ng-invalid ng-dirty': submitted && form.controls['empl_CorreoElectronico'].invalid}"
+          class="p-inputtext" formControlName="empl_CorreoElectronico">
+        <input *ngIf="contra" class="col-6" id="usua_Clave" pInputText
+          [ngClass]="{'ng-invalid ng-dirty': submitted && form.controls['usua_Clave'].invalid}" 
+          class="p-inputtext" formControlName="usua_Clave" placeholder="Nueva contraseña">
+      </form>
+    <ng-template pTemplate="footer">
+      <div class="botones">
+      <button pButton pRipple icon="pi pi-pencil" class=" p-button-primary" label="Aceptar"
+        (click)="GuardarCorreo()"></button>
+      <button pButton pRipple icon="pi pi-times" class="p-button-outlined p-button-primary" label="Cancelar"
+        (click)="CloseDialog()"></button>
+        </div>
+        
+    </ng-template>
+  </p-dialog>
+  <!--Fin de los modales-->

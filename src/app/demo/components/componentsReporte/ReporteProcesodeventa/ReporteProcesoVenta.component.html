@@ -1,0 +1,74 @@
+<!-- Componente de notificaciones para mostrar mensajes -->
+<p-toast></p-toast>
+
+<!-- Card para el formulario de generación de reportes -->
+<div class="card p-mb-4">
+  <div class="card-header">
+    <h2>
+      Reporte de Proceso de Venta
+      <i 
+      pTooltip="Para generar el reporte, seleccione el bien raíz o terreno. Use el interruptor para elegir entre mostrar todos los que están vendidos o solo los que están en venta. Haga clic en 'Generar reporte' para ver el informe." 
+      tooltipPosition="top" 
+      class="pi pi-info-circle ml-2" 
+      style="font-size: 1.2rem; cursor: pointer;"
+    ></i>
+    </h2>
+  </div>
+  <div class="card-body">
+    <form [formGroup]="reportForm" (ngSubmit)="generateReport()" class="grid col-12 p-fluid p-formgrid">
+
+   <!-- Radio Buttons for selecting the type of item -->
+   <div class="field col-12 md:col-6">
+    <label for="tipo" style="font-weight: bold; margin-bottom: 8px; display: block;">
+      Seleccione un bien raíz  o Terreno:
+    </label>
+    <div class="flex flex-wrap gap-3">
+      <div class="flex align-items-center">
+        <p-radioButton name="tipo" value="0" formControlName="tipo" inputId="Bien raiz"></p-radioButton>
+        <label for="Bien raiz" class="ml-2">Bien raíz</label>
+      </div>
+      <div class="flex align-items-center">
+        <p-radioButton name="tipo" value="1" formControlName="tipo" inputId="Terreno"></p-radioButton>
+        <label for="Terreno" class="ml-2">Terreno</label>
+      </div>
+    </div>
+    
+  </div>
+  
+  <div class="field col-12 md:col-6">
+    <label for="estado" style="font-weight: bold; margin-bottom: 8px; display: block;">
+      Estado:
+    </label>
+    <p-inputSwitch id="estado" formControlName="estado" (onChange)="onSwitchChange($event)"></p-inputSwitch>
+    <!-- Mostrar la etiqueta de estado actual, al lado del switch -->
+    <span style="margin-left: 10px;">{{ estadoLabel }}</span>
+  </div>
+  
+
+
+
+
+      <!-- Botones para Generar Reporte -->
+      <div class="field col-12" style="display: flex; justify-content: flex-end; margin-top: 16px;">
+        <div class="button-group d-flex justify-content-end" style="margin-right: 12px;">
+          <button type="submit" pButton label="Generar Reporte" icon="pi pi-file-pdf"></button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Card para el contenedor de PDF -->
+<div class="card">
+  <div class="card-header">
+    <h2>Vista del Reporte</h2>
+  </div>
+  <div class="card-body">
+    <div id="pdfContainer" style="width: 100%; height: 800px; position: relative;">
+      <!-- Spinner de carga -->
+      <div class="loader-container" *ngIf="loading">
+        <div class="loader"><span></span></div>
+      </div>
+    </div>
+  </div>
+</div>

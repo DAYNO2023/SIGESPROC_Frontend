@@ -1,0 +1,422 @@
+
+<p-toast ></p-toast>
+<div class="loader-container" *ngIf="loading">
+    <div class="loader">
+        <span></span>
+    </div>
+  </div>
+<div class="card" [hidden]="!mapa" >
+
+    <div class="card-header">
+        <h1 class="text-center mt-2">Agregar ubicación</h1>
+
+
+        <div class="grid p-justify-end">
+            <div class="col">
+                <button pButton pRipple type="button" label="Agregar" icon="pi pi-plus" (click)="agregarMapa()"></button>
+            </div>
+            <div class="col">
+                <button  pButton icon="pi pi-times" type="button" label="Cancelar" class="p-button-outlined" (click)="ocultarMapa()"></button>
+            </div>
+        </div>
+    </div>
+    <hr>
+    <google-map height="500px" width="100%" [center]="center" [zoom]="zoom">
+        <input id="search-box" class="search-box" type="text" placeholder="Buscar un sitio" #searchBox />
+      </google-map>
+
+</div>
+<!--Spinner-->
+
+  <!--Spinner-->
+<div class="grid" *ngIf="Index">
+    <div class="col-12">
+        <div class="card">
+            <h1 class="text-center">Bodegas</h1>
+            <hr>
+            <div class="grid mt-2">
+                <div class="col-12">
+                    <button (click)="CrearBodega()" pButton icon="pi pi-plus" label="Nuevo" class="mr-2">
+                    </button>
+                </div>
+            </div>
+            <p-table #dt [value]="bodegas" styleClass=" mt-2" responsiveLayout="scroll" [rows]="10"
+                [globalFilterFields]="['bode_Id','bode_Descripcion','bode_Latitud','bode_Longitud','bode_LinkUbicacion']"
+                [rows]="10" [paginator]="true" [showCurrentPageReport]="true" [tableStyle]="{ background: '#000' }"
+                currentPageReportTemplate="Mostrando {first} al {last} de {totalRecords} entradas"  [rowHover]="true" [rowsPerPageOptions]="[10,25,50,100]"
+                dataKey="bode_Id" [expandedRowKeys]="expandedRows" (onRowExpand)="onRowExpand($event)" (onRowCollapse)="onRowCollapse($event)">
+
+                <ng-template pTemplate="caption" >
+                    <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+
+                        <span class="block mt-2 md:mt-0 p-input-icon-left">
+                            <i style="color: white;" class="pi pi-search"></i>
+                            <input style="color: white;" pInputText type="text" (input)="onGlobalFilter(dt, $event)"
+                                placeholder="Buscar..." class="w-full sm:w-auto" />
+                        </span>
+
+                        <div class="registros">
+                            <p-dropdown [options]="dt.rowsPerPageOptions" [(ngModel)]="dt.rows" [style]="{ 'margin-right': '5px' }"  [autoWidth]="false"></p-dropdown>
+
+                            <span style="color: #FFF0C6; font-weight: 700; margin-top: 7px;"> Registros por página</span>
+                        </div>
+
+                    </div>
+                </ng-template>
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th  style="color: white;" style="width: 5rem"></th>
+                        <th style="color: white;" class="text-center">Acciones</th>
+                        <th style="color: white;" pSortableColumn="codigo" class="text-center">No. <p-sortIcon
+                                field="codigo"></p-sortIcon></th>
+                        <th style="color: white;" pSortableColumn="bode_Descripcion" class="text-center">Bodega <p-sortIcon
+                                field="bode_Descripcion"></p-sortIcon></th>
+
+                        <!-- <th style="color: white;" pSortableColumn="bode_LinkUbicacion" class="text-center">País <p-sortIcon
+                                field="bode_LinkUbicacion"></p-sortIcon></th>
+                        <th style="color: white;" pSortableColumn="ciudad" class="text-center">Ciudad <p-sortIcon
+                                field="ciudad"></p-sortIcon></th> -->
+
+
+                    </tr>
+                </ng-template>
+                <!-- <ng-template pTemplate="emptymessage">
+                    <tr>
+                      <td colspan="6" class="text-center">
+                        <div class="loader-container" *ngIf="loading">
+                            <div class="loader">
+                                <span></span>
+                            </div>
+                          </div>
+                      </td>
+                    </tr>
+                  </ng-template> -->
+                <!--Inicio loader-->
+                <!-- <ng-template pTemplate="emptymessage">
+                    <tr>
+                      <td colspan="6" class="text-center">
+                        <div class="loader-container" *ngIf="loading">
+                          <div class="loader"></div>
+                        </div>
+                      </td>
+                    </tr>
+                  </ng-template> -->
+                <!--Fin loader-->
+                <ng-template pTemplate="body" let-bodega  let-expanded="expanded">
+                    <tr (click)="selectBodega(bodega)">
+                        <td style="width:4%; min-width:2rem;">
+                            <p-button   type="button" pRipple [pRowToggler]="bodega" [text]="true" [rounded]="true" [plain]="true" [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'" />
+                        </td>
+                        <td class="text-center" style="width:5%; min-width:15rem;">
+                              <p-splitButton
+                              label="Acciones"
+                              class="custom-splitbutton"
+                              [model]="items"
+                              styleClass="p-button-secondary"
+                              appendTo="body">
+                             </p-splitButton>
+                        </td>
+                        <td style="width:14%; min-width:10rem;" class="text-center"><span
+                                class="p-column-title">Código</span>
+                            {{bodega.codigo}}
+                        </td>
+                        <td style="width:14%; min-width:10rem;" class="text-center">
+                            <span class="p-column-title">Bodega</span>
+                            {{bodega.bode_Descripcion}}
+                        </td>
+                        <!-- <td style="width:14%; min-width:10rem;" class="text-center"><span
+                                class="p-column-title">País</span>
+                            {{bodega.pais}}
+                        </td>
+                        <td style="width:14%; min-width:8rem;" class="text-center">
+                            <span class="p-column-title">Ciudad</span>
+                            {{bodega.ciudad}}
+                        </td> -->
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="rowexpansion" let-bodega>
+                    <tr>
+                        <td colspan="6">
+                            <div class="p-3">
+                                <p-table [value]="bodegaTablaMaestra" dataKey="bode_Id">
+                                    <ng-template pTemplate="header">
+                                        <tr>
+
+                                            <th style="color: white;" pSortableColumn="codigo">No. <p-sortIcon field="codigo" /></th>
+                                            <th  style="color: white;"pSortableColumn="articulo">Categoría <p-sortIcon field="articulo" /></th>
+                                            <th  style="color: white;"pSortableColumn="cantidad">Artículo <p-sortIcon field="cantidad" /></th>
+                                            <th style="color: white;" pSortableColumn="precio">Stock <p-sortIcon field="precio" /></th>
+                                        </tr>
+                                    </ng-template>
+                                    <ng-template pTemplate="body" let-item>
+                                        <tr>
+                                            <td>{{ item.codigo }}</td>
+                                            <td>{{ item.categoria }}</td>
+                                            <td>{{ item.articulo }}</td>
+                                            <td>{{ item.stock  }}</td>
+                                        </tr>
+                                    </ng-template>
+
+                                </p-table>
+                            </div>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+
+    </div>
+</div>
+
+<div class="grid" *ngIf="Create">
+    <div class="col-12">
+        <div class="card" >
+            <div class="flex" style="width: 100%; margin: 0 auto; display: flex; align-items: center; height: 42px;">
+                <div style="width: 20%; display: flex; align-items: center; height: 12.5%;">
+                    <button (click)="cancelar()" class="p-button-link" pButton pRipple type="button" label="Regresar" icon="pi pi-arrow-left" style="box-shadow: none !important"></button>
+                </div>
+                <div style="flex-grow: 1; display: flex; justify-content: center; align-items: center;">
+                    <h1 class="text-center mt-4">{{ titulo }} Bodega</h1>
+                </div>
+                <div style="width: 20%;"></div> <!-- Empty div to balance the space on the right -->
+            </div>
+
+
+
+            <hr>
+
+
+                <div class=" mt-2 grid">
+                    <form [formGroup]="form" class="grid col-12 p-fluid p-formgrid">
+                        <div class="field col-12 md:col-6">
+                            <label>Nombre Bodega&nbsp;</label><small style="display:inline-block;"  class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['bode_Descripcion'].invalid"
+                            style="color: red !important;">*</small>
+                            <input class="col-6"  (input)="handleInput($event)"
+                                [ngClass]="{'ng-invalid ng-dirty': submitted && form.controls['bode_Descripcion'].invalid}"
+                                type="text" class="p-inputtext" formControlName="bode_Descripcion" maxlength="50">
+                            <small class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['bode_Descripcion'].invalid"
+                                style="color: red !important;">El campo es requerido.</small>
+                        </div>
+                        <div class="field col-12 md:col-6">
+                            <label>Agregar Ubicación&nbsp;</label>
+                            <small style="display:inline-block;" class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['bode_Latitud'].invalid"
+                                style="color: red !important;">*&nbsp;&nbsp;</small>
+                            <div style="width: 100%;">
+                                <button pButton icon="pi pi-map-marker" type="button" label="Agregar Ubicación" class="p-button-outlined"
+                                    (click)="mostrarMapa()" style="width: 100%;"></button>
+                            </div>
+                            <small class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['bode_Latitud'].invalid"
+                                style="color: red !important;">ㅤEl campo es requerido.</small>
+                        </div>
+
+                        <div class="field col-12 md:col-6">
+                            <label>Latitud&nbsp;</label><small style="display:inline-block;"  class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['bode_Latitud'].invalid"
+                            style="color: red !important;">*</small>
+
+                            <input pinputtext class="p-inputtext" 
+                                [ngClass]="{'ng-invalid ng-dirty': submitted && form.controls['bode_Latitud'].invalid}"
+                                type="text" formControlName="bode_Latitud" readonly/>
+                            <small class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['bode_Latitud'].invalid"
+                                style="color: red !important;">El campo es requerido.</small>
+                        </div>
+                        <div class="field col-12 md:col-6">
+                            <label>Longitud&nbsp;</label><small style="display:inline-block;"  class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['bode_Longitud'].invalid"
+                            style="color: red !important;">*</small>
+                            <input pinputNumber 
+                            class="p-inputtext" (input)="allowOnlyAlphanumeric($event)"
+                                [ngClass]="{'ng-invalid ng-dirty': submitted && form.controls['bode_Longitud'].invalid}"
+                                type="text" formControlName="bode_Longitud"  readonly/>
+                            <small class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['bode_Longitud'].invalid"
+                                style="color: red !important;">El campo es requerido.</small>
+                        </div>
+
+                        <div class="field col-12 md:col-12">
+                            <label>Link Ubicación&nbsp;</label><small style="display:inline-block;"  class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['bode_LinkUbicacion'].invalid"
+                            style="color: red !important;">*</small>
+                                    <!-- <div
+                                      (input)="onLinkTextChange($event)"
+                                      [attr.contenteditable]="true"
+                                      class="disabled"
+                                    >
+                                      {{ linkText }}
+                                    </div> -->
+                                    <a
+                                      href="{{ linkText }}"
+                                      target="_blank"
+                                      class="actual"
+                                    >
+                                      {{ linkText }}
+                                    </a>
+
+                            <small class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['bode_LinkUbicacion'].invalid"
+                                style="color: red !important;">El campo es requerido.</small>
+                        </div>
+
+                    </form>
+                </div>
+                <!-- <div style="display: flex;justify-content: end;" >
+                    <button (click)="Guardar()"  class="btn btn-guardar" pButton pRipple type="button" label="Guardar" icon="pi pi-save"></button>
+                    <button (click)="cancelar()" style="margin-left: 2%;" class=" p-button-secondary" pButton pRipple type="button" label="Cancelar" icon="pi pi-times"></button>
+                </div> -->
+
+                <div
+                
+                class="flex justify-content-end w-100 mb-3"
+                style="gap: 20px"
+            >
+                <button
+                    pButton
+                    type="button"
+                    label="Guardar"
+                    (click)="Guardar()"
+                    icon="pi pi-save"
+                ></button>
+                <button
+                    pButton
+                    type="button"
+                    label="Cancelar"
+                    class="p-button-secondary"
+                    (click)="cancelar()"
+                    icon="pi pi-times"
+                ></button>
+            </div>
+
+
+
+
+        <p-dialog [(visible)]="editarBodega" header="Confirmación" [modal]="true" [style]="{width:'450px'}">
+            <!-- Cuerpo -->
+            <div class="flex align-items-center justify-content-center">
+                <i class="pi pi-pencil mr-3" style="font-size: 2rem"></i>
+                <span *ngIf="bodegas">¿Está seguro de editar la bodega <span style="font-weight: 600;"> {{form.controls['bode_Descripcion'].value}}</span>?</span>
+            </div>
+            <!-- Botones -->
+            <ng-template pTemplate="footer">
+                <button pButton pRipple icon="pi pi-pencil" class="p-button-primary" label="Aceptar" (click)="confirmarEditar()"></button>
+                <button pButton pRipple icon="pi pi-times" class="p-button-outlined p-button-primary" label="Cancelar" (click)="editarBodega = false"></button>
+            </ng-template>
+        </p-dialog>
+
+
+        </div>
+
+    </div>
+</div>
+
+
+<div class="grid" *ngIf="Detail">
+    <div class="col-12">
+        <div class="card">
+            <div class="flex" style="width: 100%; margin: 0 auto; display: flex; align-items: center;height: 42px;">
+                <div style="width: 20%; display: flex; align-items: center; height: 12.5%;">
+                    <button (click)="cancelar()" class="p-button-link" pButton pRipple type="button" label="Regresar" icon="pi pi-arrow-left" style="box-shadow: none !important"></button>
+                </div>
+                <div style="flex-grow: 1; display: flex; justify-content: center; align-items: center;">
+                    <h1 class="text-center mt-4">Detalle Bodega</h1>
+                </div>
+                <div style="width: 20%;"></div> <!-- Empty div to balance the space on the right -->
+            </div>
+    <hr>
+        <div class="p-fluid p-formgrid grid" >
+            <div class="field col-12 md:col-4 " style="position: relative; height: 10%;">
+                <div class="field rows">
+                    <label for="Codigo" style="font-weight: 800;">No:</label>
+                </div>
+                <div class="field rows">
+                    <label for="Codigo">{{ selectedBodega.codigo }}</label>
+                </div>
+            </div>
+            <div class="field col-12 md:col-4" style="position: relative;" >
+                <div class="field rows">
+                    <label for="Municipio" style="font-weight: 800;">Descripción:</label>
+                </div>
+                <div class="field rows">
+                    <label for="Municipio">{{ detalle_bode_Descripcion }}</label>
+                </div>
+            </div>
+            <div class="field col-12 md:col-4" style="position: relative;">
+                <div class="field rows" style="font-weight: 800;">
+                    <label for="Departamento">Latitud:</label>
+                </div>
+                <div class="field rows">
+                    <label for="Departamento">{{ detalle_bode_Latitud }}</label>
+                </div>
+            </div>
+            <div class="field col-12 md:col-4" style="position: relative;">
+                <div class="field rows" style="font-weight: 800;">
+                    <label for="Departamento">Longitud</label>
+                </div>
+                <div class="field rows">
+                    <label for="Departamento">{{ detalle_bode_Longitud }}</label>
+                </div>
+            </div>
+            <div class="field col-12 md:col-4" style="position: relative; top: -10px;" >
+                <div class="field rows" style="font-weight: 800;">
+                    <label for="Departamento">País:</label>
+                </div>
+                <div class="field rows">
+                    <label for="Departamento">{{ pais }}</label>
+                </div>
+            </div>
+            <div class="field col-12 md:col-4" style="position: relative; top: -10px;" >
+                <div class="field rows" style="font-weight: 800;">
+                    <label for="Departamento">Ciudad:</label>
+                </div>
+                <div class="field rows">
+                    <label for="Departamento">{{ ciudad }}</label>
+                </div>
+            </div>
+            <div class="field col-12 md:col-4" style="position: relative;">
+                <div class="field rows" style="font-weight: 800;">
+                    <label for="Departamento">Link Ubicación:</label>
+                </div>
+                <div class="field rows">
+                    <a href="{{ detalle_bode_LinkUbicacion }}" target="_blank">{{ detalle_bode_LinkUbicacion }}</a>
+                </div>
+            </div>
+
+        </div>
+    <div style="position: relative;top:-20px;" >
+        <div class="card-title">
+            <h1>Auditoría</h1>
+        </div>
+        <p-table [value]="Datos" styleClass=" mt-2">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th style="width:200px; font-weight: bold;">Acción</th>
+                    <th style="width:200px; font-weight: bold;" >Usuario</th>
+                    <th style="width:200px; font-weight: bold;">Fecha</th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-transaction>
+                <tr>
+                    <td style="width:200px;">Creado</td>
+                    <td style="width:200px">{{ detalle_usuaCreacion }}</td>
+                    <td style="width:200px">{{ detalle_FechausuaCreacion }}</td>
+                </tr>
+                <tr>
+                    <td style="width:200px;">Modificado</td>
+                    <td style="width:200px">{{ detalle_usuaModificacion }}</td>
+                    <td style="width:200px">{{ detalle_FechausuaModificacion }}</td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+    </div>
+</div>
+
+
+</div>
+
+<p-dialog [(visible)]="Delete" header="Confirmación" [modal]="true" [style]="{width:'450px'}">
+    <div class="flex align-items-center justify-content-center">
+        <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+        <span>¿Está seguro de eliminar la Bodega
+            <span style="font-weight: 600">{{ detalle_bode_Descripcion }}</span>?</span>
+    </div>
+    <ng-template pTemplate="footer">
+        <button pButton pRipple icon="pi pi-trash" class="p-button-primary" label="Eliminar" (click)="Eliminar()"></button>
+        <button pButton pRipple icon="pi pi-times" class="p-button-outlined p-button-primary" label="Cancelar" (click)="Delete = false"></button>
+    </ng-template>
+</p-dialog>
+

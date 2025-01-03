@@ -1,0 +1,40 @@
+$color-primario: #fff0c6;
+.toolbar-container {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+    padding-left: 1rem;
+    margin-top: 2rem;
+}
+
+.input-switch-container {
+    display: flex;
+    align-items: center;
+    padding-right: 0.5 rem;
+    .custom-label {
+        // font-size: 14px;
+        font-weight: bold;
+        color: $color-primario;
+        margin-left: 0.5rem;
+        cursor: pointer;
+        user-select: none;
+    }
+}
+
+:host ::ng-deep .custom-dd .p-dropdown-label {
+    color: $color-primario;
+    font-weight: bold;
+    // background-color: #0D0D0E;
+}
+
+:host ::ng-deep .layout-topbar{
+    margin-bottom: 0rem !important ;
+}
+
+.card {
+    margin-bottom: 0;
+}
+
+h2{
+    margin-bottom: 0;
+}

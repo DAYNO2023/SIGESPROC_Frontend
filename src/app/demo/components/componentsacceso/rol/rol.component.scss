@@ -1,0 +1,66 @@
+::ng-deep .custom-splitbutton .p-splitbutton-defaultbutton {
+    display: none; /* Oculta el botón izquierdo */
+}
+
+::ng-deep .custom-splitbutton .p-splitbutton-menubutton {
+    width: 133.73px;
+    height: 29.49px;
+    display: flex;
+    align-items: center;
+    padding: 0.5rem;
+    border-radius: 5px;
+    position: relative;
+}
+
+::ng-deep .custom-splitbutton .p-splitbutton-menubutton .p-button-label {
+    display: flex;
+    align-items: center;
+}
+
+::ng-deep .custom-splitbutton .p-splitbutton-menubutton::before {
+    content: '\e94a   Acciones ';
+    font-family: 'PrimeIcons', sans-serif;
+    font-size: 1rem;
+    display: inline-flex;
+    align-items: center;
+    margin-right: 17px;
+}
+
+/* Añadir el icono de engranaje a la izquierda del texto */
+::ng-deep .custom-splitbutton .p-splitbutton-menubutton::before {
+    position: relative;
+}
+
+
+::ng-deep .custom-splitbutton .p-splitbutton-menubutton .p-button-icon-right .p-icon-wrapper{
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    margin-left: 0;
+}
+
+
+  .grid-container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* Tres columnas que ocupan todo el espacio */
+    gap: 10px; /* Espacio entre las columnas */
+    width: 100%; /* Asegura que el contenedor ocupe todo el ancho */
+}
+
+.label-item {
+    text-align: center; /* Centrar el contenido dentro de cada item */
+    padding: 10px; /* Añade un padding para que los elementos no estén pegados a los bordes */
+    background-color: rgba(255, 255, 255, 0.1); /* Opcional: para ver claramente los límites */
+}
+
+.centrado {
+    display: flex;
+    justify-content: center; /* Centra el contenedor en su parent */
+    width: 100%; /* Asegura que el contenedor grid ocupe todo el ancho del padre */
+}
+
+
+-p-dialog -p-dialog-header -p-dialog-title i{
+font-weight: 600; font-size: 1.25rem;
+}

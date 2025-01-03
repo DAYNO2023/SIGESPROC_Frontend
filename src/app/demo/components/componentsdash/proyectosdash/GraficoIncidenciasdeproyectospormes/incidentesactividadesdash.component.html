@@ -1,0 +1,67 @@
+<div class="col-12 lg:col-12">
+    <div class="card">
+      <div class="flex flex-column align-items-center">
+        <h2>Filtrar por Fecha</h2>
+      </div>
+      <form [formGroup]="reportForm" (ngSubmit)="ListadoFiltrado()">
+        <div class="p-fluid grid">
+          <div class="field col-6">
+            <label for="fechaInicio">
+              Fecha de Inicio
+              <span *ngIf="submitted && reportForm.controls['fechaInicio'].invalid" style="color: red;">*</span>
+            </label>
+            <p-calendar
+              id="fechaInicio"
+              formControlName="fechaInicio"
+              [showIcon]="true"
+              dateFormat="yy/mm/dd"
+              appendTo="body"
+              class="w-full"
+              [minDate]="minDate" [maxDate]="maxDate"
+              [ngClass]="{'ng-invalid ng-dirty': submitted && reportForm.controls['fechaInicio'].invalid}"
+            ></p-calendar>
+            <small class="ng-dirty ng-invalid" *ngIf="submitted && reportForm.controls['fechaInicio'].invalid"
+            style="color: red !important;">El campo es requerido.</small>
+          </div>
+
+          <div class="field col-6">
+            <label for="fechaFinal">
+              Fecha de Finalización
+              <span *ngIf="submitted && reportForm.controls['fechaFinal'].invalid" style="color: red;">*</span>
+            </label>
+            <p-calendar
+              id="fechaFinal"
+              formControlName="fechaFinal"
+              [showIcon]="true"
+              dateFormat="yy/mm/dd"
+              appendTo="body"
+              [minDate]="minDate" [maxDate]="maxDate"
+              class="w-full"
+              [ngClass]="{'ng-invalid ng-dirty': submitted && reportForm.controls['fechaFinal'].invalid}"
+            ></p-calendar>
+            <small class="ng-dirty ng-invalid" *ngIf="submitted && reportForm.controls['fechaFinal'].invalid"
+            style="color: red !important;">El campo es requerido.</small>
+          </div>
+        </div>
+        <div class="field col-12" style="display: flex; justify-content: flex-end;">
+          <div class="button-group d-flex justify-content-end" style="margin-right: 12px;">
+            <button type="submit" pButton label="Filtrar" icon="pi pi-file-pdf"></button>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <div class="card">
+      <div class="flex flex-column align-items-center">
+        <h2>Total Incidencias y Costo</h2>
+      </div>
+
+      <div *ngIf="!nodata">
+        <p-chart type="bar" [data]="barData" [options]="barOptions"></p-chart>
+      </div>
+      <div *ngIf="nodata">
+      
+      </div>
+
+    </div>
+</div>

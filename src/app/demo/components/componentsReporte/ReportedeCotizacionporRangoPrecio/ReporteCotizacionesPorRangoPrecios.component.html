@@ -1,0 +1,94 @@
+<!-- Componente de notificaciones para mostrar mensajes -->
+<p-toast></p-toast>
+
+<!-- Card para el formulario de generación de reportes -->
+<div class="card p-mb-4">
+  <div class="card-header">
+    <h2>
+      Reporte de Cotización  por Precio
+      <i 
+      pTooltip="Para generar el reporte, seleccione el tipo de producto y el rango de precio. Use el interruptor para elegir entre mostrar todos los productos o solo los seleccionados. Haga clic en 'Generar Reporte' para ver el informe." 
+      tooltipPosition="top" 
+      class="pi pi-info-circle ml-2" 
+      style="font-size: 1.2rem; cursor: pointer;"
+    ></i>
+    </h2>
+  </div>
+  <div class="card-body">
+    <form [formGroup]="reportForm" (ngSubmit)="generateReport()" class="grid col-12 p-fluid p-formgrid">
+
+   <!-- Radio Buttons for selecting the type of item -->
+   <div class="field col-12 md:col-6">
+    <label for="tipo" style="font-weight: bold; margin-bottom: 8px;">
+      Tipo de Producto:
+    </label>
+    <div class="flex flex-wrap gap-3">
+      <div class="flex align-items-center">
+        <p-radioButton name="tipo" value="0" formControlName="tipo" inputId="maquinaria"></p-radioButton>
+        <label for="maquinaria" class="ml-2">Maquinaria</label>
+      </div>
+      <div class="flex align-items-center">
+        <p-radioButton name="tipo" value="1" formControlName="tipo" inputId="insumo"></p-radioButton>
+        <label for="insumo" class="ml-2">Insumo</label>
+      </div>
+      <div class="flex align-items-center">
+        <p-radioButton name="tipo" value="2" formControlName="tipo" inputId="equipoSeguridad"></p-radioButton>
+        <label for="equipoSeguridad" class="ml-2">Equipo de Seguridad</label>
+      </div>
+    </div>
+  </div>
+  
+  
+
+      <!-- Input Number for Rango Precio -->
+      <div class="field col-12 md:col-6">
+        <label for="precio" style="font-weight: bold; margin-bottom: 8px;">
+          Rango de Precio
+          <small *ngIf="submitted && reportForm.controls['precio'].invalid" style="color: red; margin-left: 4px;">*</small>
+        </label>
+        <p-inputNumber
+        id="precio"
+        formControlName="precio"
+        [min]="0"
+        maxlength="16"
+        [maxFractionDigits]="2"
+        [prefix]="'LPS '"
+        [ngClass]="{'ng-invalid ng-dirty': submitted && reportForm.controls['precio'].invalid}"
+      ></p-inputNumber>
+      
+        <small class="ng-dirty ng-invalid" *ngIf="submitted && reportForm.controls['precio'].invalid" style="color: red !important;">El campo es requerido.</small>
+      </div>
+
+      <!-- Switch for Mostrar Todo -->
+      <div class="field col-12 md:col-6" style="margin-top: 16px;">
+        <label for="mostrar" style="font-weight: bold; margin-bottom: 8px; display: block;">
+          Mostrar Todo:
+        </label>
+        <p-inputSwitch id="mostrar" formControlName="mostrar"></p-inputSwitch>
+      </div>
+
+
+      <!-- Botones para Generar Reporte -->
+      <div class="field col-12" style="display: flex; justify-content: flex-end; margin-top: 16px;">
+        <div class="button-group d-flex justify-content-end" style="margin-right: 12px;">
+          <button type="submit" pButton label="Generar Reporte" icon="pi pi-file-pdf"></button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Card para el contenedor de PDF -->
+<div class="card">
+  <div class="card-header">
+    <h2>Vista del Reporte</h2>
+  </div>
+  <div class="card-body">
+    <div id="pdfContainer" style="width: 100%; height: 800px; position: relative;">
+      <!-- Spinner de carga -->
+      <div class="loader-container" *ngIf="loading">
+        <div class="loader"><span></span></div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,234 @@
+<p-toast ></p-toast>
+<div class="grid" *ngIf="Index">
+    <div class="col-12">
+        <div class="card">
+            <h1 class="text-center mt-2">Bodegas por Insumos</h1>
+            <hr>
+            <div class="grid mt-2">
+                    <form [formGroup]="formb" class="grid col-12 p-fluid p-formgrid">
+                        <div class="field col-12 md:col-3">
+                            <label>Id Bodega:</label>
+                            <input class="col-6"
+                                [ngClass]="{'ng-invalid ng-dirty': submitted && formb.controls['bopi_Id']}"
+                                type="text" class="p-inputtext" formControlName="bopi_Id">
+                                <small class="ng-dirty ng-invalid" *ngIf="submitted && formb.controls['bopi_Id'].invalid"
+                            style="color: red !important;">El campo es requerido</small>
+                        </div>
+                        <div >
+                            <div class="col">
+                                <button style="margin-top: 22%;" (click)="Listado()"  pButton icon="pi pi-search" label="Buscar" class="mr-2"></button>
+                            </div>
+                        </div>
+                    </form>
+
+                <div class="col-12">
+                    <button (click)="CrearBodegaPorInsumo()"  pButton icon="pi pi-plus" label="Nuevo" class="mr-2"></button>
+                </div>
+            </div>
+
+            <p-table #dt [value]="bodegasporinsumo" styleClass=" mt-2" responsiveLayout="scroll" [rows]="10"
+                [globalFilterFields]="['bopi_Id','bode_Descripcion','insu_Descripcion','bopi_Stock']"
+                [rows]="10" [paginator]="true" [showCurrentPageReport]="true"
+                currentPageReportTemplate="Mostrando {first} al {last} de {totalRecords} entradas" [rowHover]="true">
+                <ng-template pTemplate="caption">
+                    <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+
+                        <span class="block mt-2 md:mt-0 p-input-icon-left">
+                            <i style="color: white;" class="pi pi-search"></i>
+                            <input style="color: white;" pInputText type="text" (input)="onGlobalFilter(dt, $event)"
+                                placeholder="Buscar..." class="w-full sm:w-auto" />
+                        </span>
+                    </div>
+                </ng-template>
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th style="color: white;" class="text-center">Acciones</th>
+                        <th style="color: white;" pSortableColumn="bopi_Id" class="text-center">Bodega Id <p-sortIcon
+                                field="bopi_Id"></p-sortIcon></th>
+                        <th style="color: white;" pSortableColumn="bode_Descripcion" class="text-center">Bodega <p-sortIcon
+                                field="bode_Descripcion"></p-sortIcon></th>
+                        <th style="color: white;" pSortableColumn="insu_Descripcion" class="text-center">Dirección <p-sortIcon
+                                field="insu_Descripcion"></p-sortIcon></th>
+                        <th style="color: white;" pSortableColumn="bopi_Stock" class="text-center"> Stock <p-sortIcon
+                                field="bopi_Stock"></p-sortIcon></th>
+
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-bodegaporinsumo>
+                    <tr (click)="selectBodegaPorInsumo(bodegaporinsumo)">
+                        <td style="width:14%; min-width:10rem;" class="text-center" class="text-center">
+                            <p-splitButton label="Acciones" icon="pi pi-cog" [model]="items"
+                                styleClass="p-button-secondary"></p-splitButton>
+                        </td>
+                        <td style="width:14%; min-width:10rem;" class="text-center"><span
+                                class="p-column-title">Código</span>
+                            {{bodegaporinsumo.bopi_Id}}
+                        </td>
+                        <td style="width:14%; min-width:10rem;" class="text-center">
+                            <span class="p-column-title">Bodega</span>
+                            {{bodegaporinsumo.bode_Descripcion}}
+                        </td>
+                        <td style="width:14%; min-width:10rem;" class="text-center"><span
+                                class="p-column-title">Dirección</span>
+                            {{bodegaporinsumo.insu_Descripcion}}
+                        </td>
+                        <td style="width:14%; min-width:8rem;" class="text-center">
+                            <span class="p-column-title">Ciudad</span>
+                            {{bodegaporinsumo.bopi_Stock}}
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+
+    </div>
+</div>
+
+
+<div class="grid" *ngIf="Create">
+    <div class="col-12">
+        <div class="card">
+            <h2>Nueva Bodega Por Insumo</h2>
+            <div class=" mt-2 grid">
+                <form [formGroup]="form" class="grid col-12 p-fluid p-formgrid">
+                    <div class="field col-12 md:col-6">
+                        <label>Bodega:</label>
+                        <p-dropdown
+                        formControlName="bode_Id"
+                        [options]="bodegas"
+                        optionLabel="bode_Descripcion"
+                        placeholder="Seleccione una bodega" />
+
+                        <small class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['bode_Id'].invalid"
+                            style="color: red !important;">El campo es requerido</small>
+                    </div>
+                    <div class="field col-12 md:col-6">
+                        <label>Insumo:</label>
+                        <p-dropdown
+                        formControlName="inpp_Id"
+                        [options]="bodegas"
+                        optionLabel="bode_Descripcion"
+                        placeholder="Seleccione un Insumo" />
+                        <small class="ng-dirty ng-invalid"
+                            *ngIf="submitted && form.controls['inpp_Id'].invalid"
+                            style="color: red !important;">El campo es requerido</small>
+                    </div>
+
+                    <div class="field col-6 md:col-6">
+                        <label>Stock:</label>
+                        <!-- <p-dropdown
+                        formControlName="ciud_Id"
+                        [options]="ciudades"
+                        optionLabel="ciud_Descripcion"
+                        placeholder="Seleccione una ciudad" /> -->
+                         <input class="col-6"
+                            [ngClass]="{'ng-invalid ng-dirty': submitted && form.controls['bopi_Stock'].invalid}"
+                            type="text" class="p-inputtext" formControlName="bopi_Stock">
+
+                        <small class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['bopi_Stock'].invalid"
+                            style="color: red !important;">El campo es requerido</small>
+                    </div>
+
+                </form>
+            </div>
+
+            <div class="grid p-justify-end">
+                <div class="col">
+                    <button pButton pRipple type="button" label="Guardar" icon="pi pi-save" (click)="Guardar()"></button>
+                </div>
+                <div class="col">
+                    <button  pButton icon="pi pi-times" type="button" label="Cancelar" class="p-button-outlined" (click)="cancelar()"></button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+
+<div class="grid" *ngIf="Detail">
+    <div class="col-12">
+        <div class="card">
+    <h1 class="text-center mt-2">Unidades de Medida</h1>
+    <hr>
+        <div class="p-fluid p-formgrid grid" >
+            <div class="field col-12 md:col-4 " style="position: relative; height: 10%;">
+                <div class="field rows">
+                    <label for="Codigo" style="font-weight: 800;">Id:</label>
+                </div>
+                <div class="field rows">
+                    <label for="Codigo">{{ detalle_bopi_Id }}</label>
+                </div>
+            </div>
+            <div class="field col-12 md:col-4" style="position: relative;" >
+                <div class="field rows">
+                    <label for="Municipio" style="font-weight: 800;">Descripción:</label>
+                </div>
+                <div class="field rows">
+                    <label for="Municipio">{{ detalle_bode_Descripcion }}</label>
+                </div>
+            </div>
+            <div class="field col-12 md:col-4" style="position: relative;">
+                <div class="field rows" style="font-weight: 800;">
+                    <label for="Departamento">Stock:</label>
+                </div>
+                <div class="field rows">
+                    <label for="Departamento">{{ detalle_bopi_Stock }}</label>
+                </div>
+            </div>
+            <div class="field col-12 md:col-4" style="position: relative; top: -10px;" >
+                <div class="field rows" style="font-weight: 800;">
+                    <label for="Departamento">Insumo:</label>
+                </div>
+                <div class="field rows">
+                    <label for="Departamento">{{ detalle_insu_Descripcion }}</label>
+                </div>
+            </div>
+
+        </div>
+    <div style="position: relative;top:-20px;" >
+        <div class="card-title">
+            <h1>Auditoría</h1>
+        </div>
+        <p-table [value]="Datos" styleClass=" mt-2">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th style="width:200px; font-weight: bold;">Acción</th>
+                    <th style="width:200px; font-weight: bold;" >Usuario</th>
+                    <th style="width:200px; font-weight: bold;">Fecha</th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-transaction>
+                <tr>
+                    <td style="width:200px;">Creado</td>
+                    <td style="width:200px">{{ detalle_usuaCreacion }}</td>
+                    <td style="width:200px">{{ detalle_FechausuaCreacion }}</td>
+                </tr>
+                <tr>
+                    <td style="width:200px;">Modificado</td>
+                    <td style="width:200px">{{ detalle_usuaModificacion }}</td>
+                    <td style="width:200px">{{ detalle_FechausuaModificacion }}</td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+    <div style="display: flex; justify-content: flex-end; margin-top: 1rem; grid-gap: 5px;">
+        <button (click)="cancelar()" pButton icon="pi pi-arrow-left" type="button" label="Regresar" class="p-button-outlined"></button>
+      </div>
+    </div>
+</div>
+
+
+</div>
+
+<p-dialog [(visible)]="Delete" header="Confirmar" [modal]="true" [style]="{width:'450px'}">
+    <div class="flex align-items-center justify-content-center">
+        <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+        <span>Está seguro de eliminarlo?</span>
+    </div>
+    <ng-template pTemplate="footer">
+        <button pButton pRipple icon="pi pi-times" class="p-button-outlined p-button-primary" label="No" (click)="Delete = false"></button>
+        <button pButton pRipple icon="pi pi-check" class="p-button-outlined p-button-primary" label="Si" (click)="Eliminar()"></button>
+    </ng-template>
+</p-dialog>

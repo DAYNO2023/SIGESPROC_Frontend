@@ -1,0 +1,15 @@
+
+
+$breakpoint:992px !default;
+$scale:14px !default;
+
+.layout-dark {
+    --sidebar-shadow: none;
+    --sidebar-border: 1px solid var(--surface-border);
+    --card-shadow: none;
+    --body-bg: #0D0D0E ;
+    --root-menu-item-hover-bg:rgba(255, 255, 255, 0.05);
+    --exception-pages-image: url('/assets/layout/images/pages/exception-ondark.png');
+}
+
+

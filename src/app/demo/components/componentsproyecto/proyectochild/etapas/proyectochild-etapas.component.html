@@ -1,0 +1,711 @@
+<div *ngIf="isTableEtapaLoading || isTableActividadLoading" class="loader-container">
+    <div class="loader">
+        <span></span>
+    </div>
+</div>
+<!-- Titulo Accion -->
+<div *ngIf="title" class="flex flex-column mb-4">
+    <h2>{{selectedEtapaPorProyecto.length > 0 ? 'Etapa' : etapaPorProyecto?.etpr_Id ? 'Editar Etapa' : 'Nueva Etapa' }}
+    </h2>
+</div>
+
+<!-- Formulario Etapa Por Proyecto -->
+<div *ngIf="!formActividad && (!detalleActividadPorEtapa || !detalleEtapaPorProyecto) && (!dialogTable && !dialogCostosActividad)"
+    class="flex flex-row align-items-center flex-wrap" style="gap: 15px;">
+    <!-- Campos -->
+    <div class="field" [style]="{width: '49%'}">
+        <label for="etap_Descripcion">Nombre de la Etapa
+            <small class="ng-dirty ng-invalid"
+                *ngIf="submittedEtapaPorProyecto && !etapaPorProyecto.etap_Descripcion">*</small>
+        </label>
+        <p-autoComplete [(ngModel)]="etapaPorProyecto.etap_Descripcion" [suggestions]="filteredEtapas"
+            (completeMethod)="filterEtapas($event)" field="" [dropdown]="true" autofocus (input)="allowOnlyAlphanumeric($event)"
+            (keydown)="ValidarTextoNumeros($event)" (ngModelChange)="onSelectEtapa()"
+            [ngClass]="{'ng-invalid ng-dirty' : submittedEtapaPorProyecto && (!etapaPorProyecto.etap_Descripcion || isOptionEtapaNotFound) }">
+        </p-autoComplete>
+        <small class="ng-dirty ng-invalid" *ngIf="submittedEtapaPorProyecto && !etapaPorProyecto.etap_Descripcion">El
+            campo es requerido.</small>
+        <small class="ng-dirty ng-invalid" *ngIf="submittedEtapaPorProyecto && isOptionEtapaNotFound && etapaPorProyecto.etap_Descripcion">Opción no encontrada.</small>
+    </div>
+    <div class="field" [style]="{width: '49%'}">
+        <label for="empl_NombreCompleto">Responsable de la Etapa
+            <small class="ng-dirty ng-invalid"
+                *ngIf="submittedEtapaPorProyecto && !etapaPorProyecto.empl_NombreCompleto">*</small>
+        </label>
+        <p-autoComplete [(ngModel)]="etapaPorProyecto.empl_NombreCompleto" [suggestions]="filteredEmpleados"
+            (completeMethod)="filterEmpleados($event)" field="" [dropdown]="true" autofocus (input)="allowOnlyAlphanumeric($event)"
+            (keydown)="ValidarTextoNumeros($event)" (ngModelChange)="onSelectEmpleado()"
+            [ngClass]="{'ng-invalid ng-dirty' : submittedEtapaPorProyecto && (!etapaPorProyecto.empl_NombreCompleto || isOptionEmpleadoEtapaNotFound) }">
+        </p-autoComplete>
+        <small class="ng-dirty ng-invalid" *ngIf="submittedEtapaPorProyecto && !etapaPorProyecto.empl_NombreCompleto">El
+            campo es requerido.</small>
+        <small class="ng-dirty ng-invalid" *ngIf="submitted && isOptionEmpleadoEtapaNotFound && etapaPorProyecto.empl_NombreCompleto">Opción no encontrada.</small>
+    </div>
+</div>
+<!-- Botones -->
+<div *ngIf="!formActividad && (!detalleActividadPorEtapa || !detalleEtapaPorProyecto) && (!dialogTable && !dialogCostosActividad)"
+    class="flex justify-content-end mb-4">
+    <div class="flex flex-row" style="gap: 10px;">
+        <button #guardarButton (click)="guardarEtapaPorProyecto()" pButton pRipple type="button" label="Guardar"
+            icon="pi pi-save"></button>
+        <button (click)="buttonLimpiar()" class="p-button-secondary" pButton pRipple type="button" label="Limpiar"
+            icon="pi pi-trash"></button>
+    </div>
+</div>
+
+<!-- Data Table -->
+<p-table *ngIf="!detalleEtapaPorProyecto && (!dialogTable && !dialogCostosActividad)" #dt [value]="etapasPorProyecto"
+    dataKey="etpr_Id" responsiveLayout="scroll" [globalFilterFields]="['row','etap_Descripcion', 'empl_NombreCompleto', 'carg_Descripcion', 'etpr_FechaInicio', 'etpr_FechaFin']" [rows]="10"
+    [paginator]="true" [showCurrentPageReport]="true"
+    currentPageReportTemplate="Mostrando {first} al {last} de {totalRecords} entradas" selectionMode="multiple"
+    [rowHover]="true" [rowsPerPageOptions]="[10,25,50,100]">
+    <ng-template pTemplate="caption">
+        <!-- <button pButton icon="pi pi-fw {{isExpanded ? 'pi-minus' : 'pi-plus'}}" label="{{isExpanded ? 'Collapse All' : 'Expand All'}}" (click)="expandAll()"></button> -->
+        <div class="flex flex-column md:flex-row md:justify-content-start md:align-items-center">
+            <span class="block mt-2 md:mt-0 p-input-icon-left">
+                <i class="pi pi-search"></i>
+                <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Buscar..."
+                    class="w-full sm:w-auto" />
+            </span>
+            <div class="registros">
+                <p-dropdown [options]="dt.rowsPerPageOptions" [(ngModel)]="dt.rows" [style]="{ 'margin-right': '5px' }"
+                    [autoWidth]="false"></p-dropdown>
+
+                <span style="color: #FFF0C6; font-weight: 700; margin-top: 7px;"> Registros por página</span>
+            </div>
+        </div>
+    </ng-template>
+    <ng-template pTemplate="header">
+        <tr>
+            <th class="text-center">Acciones </th>
+            <th class="text-center" pSortableColumn="row">No. <p-sortIcon field="row"></p-sortIcon></th>
+            <th class="text-center" pSortableColumn="etap_Descripcion">Descripción <p-sortIcon field="etap_Descripcion"></p-sortIcon></th>
+            <th class="text-center" pSortableColumn="empl_NombreCompleto">Responsable <p-sortIcon field="empl_NombreCompleto"></p-sortIcon>
+            </th>
+            <th class="text-center" pSortableColumn="carg_Descripcion">Cargo <p-sortIcon field="carg_Descripcion"></p-sortIcon></th>
+            <th class="text-center" pSortableColumn="etpr_FechaInicio">Fecha de Inicio <p-sortIcon field="etpr_FechaInicio"></p-sortIcon>
+            </th>
+            <th class="text-center" pSortableColumn="etpr_FechaFin">Fecha de Finalización <p-sortIcon field="etpr_FechaFin"></p-sortIcon>
+            </th>
+        </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-etapaPorProyecto let-expanded="expanded">
+        <tr>
+            <!-- Columna de Acciones -->
+            <td class="text-center" style="width:0.5%; min-width:1.5rem;">
+                <p-splitButton appendTo="body" label="Acciones" icon="pi pi-cog"
+                    [model]="generarEtapaPorProyectoActionSplitButton(etapaPorProyecto)"
+                    styleClass="p-button-secondary custom-splitbutton"></p-splitButton>
+            </td>
+
+            <!-- Contenido -->
+            <td class="text-center" style="width:0.5%; min-width:3rem;"><span class="p-column-title">No.</span>
+                {{etapaPorProyecto.row}}
+            </td>
+            <td class="text-center" style="width:14%; min-width:10rem;">
+                <span class="p-column-title">Descripción</span>
+                {{etapaPorProyecto.etap_Descripcion}}
+            </td>
+            <td class="text-center" style="width:14%; min-width:10rem;">
+                <span class="p-column-title">Responsable</span>
+                {{etapaPorProyecto.empl_NombreCompleto}}
+            </td>
+            <td class="text-center" style="width:14%; min-width:10rem;">
+                <span class="p-column-title">Responsable</span>
+                {{etapaPorProyecto.carg_Descripcion}}
+            </td>
+            <td class="text-center" style="width:14%; min-width:10rem;">
+                <span class="p-column-title">Fecha de Inicio</span>
+                {{etapaPorProyecto.etpr_FechaInicio | date:'yyyy-MM-dd'}}
+            </td>
+            <td class="text-center" style="width:14%; min-width:10rem;">
+                <span class="p-column-title">Fecha de Finalización</span>
+                {{etapaPorProyecto.etpr_FechaFin | date:'yyyy-MM-dd'}}
+            </td>
+        </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+        <tr>
+            <td colspan="100">
+                <ng-container *ngIf="isTableEtapaLoading; else noData">
+                </ng-container>
+                <ng-template #noData>
+                    {{loadedTableEtapaMessage}}
+                </ng-template>
+            </td>
+        </tr>
+    </ng-template>
+</p-table>
+
+<!-- Dialog Tabla Master -->
+<div *ngIf="dialogTable && !dialogCostosActividad" class="mb-4">
+    <div>
+        <div class="p-d-flex p-jc-center p-ai-center" style="width: 100%;">
+            <h1 class="text-center">Actividades de {{etapaPorProyecto.etap_Descripcion}}</h1>
+        </div>
+    </div>
+    <p-table #dt [value]="actividadesPorEtapas" dataKey="acet_Id" styleClass="p-datatable-sm" responsiveLayout="scroll"
+        [paginator]="true" [showCurrentPageReport]="true"
+        currentPageReportTemplate="Mostrando {first} al {last} de {totalRecords} entradas" [rows]="6"
+        [globalFilterFields]="['row','espr_Descripcion', 'acti_Descripcion', 'acet_Observacion', 'unme_Descripcion',
+    'acet_Cantidad', 'empl_NombreCompleto', 'acet_FechaInicio', 'acet_FechaFin', 'acet_PrecioManoObraEstimado',
+    'acet_CostoInsumos', 'acet_CostoMaquinaria', 'acet_CostoEquipoSeguridad', 'acet_Progreso']"
+        selectionMode="multiple" [rowHover]="true" [scrollable]="true">
+        <ng-template pTemplate="caption">
+            <!-- <button pButton icon="pi pi-fw {{isExpanded ? 'pi-minus' : 'pi-plus'}}" label="{{isExpanded ? 'Collapse All' : 'Expand All'}}" (click)="expandAll()"></button> -->
+            <div class="flex flex-column md:flex-row md:justify-content-start md:align-items-center mb-2">
+                <div class="flex" style="gap: 5px;">
+                    <span class="block mt-2 md:mt-0 p-input-icon-left">
+                        <i class="pi pi-search"></i>
+                        <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Buscar..."
+                            class="w-full sm:w-auto" />
+                    </span>
+                    <button pButton [rounded]="true" icon="pi pi-plus" (click)="addRow(dt, i)"></button>
+                </div>
+                <!-- <div class="registros">
+                    <p-dropdown [options]="dt.rowsPerPageOptions" [(ngModel)]="dt.rows" [style]="{ 'margin-right': '5px' }"  [autoWidth]="false"></p-dropdown>
+
+                    <span style="color: #FFF0C6; font-weight: 700; margin-top: 7px;"> Registros por página</span>
+                </div> -->
+            </div>
+        </ng-template>
+        <ng-template pTemplate="header">
+            <tr>
+                <th class="text-center" pFrozenColumn style="background-color: #000;">Acciones </th>
+                <th class="text-center" pSortableColumn="row" pFrozenColumn style="background-color: #000;">No. <p-sortIcon
+                        field="row"></p-sortIcon></th>
+                <th class="text-center" pSortableColumn="espr_Descripcion">Estado <p-sortIcon field="espr_Descripcion"></p-sortIcon></th>
+                <th class="text-center" pSortableColumn="acti_Descripcion">Descripción <p-sortIcon field="acti_Descripcion"></p-sortIcon>
+                </th>
+                <th class="text-center" pSortableColumn="acet_Observacion">Observación <p-sortIcon field="acet_Observacion"></p-sortIcon>
+                </th>
+                <th class="text-center" pSortableColumn="unme_Descripcion">Unidad <p-sortIcon field="unme_Descripcion"></p-sortIcon></th>
+                <th class="text-center" pSortableColumn="acet_Cantidad">Cantidad <p-sortIcon field="acet_Cantidad"></p-sortIcon></th>
+                <th class="text-center" pSortableColumn="empl_NombreCompleto">Responsable <p-sortIcon
+                        field="empl_NombreCompleto"></p-sortIcon></th>
+                <th class="text-center" pSortableColumn="acet_FechaInicio">Fecha Inicio Programada <p-sortIcon
+                        field="acet_FechaInicio"></p-sortIcon></th>
+                <th class="text-center" pSortableColumn="acet_FechaFin">Fecha de Finalización <p-sortIcon
+                        field="acet_FechaFin"></p-sortIcon></th>
+                <th class="text-center" pSortableColumn="acet_PrecioManoObraEstimado">Mano de Obra <p-sortIcon
+                        field="acet_PrecioManoObraEstimado"></p-sortIcon></th>
+                <th class="text-center" pSortableColumn="acet_CostoInsumos">Insumos <p-sortIcon field="acet_CostoInsumos"></p-sortIcon></th>
+                <th class="text-center" pSortableColumn="acet_CostoMaquinaria">Renta de Maquinaria <p-sortIcon
+                        field="acet_CostoMaquinaria"></p-sortIcon></th>
+                <th class="text-center" pSortableColumn="acet_CostoEquipoSeguridad">Equipo de Seguridad <p-sortIcon
+                        field="acet_CostoEquipoSeguridad"></p-sortIcon></th>
+                <th class="text-center" pSortableColumn="acet_Progreso">Progreso <p-sortIcon field="acet_Progreso"></p-sortIcon></th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-actividadPorEtapa let-i="rowIndex">
+            <tr>
+                <!-- Columna de Acciones -->
+                <td class="text-center" pFrozenColumn style="background-color: #000;">
+                    <div class="flex justify-content-center">
+                        <button (click)="eliminarActividadPorEtapa(i, dt)" pButton type="button" icon="pi pi-minus"
+                            class="p-button-secondary mr-2"></button>
+                        <button (click)="compareModels(i) ? guardarActividadPorEtapa(i, dt) : addRow(dt, i)" pButton
+                            type="button" [icon]="compareModels(i) ? 'pi pi-check' : 'pi pi-plus'"></button>
+                    </div>
+                </td>
+
+                <!-- Contenido -->
+                <td style="width:1%; min-width:3rem;" class="text-center" pFrozenColumn style="background-color: #000;">
+                    <span class="p-column-title">No.</span>
+                    {{actividadesPorEtapas[i].row}}
+                </td>
+                <td class="text-center" style="width:14%; min-width:10rem;"><span class="p-column-title">Estado</span>
+                    {{actividadesPorEtapas[i].espr_Descripcion || 'Presupuestos'}}
+                </td>
+                <td class="text-center" style="width:0.5%; min-width:1rem;"><span class="p-column-title">Nombre de la actividad</span>
+                    <p-autoComplete [(ngModel)]="actividadesPorEtapas[i].acti_Descripcion"
+                        [suggestions]="filteredActividades" (completeMethod)="filterActividades($event)" field=""
+                        [dropdown]="true" appendTo="body" autofocus (input)="allowOnlyAlphanumeric($event)"
+                        (keydown)="ValidarTextoNumeros($event)" (ngModelChange)="onSelectActividad()"
+                        [ngClass]="{'ng-invalid ng-dirty' : submittedActividadesPorEtapa[i] && !actividadesPorEtapas[i].acti_Descripcion}">
+                    </p-autoComplete>
+                    <!-- <small class="ng-dirty ng-invalid" *ngIf="submittedActividadesPorEtapa[i] && !actividadesPorEtapas[i].acti_Descripcion">El Nombre de la actividad es requerido.</small> -->
+                </td>
+                <td class="text-center" style="width:14%; min-width:10rem;"><span class="p-column-title">Observación</span>
+                    <input type="text" pInputText id="acet_Observacion" (input)="allowOnlyAlphanumeric($event)"
+                    (keydown)="ValidarTextoNumeros($event)" [maxLength]="300"
+                        [(ngModel)]="actividadesPorEtapas[i].acet_Observacion" autofocus appendTo="body"
+                        [ngClass]="{'ng-invalid ng-dirty' : submittedActividadesPorEtapa[i] && !actividadesPorEtapas[i].acet_Observacion}" />
+                    <!-- <small class="ng-dirty ng-invalid" *ngIf="submittedActividadesPorEtapa[i] && !actividadesPorEtapas[i].acet_Observacion">La Observación de la actividad es requerida.</small> -->
+                </td>
+                <td class="text-center" style="width:14%; min-width:10rem;"><span class="p-column-title">Unidad</span>
+                    <p-autoComplete [(ngModel)]="actividadesPorEtapas[i].unme_Nombre" (input)="allowOnlyAlphanumeric($event)"
+                    (keydown)="ValidarTextoNumeros($event)"
+                        [suggestions]="filteredUnidadesMedida" (completeMethod)="filterUnidadMedida($event)" field=""
+                        [dropdown]="true" (ngModelChange)="setearUnidades(i)" autofocus appendTo="body"
+                        [ngClass]="{'ng-invalid ng-dirty' : submittedActividadesPorEtapa[i] && (!actividadesPorEtapas[i].unme_Nombre || isOptionUnidadMedidaNotFound) }">
+                    </p-autoComplete>
+                    <!-- <small class="ng-dirty ng-invalid" *ngIf="submittedActividadesPorEtapa[i] && !actividadesPorEtapas[i].unme_Nombre">La Unidad de Medida de la actividad es requerida.</small> -->
+                </td>
+                <td class="text-center" style="width:14%; min-width:10rem;"><span class="p-column-title">Medida</span>
+                    <p-inputNumber id="acet_Cantidad" [(ngModel)]="actividadesPorEtapas[i].acet_Cantidad"
+                        appendTo="body" autofocus
+                        [ngClass]="{'ng-invalid ng-dirty' : submittedActividadesPorEtapa[i] && !actividadesPorEtapas[i].acet_Cantidad}"
+                        mode="decimal"
+                        [prefix]="actividadesPorEtapas[i]?.unme_Nomenclatura === undefined ? '' : actividadesPorEtapas[i]?.unme_Nomenclatura + ' '"
+                        [min]="1" [max]="10000" [minFractionDigits]="2" [maxFractionDigits]="2"/>
+                    <!-- <small class="ng-dirty ng-invalid" *ngIf="submittedActividadesPorEtapa[i] && !actividadesPorEtapas[i].acet_Cantidad">La Cantidad de la Medida de la actividad es requerida.</small> -->
+                </td>
+                <td class="text-center" style="width:14%; min-width:10rem;"><span class="p-column-title">Responsable</span>
+                    <p-autoComplete [(ngModel)]="actividadesPorEtapas[i].empl_NombreCompleto"
+                        [suggestions]="filteredEmpleados" (completeMethod)="filterEmpleados($event)" field=""
+                        [dropdown]="true" appendTo="body" autofocus (input)="allowOnlyAlphanumeric($event)"
+                        (keydown)="ValidarTextoNumeros($event)" (ngModelChange)="onSelectEmpleado()"
+                        [ngClass]="{'ng-invalid ng-dirty' : submittedActividadesPorEtapa[i] && (!actividadesPorEtapas[i].empl_NombreCompleto || isOptionEmpleadoActividadNotFound) }">
+                    </p-autoComplete>
+                    <!-- <small class="ng-dirty ng-invalid" *ngIf="submittedActividadesPorEtapa[i] && !actividadesPorEtapas[i].empl_NombreCompleto">El Empleado Encargado de la actividad es requerido.</small> -->
+                </td>
+                <td class="text-center" style="width:14%; min-width:10rem;"><span class="p-column-title">Fecha Inicio Programada</span>
+                    <p-calendar  [showIcon]="true" id="acet_FechaInicio"
+                        [(ngModel)]="actividadesPorEtapas[i].acet_FechaInicio" autofocus appendTo="body"
+                        [minDate]="proyecto.proy_FechaInicio" [maxDate]="proyecto.proy_FechaFin"
+                        [defaultDate]="setDefaultDate(i)"
+                        [ngClass]="{'ng-invalid ng-dirty' : submittedActividadesPorEtapa[i] && !actividadesPorEtapas[i].acet_FechaInicio}"></p-calendar>
+                    <small class="ng-dirty ng-invalid" *ngIf="submittedActividadesPorEtapa[i] && !actividadesPorEtapas[i].acet_FechaInicio">La Fecha de inicio de la actividad es requerida.</small>
+                </td>
+                <td class="text-center" style="width:14%; min-width:10rem;"><span class="p-column-title">Fecha de Finalización</span>
+                    <p-calendar  [showIcon]="true" id="acet_FechaFin"
+                        [(ngModel)]="actividadesPorEtapas[i].acet_FechaFin" autofocus appendTo="body"
+                        [minDate]="actividadesPorEtapas[i]?.acet_FechaInicio || proyecto.proy_FechaInicio"
+                        [maxDate]="proyecto.proy_FechaFin" [defaultDate]="setDefaultDate(i)"
+                        [ngClass]="{'ng-invalid ng-dirty' : submittedActividadesPorEtapa[i] && !actividadesPorEtapas[i].acet_FechaFin}"></p-calendar>
+                    <small class="ng-dirty ng-invalid" *ngIf="submittedActividadesPorEtapa[i] && !actividadesPorEtapas[i].acet_FechaFin">La Fecha de finalización requerida.</small>
+                </td>
+                <td class="text-center" style="width:14%; min-width:10rem;">
+                    <span class="p-column-title">Mano de Obra</span>
+                    <p-inputNumber [(ngModel)]="actividadesPorEtapas[i].acet_PrecioManoObraEstimado" autofocus
+                        [ngClass]="{'ng-invalid ng-dirty' : submittedActividadesPorEtapa[i] && !actividadesPorEtapas[i].acet_PrecioManoObraEstimado}"
+                        mode="decimal" prefix="LPS " [min]="1" [max]="1000000" [minFractionDigits]="2" [maxFractionDigits]="2"/>
+                </td>
+                <td class="text-center" style="width:14%; min-width:10rem;">
+                    <span class="p-column-title">Insumos</span>
+                    <p-inputGroup>
+                        <p-inputNumber id="acet_PrecioManoObraEstimado"
+                            [(ngModel)]="actividadesPorEtapas[i].acet_CostoInsumos" autofocus [readonly]="true"
+                            mode="decimal" prefix="LPS " [min]="0" [minFractionDigits]="2"
+                            [maxFractionDigits]="2" />
+                        <button (click)="openActividadCostos(actividadPorEtapa, 0)" type="button" pButton
+                            icon="pi pi-list"></button>
+                    </p-inputGroup>
+                </td>
+                <td class="text-center" style="width:14%; min-width:10rem; text-align: right;">
+                    <span class="p-column-title">Renta de Maquinaria</span>
+                    <p-inputGroup>
+                        <p-inputNumber [(ngModel)]="actividadesPorEtapas[i].acet_CostoMaquinaria" autofocus
+                            [readonly]="true" mode="decimal" prefix="LPS " [min]="0" [minFractionDigits]="2"
+                            [maxFractionDigits]="2" />
+                        <button (click)="openActividadCostos(actividadPorEtapa, 1)" type="button" pButton
+                            icon="pi pi-list"></button>
+                    </p-inputGroup>
+                </td>
+                <td class="text-center" style="width:14%; min-width:10rem; text-align: right;">
+                    <span class="p-column-title">Equipo de Seguridad</span>
+                    <p-inputGroup>
+                        <p-inputNumber [(ngModel)]="actividadesPorEtapas[i].acet_CostoEquipoSeguridad" autofocus
+                            [readonly]="true" mode="decimal" prefix="LPS " [min]="0" [minFractionDigits]="2"
+                            [maxFractionDigits]="2" />
+                        <button (click)="openActividadCostos(actividadPorEtapa, 2)" type="button" pButton
+                            icon="pi pi-list" ></button>
+                    </p-inputGroup>
+                </td>
+                <td class="text-center" style="width:14%; min-width:10rem; text-align: right;">
+                    <span class="p-column-title">Porcentaje de Progreso</span>
+                    {{actividadesPorEtapas[i]?.acet_Progreso | number: '1.2-2' }}
+                </td>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+            <tr>
+                <td colspan="100">
+                    <ng-container *ngIf="isTableActividadLoading; else noData">
+                    </ng-container>
+                    <ng-template #noData>
+                        {{loadedTableActividadMessage}}
+                    </ng-template>
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+    <div class="flex justify-content-end">
+        <button type="button" (click)="dialogTable=false" label="Regresar" pButton pRipple icon="pi pi-arrow-left"
+            class="p-button-secondary">
+        </button>
+    </div>
+</div>
+
+<!-- Dialog Costos Actividad -->
+<div *ngIf="dialogCostosActividad" class="mb-4">
+    <div>
+        <div class="p-d-flex p-jc-center p-ai-center" style="width: 100%;">
+            <h1 class="text-center">{{actividadPorEtapa.acti_Descripcion}}</h1>
+        </div>
+    </div>
+    <p-tabView styleClass="mb-5">
+        <p-tabPanel header="Insumos" [selected]="!selectedTab1 && !selectedTab2">
+            <p-pickList [source]="insumosPorProveedoresGrouped" [target]="insumosPorActividad" sourceHeader="Catálogo"
+                [targetHeader]="actividadPorEtapa.acti_Descripcion" [responsive]="true"
+                [showSourceControls]="false" [showTargetControls]="false" [sourceStyle]="{ height: '20rem' }"
+                [targetStyle]="{ height: '20rem' }" filterBy="insu_Descripcion,cate_Descripcion,suca_Descripcion,unme_Nombre,mate_Descripcion,prov_Descripcion,
+                        bopi_Stock,inpa_PrecioCompra,inpp_Preciocompra" sourceFilterPlaceholder="Buscar..."
+                targetFilterPlaceholder="Buscar..." (onMoveToTarget)="onMoveToTarget($event)"
+                (onMoveToSource)="onMoveToSource($event)"
+                >
+                <ng-template let-item pTemplate="item">
+                    <div class="flex flex-wrap p-2 align-items-center gap-3">
+                        <div class="flex-1 flex flex-column flex-wrap gap-2">
+                            <span class="font-bold">{{ item.insu_Descripcion }}</span>
+                            <div class="flex align-items-center flex-wrap gap-3">
+                                <div class="flex align-items-center gap-2">
+                                    <i class="pi pi-tag text-sm"></i>
+                                    <span>
+                                        {{ item.cate_Descripcion }}
+                                    </span>
+                                </div>
+                                <div class="flex align-items-center gap-2">
+                                    <i class="pi pi-tags text-sm"></i>
+                                    <span>
+                                        {{ item.suca_Descripcion }}
+                                    </span>
+                                </div>
+                                <div class="flex align-items-center gap-2">
+                                    <i class="fa-solid fa-ruler"></i>
+                                    <span>
+                                        {{ item.unme_Nombre }}
+                                    </span>
+                                </div>
+                                <div class="flex align-items-center gap-2">
+                                    <i class="fa-solid fa-trowel-bricks"></i>
+                                    <span>
+                                        {{ item.mate_Descripcion }}
+                                    </span>
+                                </div>
+                                <div class="flex align-items-center gap-2">
+                                    <i class="fa-solid fa-boxes-packing"></i>
+                                    <span>
+                                        {{ item.prov_Descripcion }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <span *ngIf="insumosPorActividad.includes(item)">{{ item?.inpp_Preciocompra ? 'No Guardado' :
+                            (item.inpa_Estado ? 'En Actividad' : item.inpa_Estado === false ? 'Presupuestado' : 'Encamino') }}</span>
+                        <div class="flex-1 flex flex-column gap-2">
+                            <span class="p-column-title">Cantidad</span>
+                            <p-inputNumber [(ngModel)]="item.inpa_stock" autofocus
+                                [disabled]="insumosPorActividad.includes(item)" mode="decimal"
+                                [prefix]="item?.unme_Nomenclatura === undefined ? '' : item?.unme_Nomenclatura + ' '"
+                                [min]="1" [max]="10000" [minFractionDigits]="2" [maxFractionDigits]="2" />
+                        </div>
+                        <span *ngIf="insumosPorProveedoresGrouped.includes(item)">
+                            {{ item.bopi_Stock | currency: item?.unme_Nomenclatura === undefined ? '' :
+                            item?.unme_Nomenclatura + ' ' : 'symbol' }}
+                        </span>
+                        <span class="font-bold text-900" style="justify-self: end;">
+                            {{ item.inpa_PrecioCompra || item?.inpp_Preciocompra | currency: 'LPS ' : 'symbol' : '1.2' }}
+                        </span>
+                    </div>
+                </ng-template>
+            </p-pickList>
+        </p-tabPanel>
+        <p-tabPanel header="Renta de Maquinaria" [selected]="selectedTab1 && !selectedTab2">
+            <p-pickList [source]="maquinariasPorProveedores" [target]="rentaMaquinariasPorActividad"
+                sourceHeader="Catálogo" [targetHeader]="actividadPorEtapa.acti_Descripcion" [disabled]="true"
+                [responsive]="true" [showSourceControls]="false" [showTargetControls]="false"
+                [sourceStyle]="{ height: '20rem' }" [targetStyle]="{ height: '20rem' }" 
+                filterBy="maqu_Descripcion,nive_Descripcion,prov_Descripcion,mapr_PrecioCompra,rmac_PrecioRenta"
+                sourceFilterPlaceholder="Buscar..." targetFilterPlaceholder="Buscar...">
+                <ng-template let-item pTemplate="item"
+                >
+                    <div class="flex flex-wrap p-2 align-items-center gap-3">
+                        <div class="flex-1 flex flex-column flex-wrap gap-2">
+                            <span class="font-bold">{{ item.maqu_Descripcion }}</span>
+                            <div class="flex align-items-center flex-wrap gap-3">
+                                <div class="flex align-items-center gap-2">
+                                    <i class="pi pi-tag text-sm"></i>
+                                    <span>
+                                        {{ item.nive_Descripcion }}
+                                    </span>
+                                </div>
+                                <div class="flex align-items-center gap-2">
+                                    <i class="fa-solid fa-boxes-packing"></i>
+                                    <span>
+                                        {{ item.prov_Descripcion }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <span *ngIf="rentaMaquinariasPorActividad.includes(item)">{{ item?.mapr_PrecioCompra ? 'No
+                            Guardado' : (item.rmac_Estado ? 'En Actividad' : item.rmac_Estado === false ?
+                            'Presupuestado' : 'En camino') }}</span>
+                        <div class="flex-1 flex flex-column gap-2">
+                            <span class="p-column-title">Cantidad de Renta</span>
+                            <p-inputNumber [(ngModel)]="item.rmac_CantidadRenta" autofocus
+                                [disabled]="rentaMaquinariasPorActividad.includes(item)" mode="decimal"
+                                [prefix]="item?.mapr_DiaHora ? (item?.mapr_DiaHora === 0 ? 'Horas ' : item?.mapr_DiaHora === 1 ? 'Días ' : 'Viajes ')
+                                                             : (item?.rmac_RentaPor === 0 ? 'Horas ' : item?.rmac_RentaPor === 1 ? 'Días ' : 'Viajes ')" 
+                                [min]="1" [max]="100000" [minFractionDigits]="2" [maxFractionDigits]="2" />
+                        </div>
+                        <div class="flex-1 flex flex-column gap-2">
+                            <span class="p-column-title">Cantidad de Maquinas</span>
+                            <p-inputNumber [(ngModel)]="item.rmac_CantidadMaquinas" autofocus
+                                [disabled]="rentaMaquinariasPorActividad.includes(item)"
+                                [prefix]="item?.unme_Nomenclatura === undefined ? '' : item?.unme_Nomenclatura + ' '"
+                                [min]="1" [max]="10000"/>
+                        </div>
+                        <span class="font-bold text-900" style="justify-self: end;">
+                            {{ item.rmac_PrecioRenta || item?.mapr_PrecioCompra | currency: 'LPS ' : 'symbol' : '1.2' }}
+                        </span>
+                    </div>
+                </ng-template>
+            </p-pickList>
+        </p-tabPanel>
+        <p-tabPanel header="Equipo de Seguridad" [selected]="selectedTab2 && !selectedTab1">
+            <p-pickList [source]="equiposSeguridadPorProveedoresGrouped" [target]="equiposSeguridadPorActividad"
+                sourceHeader="Catálogo" [targetHeader]="actividadPorEtapa.acti_Descripcion" [disabled]="true"
+                [responsive]="true" [showSourceControls]="false" [showTargetControls]="false" 
+                [sourceStyle]="{ height: '20rem' }" [targetStyle]="{ height: '20rem' }"
+                filterBy="equs_Nombre,equs_Descripcion,prov_Descripcion,eqbo_Stock,eqpp_PrecioCompra,eqac_Costo"
+                sourceFilterPlaceholder="Buscar..." targetFilterPlaceholder="Buscar..."
+                >
+                <ng-template let-item pTemplate="item">
+                    <div class="flex flex-wrap p-2 align-items-center gap-3">
+                        <div class="flex-1 flex flex-column flex-wrap gap-2">
+                            <span class="font-bold">{{ item.equs_Nombre }}</span>
+                            <div class="flex align-items-center flex-wrap gap-3">
+                                <div class="flex align-items-center gap-2">
+                                    <i class="pi pi-list text-sm"></i>
+                                    <span>
+                                        {{ item.equs_Descripcion }}
+                                    </span>
+                                </div>
+                                <div class="flex align-items-center gap-2">
+                                    <i class="fa-solid fa-boxes-packing"></i>
+                                    <span>
+                                        {{ item.prov_Descripcion }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <span *ngIf="equiposSeguridadPorActividad.includes(item)">{{ item?.eqpp_PrecioCompra ? 'No Guardado' : (item.eqac_Estado ? 'En Actividad' : item.eqac_Estado === false ? 'Recibido' :
+                            'En camino') }}</span>
+                        <div class="flex-1 flex flex-column gap-2">
+                            <span class="p-column-title">Cantidad</span>
+                            <p-inputNumber [(ngModel)]="item.eqac_Cantidad" autofocus
+                                [disabled]="equiposSeguridadPorActividad.includes(item)" mode="decimal"
+                                [prefix]="'Unidades '" [min]="1" [max]="10000" [minFractionDigits]="2" [maxFractionDigits]="2"/>
+                        </div>
+                        <span *ngIf="equiposSeguridadPorProveedoresGrouped.includes(item)">
+                            {{ item.eqbo_Stock | currency: 'Unidades ' : 'symbol' }}
+                        </span>
+                        <span class="font-bold text-900" style="justify-self: end;">
+                            {{ item.eqpp_PrecioCompra || item?.eqac_Costo | currency: 'LPS ' : 'symbol' : '1.2' }}
+                        </span>
+                    </div>
+                </ng-template>
+            </p-pickList>
+        </p-tabPanel>
+    </p-tabView>
+    <div class="flex justify-content-end gap-2">
+        <button (click)="guardarSuministro()" pButton pRipple type="button" label="Guardar" icon="pi pi-save"></button>
+        <button type="button" (click)="cerrarDialogActividadCostos()" label="Regresar" pButton pRipple
+            icon="pi pi-arrow-left" class="p-button-secondary">
+        </button>
+    </div>
+</div>
+
+<!-- Modal  -->
+<p-dialog [(visible)]="dialogConfirmacionCostoActividad" [modal]="true" [style]="{width:'450px'}">
+    <!-- Cuerpo Modal -->
+    <div class="flex flex-column align-items-center gap-2">
+        <div *ngFor="let item of compraGrouped" class="flex justify-content-between align-items-center gap-2" style="width: 100%; padding: 5px; border-style: solid; border-color: #868c9b; border-radius: 10px; border-width: 1px;">
+            <span>{{item.prov_Descripcion}}</span>
+            <button pButton pRipple icon="pi pi-dollar" class="p-button-outlined p-button-primary"
+                label="Generar Compra" (click)="generarCompra(item)"></button>
+        </div>
+        <!-- <div *ngFor="let item of fleteGrouped" class="flex justify-content-between align-items-center gap-2">
+            <span>{{'Flete de ' + item.bode_Descripcion || actividadPorEtapa.insu_Descripcion}}</span>
+            <i *ngIf="item.done" class="pi p-button-primary pi-check"></i>
+            <button *ngIf="!item.done" pButton pRipple icon="pi pi-truck" class="p-button-outlined p-button-primary"
+                label="Generar Flete" (click)="generarFlete(item)"></button>
+        </div> -->
+    </div>
+
+    <!-- Botones -->
+    <ng-template pTemplate="footer">
+        <button pButton pRipple icon="pi pi-times" class="p-button-outlined p-button-primary" label="Cancelar"
+            (click)="dialogConfirmacionCostoActividad = false"></button>
+    </ng-template>
+</p-dialog>
+
+<p-dialog [(visible)]="dialogConfirmacionConfrimacion" [modal]="true" header="Confirmación" [style]="{width:'450px'}">
+    <!-- Cuerpo Modal -->
+    <div class="flex align-items-center justify-content-center">
+        <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+        <div class="flex flex-column flex-col">
+            <span>¿Está seguro de cancelar la operación de asignación de suplementos a la actividad?</span>
+            <br>
+            <span>Las operaciones ya realizadas se tendran que cancelar manualmente.</span>
+        </div>
+    </div>
+
+    <!-- Botones -->
+    <ng-template pTemplate="footer">
+        <button pButton pRipple icon="pi pi-check" class="p-button-primary" label="Aceptar"
+            (click)="dialogConfirmacionConfirmacion = false; dialogConfirmacionCostoActividad = false;"></button>
+        <button pButton pRipple icon="pi pi-times" class="p-button-outlined p-button-primary" label="Cancelar"
+            (click)="dialogConfirmacionConfrimacion = false"></button>
+    </ng-template>
+</p-dialog>
+
+<!-- Ver Detalles -->
+<div *ngIf="detalleEtapaPorProyecto">
+    <!-- Campos de detalle -->
+    <div class="flex flex-column mb-4">
+        <div class="flex flew-row justify-content-between align-items-center flex-wrap">
+            <div *ngFor="let property of getFilteredPropertyArray()" style="width: 30%;">
+                <div class="field rows">
+                    <label style="font-weight: 800;">{{ property.key }}</label>
+                </div>
+                <div class="field rows">
+                    <label>{{ property.value }}</label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabla de auditoria -->
+    <p-table [value]="selectedEtapaPorProyecto" responsiveLayout="scroll" [rowHover]="true" dataKey="id">
+        <ng-template pTemplate="header">
+            <tr>
+                <th>Acción</th>
+                <th>Usuario</th>
+                <th>Fecha</th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-etapaPorProyecto>
+            <tr>
+                <td>Creación</td>
+                <td>{{etapaPorProyecto.usuaCreacion}}</td>
+                <td>{{etapaPorProyecto.etpr_FechaCreacion}}</td>
+            </tr>
+            <tr>
+                <td>Modificación</td>
+                <td>{{etapaPorProyecto?.usuaModificacion || 'N/a'}}</td>
+                <td>{{etapaPorProyecto?.etpr_FechaModificacion || 'N/a'}}</td>
+            </tr>
+        </ng-template>
+    </p-table>
+
+    <!-- Boton regresar -->
+    <div class="flex justify-content-end mt-4">
+        <button pButton pRipple label="Regresar" icon="pi pi-fw pi-arrow-left"
+            (click)="cerrarDetalleEtapaPorProyecto()"></button>
+    </div>
+</div>
+
+<!-- Modal Eliminar -->
+<p-dialog [(visible)]="dialogEtapaPorProyecto" header="Confirmación" [modal]="true" [style]="{width:'450px'}">
+    <!-- Cuerpo Modal -->
+    <div class="flex align-items-center justify-content-center">
+        <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+        <div class="flex flex-column flex-col">
+            <span *ngIf="proyecto">¿Está seguro de eliminar <b>{{etapaPorProyecto.etap_Descripcion}}</b>?</span>
+            <br>
+            <span *ngIf="proyecto">Todas las actividades de esta etapa también seran eliminadas.</span>
+        </div>
+    </div>
+
+    <!-- Botones -->
+    <ng-template pTemplate="footer">
+        <button pButton pRipple icon="pi pi-trash" class="p-button-primary" label="Eliminar"
+            (click)="confirmarEliminarEtapaPorProyecto()"></button>
+        <button pButton pRipple icon="pi pi-times" class="p-button-outlined p-button-primary" label="Cancelar"
+            (click)="dialogEtapaPorProyecto = false"></button>
+    </ng-template>
+</p-dialog>
+
+<!-- Ver Detalles -->
+<div *ngIf="detalleActividadPorEtapa">
+    <!-- Campos de detalle -->
+    <div class="flex flex-column mb-4">
+        <div class="flex flew-row justify-content-between align-items-center flex-wrap">
+            <div *ngFor="let property of getFilteredPropertyArray()" style="width: 30%;">
+                <div class="field rows">
+                    <label style="font-weight: 800;">{{ property.key }}</label>
+                </div>
+                <div class="field rows">
+                    <label>{{ property.value }}</label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabla de auditoria -->
+    <p-table [value]="selectedActividadPorEtapa" responsiveLayout="scroll" [rowHover]="true" dataKey="id">
+        <ng-template pTemplate="header">
+            <tr>
+                <th>Acción</th>
+                <th>Usuario</th>
+                <th>Fecha</th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-actividadPorEtapa>
+            <tr>
+                <td>Creación</td>
+                <td>{{actividadPorEtapa.usuaCreacion}}</td>
+                <td>{{actividadPorEtapa.etpr_FechaCreacion}}</td>
+            </tr>
+            <tr>
+                <td>Modificación</td>
+                <td>{{actividadPorEtapa?.usuaModificacion || 'N/a'}}</td>
+                <td>{{actividadPorEtapa?.etpr_FechaModificacion || 'N/a'}}</td>
+            </tr>
+        </ng-template>
+    </p-table>
+
+    <!-- Boton regresar -->
+    <div class="flex justify-content-end mt-4">
+        <button pButton pRipple label="Regresar" icon="pi pi-fw pi-arrow-left"
+            (click)="cerrarDetalleActividadPorEtapa()"></button>
+    </div>
+</div>
+
+<!-- Modal Eliminar -->
+<p-dialog [(visible)]="dialogActividadPorEtapa" header="Confirmación" [modal]="true" appendTo="body"
+    [style]="{width:'450px'}">
+    <!-- Cuerpo Modal -->
+    <div class="flex align-items-center justify-content-center">
+        <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+        <span *ngIf="proyecto">¿Está seguro de eliminar <b>{{actividadPorEtapa.acti_Descripcion}}</b>?</span>
+    </div>
+
+    <!-- Botones -->
+    <ng-template pTemplate="footer">
+        <button pButton pRipple icon="pi pi-trash" class="p-button-primary" label="Eliminar"
+            (click)="confirmarEliminarActividadPorEtapa()"></button>
+        <button pButton pRipple icon="pi pi-times" class="p-button-outlined p-button-primary" label="Cancelar"
+            (click)="dialogActividadPorEtapa = false"></button>
+    </ng-template>
+</p-dialog>
+<!-- Modal Confirmar Editar-->
+<p-dialog [(visible)]="editarEtapaPorProyectoDialog" header="Confirmación" [modal]="true" [style]="{width:'450px'}">
+    <!-- Cuerpo Modal -->
+    <div class="flex align-items-center justify-content-center">
+        <i class="pi pi-pencil mr-3" style="font-size: 2rem"></i>
+        <span *ngIf="etapaPorProyecto">¿Está seguro que desea editar la etapa
+            <b>{{etapaPorProyecto.docu_Descripcion}}</b> del proyecto <b>{{proyecto.proy_Nombre}}</b>?</span>
+    </div>
+
+    <!-- Botones -->
+    <ng-template pTemplate="footer">
+        <button pButton pRipple icon="pi pi-pencil" class="p-button-primary" label="Aceptar"
+            (click)="guardarEtapaPorProyecto()"></button>
+        <button pButton pRipple icon="pi pi-times" class="p-button-outlined p-button-primary" label="Cancelar"
+            (click)="editarEtapaPorProyectoDialog = false"></button>
+    </ng-template>
+</p-dialog>

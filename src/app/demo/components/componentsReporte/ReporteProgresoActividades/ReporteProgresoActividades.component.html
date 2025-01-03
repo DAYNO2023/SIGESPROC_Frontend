@@ -1,0 +1,127 @@
+<!-- Componente de notificaciones para mostrar mensajes -->
+<p-toast></p-toast>
+
+<!-- Card para el formulario de generación de reportes -->
+<div class="card p-mb-4">
+    <div class="card-header">
+        <h2>
+            Reporte Progreso de actividad
+            <i 
+            pTooltip="Para generar el reporte, seleccione una fecha Inicio y una fecha final y un Proyecto. Haga clic en 'Generar Reporte' para ver el informe." 
+            tooltipPosition="top" 
+            class="pi pi-info-circle ml-2" 
+            style="font-size: 1.2rem; cursor: pointer;"
+          ></i>
+        </h2>
+    </div>
+    <div class="card-body">
+        <form
+            [formGroup]="reportForm"
+            (ngSubmit)="generateReport()"
+            class="grid col-12 p-fluid p-formgrid"
+        >
+          
+
+                 <!-- Calendar Input for Fecha Inicio -->
+      <div class="field col-12 md:col-6">
+        <label for="fechainicio" style="font-weight: bold; margin-bottom: 8px;">
+          Fecha de Inicio
+          <small *ngIf="submitted && reportForm.controls['fechainicio'].invalid" style="color: red; margin-left: 4px;">*</small>
+        </label>
+        <p-calendar
+          id="fechainicio"
+          formControlName="fechainicio"
+          class="w-full"
+          dateFormat="dd/mm/yy"
+          [showIcon]="true"
+          [showButtonBar]="true"
+          [placeholder]="'Selecciona la fecha de inicio'"
+          [ngClass]="{'ng-invalid ng-dirty': submitted && reportForm.controls['fechainicio'].invalid}"
+        ></p-calendar>
+        <small class="ng-dirty ng-invalid" *ngIf="submitted && reportForm.controls['fechainicio'].invalid" style="color: red !important;">El campo es requerido.</small>
+      </div>
+
+      <!-- Calendar Input for Fecha Fin -->
+      <div class="field col-12 md:col-6">
+        <label for="fechafin" style="font-weight: bold; margin-bottom: 8px;">
+            Fecha Final
+          <small *ngIf="submitted && reportForm.controls['fechafin'].invalid" style="color: red; margin-left: 4px;">*</small>
+        </label>
+        <p-calendar
+          id="fechafin"
+          formControlName="fechafin"
+          class="w-full"
+          dateFormat="dd/mm/yy"
+          [showIcon]="true"
+          [showButtonBar]="true"
+          [placeholder]="'Selecciona la Fecha Final'"
+          [ngClass]="{'ng-invalid ng-dirty': submitted && reportForm.controls['fechafin'].invalid}"
+        ></p-calendar>
+        <small class="ng-dirty ng-invalid" *ngIf="submitted && reportForm.controls['fechafin'].invalid" style="color: red !important;">El campo es requerido.</small>
+      </div>
+      <div class="field col-12 md:col-6">
+        <label for="proy_id">Proyecto
+            <span *ngIf="submitted && reportForm.controls['proy_id'].invalid" style="color: red;">*</span>
+        </label>
+        <p-autoComplete 
+          id="proy_id" 
+          formControlName="proy_id" 
+          [suggestions]="filteredEmpresa" 
+          (completeMethod)="filterEmpresa($event)" 
+          field="text" 
+          [dropdown]="true" 
+          placeholder="Seleccione un proyecto"
+          class="w-full"
+          [ngClass]="{'ng-invalid ng-dirty': submitted && reportForm.controls['proy_id'].invalid}"
+        ></p-autoComplete>
+        <small *ngIf="submitted && reportForm.controls['proy_id'].hasError('required')" style="color: red !important;">
+            El campo es requerido.
+        </small>
+        <small *ngIf="submitted && reportForm.controls['proy_id'].hasError('invalidOption')" style="color: red !important;">
+            Opción no encontrada.
+        </small>
+    </div>
+    
+
+            <!-- Botones para Generar Reporte -->
+            <div
+                class="field col-12"
+                style="display: flex; justify-content: flex-end"
+            >
+                <div
+                    class="button-group d-flex justify-content-end"
+                    style="margin-right: 12px"
+                >
+                    <button
+                        type="submit"
+                        pButton
+                        label="Generar Reporte"
+                        icon="pi pi-file-pdf"
+                    ></button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Card para el contenedor de PDF -->
+<div class="card">
+    <div class="card-header">
+        <h2>
+            Vista del Reporte
+        </h2>
+    </div>
+    <div class="card-body">
+        <div
+            id="pdfContainer"
+            style="width: 100%; height: 800px; position: relative"
+        >
+            <!-- Spinner de carga -->
+            <div class="loader-container" *ngIf="loading">
+                <div class="loader">
+                    <span></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,681 @@
+
+<style>
+
+.status-emitida {
+    background-color: green;
+  }
+
+  .status-sinemitir {
+    background-color: red;
+  }
+</style>
+
+<div class="loader-container" *ngIf="isTableLoading">
+  <div class="loader">
+      <span></span>
+  </div>
+</div>
+
+
+<!-- Listado de la tabla -->
+<div class="grid" *ngIf="Index" >
+    <div class="col-12">
+        <div class="card">
+            <h1 class="text-center mt-2">Controles de Calidad</h1>
+            <hr>
+            <div class="grid mt-2">
+                <div class="col-12">
+                    <button (click)="CrearControlCalidad()" pButton icon="pi pi-plus" label="Nuevo" class="mr-2"></button>
+                </div>
+            </div>
+            <p-table  #dt [value]="proyectosControl" styleClass="mt-2" responsiveLayout="scroll" [rows]="10" [globalFilterFields]="['codigo', 'coca_Aprobado','coca_Descripcion', 'coca_Fecha', 'coca_CantidadTrabajada', 'proy_Nombre', 'etap_Descripcion', 'acti_Descripcion']" [paginator]="true" [showCurrentPageReport]="true" currentPageReportTemplate="Mostrando {first} al {last} de {totalRecords} entradas" dataKey="proy_Id" [rowHover]="true" [expandedRowKeys]="expandedRows" (onRowExpand)="onRowExpand($event)" [tableStyle]="{ background: '#000' }" [rowsPerPageOptions]="[10,25,50,100]">
+       <ng-template pTemplate="caption">
+           <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+               <span class="block mt-2 md:mt-0 p-input-icon-left">
+                   <i class="pi pi-search" style="color: white;"></i>
+                   <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Buscar..."
+                          class="w-full sm:w-auto" style="color: white;" />
+               </span>
+               <div class="registros">
+                <p-dropdown 
+                [options]="dt.rowsPerPageOptions"
+                [(ngModel)]="dt.rows"
+                [style]="{ 'margin-right': '5px' }"
+                [autoWidth]="false"
+                />
+                <span style="color: #fff0c6; font-weight: 700; margin-top: 7px;">Registros por página</span>
+              </div>
+           </div>
+       </ng-template>
+       <ng-template pTemplate="header">
+           <tr>
+            <th style="width: 5rem"></th>
+     
+               <th pSortableColumn="codigo" class="text-center" style="color: white;">No. <p-sortIcon field="codigo"></p-sortIcon></th>
+               
+
+               <th pSortableColumn="proy_Nombre" class="text-center" style="color: white;">Proyecto <p-sortIcon field="proy_Nombre"></p-sortIcon></th>
+
+               <th pSortableColumn="etap_Descripcion" class="text-center" style="color: white;">Descripción <p-sortIcon field="etap_Descripcion"></p-sortIcon></th>
+
+
+               
+               <th pSortableColumn="coca_Fecha" class="text-center" style="color: white;">Fecha inicio<p-sortIcon field="coca_Fecha"></p-sortIcon></th>
+               <th pSortableColumn="coca_CantidadTrabajada" class="text-center" style="color: white;">Fecha fin <p-sortIcon field="coca_CantidadTrabajada"></p-sortIcon></th>
+            </tr>
+               
+       </ng-template>
+       <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="6" class="text-center">
+            <div class="loader-container" *ngIf="loading">
+                <div class="loader">
+                    <span></span>
+                </div>
+              </div>
+          </td>
+        </tr>
+      </ng-template>              
+
+       <ng-template pTemplate="body" let-controlcalidadproy let-i="rowIndex">
+           <tr>
+            <td>
+                <p-button type="button" pRipple [pRowToggler]="controlcalidadproy" [text]="true" [rounded]="true" [plain]="true"
+                  [icon]="expandedRows[controlcalidadproy.proy_Id] ? 'pi pi-chevron-down' : 'pi pi-chevron-right'" />
+              </td>
+               <td class="text-center">
+                   <span class="p-column-title">#</span>
+                   {{controlcalidadproy.codigo}}
+               </td>
+              <td class="text-center" >
+                <span class="p-column-title">Descripción</span>
+                {{controlcalidadproy.proy_Nombre}}
+            </td>
+               <td class="text-center" >
+                   <span class="p-column-title">Descripción</span>
+                   {{controlcalidadproy.proy_Descripcion}}
+               </td>
+               <td class="text-center" >
+                <span class="p-column-title">Fecha-Hora</span>
+                {{controlcalidadproy.proy_FechaInicio | date:'dd/MM/yyyy' }}
+            </td>
+            <td class="text-center" >
+                <span class="p-column-title"></span>
+                {{controlcalidadproy.proy_FechaFin | date:'dd/MM/yyyy'}}
+            </td>
+           
+           </tr>
+       </ng-template>
+       
+       <ng-template pTemplate="rowexpansion" let-controlcalidadproy>
+        <tr>
+          <td colspan="12">
+            <div class="p-3">
+              <p-table [value]="controlcalidad"  dataKey="proy_Id">
+                <!-- <ng-template pTemplate="header">
+                  <tr>
+                      <th class="text-center">No.</th>
+                      <th class="text-center">Imagen </th>
+                  
+                  </tr>
+                  </ng-template> -->
+                  
+                    <ng-template pTemplate="header">
+                      <tr>
+                       <th class="text-center" style="color: white;">Acciones</th>
+                    
+                          <th pSortableColumn="codigo" class="text-center" style="color: white;">No. <p-sortIcon field="codigo"></p-sortIcon></th>
+                          
+                          <th pSortableColumn="coca_Aprobado" class="text-center" style="color: white;">Aprobado<p-sortIcon field="coca_Aprobado"></p-sortIcon></th>
+                    
+                    
+                          <th pSortableColumn="etap_Descripcion" class="text-center" style="color: white;">Etapa Trabajada <p-sortIcon field="etap_Descripcion"></p-sortIcon></th>
+                    
+                    
+                          <th pSortableColumn="acti_Descripcion" class="text-center" style="color: white;">Actividad Trabajada <p-sortIcon field="acti_Descripcion"></p-sortIcon></th>
+                    
+                          <th pSortableColumn="coca_Descripcion" class="text-center" style="color: white;">Descripción <p-sortIcon field="coca_Descripcion"></p-sortIcon></th>
+                    
+                          <th pSortableColumn="coca_Fecha" class="text-center" style="color: white;">Fecha-Hora Control<p-sortIcon field="coca_Fecha"></p-sortIcon></th>
+                          <th pSortableColumn="coca_CantidadTrabajada" class="text-center" style="color: white;">Cantidad Trabajada <p-sortIcon field="coca_CantidadTrabajada"></p-sortIcon></th>
+                       </tr>
+                          
+                    </ng-template>
+                <ng-template pTemplate="body" let-controlcalidad>
+                  <tr (click)="onRowSelect(controlcalidad)">
+                    
+                       <td class="text-center">
+                        <p-splitButton 
+                        label="Acciones" 
+                       class="custom-splitbutton"
+                        [model]="!controlcalidad.coca_Aprobado ? items : itemsNoEdit"
+                        
+                        styleClass="p-button-secondary" 
+                        appendTo="body">
+                    </p-splitButton>
+                       </td>
+                       <td class="text-center">
+                           <span class="p-column-title">#</span>
+                           {{controlcalidad.codigo}}
+                       </td>
+                       <td class="text-center"  style="width: 3%; min-width: 10rem">
+                        <span
+                          [ngClass]="{
+                            'estado-activo': controlcalidad.coca_Aprobado,
+                            'estado-inactivo': !controlcalidad.coca_Aprobado
+                          }"
+                        >
+                          <span class="text-span">
+                            {{ controlcalidad.coca_Aprobado ? 'Aprobado' : 'Sin Aprobar' }}
+                          </span>
+                        </span>
+                      </td>
+                    <td class="text-center" >
+                      <span class="p-column-title">Descripción</span>
+                      {{controlcalidad.etap_Descripcion}}
+                  </td>
+                 
+                      <td class="text-center" >
+                        <span class="p-column-title">Descripción</span>
+                        {{controlcalidad.acti_Descripcion}}
+                    </td>
+                       <td class="text-center" >
+                           <span class="p-column-title">Descripción</span>
+                           {{controlcalidad.coca_Descripcion}}
+                       </td>
+                       <td class="text-center" >
+                        <span class="p-column-title">Fecha-Hora</span>
+                        {{controlcalidad.coca_Fecha | date:'dd/MM/yyyy, hh:mm a' }}
+                    </td>
+                    <td class="text-center" >
+                        <span class="p-column-title"></span>
+                        {{controlcalidad.coca_CantidadTrabajada}}
+                    </td>
+                   
+                   </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage">
+                  <tr>
+                     <td colspan="3">
+                            <ng-container *ngIf="isMasterLoading; else noData">
+                              <div class="loader-container">
+                                <div class="loader"></div>
+                              </div>
+                             <!-- <i class="pi pi-spin pi-spinner"></i> Cargando... -->
+                              </ng-container>
+                               <ng-template #noData>
+                                   {{loadedTableMessage}}
+                            </ng-template>
+                     </td>
+                 </tr>
+              </ng-template>
+                <!-- <ng-template pTemplate="emptymessage">
+                  <tr>
+                    <td colspan="5">No hay imagenes disponibles.</td>
+                  </tr>
+                </ng-template> -->
+              </p-table>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+   </p-table>
+   
+        </div>
+    </div>
+</div>
+
+
+<!-- collapse crear-editar  -->
+<div class="grid" *ngIf="Create">
+    <div class="col-12">
+        <div class="card">
+          <div class="flex" style="width: 100%; margin: 0 auto; display: flex; align-items: center; height: 42px;">
+            <div style="width: 20%; display: flex; align-items: center; height: 12.5%;">
+                <button (click)="CerrarControlCalidad()" class="p-button-link" pButton pRipple type="button" label="Regresar" icon="pi pi-arrow-left" style="box-shadow: none !important"></button>
+            </div>
+            <div style="flex-grow: 1; display: flex; justify-content: center; align-items: center;">
+            <h1 class="text-center mt-4">{{ titulo }} Control de Calidad</h1>
+            </div>
+            <div style="width: 20%;"></div> <!-- Empty div to balance the space on the right -->
+        </div>
+            <hr>
+            <div class="mt-2 grid">
+                <form [formGroup]="form" class="grid col-12 p-fluid p-formgrid"> 
+                    <div class="field col-12 md:col-6">
+                        <label>Descripción <label class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['coca_Descripcion'].invalid"
+                          style="color: red !important;">*</label> </label>
+                        <input class="col-6"
+                        (keydown)="ValidarTexto($event)" (input)="allowOnlyAlphanumeric($event)"
+                               [ngClass]="{'ng-invalid ng-dirty': submitted && form.controls['coca_Descripcion'].invalid}"
+                               type="text" class="p-inputtext" formControlName="coca_Descripcion" maxlength="50">
+                        <small class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['coca_Descripcion'].invalid"
+                               style="color: red !important;">El campo es requerido.</small>
+                      </div>
+                      <div class="field col-12 md:col-6">
+                        <label>Hora-Fecha de control <small class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['coca_Fecha'].invalid"
+                          style="color: red !important;">*</small></label>
+                            <p-calendar
+                            [minDate]="minDate"
+                                formControlName="coca_Fecha"
+                                [showIcon]="true"
+                                [showTime]="true"
+                                [hourFormat]="12"
+                                dateFormat="yy-mm-dd"
+                                appendTo="body"
+                                placeholder="YY/MM/DD HH:MM"
+                                [ngClass]="{
+                                    'ng-invalid ng-dirty': submitted && form.controls['coca_Fecha'].invalid
+                                }"
+                            ></p-calendar>
+                        <small class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['coca_Fecha'].invalid"
+                               style="color: red !important;">El campo es requerido.</small>
+                      </div>
+                     
+                      <div class="field col-12 md:col-6">
+                        <label>Proyecto Trabajado <small class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['proy_Nombre'].invalid"
+                          style="color: red !important;">*</small></label>
+                        <!-- <input class="col-6"
+                               [ngClass]="{'ng-invalid ng-dirty': submitted && form.controls['acet_Id'].invalid}"
+                               type="text" class="p-inputtext" formControlName="acet_Id"> -->
+                        <p-autoComplete
+                               formControlName="proy_Nombre"
+                               (onSelect)="onProyectoSelect($event)"
+                               (completeMethod)="filterProyecto($event)"
+                               [suggestions]="Proyectofill"
+                               field="proy_Nombre"
+                               placeholder="Seleccione un proyecto"
+                               [dropdown]="true"
+                               appendTo="body"
+                               [ngClass]="{'ng-invalid ng-dirty': submitted && form.controls['proy_Nombre'].invalid}" />
+                               
+                        <small class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['proy_Nombre'].invalid" style="color: red !important;">{{ErrorProyecto}}</small>
+                      </div>
+                      <div class="field col-12 md:col-6">
+                        <label>Etapa Trabajada <small class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['etap_Descripcion'].invalid"
+                          style="color: red !important;">*</small></label>
+                        <!-- <input class="col-6"
+                               [ngClass]="{'ng-invalid ng-dirty': submitted && form.controls['acet_Id'].invalid}"
+                               type="text" class="p-inputtext" formControlName="acet_Id"> -->
+                        <p-autoComplete
+                               formControlName="etap_Descripcion"
+                               [suggestions]="Etapafill"
+                               (completeMethod)="filterEtapa($event)"
+                               (onSelect)="onEtapaSelect($event)"
+                               field="etap_Descripcion"
+                               placeholder="Seleccione una etapa"
+                               [dropdown]="true"
+                               [ngClass]="{'ng-invalid ng-dirty': submitted && form.controls['etap_Descripcion'].invalid}" />
+                               
+                        <small class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['etap_Descripcion'].invalid"
+                               style="color: red !important;">{{ErrorEtapa}}</small>
+                      </div>
+                      <div class="field col-12 md:col-6">
+                        <label>Actividad Trabajada <small class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['acti_Descripcion'].invalid"
+                          style="color: red !important;">*</small></label>
+                        <!-- <input class="col-6"
+                               [ngClass]="{'ng-invalid ng-dirty': submitted && form.controls['acet_Id'].invalid}"
+                               type="text" class="p-inputtext" formControlName="acet_Id"> -->
+                        <p-autoComplete
+                               formControlName="acti_Descripcion"
+                               [suggestions]="Actividadfill"
+                               (completeMethod)="filterActividad($event)"
+                               (onSelect)="onActividadSelect($event)"
+                               field="acti_Descripcion"
+                               placeholder="Seleccione una actividad"
+                               [dropdown]="true"
+                               [ngClass]="{'ng-invalid ng-dirty': submitted && form.controls['acti_Descripcion'].invalid}" />
+                               
+                        <small class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['acti_Descripcion'].invalid"
+                               style="color: red !important;">{{ErrorActividad}}</small>
+                      </div>
+                      <div class="field col-12 md:col-6">
+                        <label>Cantidad Trabajada <small class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['coca_CantidadTrabajada'].invalid" style="color: red !important;">*</small>
+                        </label> 
+                        <p-inputNumber
+                        [minFractionDigits]="1" 
+                        [maxFractionDigits]="1"
+                        formControlName="coca_CantidadTrabajada" class="p-inputnumber-sm"   [ngClass]="{'ng-invalid ng-dirty': submitted && form.controls['coca_CantidadTrabajada'].invalid}"></p-inputNumber>
+                        <small class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['coca_CantidadTrabajada'].invalid" style="color: red !important; display: block;">El campo es requerido.</small>
+                        <small for="">Cantidad a trabajar: {{cantidad}}</small>
+                        <small for=""> Cantidad trabajada actualmente: {{ingresado}}</small>
+                        <!-- <input class="col-6" [ngClass]="{'ng-invalid ng-dirty': submitted && form.controls['coca_MetrosTrabajados'].invalid}" type="text" class="p-inputtext" formControlName="coca_MetrosTrabajados"> -->
+                      </div>
+                      <div  *ngIf="!tablaimg" class="field col-12 md:col-3" ></div>
+                      <div class="field col-12 md:col-6 " style="background-color: #1E1E1E;">
+                
+                        <label>Subir Imágenes:<label class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['imagen'].invalid"
+                          style="color: red !important;">*</label> </label>
+                        <!-- <p-fileUpload #fileUpload name="demo[]" accept="image/*" (onSelect)="onImageSelect($event)" (onRemove)="onImageRemove($event, i)"
+                          [customUpload]="true" [multiple]="true" [showUploadButton]="false" [showCancelButton]="false" [auto]="true"
+                          class="w-full" chooseLabel="Subir">
+                          <ng-template pTemplate="content">
+                            <div class="image-upload-container" (click)="triggerFileUpload()">
+                              <ng-container *ngIf="" >
+                                <div class="h-full flex flex-column justify-content-center align-items-center">
+                                  <i class="pi pi-upload text-900 text-2xl mb-3"></i>
+                                  <span class="font-bold text-900 text-xl mb-3">Subir Imagenes</span>
+                                  <span class="font-medium text-600 text-md text-center">Seleccione las Imagenes</span>
+                                </div>
+                              </ng-container>
+                            </div>
+                          </ng-template>
+                        </p-fileUpload> -->
+                        
+                          <div class="flex">
+                              <div class="lista-imagenes2"  >
+                                  <i 
+                                      class="pi pi-angle-up" 
+                                      (click)="scrollUp()"
+                                      style="cursor: pointer; font-size: 24px; color: #ffc6c6;"
+                                  ></i>
+                                  <div class="imagenes-contenedor2">
+                                      <ng-container *ngFor="let i of [0, 1, 2, 3]">
+                                          <div
+                                              *ngIf="i >= visibleImages.length"
+                                              class="imagen-lista2 placeholder"
+                                          >
+                                              <!-- Cuadro vacío sin texto -->
+                                          </div>
+                                          <img
+                                              *ngIf="i < visibleImages.length"
+                                              [ngClass]="{'borde-primario2': selectedImageIndex === i}"
+                                              [src]="visibleImages[i]"
+                                              class="imagen-lista2"
+                                              (click)="onImageSelect(i)"
+                                          />
+                                      </ng-container>
+                                  </div>                                                                                                        
+                                  <i 
+                                      class="pi pi-angle-down" 
+                                      (click)="scrollDown()"
+                                      style="cursor: pointer; font-size: 24px; color: #FFF0C6;"
+                                  ></i>
+                              </div>
+                              <div class="imagen-principal-contenedor2" >
+                                  <div *ngIf="selectedImage" class="imagen-seleccionada2">
+                                      <img
+                                          [src]="selectedImage"
+                                          alt="Imagen Seleccionada2"
+                                          class="imagen-principal2"
+                                      />
+                                  </div>
+                                  <div
+                                      *ngIf="!selectedImage"
+                                      class="caja-subir2"
+                                      (click)="triggerFileInput()"
+                                  >
+                                      <input
+                                          type="file"
+                        accept="image/*"
+                        id="fileInput"
+                                          (change)="onFilesSelected($event)"
+                                          multiple
+                                          style="display: none;"
+                                      />
+                                      <div class="texto-subir2"  >
+                                          <p>Subir Imágenes</p>
+                                          <small class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['imagen'].invalid" style="color: red !important;">El campo es requerido.</small>
+                                          <span>Seleccione las Imágenes</span>
+                                      </div>
+                                  </div>
+                              </div>
+                          </div>
+                          <button
+                          (click)="limpiar()"
+                          class="p-button-secondary tamano"
+                          pButton
+                          pRipple
+                          type="button"
+                          label="Limpiar"
+                          icon="pi pi-trash"
+                      ></button>
+                      </div>
+
+                        <div  *ngIf="tablaimg" class="field col-12 md:col-6 " >
+                        <label>Imágenes Ingresadas:</label>
+                        <p-table [value]="TablaMaestra"  dataKey="coca_Id">
+                            <ng-template pTemplate="header">
+                              <tr>
+                                  <th class="text-center">Eliminar</th>
+                                  <th class="text-center">No.</th>
+                                  <th class="text-center">Imagen </th>
+                              
+                              </tr>
+                              </ng-template>
+                            <ng-template pTemplate="body" let-ControlCalidadImagen>
+                              <tr  *ngIf="!isMasterLoading">
+                                  <td   class="text-center">
+                                    <button (click)="EliminarImagen(ControlCalidadImagen)" pButton pRipple type="button" icon="pi pi-trash" class="btn btn-guardar"></button>
+                                  </td>
+                                  <td  class="text-center">{{ControlCalidadImagen.codigo}}</td>
+                                  <td class="text-center">
+                                    <span class="p-column-title">Imagen</span>
+                                    <ng-container *ngIf="ControlCalidadImagen.icca_Imagen; else noImage">
+                                      <img [src]="getSafeUrl(ControlCalidadImagen.icca_Imagen)" alt="Imagen" width="65" (error)="onImageError($event)" />
+                                    </ng-container>
+                                    <ng-template #noImage>
+                                      <span>De momento no se encuentran imágenes</span>
+                                    </ng-template>
+                                  </td>
+                              </tr>
+                            </ng-template>
+                            <ng-template pTemplate="emptymessage">
+                              <tr>
+                                 <td colspan="3">
+                                        <ng-container *ngIf="isMasterLoading; else noData">
+                                          <div class="loader-container">
+                                            <div class="loader"></div>
+                                          </div>
+                                         <!-- <i class="pi pi-spin pi-spinner"></i> Cargando... -->
+                                          </ng-container>
+                                           <ng-template #noData>
+                                               {{loadedImageMessage}}
+                                        </ng-template>
+                                 </td>
+                             </tr>
+                          </ng-template>
+                          </p-table>
+                        </div>
+                </form>
+            
+                 
+            </div>
+            <div style="display: flex; justify-content: end;">
+                <button (click)="Guardar()" pButton pRipple type="button" label="Guardar" icon="pi pi-save" class="btn btn-guardar"></button>
+                <button (click)="CerrarControlCalidad()" pButton pRipple type="button" label="Cancelar" icon="pi pi-times" class="p-button-secondary" style="margin-left: 2%;"></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- modal de eliminar  -->
+<p-dialog [(visible)]="Delete" header="Confirmación" [modal]="true" [style]="{width:'450px'}">
+  <div class="flex align-items-center justify-content-center">
+      <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+      <span>¿Está seguro de eliminar el Control de Calidad <span style="font-weight: 600;">{{Descripcion}}</span>?</span>
+  </div>
+  <ng-template pTemplate="footer">
+        <button pButton pRipple icon="pi pi-trash" type="button" label="Eliminar" (click)="Eliminar()"></button>
+        <!-- <button pButton pRipple icon="pi pi-check" class="p-button-outlined p-button-primary" label="Sí" (click)="Eliminar()"></button> -->
+      <button pButton pRipple icon="pi pi-times" class="p-button-outlined p-button-primary" label="Cancelar" (click)="Delete = false"></button>
+  </ng-template>
+</p-dialog>
+
+
+<!-- modal de editar  -->
+<p-dialog [(visible)]="Edit" header="Confirmación" [modal]="true" [style]="{width:'450px'}">
+  <div class="flex align-items-center justify-content-center">
+      <i class="pi pi-pencil mr-3" style="font-size: 2rem"></i>
+      <span>¿Está seguro de editar el control de calidad <span style="font-weight: 600;">{{Descripcion}}</span>?</span>
+  </div>
+  <ng-template pTemplate="footer">
+        <button pButton pRipple icon="pi pi-pencil" type="button" label="Aceptar" (click)="EditarG()"></button>
+        <!-- <button pButton pRipple icon="pi pi-check" class="p-button-outlined p-button-primary" label="Sí" (click)="EditarG()"></button> -->
+      <button pButton pRipple icon="pi pi-times" class="p-button-outlined p-button-primary" label="Cancelar" (click)="Edit = false"></button>
+  </ng-template>
+</p-dialog>
+
+<!-- modal de aprobar  -->
+<p-dialog [(visible)]="Aprobe" header="Confirmación" [modal]="true" [style]="{width:'450px'}">
+  <div class="flex align-items-center justify-content-center">
+      <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+      <span>¿Está seguro de aprobar el Control de Calidad <span style="font-weight: 600;">{{Descripcion}}</span>?</span>
+  </div>
+  <ng-template pTemplate="footer">
+        <button pButton pRipple icon="pi pi-check" type="button" label="Aceptar" (click)="Aprobar()"></button>
+        <!-- <button pButton pRipple icon="pi pi-check" class="p-button-outlined p-button-primary" label="Sí" (click)="Aprobar()"></button> -->
+      <button pButton pRipple icon="pi pi-times" class="p-button-outlined p-button-primary" label="Cancelar" (click)="Aprobe = false"></button>
+  </ng-template>
+</p-dialog>
+
+<!-- Detalles  -->
+<div class="grid" *ngIf="Detail">
+  <div class="col-12">
+      <div class="card">
+  <div class="flex" style="width: 100%; margin: 0 auto; display: flex; align-items: center; height: 42px;">
+    <div style="width: 20%; display: flex; align-items: center; height: 12.5%;">
+        <button (click)="CerrarControlCalidad()" class="p-button-link" pButton pRipple type="button" label="Regresar" icon="pi pi-arrow-left" style="box-shadow: none !important"></button>
+    </div>
+    <div style="flex-grow: 1; display: flex; justify-content: center; align-items: center;">
+        <h1 class="text-center mt-4">Detalle Control de Calidad</h1>
+    </div>
+    <div style="width: 20%;"></div> <!-- Empty div to balance the space on the right -->
+</div>
+  <hr>
+      <div class="p-fluid p-formgrid grid" >
+          <div class="field col-12 md:col-4 " style="position: relative; height: 10%;">
+              <div class="field rows">
+                  <label for="Codigo" style="font-weight: 800;">No:</label>
+              </div>
+              <div class="field rows">
+                  <label for="Codigo">{{ detallecodigo }}</label>
+              </div>
+          </div>
+          <div class="field col-12 md:col-4" style="position: relative;" >
+              <div class="field rows">
+                  <label for="Municipio" style="font-weight: 800;">Descripción:</label>
+              </div>
+              <div class="field rows">
+                  <label for="Municipio">{{ detallecoca_Descripcion }}</label>
+              </div>
+          </div>
+          <div class="field col-12 md:col-4" style="position: relative;">
+              <div class="field rows" style="font-weight: 800;">
+                  <label for="Departamento">Fecha de Control:</label>
+              </div>
+              <div class="field rows">
+                  <label for="Departamento">{{ detallecoca_Fecha }}</label>
+              </div>
+          </div>
+          <div class="field col-12 md:col-4" style="position: relative; top: -10px;" >
+              <div class="field rows" style="font-weight: 800;">
+                  <label for="Departamento">Cantidad Trabajada:</label>
+              </div>
+              <div class="field rows">
+                  <label for="Departamento">{{ detallecoca_MetrosTrabajados }}</label>
+              </div>
+          </div>
+          
+          <div class="field col-12 md:col-4" style="position: relative; top: -10px;" >
+              <div class="field rows" style="font-weight: 800;">
+                  <label for="Departamento">Proyecto:</label>
+              </div>
+              <div class="field rows">
+                  <label for="Departamento">{{ detalleproy_Descripcion }}</label>
+              </div>
+          </div>
+          <div class="field col-12 md:col-4" style="position: relative; top: -10px;" >
+              <div class="field rows" style="font-weight: 800;">
+                  <label for="Departamento">Etapa:</label>
+              </div>
+              <div class="field rows">
+                  <label for="Departamento"> {{ detalleetap_Descripcion }}</label>
+              </div>
+          </div>
+          <div class="field col-12 md:col-4" style="position: relative; top: -10px;" >
+            <div class="field rows" style="font-weight: 800;">
+                <label for="Departamento">Actividad:</label>
+            </div>
+            <div class="field rows">
+                <label for="Departamento"> {{ detalleacti_Descripcion }}</label>
+            </div>
+        </div>
+      </div>
+      <div style="position: relative;top:-20px;">
+        <div class="field rows" style="font-weight: 800;">
+          <label>Imágenes Ingresadas:</label>
+        </div>
+        <p-table [value]="TablaMaestra"  dataKey="coca_Id">
+            <ng-template pTemplate="header">
+              <tr>
+                  <th class="text-center">No</th>
+                  <th class="text-center">Imagen </th>
+              
+              </tr>
+              </ng-template>
+            <ng-template pTemplate="body" let-ControlCalidadImagen>
+              <tr>
+                  
+                  <td  class="text-center">{{ControlCalidadImagen.codigo}}</td>
+                  <td class="text-center">
+                    <span class="p-column-title">Imagen</span>
+                    <ng-container *ngIf="ControlCalidadImagen.icca_Imagen; else noImage">
+                      <img [src]="getSafeUrl(ControlCalidadImagen.icca_Imagen)" alt="Imagen" width="65" (error)="onImageError($event)" />
+                    </ng-container>
+                    <ng-template #noImage>
+                      <span>De momento no se encuentran imagenes</span>
+                    </ng-template>
+                  </td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+              <tr>
+                 <td colspan="3">
+                        <ng-container *ngIf="isMasterLoading; else noData">
+                          <div class="loader-container">
+                            <div class="loader"></div>
+                          </div>
+                         <!-- <i class="pi pi-spin pi-spinner"></i> Cargando... -->
+                          </ng-container>
+                           <ng-template #noData>
+                               {{loadedImageMessage}}
+                        </ng-template>
+                 </td>
+             </tr>
+          </ng-template>
+            
+          </p-table>
+        </div>
+  <div style="position: relative;top:-20px;" >
+      <div class="card-title">
+          <h1>Auditoría</h1>
+      </div>
+      <p-table [value]="Datos" styleClass=" mt-2">
+          <ng-template pTemplate="header">
+              <tr>
+                  <th style="width:200px; font-weight: bold;">Acción</th>
+                  <th style="width:200px; font-weight: bold;" >Usuario</th>
+                  <th style="width:200px; font-weight: bold;">Fecha</th>
+              </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-transaction>
+              <tr>
+                  <td style="width:200px;">Creado</td>
+                  <td style="width:200px">{{ detalleusuaCreacion }}</td>
+                  <td style="width:200px">{{ detallecoca_FechaCreacion }}</td>
+              </tr>
+              <tr>
+                  <td style="width:200px;">Modificado</td>
+                  <td style="width:200px">{{ detalleusuaModificacion }}</td>
+                  <td style="width:200px">{{ detallecoca_FechaModificacion }}</td>
+              </tr>
+          </ng-template>
+      </p-table>
+  </div>
+  </div>
+</div>
+
+
+</div>

@@ -1,0 +1,214 @@
+<p-toast></p-toast>
+<div class="loader-container" *ngIf="loading">
+    <div class="loader">
+        <span></span>
+    </div>
+  </div>
+
+<div class="grid" *ngIf="Index">
+    <div class="col-12">
+        <div class="card">
+            <h1 class="text-center mt-2">Impuestos</h1>
+            <hr>
+
+            <!-- <div class="spinner-container" *ngIf="isLoading">
+                <p-progressSpinner
+                 styleClass="w-4rem h-4rem"
+                 strokeWidth="8"
+                 fill="var(--surface-ground)"
+                 animationDuration=".5s"></p-progressSpinner>
+            </div> -->
+
+            <p-table #dt [value]="impuesto" styleClass=" mt-2" responsiveLayout="scroll" [rows]="10"
+                [globalFilterFields]="['codigo','impu_Porcentaje']"
+                [rows]="10" [paginator]="true" [showCurrentPageReport]="true" [tableStyle]="{ background: '#000' }"
+                currentPageReportTemplate="Mostrando {first} al {last} de {totalRecords} entradas" [rowHover]="true"
+                [rowsPerPageOptions]="[10,25,50,100]"
+                >
+                <ng-template pTemplate="caption">
+                    <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+                        <span class="block mt-2 md:mt-0 p-input-icon-left">
+                            <i style="color: white;" class="pi pi-search"></i>
+                            <input style="color: white;" pInputText type="text" (input)="onGlobalFilter(dt, $event)"
+                                placeholder="Buscar..." class="w-full sm:w-auto" />
+                        </span>
+                        <div class="registros">
+                            <p-dropdown [options]="dt.rowsPerPageOptions" [(ngModel)]="dt.rows" [style]="{ 'margin-right': '5px' }"  [autoWidth]="false"></p-dropdown>
+
+                            <span style="color: #FFF0C6; font-weight: 700; margin-top: 7px;"> Registros por página</span>
+                        </div>
+                    </div>
+                </ng-template>
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th style="color: white;" class="text-center">Acciones</th>
+                        <th style="color: white;" pSortableColumn="codigo" class="text-center">No. <p-sortIcon
+                                field="pren_Id"></p-sortIcon></th>
+                        <th style="color: white;" pSortableColumn="impu_Porcentaje" class="text-center">Porcentaje <p-sortIcon
+                                field="pren_Titulo"></p-sortIcon></th>
+
+                    </tr>
+                </ng-template>
+
+                <!-- <ng-template pTemplate="emptymessage">
+                    <tr>
+                      <td colspan="6" class="text-center">
+                        <div class="loader-container" *ngIf="loading">
+                            <div class="loader">
+                                <span></span>
+                            </div>
+                          </div>
+                      </td>
+                    </tr>
+                  </ng-template> -->
+                <ng-template pTemplate="body" let-impuesto>
+                    <tr (click)="selectImpuesto(impuesto)">
+                        <td class="text-center">
+                            <p-splitButton
+                            label="Acciones"
+                            icon="pi pi-cog"
+                            [model]="items"
+                            appendTo="body"
+                            styleClass="p-button-secondary"
+                            class="custom-splitbutton"
+                        ></p-splitButton>
+                        </td>
+                        <td style=" min-width:10rem;" class="text-center"><span
+                                class="p-column-title">No</span>
+                            {{impuesto.codigo}}
+                        </td>
+                        <td style=" min-width:10rem;" class="text-center">
+                            <span class="p-column-title">Impuesto</span>
+                            {{impuesto.impu_Porcentaje}}
+                        </td>
+
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+
+    </div>
+</div>
+
+<div class="grid" *ngIf="Create">
+    <div class="col-12">
+
+        <div class="card">
+            <!-- Titulo -->
+            <div style="display: flex; justify-content: space-between; align-items: center; height: 42px;">
+                <div style="width: 20%; display: flex; align-items: center;">
+                    <button (click)="CerrarImpuesto()" class="p-button-link" pButton pRipple type="button" label="Regresar" icon="pi pi-arrow-left" style="box-shadow: none !important"></button>
+                </div>
+                <div style="flex: 1; text-align: center;">
+                    <h1 class="text-center mt-4">Editar Impuesto</h1>
+                </div>
+                <div style="width: 20%;"></div> <!-- Empty div to balance the layout -->
+            </div>
+            <hr>
+
+            <div class=" mt-2 grid">
+                <form [formGroup]="form" class="grid col-12 p-fluid p-formgrid">
+                    <div class="field col-12 md:col-6">
+                        <label>
+                            Porcentaje
+                            <span *ngIf="submitted && form.controls['impu_Porcentaje'].invalid" style="color: red">*</span> <!-- Asterisco rojo condicionado -->
+                        </label>
+                        <input class="col-6" (keydown)="ValidarNumeros($event)"
+                            [ngClass]="{'ng-invalid ng-dirty': submitted && form.controls['impu_Porcentaje'].invalid}"
+                            type="text" class="p-inputtext" id="impu_Porcentaje" 
+                            (input)="handleInput($event)" maxlength="8"
+                            formControlName="impu_Porcentaje">
+                        <small class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['impu_Porcentaje'].invalid"
+                            style="color: red !important;">El campo es requerido.</small>
+                    </div>
+                </form>
+            </div>
+            <div style="display: flex;justify-content: end;">
+                <button (click)="ModalGuardar()" class="btn btn-guardar" pButton pRipple type="button" label="Guardar" icon="pi pi-save"></button>
+                <button (click)="CerrarImpuesto()" style="margin-left: 2%;" class=" p-button-secondary" pButton pRipple type="button" label="Cancelar" icon="pi pi-times"></button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+ <!-- Modal Confirmar Editar-->
+ <p-dialog [(visible)]="impuestoeditar" header="Confirmación" [modal]="true" [style]="{width:'450px'}">
+    <!-- Cuerpo Modal -->
+        <div class="flex align-items-center justify-content-center">
+              <i class="pi pi-pencil mr-3" style="font-size: 2rem"></i>
+            <span >¿Está seguro de editar el impuesto con el porcentaje de <b>{{detalle_impu_Porcentaje + '%'}}</b>?</span>
+      </div>
+
+
+       <!-- Botones -->
+       <ng-template pTemplate="footer">
+            <button pButton pRipple icon="pi pi-pencil" class="p-button p-button-primary" label="Aceptar" (click)="Guardar()"></button>
+           <button pButton pRipple icon="pi pi-times" class="p-button-outlined p-button-primary" label="Cancelar" (click)="impuestoeditar =  false"></button>
+      </ng-template>
+</p-dialog>
+
+<div class="grid" *ngIf="Detail">
+    <div class="col-12">
+        <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center; height: 42px;">
+                <div style="width: 20%; display: flex; align-items: center;  height: 12.5%;">
+                    <button (click)="CerrarImpuesto()" class="p-button-link" pButton pRipple type="button" label="Regresar" icon="pi pi-arrow-left" style="box-shadow: none !important"></button>
+                </div>
+                <div style="flex: 1; text-align: center;">
+                    <h1  class="text-center mt-4">Detalle Impuesto</h1>
+                </div>
+                <div style="width: 20%;"></div> <!-- Empty div to balance the layout -->
+            </div>
+            <hr>
+        <div class="p-fluid p-formgrid grid" >
+            <div class="field col-12 md:col-6 " style="position: relative; height: 10%;">
+                <div class="field rows">
+                    <label for="Codigo" style="font-weight: 800;">No:</label>
+                </div>
+                <div class="field rows">
+                    <label for="Codigo">{{ detalle_impu_Id }}</label>
+                </div>
+            </div>
+            <div class="field col-12 md:col-6" style="position: relative;" >
+                <div class="field rows">
+                    <label for="Municipio" style="font-weight: 800;">Porcentaje:</label>
+                </div>
+                <div class="field rows">
+                    <label for="Municipio">{{ detalle_impu_Porcentaje }}%</label>
+                </div>
+            </div>
+
+        </div>
+    <div style="position: relative;top:-20px;" >
+        <div class="card-title">
+            <h1>Auditoría</h1>
+        </div>
+        <p-table [value]="Datos" styleClass=" mt-2">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th style="width:200px; font-weight: bold;">Acción</th>
+                    <th style="width:200px; font-weight: bold;" >Usuario</th>
+                    <th style="width:200px; font-weight: bold;">Fecha</th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-transaction>
+                <tr>
+                    <td style="width:200px;">Creado</td>
+                    <td style="width:200px">{{ detalle_usuaCreacion }}</td>
+                    <td style="width:200px">{{ detalle_FechausuaCreacion }}</td>
+                </tr>
+                <tr>
+                    <td style="width:200px;">Modificado</td>
+                    <td style="width:200px">{{ detalle_usuaModificacion }}</td>
+                    <td style="width:200px">{{ detalle_FechausuaModificacion }}</td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+
+</div>
+
+
+</div>

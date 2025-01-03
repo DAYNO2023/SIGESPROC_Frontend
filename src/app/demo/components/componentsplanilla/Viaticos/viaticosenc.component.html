@@ -1,0 +1,711 @@
+
+<p-toast></p-toast>
+
+
+
+<style>
+.image-preview{
+    width: 200px;
+}
+/*
+.image-preview{
+ width: -webkit-fill-available;
+}
+ */
+
+    .estado-abierto {
+  background-color: green;
+  color: white;
+  padding: 0.2rem 0.5rem;
+  border-radius: 5px;
+}
+
+.estado-cerrado {
+  background-color: red;
+  color: white;
+  padding: 0.2rem 0.5rem;
+  border-radius: 5px;
+
+}
+
+/* Estilos para el insert IMG */
+
+
+::ng-deep .project-item {
+  margin-bottom: 1rem;
+}
+
+::ng-deep .project-card {
+  backdrop-filter: blur(10px);
+  border-radius: 8px;
+  padding: 0.5rem 1rem; /* Ajustar padding para hacer el ítem menos alto */
+}
+
+::ng-deep .checkbox-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+::ng-deep .project-details {
+  margin-right: 10px; /* Espacio entre los detalles y el checkbox */
+}
+
+::ng-deep .project-title {
+  font-weight: bold;
+}
+
+::ng-deep .project-description,
+::ng-deep .project-address {
+  font-size: 0.9em;
+  color: #ccc;
+}
+
+::ng-deep .modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1rem;
+
+
+}
+
+
+
+</style>
+
+<div class="loader-container" *ngIf="loading">
+  <div class="loader">
+      <span></span>
+  </div>
+</div>
+<div class="grid" *ngIf="Index">
+    <div class="col-12">
+        <div class="card">
+            <h1 class="text-center mt-2">Viáticos</h1>
+            <hr>
+            <div *ngIf="viaticos[0]?.usuarioEsAdm" class="grid mt-2">
+                <div class="col-12">
+                    <button (click)="CrearViatico()" pButton icon="pi pi-plus" label="Nuevo" class="mr-2"></button>
+                </div>
+            </div>
+
+            <p-table #dt [value]="viaticos" styleClass="mt-2" [tableStyle]="{ background: '#000' }" responsiveLayout="scroll" [rows]="10"
+                [globalFilterFields]="['empl_Id', 'vien_MontoEstimado', 'vien_TotalGastado', 'vien_FechaEmicion', 'vien_TotalReconocido']"
+                [rows]="10" [paginator]="true" [showCurrentPageReport]="true" [tableStyle]="{ background: '#000' }"
+                currentPageReportTemplate="Mostrando {first} al {last} de {totalRecords} entradas" [rowHover]="true" [rowsPerPageOptions]="[10,25,50,100]">
+
+                <!-- [rows]="10" [paginator]="true" [showCurrentPageReport]="true"
+                currentPageReportTemplate="Mostrando {first} al {last} de {totalRecords} entradas" [rowHover]="true"> -->
+
+                <ng-template pTemplate="caption">
+                    <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+                        <span class="block mt-2 md:mt-0 p-input-icon-left">
+                            <i style="color: white;" class="pi pi-search"></i>
+                            <input style="color: white;" pInputText type="text" (input)="onGlobalFilter(dt, $event)"
+                                placeholder="Buscar..." class="w-full sm:w-auto" />
+                        </span>
+                        <div class="registros">
+                            <p-dropdown [options]="dt.rowsPerPageOptions" [(ngModel)]="dt.rows" [style]="{ 'margin-right': '5px' }"  [autoWidth]="false"></p-dropdown>
+
+                            <span style="color: #FFF0C6; font-weight: 700; margin-top: 7px;"> Registros por página</span>
+                        </div>
+                    </div>
+                </ng-template>
+
+
+
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th style="color: white;" class="text-center">Acciones</th>
+                        <th style="color: white;" pSortableColumn="codigo" class="text-center">No.
+                            <p-sortIcon field="codigo"></p-sortIcon>
+
+                        </th>
+                        <th style="color: white;" pSortableColumn="empl_Id" class="text-center">Identidad Colaborador
+                            <p-sortIcon field="empl_Id"></p-sortIcon>
+                        </th>
+                        <th style="color: white;" pSortableColumn="vien_FechaEmicion" class="text-center">Fecha Emisión
+                            <p-sortIcon field="vien_FechaEmicion"></p-sortIcon>
+                        </th>
+                        <th style="color: white;" pSortableColumn="Proy_Id" class="text-center">Proyecto
+                            <p-sortIcon field="Proy_Id"></p-sortIcon>
+                        </th>
+                        <th style="color: white;" pSortableColumn="vien_MontoEstimado" class="text-center">Monto Estimado
+                            <p-sortIcon field="vien_MontoEstimado"></p-sortIcon>
+                        </th>
+                        <th style="color: white;" pSortableColumn="vien_EstadoFacturas" class="text-center">Estado Viático
+                            <p-sortIcon field="vien_EstadoFacturas"></p-sortIcon>
+                        </th>
+
+                    </tr>
+                </ng-template>
+                <!-- <ng-template pTemplate="emptymessage">
+                  <tr>
+                    <td colspan="6" class="text-center">
+                      <div class="loader-container" *ngIf="loading">
+                          <div class="loader">
+                              <span></span>
+                          </div>
+                        </div>
+                    </td>
+                  </tr>
+                </ng-template> -->
+
+                <ng-template pTemplate="body" let-viatico>
+                    <tr (click)="selectViatico(viatico)">
+                      <td class="text-center">
+                        <p-splitButton class="custom-splitbutton "  label="Acciones"     icon="pi pi-cog" [model]="viatico.vien_EstadoFacturas === true ? items : items1 "
+                            styleClass="p-button-secondary" appendTo="body"></p-splitButton>
+                      </td>
+                      <td class="text-center">{{ viatico.codigo }}</td>
+                      <td class="text-center">{{ viatico.empleado }}</td>
+                      <td class="text-center">{{ viatico.vien_FechaEmicion | date: 'YYYY-MM-dd'}}</td>
+                      <td class="text-center">{{ viatico.proyecto }}</td>
+                      <td >
+                        <div style=" text-align: end;">{{ globalMoneda?.getState()?.mone_Abreviatura }} {{viatico.vien_MontoEstimado | number: '1.2-2'}}
+                        </div>
+                      </td>
+                      <td class="text-center">
+                        <span style="display: flex; justify-content: center; align-items: center;"  class="text-span" [ngClass]="{
+                            'estado-abierto': viatico.vien_EstadoFacturas,
+                            'estado-cerrado': !viatico.vien_EstadoFacturas
+                          }">
+                          {{ viatico.vien_EstadoFacturas ? 'Abierto' : 'Cerrado' }}
+                        </span>
+                      </td>
+                    </tr>
+                  </ng-template>
+                
+            </p-table>
+        </div>
+    </div>
+</div> 
+
+<div class="grid" *ngIf="CreateEdit">
+    <div class="col-12">
+        <div class="card">
+            <div class="flex" style="width: 100%; margin: 0 auto; display: flex; align-items: center;">
+                <div style="width: 20%; display: flex; align-items: center; height: 12.5%;">
+                    <button (click)="regresar()" class="p-button-link" pButton pRipple type="button" label="Regresar" icon="pi pi-arrow-left" style="box-shadow: none !important"></button>
+                </div>
+                <div style="flex-grow: 1; display: flex; justify-content: center; align-items: center;">
+                    <h1 class="text-center mt-2">{{ identity === 'Editar' ? 'Editar Viático a Colaborador' : 'Asignar Viático a Colaborador' }}</h1>
+                </div>
+                <div style="width: 20%;"></div> <!-- Empty div to balance the space on the right -->
+            </div>
+            <div  class="mb-4" class="flex flex-row justify-content-between align-items-center mb-4">
+                <div class="flex flex-column">
+                    <h1 class="text-center mt-2"></h1>
+                </div>
+                <!-- Botón Regresar -->
+
+            </div>
+            <hr>
+            <form [formGroup]="form" class="p-fluid p-formgrid grid">
+                <div class="field col-12 md:col-6">
+                  <label style="display: inline-block;">Identidad Colaborador&nbsp;</label> <small style="display:inline-block;"  class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['empleado'].invalid"
+                  style="color: red !important;">*</small>
+                    <p-autoComplete  [dropdown]="true"
+                    formControlName="empleado" [suggestions]="filtradoEmpleado"
+                    placeholder="Seleccione un colaborador"
+                        (completeMethod)="filterEmpleado($event)" (onSelect)="onEncargadoSelect($event)"
+                        field="empleado" [forceSelection]="false"
+                        [ngClass]="{'ng-invalid ng-dirty': (submitted && form.controls['empleado'].invalid) || noResultsFound || !errorpr }"></p-autoComplete>
+                        <small class="ng-dirty ng-invalid" *ngIf="noResultsFound && !form.controls['empleado'].invalid" style="color: red !important;">
+                          Opción no encontrada.
+                      </small>
+                    <small class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['empleado'].invalid"
+                        style="color: red !important;">El campo es requerido.</small>
+                </div>
+                <!-- <div class="field col-12 md:col-6">
+                  <label style="display: inline-block;">Identidad Colaborador&nbsp;</label> 
+                  <small style="display:inline-block;" class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['empleado'].invalid " style="color: red !important;">*</small>
+                  
+                  <p-autoComplete 
+                    [dropdown]="true"
+                    formControlName="empleado" 
+                    [suggestions]="filtradoEmpleado"
+                    placeholder="Seleccione un colaborador"
+                    (completeMethod)="filterEmpleado($event)" 
+                    (onSelect)="onEncargadoSelect($event)"
+                    field="empleado" 
+                    [forceSelection]="false"
+                    [ngClass]="{'ng-invalid ng-dirty': submitted && (!empleadoSeleccionado || form.controls['empleado'].invalid) || noResultsFound }">
+
+                     [ngClass]="{'ng-invalid ng-dirty': (submitted && form.controls['empleado'].invalid) || noResultsFound || !empleadoSeleccionado}"> 
+                  </p-autoComplete>
+                  
+                   Mensaje de error si no se ha seleccionado un colaborador 
+                  <small *ngIf="submitted && !empleadoSeleccionado && !noResultsFound" style="color: red !important;">
+                    Debe seleccionar un colaborador.
+                  </small>
+                  
+                  <small *ngIf="noResultsFound && !form.controls['empleado'].invalid" style="color: red !important;">
+                    Opción no encontrada.
+                  </small>
+                  
+                  <small *ngIf="submitted && form.controls['empleado'].invalid" style="color: red !important;">
+                    El campo es requerido.
+                  </small>
+                </div> -->
+                
+                <!-- <div class="field col-12 md:col-6">
+                  <label style="display: inline-block;">Proyecto&nbsp;</label> 
+                  <small style="display:inline-block;" class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['proy_Descripcion'].invalid" style="color: red !important;">*</small>
+                  
+                  <p-autoComplete 
+                    [dropdown]="true"
+                    formControlName="proy_Descripcion"
+                    [suggestions]="filtradoProyectos"
+                    placeholder="Seleccione un proyecto"
+                    (completeMethod)="filterProyectos($event)"
+                    (onSelect)="onProyectoSelect($event)"
+                    field="descripcion"
+                    [forceSelection]="false"
+                    [ngClass]="{'ng-invalid ng-dirty': submitted && (!proyectoSeleccionado || form.controls['proy_Descripcion'].invalid) || noResultsFound2}">
+                  </p-autoComplete>
+                  
+                   Mensaje de error si no se ha seleccionado un proyecto 
+                  <small *ngIf="submitted && !proyectoSeleccionado" style="color: red !important;">
+                    Debe seleccionar un proyecto.
+                  </small>
+                  
+                  <small *ngIf="noResultsFound2 && !form.controls['proy_Descripcion'].invalid" style="color: red !important;">
+                    Opción no encontrada.
+                  </small>
+                  
+                  <small *ngIf="submitted && form.controls['proy_Descripcion'].invalid" style="color: red !important;">
+                    El campo es requerido.
+                  </small>
+                </div> -->
+
+                  <div class="field col-12 md:col-6">
+                    <label style="display: inline-block;">Proyecto&nbsp;</label> <small style="display:inline-block;"  class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['proy_Descripcion'].invalid"
+                    style="color: red !important;">*</small>
+                    <p-autoComplete [dropdown]="true"
+                                    formControlName="proy_Descripcion"
+                                    [suggestions]="filtradoProyectos"
+                                    placeholder="Seleccione un proyecto"
+
+                                    (completeMethod)="filterProyectos($event)"
+                                    (onSelect)="onProyectoSelect($event)"
+                                    field="descripcion"
+                                    [forceSelection]="false"
+                                    [ngClass]="{'ng-invalid ng-dirty': (submitted && form.controls['proy_Descripcion'].invalid)  || noResultsFound2 || !errorEmp}">
+                    </p-autoComplete>
+                    <small class="ng-dirty ng-invalid" *ngIf="noResultsFound2 && !form.controls['proy_Descripcion'].invalid" style="color: red !important;">
+                      Opción no encontrada.
+                  </small>
+                    <small class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['proy_Descripcion'].invalid" style="color: red !important;">
+                      El campo es requerido.
+                    </small>
+                  </div>
+                  
+                <div class="field col-12 md:col-6">
+                  <label style="display: inline-block;">Monto a Desembolsar&nbsp;</label> <small style="display:inline-block;"  class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['vien_MontoEstimado'].invalid"
+                  style="color: red !important;">*</small>
+                  <p-inputNumber mode="decimal" [maxlength]="8" (ngModelChange)="onMontoChange($event)" 
+                    [prefix]="globalMoneda.getState().mone_Abreviatura + ' '"  [ngClass]="{'ng-invalid ng-dirty': submitted && form.controls['vien_MontoEstimado'].invalid}" type="text" formControlName="vien_MontoEstimado"
+                    />
+                    <small *ngIf="submitted && (form.controls['vien_MontoEstimado'].invalid && this.valor != null && this.valor ===0)" style="color: red !important;">
+                      El monto debe ser mayor que 0.
+                    </small>
+                    <small class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['vien_MontoEstimado'].invalid&& this.valor !== 0"
+                        style="color: red !important;">El campo es requerido.</small>
+                </div>
+            </form>
+            <div style="display: flex; justify-content: end;">
+                <button (click)="handleClick()" class="btn btn-guardar" pButton pRipple type="button" label="Guardar" icon="pi pi-save"></button>
+                <button (click)="Cancelar()" style="margin-left: 2%;" class=" p-button-secondary" pButton pRipple type="button" label="Cancelar" icon="pi pi-times"></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- CREAR Detalle Viatico -->
+<div class="grid" *ngIf="CreateEditD">
+    <div class="col-12">
+        <div class="card">
+            <div class="flex" style="width: 100%; margin: 0 auto; display: flex; align-items: center; height: 42px;">
+                <div style="width: 20%; display: flex; align-items: center; height: 12.5%;">
+                    <button (click)="regresar()" class="p-button-link" pButton pRipple type="button" label="Regresar" icon="pi pi-arrow-left" style="box-shadow: none !important"></button>
+                </div>
+                <div style="flex-grow: 1; display: flex; justify-content: center; align-items: center;">
+                    <h1 class="text-center mt-4">Asignación Facturas</h1>
+                </div>
+                <div style="width: 20%;"></div> <!-- Empty div to balance the space on the right -->
+            </div>
+            <hr>
+            <ng-template pTemplate="emptymessage">
+              <tr>
+                <td colspan="6" class="text-center">
+                  <div class="loader-container" *ngIf="loading">
+                    <div class="loader"></div>
+                  </div>
+                </td>
+              </tr>
+            </ng-template>
+            <form [formGroup]="form2" class="p-fluid p-formgrid grid">
+                <div class="col-12 md:col-6">
+                    <div class="p-formgrid grid">
+                        <div class="field col-12">
+                            <label style="display: inline-block;">Descripción&nbsp;</label> <small style="display:inline-block;"  class="ng-dirty ng-invalid" *ngIf="submitted && form2.controls['vide_Descripcion'].invalid"
+                            style="color: red !important;">*</small>
+                            <input type="text" pInputText formControlName="vide_Descripcion" (input)="allowOnlyAlphanumeric($event)"
+                                [ngClass]="{'ng-invalid ng-dirty': submitted && form2.controls['vide_Descripcion'].invalid}" #descripcionInput>
+                            <small class="ng-dirty ng-invalid" *ngIf="submitted && form2.controls['vide_Descripcion'].invalid"
+                                style="color: red !important;">El campo es requerido.</small>
+                        </div>
+                        <div class="field col-12">
+                            <label style="display: inline-block;">Monto Gastado&nbsp;</label> <small style="display:inline-block;"  class="ng-dirty ng-invalid" *ngIf="submitted && form2.controls['vide_MontoGastado'].invalid"
+                            style="color: red !important;">*</small>
+                            <p-inputNumber mode="decimal" [maxlength]="8" [min]="1" 
+                            [prefix]="globalMoneda.getState().mone_Abreviatura + ' '"  [ngClass]="{'ng-invalid ng-dirty': submitted && form2.controls['vide_MontoGastado'].invalid}" type="text" formControlName="vide_MontoGastado"
+                            (keypress)="allowOnlyNumbers($event)" />
+                            <!-- <input type="text" pInputText formControlName="vide_MontoGastado" (keypress)="allowOnlyNumbers($event)"
+                                [ngClass]="{'ng-invalid ng-dirty': submitted && form2.controls['vide_MontoGastado'].invalid}"> -->
+                            <small class="ng-dirty ng-invalid" *ngIf="submitted && form2.controls['vide_MontoGastado'].invalid"
+                                style="color: red !important;">El campo es requerido.</small>
+                        </div>
+                        <div class="field col-12">
+                            <label style="display: inline-block;">Monto Reconocido&nbsp;</label> <small style="display:inline-block;"  class="ng-dirty ng-invalid" *ngIf="submitted && form2.controls['vide_MontoReconocido'].invalid"
+                            style="color: red !important;">*</small>
+                            <p-inputNumber mode="decimal"  [maxlength]="8" [min]="1" 
+                            [prefix]="globalMoneda.getState().mone_Abreviatura + ' '"  [ngClass]="{'ng-invalid ng-dirty': submitted && form2.controls['vide_MontoReconocido'].invalid}" type="text" formControlName="vide_MontoReconocido"
+                            (keypress)="allowOnlyNumbers($event)"/>
+
+                            <small class="ng-dirty ng-invalid" *ngIf="submitted && form2.controls['vide_MontoReconocido'].invalid"
+                                style="color: red !important;">El campo es requerido. </small>
+                            <small class="ng-dirty ng-invalid" *ngIf="submitted && form2.errors?.montoReconocidoInvalido"
+                                style="color: red !important;">El monto reconocido no puede ser mayor que el monto gastado.</small>
+                        </div>
+
+                        <div class="field col-12">
+                            <label style="display: inline-block;">Categoría de Viático&nbsp;</label> <small style="display:inline-block;"  class="ng-dirty ng-invalid" *ngIf="submitted && form2.controls['cavi_Id'].invalid"
+                            style="color: red !important;">*</small>
+                            <p-autoComplete
+                                formControlName="cavi_Descripcion"
+                                [suggestions]="filtradoCategoriasViaticos"
+                                (onSelect)="onCategoriaVSelect($event)"
+                                (completeMethod)="filterCategoriasViaticos($event)"
+                                field="descripcion"
+                                [dropdown]="true"
+                                [forceSelection]="false"
+                                placeholder="Seleccione una categoría"
+                                [ngClass]="{'ng-invalid ng-dirty': (submitted && form2.controls['cavi_Id'].invalid) || noResultsFound3 || !errorcat}">
+                            </p-autoComplete>
+                            <small class="ng-dirty ng-invalid" *ngIf="noResultsFound3 && form2.controls['cavi_Id'].invalid " style="color: red !important;">
+                              Opción no encontrada.
+                          </small>
+
+                            <small class="ng-dirty ng-invalid" *ngIf="submitted && form2.controls['cavi_Id'].invalid && !noResultsFound3"
+                                style="color: red !important;">El campo es requerido.</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="field col-12 md:col-6">
+                  <label style="display: inline-block;">Imagen Factura&nbsp;</label> <small style="display:inline-block;"  class="ng-dirty ng-invalid" *ngIf="submitted && form2.controls['vide_ImagenFactura'].invalid"
+                  style="color: red !important;">*</small>
+                    <div class="field" style="margin-top: 1;">
+                    <p-fileUpload #fileUploader
+                    name="demo[]"
+                    
+                    (onSelect)="onImageSelect($event)"
+                    (onRemove)="onImageRemove($event)"
+
+                      [customUpload]="true"
+                       [multiple]="false"
+                       [showUploadButton]="false"
+                        [showCancelButton]="false"
+                         [auto]="true"
+                      class="w-full"
+                      [showClear]="true"
+                       chooseLabel="Subir">
+                      <ng-template pTemplate="content">
+                        <div class="image-upload-container" (click)="triggerFileUpload()">
+                          <ng-container  *ngIf="!nombreImagen; else showImage">
+                            <div class="upload-placeholder">
+                              <i class="pi pi-image text-900 text-4xl mb-3 custom-icon-size"></i>
+                              <span class="font-bold text-900 text-2xl mb-3">Subir Imagen</span>
+                              <span class="font-medium text-600 text-lg text-center">Seleccione Una Imagen</span>
+                            </div>
+                          </ng-container>
+                          <ng-template #showImage>
+
+                            <div class="h-full flex flex-column justify-content-center align-items-center">
+                                <img [src]="nombreImagen" alt="Imagen seleccionada" class="image-preview" />
+                            </div>
+                          </ng-template>
+                        </div>
+                      </ng-template>
+                    </p-fileUpload>
+                    <small class="ng-dirty ng-invalid" *ngIf="submitted && form2.controls['vide_ImagenFactura'].invalid" style="color: red !important;">El campo es requerido.</small>
+                  </div>
+                </div>
+
+
+                <div class="field col-12" style="text-align: right; margin-top: 1rem;">
+                    <button (click)="AgregarFactura()" class="btn btn-guardar" pButton pRipple type="button" label="Agregar Factura" icon="pi pi-plus"></button>
+                </div>
+            </form>
+            <p-table [value]="facturas" responsiveLayout="scroll" styleClass="mt-2">
+
+                <ng-template pTemplate="emptymessage">
+                  <tr>
+                      <td colspan="100">
+                          <span>No hay facturas ingresadas para este Viático.</span>
+                      </td>
+                  </tr>
+              </ng-template>
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th>Acciones</th>
+
+                        <th>Categoría</th>
+                        <th>Descripción</th>
+                        <th>Imagen Factura</th>
+                        <th>Monto Gastado</th>
+                        <th>Monto Reconocido</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-factura>
+                    <tr>
+                        <td style="width:5%;" class="text-center">
+                          <div class="button-container" style="display: flex; gap: 8px;">
+                            <button pButton pRipple icon="pi pi-minus" class="button-rounded p-button-icon-only p-button-secondary"
+                                    (click)="handleEliminarD(factura)"></button>
+                            <button pButton pRipple icon="pi pi-pencil" class="button-rounded p-button-icon-only p-button-primary"
+                                    (click)="editarFactura(factura)"></button>
+                          </div>
+                            <!-- <button pButton pRipple icon="pi pi-minus" class="button-rounded p-button-icon-only p-button-secondary"
+                            (click)="handleEliminarD(factura)"></button>
+                            <button pButton pRipple icon="pi pi-pencil" class="button-rounded p-button-icon-only p-button-primary"
+                            (click)="editarFactura(factura)"></button> -->
+                          </td>
+                        <td>{{ factura.cavi_Descripcion }}</td>
+                        <td>{{ factura.vide_Descripcion }}</td>
+                        <td>
+                                <img [src]="factura.vide_ImagenFactura" alt="Imagen seleccionada" class="image-preview" />
+                            <!-- {{ factura.vide_ImagenFactura }} -->
+                        </td>
+                        <td [style.text-align]="'end'"> {{ globalMoneda?.getState()?.mone_Abreviatura + ' ' + factura.vide_MontoGastado }}</td>
+                        <td [style.text-align]="'end'"> {{ globalMoneda?.getState()?.mone_Abreviatura + ' ' + factura.vide_MontoReconocido }}</td>
+
+
+                    </tr>
+                </ng-template>
+            </p-table>
+            <div style="display: flex; justify-content: end;">
+                <button (click)="handleGuardarD()" class="btn btn-guardar" pButton pRipple type="button" label="Guardar" icon="pi pi-save"></button>
+                <button (click)="CancelarD()" style="margin-left: 2%;" class=" p-button-secondary" pButton pRipple type="button" label="Cancelar" icon="pi pi-times"></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Crar de Detalle Viatico -->
+
+
+<!-- DETALLE  -->
+<div class="grid" *ngIf="viat">
+    <div class="col-12">
+        <div class="card">
+            <div class="flex" style="width: 100%; margin: 0 auto; display: flex; align-items: center; height: 42px;">
+                <div style="width: 20%; display: flex; align-items: center; height: 12.5%;">
+                    <button (click)="Regresar()" class="p-button-link" pButton pRipple type="button" label="Regresar" icon="pi pi-arrow-left" style="box-shadow: none !important"></button>
+                </div>
+                <div style="flex-grow: 1; display: flex; justify-content: center; align-items: center;">
+                    <h1 class="text-center mt-4">Detalle Viático</h1>
+                </div>
+                <div style="width: 20%;"></div> <!-- Empty div to balance the space on the right -->
+            </div>
+
+            <hr>
+            <div class="p-fluid p-formgrid grid">
+                <!-- Mostrar el ID del viatico -->
+                <div class="field col-12 md:col-4" style="position: relative; height: 10%;">
+                  <div class="field rows">
+                    <label for="Codigo" style="font-weight: 800;">No:</label>
+                  </div>
+                  <div class="field rows">
+                    <label for="Codigo">{{codigoVE }}</label>
+                  </div>
+                </div>
+
+                <!-- Mostrar el Monto Estimado -->
+                <div class="field col-12 md:col-4" style="position: relative;">
+                  <div class="field rows">
+                    <label for="MontoEstimado" style="font-weight: 800;">Monto Estimado:</label>
+                  </div>
+                  <div class="field rows">
+                    <label for="MontoEstimado">{{ globalMoneda?.getState()?.mone_Abreviatura }} {{ viatico?.vien_MontoEstimado  | number:'1.2-2'}}</label>
+                  </div>
+                </div>
+
+                <!-- Mostrar el Total Gastado -->
+                <div class="field col-12 md:col-4" style="position: relative;">
+                  <div class="field rows">
+                    <label for="TotalGastado" style="font-weight: 800;">Total Gastado:</label>
+                  </div>
+                  <div class="field rows">
+                    <label for="TotalGastado">{{ globalMoneda?.getState()?.mone_Abreviatura }} {{viatico?.vien_TotalGastado? (viatico?.vien_TotalGastado | number:'1.2-2') : "0.00" }}</label>
+                  </div>
+                </div>
+
+                <!-- Mostrar la Fecha de Emisión -->
+                <div class="field col-12 md:col-4" style="position: relative;">
+                  <div class="field rows">
+                    <label for="FechaEmision" style="font-weight: 800;">Fecha Emisión:</label>
+                  </div>
+                  <div class="field rows">
+                    <label for="FechaEmision">{{ viatico?.vien_FechaEmicion | date: 'YYYY-MM-dd'}}</label>
+                  </div>
+                </div>
+
+                <!-- Mostrar el Empleado -->
+                <div class="field col-12 md:col-4" style="position: relative;">
+                  <div class="field rows">
+                    <label for="Empleado" style="font-weight: 800;">Colaborador:</label>
+                  </div>
+                  <div class="field rows">
+                    <label for="Empleado">{{ viatico?.empleado }}</label>
+                  </div>
+                </div>
+
+                <!-- Mostrar el Proyecto -->
+                <div class="field col-12 md:col-4" style="position: relative;">
+                  <div class="field rows">
+                    <label for="Proyecto" style="font-weight: 800;">Proyecto:</label>
+                  </div>
+                  <div class="field rows">
+                    <label for="Proyecto">{{ viatico?.proyecto }}</label>
+                  </div>
+                </div>
+
+                <!-- Mostrar el Total Reconocido -->
+                <div class="field col-12 md:col-4" style="position: relative;">
+                  <div class="field rows">
+                    <label for="TotalReconocido" style="font-weight: 800;">Total Reconocido:</label>
+                  </div>
+                  <div class="field rows">
+                    <label for="TotalReconocido">{{ globalMoneda?.getState()?.mone_Abreviatura }} {{ viatico?.vien_TotalReconocido | number:"1.2-2" }}</label>
+                  </div>
+                </div>
+              </div>
+            <hr>
+            <h2 class="text-center mt-2">Facturas del Viático</h2>
+            <p-table [value]="viaticoDetalles" responsiveLayout="scroll" styleClass="mt-2">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th>Categoría</th>
+                        <th>Descripción</th>
+                        <th>Imagen Factura</th>
+                        <th>Monto Gastado</th>
+                        <th>Monto Reconocido</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-detalle>
+                    <tr>
+                        <td>{{ detalle.cavi_Descripcion }}</td>
+                        <td>{{ detalle.vide_Descripcion}}</td>
+                        <td><img [src]="detalle.vide_ImagenFactura" width="100"></td>
+                        <td [style.text-align]="'end'">{{ globalMoneda?.getState()?.mone_Abreviatura }} {{ detalle.vide_MontoGastado | number:"1.2-2" }}</td>
+                        <td [style.text-align]="'end'">{{ globalMoneda?.getState()?.mone_Abreviatura }} {{detalle.vide_MontoReconocido | number:"1.2-2" }}</td>
+                    </tr>
+                </ng-template>
+            </p-table>
+
+        </div>
+    </div>
+</div>
+<!--Delete  -->
+
+<p-dialog [(visible)]="Delete" header="Confirmación" [modal]="true" [style]="{width:'450px'}">
+    <div class="flex align-items-center justify-content-center">
+        <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+        <span
+            >¿Está seguro de eliminar el Viático con código
+            <span style="font-weight: 600">{{selectedViatico?.codigo}}</span
+            > para el empleado <span style="font-weight: 600">{{selectedViatico?.empleado}}</span
+                >?
+        </span>
+    </div>
+    <ng-template pTemplate="footer" >
+        <button pButton pRipple icon="pi pi-check" type="button" label="Aceptar" (click)="Eliminar()"></button>
+        <button pButton pRipple icon="pi pi-times" class="p-button-outlined p-button-primary" label="Cancelar"  (click)="Delete = false" ></button>
+    </ng-template>
+</p-dialog>
+
+<!-- Delete Facuta -->
+
+<p-dialog [(visible)]="Delete2" header="Confirmación" [modal]="true" [style]="{width:'450px'}">
+  <div class="flex align-items-center justify-content-center">
+      <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+      <span
+          >¿Está seguro de eliminar la factura
+          <!-- <span style="font-weight: 600">{{selectedViatico?.codigo}}</span
+          > para el empleado <span style="font-weight: 600">{{selectedViatico?.empleado}}</span
+              > -->
+              ?
+      </span>
+  </div>
+  <ng-template pTemplate="footer" >
+      <button pButton pRipple icon="pi pi-check" type="button" label="Aceptar" (click)="eliminarFactura(this.facturas2); Delete2 = false"></button>
+      <button pButton pRipple icon="pi pi-times" class="p-button-outlined p-button-primary" label="Cancelar"  (click)="Delete2 = false" ></button>
+  </ng-template>
+</p-dialog>
+
+<!-- Delete Facuta -->
+<!-- GUARDAR DETALLE CONFIRMAR -->
+<p-dialog [(visible)]="confirmardetalleModal" header="Confirmación" [modal]="true" [style]="{width:'450px'}">
+    <div class="flex align-items-center justify-content-center">
+        <i class="pi pi-exclamation-triangle" style="font-size: 2rem"></i>
+        <span
+            >¿Está seguro de que agrego todas sus facturas
+            <!-- <span style="font-weight: 600">{{selectedViatico?.codigo}}</span
+            > para el empleado <span style="font-weight: 600">{{selectedViatico?.empleado}}</span
+                > -->
+                ?
+        </span>
+    </div>
+    <ng-template pTemplate="footer" >
+        <button pButton pRipple icon="pi pi-check" type="button" label="Aceptar" (click)="GuardarD(); confirmardetalleModal = false"></button>
+        <button pButton pRipple icon="pi pi-times" class="p-button-outlined p-button-primary" label="Cancelar" (click)="confirmardetalleModal = false" ></button>
+    </ng-template>
+</p-dialog>
+
+<!-- CONFIRMAR EDITAR -->
+<p-dialog [(visible)]="Editt" header="Confirmación" [modal]="true" [style]="{width:'450px'}">
+    <div class="flex align-items-center justify-content-center">
+        <i class="pi pi-pencil mr-3" style="font-size: 2rem"></i>
+        <span
+            >¿Está seguro de editar el Viático con código
+            <span style="font-weight: 600">{{selectedViatico?.codigo}}</span
+            > para el empleado <span style="font-weight: 600">{{form?.get('empleado')?.value}}</span
+                >?
+        </span>
+    </div>
+    <ng-template pTemplate="footer" >
+        <button pButton pRipple icon="pi pi-pencil" type="button" label="Aceptar" (click)="confirmEdit(); Editt = false"></button>
+        <button pButton pRipple icon="pi pi-times" class="p-button-outlined p-button-primary" label="Cancelar" (click)="Editt = false" ></button>
+    </ng-template>
+</p-dialog>
+
+<!-- Finalizar -->
+<p-dialog [(visible)]="finalizar" header="Confirmación" [modal]="true" [style]="{width:'450px'}">
+    <div class="flex align-items-center justify-content-center">
+        <i class="pi pi-exclamation-triangle" style="font-size: 2rem"></i>
+        <span
+            >¿Está seguro de Finalizar el Viático con código
+            <span style="font-weight: 600">{{selectedViatico?.codigo}}</span
+            > para el empleado <span style="font-weight: 600">{{selectedViatico?.empleado}}</span
+                >?
+        </span>
+    </div>
+    <ng-template pTemplate="footer" >
+        <button pButton pRipple icon="pi pi-lock" type="button" label="Aceptar" (click)="Finalizar(); finalizar = false"></button>
+        <button pButton pRipple icon="pi pi-times" class="p-button-outlined p-button-primary" label="Cancelar" (click)="finalizar = false" ></button>
+    </ng-template>
+</p-dialog>

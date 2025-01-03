@@ -1,0 +1,71 @@
+<!-- Componente de notificaciones para mostrar mensajes -->
+<p-toast></p-toast>
+
+<!-- Card para el formulario de generación de reportes -->
+<div class="card p-mb-4">
+  <div class="card-header">
+    <h2>
+      Reporte de Insumos por Último Precio
+      <i 
+        pTooltip="Para generar el reporte, seleccione el número de compra de los insumos. Luego haga clic en 'Generar Reporte'. Se le notificará si no hay datos disponibles." 
+        tooltipPosition="top" 
+        class="pi pi-info-circle ml-2" 
+        style="font-size: 1.2rem; cursor: pointer;"
+      ></i>
+    </h2>
+  </div>
+  <div class="card-body">
+    <form [formGroup]="reportForm" (ngSubmit)="generateReport()" class="grid col-12 p-fluid p-formgrid">
+  
+      <div class="field col-12 md:col-6">
+        <label for="numeroCompra">
+          Número de Compra
+          <span *ngIf="(submitted || reportForm.controls['numeroCompra'].dirty) && (reportForm.controls['numeroCompra'].invalid || proveedorError)" class="required-asterisk">*</span>
+        </label>
+        <p-autoComplete 
+          id="numeroCompra" 
+          formControlName="numeroCompra" 
+          [suggestions]="filteredEmpresas" 
+          (completeMethod)="filterEmpresa($event)" 
+          field="text" 
+          [dropdown]="true" 
+          class="w-full"
+          [ngClass]="{'ng-invalid ng-dirty': (submitted && (reportForm.controls['numeroCompra'].invalid || proveedorError)) || (proveedorError && reportForm.controls['numeroCompra'].dirty)}"
+          (onSelect)="onCompraSelect($event)"
+          (onBlur)="validateCompra()"
+        ></p-autoComplete>
+        <small class="ng-dirty ng-invalid" *ngIf="submitted && reportForm.controls['numeroCompra'].invalid" style="color: red !important;">
+          El campo es requerido.
+        </small>
+        <small class="ng-dirty ng-invalid" *ngIf="proveedorError && reportForm.controls['numeroCompra'].dirty" style="color: red !important;">
+          Opción no encontrada
+        </small>
+      </div>
+      
+      <!-- Botones para Generar Reporte -->
+      <div class="field col-12" style="display: flex; justify-content: flex-end;">
+        <div class="button-group d-flex justify-content-end" style="margin-right: 12px;">
+          <button type="submit" pButton label="Generar Reporte" icon="pi pi-file-pdf"></button>
+        </div>
+      </div>
+    </form>
+  </div>
+  
+</div>
+
+<!-- Card para el contenedor de PDF -->
+<div class="card">
+  <div class="card-header">
+    <h2>
+      Vista Previa del Reporte
+    </h2>
+  </div>
+  <div class="card-body">
+    <div id="pdfContainer" style="width: 100%; height: 800px; position: relative;">
+      <!-- Spinner de carga -->
+      <div class="loader-container" *ngIf="loading">
+        <div class="loader"><span></span></div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,101 @@
+<!-- Componente de notificaciones para mostrar mensajes -->
+<p-toast></p-toast>
+
+<!-- Card para el formulario de generación de reportes -->
+<div class="card p-mb-4">
+  <div class="card-header">
+    <h2>
+    Reporte de Compra por ubicación 
+    <i 
+    pTooltip="Para generar el reporte, seleccione la ubicación deseada (Bodega o Proyecto). Utilice el interruptor para elegir entre 'Bodega' o 'Proyecto', y luego haga clic en 'Generar Reporte'. Recibirá una notificación si no hay datos disponibles." 
+    tooltipPosition="top" 
+    class="pi pi-info-circle ml-2" 
+    style="font-size: 1.2rem; cursor: pointer;"
+></i>
+    </h2>
+  </div>
+  <div class="card-body">
+    <form [formGroup]="reportForm" (ngSubmit)="generateReport()" class="grid col-12 p-fluid p-formgrid">
+
+
+      <!-- Campo para seleccionar el Estado -->
+      <div
+        class="field col-12 md:col-6"
+        style="
+          display: flex;
+          align-items: start;
+          justify-content: start;
+          flex-direction: column;
+          margin-bottom: 16px;
+        "
+      >
+        <!-- Label for the switch -->
+        <label
+          for="tipoSwitch"
+          style="
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 8px;
+          "
+        >
+        Ubicación:
+          <small
+            *ngIf="submitted && reportForm.controls['estado'].invalid"
+            style="color: red; margin-left: 4px;"
+          >
+            *
+          </small>
+        </label>
+
+        <!-- Wrapper for switch and labels -->
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <!-- "No" label, shown when the switch is off -->
+          <span
+            *ngIf="!reportForm.controls['estado'].value"
+            style="margin-right: 8px"
+          >
+            Bodega
+          </span>
+
+          <!-- Input switch -->
+          <p-inputSwitch
+            id="tipoSwitch"
+            formControlName="estado"
+          ></p-inputSwitch>
+
+          <!-- "Sí" label, shown when the switch is on -->
+          <span
+            *ngIf="reportForm.controls['estado'].value"
+            style="margin-left: 8px"
+          >
+            Proyecto
+          </span>
+        </div>
+      </div>
+
+      <!-- Botones para Generar Reporte -->
+      <div class="field col-12" style="display: flex; justify-content: flex-end;">
+        <div class="button-group d-flex justify-content-end" style="margin-right: 12px;">
+          <button type="submit" pButton label="Generar Reporte" icon="pi pi-file-pdf"></button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Card para el contenedor de PDF -->
+<div class="card">
+  <div class="card-header">
+    <h2>
+      Vista del Reporte
+    </h2>
+  </div>
+  <div class="card-body">
+    <div id="pdfContainer" style="width: 100%; height: 800px; position: relative;">
+      <!-- Spinner de carga -->
+      <div class="loader-container" *ngIf="loading">
+        <div class="loader"><span></span></div>
+      </div>
+    </div>
+  </div>
+</div>

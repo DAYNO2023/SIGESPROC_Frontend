@@ -1,0 +1,498 @@
+<style>
+    /* .ng-invalid.ng-touched input {
+      border: 1px solid red !important;
+    } */
+
+    .details-container {
+      background-color: #1E1E1E;
+      padding: 20px;
+      border-radius: 8px;
+      color: #FFF;
+    }
+
+    .details-header {
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+    }
+
+    .details-section {
+      margin-bottom: 20px;
+    }
+
+    .details-section h2 {
+      font-size: 1.25rem;
+      margin-bottom: 10px;
+    }
+
+    .details-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .details-row div {
+      flex: 1;
+      margin-right: 10px;
+    }
+
+    .details-row dt,
+    .details-row dd {
+      margin: 0;
+    }
+
+    .details-row dt {
+      font-weight: bold;
+    }
+
+
+  /* .ng-invalid.ng-dirty input {
+    border: 1px solid red !important;
+  } */
+
+  </style>
+ <div class="loader-container" *ngIf="loading">
+    <div class="loader">
+        <span></span>
+    </div>
+  </div>
+
+<div class="grid">
+    <div class="col-12">
+        <div class="card">
+            <!-- Toaster -->
+            <p-toast></p-toast>
+
+            <!-- Titulo -->
+            <div class="" *ngIf="indexProveedor">
+                <h1 class="text-center">Proveedores</h1>
+            </div>
+            <hr *ngIf="indexProveedor">
+
+
+
+
+            <!-- Boton nuevo -->
+            <div *ngIf="indexProveedor" class="mb-4">
+                <button  pButton pRipple label="Nuevo" icon="pi pi-fw pi-plus" (click)="abrirNuevo()"></button>
+            </div>
+              <!-- Boton nuevo -->
+            <div class="spinner-container" *ngIf="isLoading">
+                <p-progressSpinner styleClass="w-4rem h-4rem" strokeWidth="8" fill="var(--surface-ground)" animationDuration=".5s"></p-progressSpinner>
+              </div>
+            <!-- Tabla de listar -->
+            <p-table *ngIf="indexProveedor"  #dt [value]="proveedores" [columns]="cols" responsiveLayout="scroll" [rows]="10" [globalFilterFields]="['codigo','prov_Descripcion','prov_Correo','prov_Telefono','prov_SegundoTelefono','ciud_Descripcion']" [rows]="10" [paginator]="true" [showCurrentPageReport]="true" currentPageReportTemplate="Mostrando {first} al {last} de {totalRecords} entradas" selectionMode="multiple" [rowHover]="true" dataKey="id" [tableStyle]="{ background: '#000' }" [rowsPerPageOptions]="[10,25,50,100]">
+
+                <!-- Encabezado -->
+                <ng-template pTemplate="caption">
+                    <div class="flex flex-column md:flex-row md:justify-content-start md:align-items-center">
+                        <span class="block mt-2 md:mt-0 p-input-icon-left">
+                            <i style="color: white;"  class="pi pi-search"></i>
+                            <input style="color: white;"  pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Buscar..."  class="w-full sm:w-auto"/>
+                        </span>
+                        <div class="registros">
+                            <p-dropdown [options]="dt.rowsPerPageOptions" [(ngModel)]="dt.rows" [style]="{ 'margin-right': '5px' }"  [autoWidth]="false"></p-dropdown>
+
+                            <span style="color: #FFF0C6; font-weight: 700; margin-top: 7px;"> Registros por página</span>
+                        </div>
+                    </div>
+                </ng-template>
+
+                <!-- Header -->
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th style="color: white;" class="text-center">Acciones </th>
+                        <th pSortableColumn="codigo" style="color: white;" class="text-center">No.<p-sortIcon field="codigo"></p-sortIcon></th>
+                        <th pSortableColumn="prov_Descripcion" style="color: white;" class="text-center">Nombre <p-sortIcon field="prov_Descripcion"></p-sortIcon></th>
+                        <th pSortableColumn="prov_Correo" style="color: white;" class="text-center">Correo Electrónico<p-sortIcon field="prov_Correo"></p-sortIcon></th>
+                        <th pSortableColumn="prov_Telefono" style="color: white;" class="text-center">Teléfono<p-sortIcon field="prov_Telefono"></p-sortIcon></th>
+                        <th pSortableColumn="Venta" style="color: white;" class="text-center">Venta<p-sortIcon field="Venta"></p-sortIcon></th>
+                    </tr>
+                </ng-template>
+
+                            <!--Inicio loader-->
+            <ng-template pTemplate="emptymessage">
+                <tr>
+                  <td colspan="6" class="text-center">
+                   
+                  </td>
+                </tr>
+              </ng-template>
+            <!--Fin loader-->
+                <!-- Body -->
+                <ng-template pTemplate="body" let-proveedor let-i="rowIndex">
+                    <tr>
+                        <!-- Acciones -->
+                        <td (click)="selectProveedor(proveedor)" class="text-center" style="width:5%; min-width:10rem;">
+                            <p-splitButton class="custom-splitbutton" appendTo="body" label="Acciones" icon="pi pi-cog" [model]="acciones" styleClass="p-button-secondary">
+                            </p-splitButton>
+                        </td>
+                        <!-- Contenido -->
+                        <td style="width:1%; min-width:5rem;" class="text-center"><span class="p-column-title">No</span>
+                            {{proveedor.codigo}}
+                        </td>
+                        <td style="width:12%;" class="text-center">
+                            <span class="p-column-title" >Descripción</span>
+                            {{proveedor.prov_Descripcion}}
+                        </td>
+                        <td style="width:12%; ">
+
+                            {{proveedor.prov_Correo}}
+                        </td>
+                        <td style="width:12%;" class="text-center">
+                            <span class="p-column-title">Teléfono</span>
+                            {{proveedor.prov_Telefono}}
+                        </td>
+                        <td style="width:12%;" class="text-center">
+                            <span class="p-column-title">Venta</span>
+                            {{proveedor.venta}}
+                        </td>
+                    </tr>
+                </ng-template>
+ 
+            </p-table>
+
+            <!-- Formulario -->
+            <div *ngIf="proveedorFormulario" [style]="{width: '100%'}" class="p-fluid">
+                <div class="flex" style="width: 100%; margin: 0 auto; display: flex; align-items: center;height: 42px;">
+                    <div style="width: 20%; display: flex; align-items: center; height: 12.5%;">
+                        <button (click)="cerrarFormulario()" class="p-button-link" pButton pRipple type="button" label="Regresar" icon="pi pi-arrow-left" style="box-shadow: none !important"></button>
+                    </div>
+                    <div style="flex-grow: 1; display: flex; justify-content: center; align-items: center;">
+                        <h1 class="text-center mt-2">{{ title }} Proveedor</h1>
+                    </div>
+                    <div style="width: 20%;"></div> <!-- Empty div to balance the space on the right -->
+                </div>
+                <hr>
+                <!-- Campos -->
+                <div class="flex flex-row  flex-wrap" style="gap: 10px;">
+                    <div class="field" [style]="{width: '49%'}">
+                        <label for="prov_Descripcion">Nombre del Proveedor
+                            <span class="ng-dirty ng-invalid"  style="color: red !important;"*ngIf="submitted && !proveedor.prov_Descripcion"> *</span>
+                        </label>
+                        <input type="text" pInputText id="prov_Descripcion" [(ngModel)]="proveedor.prov_Descripcion" required autofocus [ngClass]="{'ng-invalid ng-dirty' : submitted && !proveedor.prov_Descripcion}" 
+                        (input)="allowOnlyAlphanumeric($event)" 
+                        (keydown)="ValidarTextoNumeros($event)"/>
+                        <small class="ng-dirty ng-invalid"  style="color: red !important;"*ngIf="submitted && !proveedor.prov_Descripcion">El campo es requerido.</small>
+                    </div>
+                    <div class="field" [style]="{width: '49%'}">
+                        <label for="prov_Correo">Correo Electrónico
+                            <span class="ng-dirty ng-invalid" style="color: red !important;"*ngIf="submitted && !proveedor.prov_Correo"> *</span>
+                        </label>
+                        <input type="text" pInputText id="prov_Correo"  [(ngModel)]="proveedor.prov_Correo" required [ngClass]="{'ng-invalid ng-dirty' : submitted && !proveedor.prov_Correo}" (input)="inputCorreo($event)" (keydown)="ValidarTextoNumeros($event)"/>
+                        <small class="ng-dirty ng-invalid" style="color: red !important;"*ngIf="submitted && !proveedor.prov_Correo">El campo es requerido.</small>
+                        <small
+                        class="ng-dirty ng-invalid"
+                        style="color: red"
+                        *ngIf="
+                            submitted &&
+                            proveedor.prov_Correo &&
+                            !validarCorreo()
+                        "
+                        >El correo electrónico es inválido.</small
+                    >
+                    </div>
+                    <div class="field" [style]="{width: '49%'}">
+                        <label for="prov_Telefono">Teléfono
+                            <span class="ng-dirty ng-invalid" style="color: red !important;" *ngIf="submitted && !proveedor.prov_Telefono"> *</span>
+                        </label>
+                        <input type="text" pInputText id="prov_Telefono" maxlength="8" [(ngModel)]="proveedor.prov_Telefono" required [ngClass]="{'ng-invalid ng-dirty' : submitted && !proveedor.prov_Telefono}" (keypress)="ValidarNumeros($event)"/>
+                        <small class="ng-dirty ng-invalid" style="color: red !important;" *ngIf="submitted && !proveedor.prov_Telefono">El campo es requerido.</small>
+                    </div>
+                    <div class="field" [style]="{width: '49%'}">
+                        <label for="prov_SegundoTelefono">Segundo Teléfono
+                        </label>
+                        <input type="text" pInputText id="prov_SegundoTelefono" maxlength="8" [(ngModel)]="proveedor.prov_SegundoTelefono" (keypress)="ValidarNumeros($event)"/>
+                    </div>
+
+                    <!-- Pais DropDownList -->
+                    <div class="field" [style]="{width: '49%'}">
+                        <label for="pais_Nombre">País
+                            <span class="ng-dirty ng-invalid" *ngIf="submitted && !proveedor.pais_Nombre"
+                            style="color: red !important;"> *</span>
+                        </label>
+                        <p-autoComplete
+                        [suggestions]="filteredPaises"
+                        (completeMethod)="searchPaises($event)"
+                        [(ngModel)]="proveedor.pais_Nombre"
+                        field="pais_Nombre"
+                        (input)="allowOnlyAlphanumeric($event)"
+                        (keydown)="ValidarTextoNumeros($event)"
+                        (onSelect)="onEstadoCargar($event)"
+                        placeholder="Seleccione un país"
+                        [ngClass]="{'ng-invalid ng-dirty' : submitted && !proveedor.pais_Nombre || isOptionPaisNotFound}"
+                        [dropdown]="true"
+                        appendTo="body"
+                        
+                        ></p-autoComplete>
+                            <ng-template pTemplate="selectedItem">
+                                <span *ngIf="proveedor && proveedor.pais_Nombre" [class]="'proveedor-pais-' + proveedor.pais_Nombre.toString().toLowerCase()">{{proveedor.pais_Nombre}}</span>
+                            </ng-template>
+                            <ng-template let-option pTemplate="item">
+                                <span [class]="'proveedor-pais-' + option.pais_Id">{{option.pais_Nombre}}</span>
+                            </ng-template>
+
+                        <small class="ng-dirty ng-invalid" *ngIf="submitted && !proveedor.pais_Nombre"
+                        style="color: red !important;">El campo es requerido.</small>
+
+                        <small class="ng-dirty ng-invalid" *ngIf="submitted && isOptionPaisNotFound && proveedor.pais_Nombre"
+                        style="color: red !important;">Opción no encontrada.</small>
+                    </div>
+
+                    <div class="field" [style]="{width: '49%'}">
+                        <label for="esta_Nombre">Departamento o Estado
+                            <span class="ng-dirty ng-invalid" *ngIf="submitted && !proveedor.esta_Nombre"
+                            style="color: red !important;">*</span>
+                        </label>
+
+                        <p-autoComplete
+                        [suggestions]="filteredEstados"
+                        (completeMethod)="searchEstados($event)"
+                        [(ngModel)]="proveedor.esta_Nombre"
+                        field="esta_Nombre"
+                        (input)="allowOnlyAlphanumeric($event)"
+                        (keydown)="ValidarTextoNumeros($event)"
+                        placeholder="Seleccione un estado"
+                        [ngClass]="{'ng-invalid ng-dirty' : submitted && !proveedor.esta_Nombre}"
+                        (onSelect)="filtrarCiudades($event)"
+                        [dropdown]="true"
+                        appendTo="body"
+                      ></p-autoComplete>
+                            <ng-template pTemplate="selectedItem">
+                                <span *ngIf="proveedor && proveedor.esta_Nombre" [class]="'proveedor-estado-' + proveedor.esta_Nombre.toString().toLowerCase()">{{proveedor.esta_Nombre}}</span>
+                            </ng-template>
+                            <ng-template let-option pTemplate="item">
+                                <span [class]="'proveedor-estado-' + option.esta_Id">{{option.esta_Nombre}}</span>
+                            </ng-template>
+
+                        <small class="ng-dirty ng-invalid" *ngIf="submitted && !proveedor.esta_Nombre"
+                        style="color: red !important;">El campo es requerido.</small>
+
+                        <small class="ng-dirty ng-invalid" *ngIf="submitted && isOptionEstadoNotFound"
+                        style="color: red !important;">Opción no encontrada.</small>
+                    </div>
+
+                    <div class="field" [style]="{width: '49%'}">
+                        <label for="ciud_Descripcion">Ciudad o Municipio
+                            <span class="ng-dirty ng-invalid" *ngIf="submitted && !proveedor.ciud_Descripcion" style="color: red !important;">*</span>
+                        </label>
+
+                        <p-autoComplete
+                        [suggestions]="filteredCiudades"
+                        (completeMethod)="searchCiudades($event)"
+                        [(ngModel)]="proveedor.ciud_Descripcion"
+                        field="ciud_Descripcion"
+                        (input)="allowOnlyAlphanumeric($event)"
+                        (keydown)="ValidarTextoNumeros($event)"
+                        placeholder="Seleccione una ciudad"
+                        [ngClass]="{'ng-invalid ng-dirty' : submitted && !proveedor.ciud_Descripcion}"
+                        (onSelect)="ciudadOnchange($event)"
+                        [dropdown]="true"
+                        appendTo="body"
+                      ></p-autoComplete>
+
+
+                        <small class="ng-dirty ng-invalid" *ngIf="submitted && !proveedor.ciud_Descripcion" style="color: red !important;">El campo es requerido.</small>
+
+                        <small class="ng-dirty ng-invalid" *ngIf="submitted && isOptionCiudadNotFound">Opción no encontrada.</small>
+                    </div>
+                    <div class="field" [style]="{width: '49%'}">
+                        <label for="renta">Venta
+                            <span class="ng-dirty ng-invalid" *ngIf="submitted && !proveedor.prov_InsumoOMaquinariaOEquipoSeguridad && proveedor.prov_InsumoOMaquinariaOEquipoSeguridad != 0"
+                            style="color: red !important;">*</span>
+                        </label>
+                        <div class="formgrid grid">
+                            <div class="field-radiobutton col-3">
+                                <p-radioButton
+                                    id="venta"
+                                    value="0"
+                                    [ngClass]="{'ng-invalid ng-dirty': submitted && !proveedor.prov_InsumoOMaquinariaOEquipoSeguridad && proveedor.prov_InsumoOMaquinariaOEquipoSeguridad != 0}"
+                                    [(ngModel)]="proveedor.prov_InsumoOMaquinariaOEquipoSeguridad"
+                                ></p-radioButton>
+                                <label for="venta">Maquinaria</label>
+                            </div>
+                            <div class="field-radiobutton col-3">
+                                <p-radioButton
+                                    id="venta"
+                                    value="1"
+                                    [ngClass]="{'ng-invalid ng-dirty': submitted && !proveedor.prov_InsumoOMaquinariaOEquipoSeguridad && proveedor.prov_InsumoOMaquinariaOEquipoSeguridad != 0}"
+                                    [(ngModel)]="proveedor.prov_InsumoOMaquinariaOEquipoSeguridad"
+                                ></p-radioButton>
+                                <label for="venta">Insumos</label>
+                            </div>
+                            <div class="field-radiobutton col-3">
+                                <p-radioButton
+                                    id="venta"
+                                    value="3"
+                                    [ngClass]="{'ng-invalid ng-dirty': submitted && !proveedor.prov_InsumoOMaquinariaOEquipoSeguridad && proveedor.prov_InsumoOMaquinariaOEquipoSeguridad != 0}"
+                                    [(ngModel)]="proveedor.prov_InsumoOMaquinariaOEquipoSeguridad"
+                                ></p-radioButton>
+                                <label for="venta">Ambos</label>
+                            </div>
+                        </div>
+                        <small class="ng-dirty ng-invalid" *ngIf="submitted && !proveedor.prov_InsumoOMaquinariaOEquipoSeguridad && proveedor.prov_InsumoOMaquinariaOEquipoSeguridad != 0"
+                            style="color: red !important;">El campo es requerido.</small>
+                    </div>
+                </div>
+
+                <!-- Botones -->
+                <div class="flex justify-content-end">
+                    <div class="flex flex-row" style="gap: 10px;">
+                        <button (click)="guardarProveedor()" pButton pRipple type="button" label="Guardar" icon="pi pi-save"></button>
+                        <button (click)="cerrarFormulario()" class=" p-button-secondary" pButton pRipple type="button" label="Cancelar" icon="pi pi-times"></button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ver Detalles -->
+            <div *ngIf="detalleProveedor">
+                <div class="flex" style="width: 100%; margin: 0 auto; display: flex; align-items: center; height: 42px;">
+                    <div style="width: 20%; display: flex; align-items: center; height: 12.5%;">
+                        <button (click)="cerrarDetalle()" class="p-button-link" pButton pRipple type="button" label="Regresar" icon="pi pi-arrow-left" style="box-shadow: none !important"></button>
+                    </div>
+                    <div style="flex-grow: 1; display: flex; justify-content: center; align-items: center;">
+                        <h1 class="text-center mt-4">Detalle Proveedor</h1>
+                    </div>
+                    <div style="width: 20%;"></div> <!-- Empty div to balance the space on the right -->
+                </div>
+                <hr>
+                <!-- Campos de detalle -->
+                <div class="p-fluid p-formgrid grid" >
+                    <div class="field col-12 md:col-4 " style="position: relative; height: 10%;">
+                        <div class="field rows">
+                            <label for="Codigo" style="font-weight: 800;">No:</label>
+                        </div>
+                        <div class="field rows">
+                            <label for="Codigo">{{ detalle_Codigo }}</label>
+                        </div>
+                    </div>
+                    <div class="field col-12 md:col-4" style="position: relative;" >
+                        <div class="field rows">
+                            <label for="Maquinaria" style="font-weight: 800;">Proveedor:</label>
+                        </div>
+                        <div class="field rows">
+                            <label for="Maquinaria">{{ detalle_Descripcion }}</label>
+                        </div>
+                    </div>
+                    <div class="field col-12 md:col-4" style="position: relative;" >
+                        <div class="field rows">
+                            <label for="Nivel" style="font-weight: 800;">Correo Electrónico</label>
+                        </div>
+                        <div class="field rows">
+                            <label for="Nivel">{{ detalle_Correo }}</label>
+                        </div>
+                    </div>
+                    <div class="field col-12 md:col-4" style="position: relative;" >
+                        <div class="field rows">
+                            <label for="Nivel" style="font-weight: 800;">Teléfono:</label>
+                        </div>
+                        <div class="field rows">
+                            <label for="Nivel">{{ detalle_Telefono }}</label>
+                        </div>
+                    </div>
+                    <div class="field col-12 md:col-4" style="position: relative;" >
+                        <div class="field rows">
+                            <label for="Nivel" style="font-weight: 800;">Teléfono Secundario:</label>
+                        </div>
+                        <div class="field rows">
+                            <label for="Nivel">{{ detalle_Telefono2 }}</label>
+                        </div>
+                    </div>
+                    <div class="field col-12 md:col-4" style="position: relative;" >
+                        <div class="field rows">
+                            <label for="Nivel" style="font-weight: 800;">Venta:</label>
+                        </div>
+                        <div class="field rows">
+                            <label for="Nivel">{{ detalle_Venta }}</label>
+                        </div>
+                    </div>
+                    <div class="field col-12 md:col-4" style="position: relative;" >
+                        <div class="field rows">
+                            <label for="Nivel" style="font-weight: 800;">Ciudad:</label>
+                        </div>
+                        <div class="field rows">
+                            <label for="Nivel">{{ detalle_Ciudad }}</label>
+                        </div>
+                    </div>
+                    <div class="field col-12 md:col-4" style="position: relative;" >
+                        <div class="field rows">
+                            <label for="Nivel" style="font-weight: 800;">Estado:</label>
+                        </div>
+                        <div class="field rows">
+                            <label for="Nivel">{{ detalle_Estado }}</label>
+                        </div>
+                    </div>
+                    <div class="field col-12 md:col-4" style="position: relative;" >
+                        <div class="field rows">
+                            <label for="Nivel" style="font-weight: 800;">País:</label>
+                        </div>
+                        <div class="field rows">
+                            <label for="Nivel">{{ detalle_Pais }}</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-title">
+                    <h1>Auditoría</h1>
+                </div>
+                 <!-- Tabla de auditoria -->
+                <p-table  [value]="selectedProveedor" styleClass=" mt-2">
+                    <ng-template pTemplate="header">
+                        <tr>
+                            <th style="width:200px; font-weight: bold;">Acción</th>
+                            <th style="width:200px; font-weight: bold;">Usuario</th>
+                            <th style="width:200px; font-weight: bold;">Fecha</th>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-proveedor>
+                        <tr>
+                            <td style="width:200px;">Creado</td>
+                            <td style="width:200px;">{{proveedor.usuaCreacion}}</td>
+                            <td style="width:200px;">{{proveedor.prov_FechaCreacion | date:'dd/MM/yyyy'}}</td>
+                        </tr>
+                        <tr>
+                            <td style="width:200px;">Modificado</td>
+                            <td style="width:200px;">{{proveedor?.usuaModificacion || ''}}</td>
+                            <td style="width:200px;">{{proveedor?.prov_FechaModificacion | date:'dd/MM/yyyy'}}</td>
+                        </tr>
+                    </ng-template>
+                </p-table>
+
+                <!-- Boton regresar -->
+
+            </div>
+        </div>
+
+        <!-- Modal Confirmar Guardar -->
+        <p-dialog [(visible)]="deleteProveedorDialog" header="Confirmación" [modal]="true" [style]="{width:'450px'}">
+            <!-- Cuerpo -->
+            <div class="flex align-items-center justify-content-center">
+                <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+                <span *ngIf="proveedor" style="width: auto;">¿Está seguro de eliminar al Proveedor <span style="font-weight: 600;"> {{Descripcion}}</span>?</span>
+            </div>
+
+
+
+            <!-- Botones -->
+            <ng-template pTemplate="footer">
+                <button pButton pRipple icon="pi pi-trash" type="button" label="Eliminar" (click)="confirmarEliminar()"></button>
+                <button pButton pRipple icon="pi pi-times" class="p-button-outlined p-button-primary" label="Cancelar" (click)="deleteProveedorDialog = false"></button>
+            </ng-template>
+        </p-dialog>
+
+        <p-dialog [(visible)]="confirmProveedorDialog" header="Confirmación" [modal]="true" [style]="{width:'450px'}">
+            <!-- Cuerpo -->
+            <div class="flex align-items-center justify-content-center">
+                <i class="pi pi-pencil mr-3" style="font-size: 2rem"></i>
+                <span *ngIf="proveedor">¿Está seguro de editar al Proveedor <span style="font-weight: 600;"> {{proveedor.prov_Descripcion}}</span>?</span>
+            </div>
+
+
+
+            <!-- Botones -->
+            <ng-template pTemplate="footer">
+                <button  pButton pRipple icon="pi pi-pencil" type="button" label="Aceptar" (click)="confirmarProveedor()"></button>
+                <button pButton pRipple icon="pi pi-times" class="p-button-outlined p-button-primary" label="Cancelar" (click)="confirmProveedorDialog = false; confirm = true"></button>
+            </ng-template>
+        </p-dialog>
+    </div>
+</div>

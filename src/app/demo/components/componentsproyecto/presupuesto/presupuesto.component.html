@@ -1,0 +1,2627 @@
+<style>
+::ng-deep p-inputnumber{
+  border: none !important;
+}
+</style>
+<p-toast></p-toast>
+<div class="loader-container" *ngIf="loading">
+    <div class="loader">
+        <span></span>
+    </div>
+</div>
+<div class="grid" *ngIf="Index">
+    <div class="col-12">
+        <div class="card">
+            <h1 class="text-center mt-2">Presupuestos</h1>
+            <hr>
+            <div class="grid mt-2">
+                <div class="col-12">
+                    <button (click)="CrearPresupuesto()" pButton icon="pi pi-plus" label="Nuevo" class="mr-2">
+                    </button>
+                </div>
+            </div>
+            <p-table #dt [tableStyle]="{background: '#000'}" [value]="presupuestoOptions" styleClass=" mt-2"
+                responsiveLayout="scroll" [rows]="10" [rowsPerPageOptions]="[10,25,50,100]"
+                [globalFilterFields]="['pren_Id','totalPresupuesto','totalAjustado','pren_Estado','pren_Titulo','proyecto','pren_Fecha','cliente','pren_PorcentajeGanancia']"
+                [rows]="10" [paginator]="true" [showCurrentPageReport]="true"
+                currentPageReportTemplate="Mostrando {first} al {last} de {totalRecords} entradas" [rowHover]="true">
+                <ng-template pTemplate="caption">
+                    <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+
+                        <span class="block mt-2 md:mt-0 p-input-icon-left">
+                            <i style="color: white;" class="pi pi-search"></i>
+                            <input style="color: white;" pInputText type="text" (input)="onGlobalFilter(dt, $event)"
+                                placeholder="Buscar..." class="w-full sm:w-auto" />
+                        </span>
+                        <div class="registros">
+                            <p-dropdown [options]="dt.rowsPerPageOptions" [(ngModel)]="dt.rows"
+                                [style]="{ 'margin-right': '5px' }" [autoWidth]="false"></p-dropdown>
+
+                            <span style="color: #FFF0C6; font-weight: 700; margin-top: 7px;"> Registros por
+                                página</span>
+                        </div>
+                    </div>
+
+                </ng-template>
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th style="color: white;" class="text-center">Acciones</th>
+                        <th style="color: white;" pSortableColumn="pren_Id" class="text-center">No. <p-sortIcon
+                                field="pren_Id"></p-sortIcon></th>
+                        <th style="color: white;" pSortableColumn="pren_Estado" class="text-center">Estado <p-sortIcon
+                                field="pren_Estado"></p-sortIcon></th>
+                        <th style="color: white;" pSortableColumn="totalPresupuesto" class="text-center">Total Original
+                            <p-sortIcon field="totalPresupuesto"></p-sortIcon>
+                        </th>
+                        <th style="color: white;" pSortableColumn="totalAjustado" class="text-center">Total <p-sortIcon
+                                field="totalAjustado"></p-sortIcon></th>
+
+                        <th style="color: white;" pSortableColumn="pren_Titulo" class="text-center">Título <p-sortIcon
+                                field="pren_Titulo"></p-sortIcon></th>
+                        <th style="color: white;" pSortableColumn="proyecto" class="text-center">Proyecto <p-sortIcon
+                                field="proyecto"></p-sortIcon></th>
+                        <th style="color: white;" pSortableColumn="pren_Fecha" class="text-center">Fecha <p-sortIcon
+                                field="pren_Fecha"></p-sortIcon></th>
+                        <th style="color: white;" pSortableColumn="cliente" class="text-center">Cliente <p-sortIcon
+                                field="cliente"></p-sortIcon></th>
+                        <th style="color: white;" pSortableColumn="pren_PorcentajeGanancia" class="text-center">
+                            Porcentaje (%)<p-sortIcon field="pren_PorcentajeGanancia"></p-sortIcon></th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-presupuesto>
+                    <tr (click)="selectUnidadMedida(presupuesto)">
+                        <td class="text-center">
+                            <p-splitButton class="custom-splitbutton" label="Acciones" icon="pi pi-cog" [model]="presupuesto.pren_Estado === 'Aprobado' ? detailItems :
+                            presupuesto.pren_Estado === 'Rechazado' ? rechazadoItems :
+                            items" styleClass="p-button-secondary" appendTo="body">
+                            </p-splitButton>
+                        </td>
+                        <td style="width:14%; min-width:10rem;" class="text-center"><span
+                                class="p-column-title">No.</span>
+                            {{presupuesto.codigo}}
+                        </td>
+                        <td style="width:14%; min-width:10rem;" class="text-center">
+                            <span [ngClass]="{
+                                'estado-activo': presupuesto.pren_Estado === 'Aprobado',
+                                'estado-inactivo': presupuesto.pren_Estado === 'Rechazado',
+                                'estado-pendiente': presupuesto.pren_Estado === 'Pendiente'
+                              }">
+                                <span class="text-span">{{presupuesto.pren_Estado}}</span>
+                            </span>
+                        </td>
+                        <td style="width:14%; min-width:13rem;" class="text-right"><span class="p-column-title">Total
+                                Original.</span>
+                            {{abreviaturaMoneda}} {{presupuesto.totalPresupuesto | number:'1.2-2'}}
+                        </td>
+                        <td style="width:14%; min-width:13rem;" class="text-right"><span
+                                class="p-column-title">Total.</span>
+                            {{abreviaturaMoneda}} {{presupuesto.totalAjustado | number:'1.2-2'}}
+                        </td>
+
+                        <td style="width:14%; min-width:16rem;" class="text-center">
+                            <span class="p-column-title">Título</span>
+                            {{presupuesto.pren_Titulo}}
+                        </td>
+                        <td style="width:14%; min-width:16rem;" class="text-center">
+                            <span class="p-column-title">Proyecto</span>
+                            {{presupuesto.proyecto}}
+                        </td>
+                        <td style="width:14%; min-width:10rem;" class="text-center"><span
+                                class="p-column-title">Fecha</span>
+                            {{presupuesto.formattedPren_Fecha}}
+                        </td>
+                        <td style="width:14%; min-width:16rem;" class="text-center">
+                            <span class="p-column-title">Cliente</span>
+                            {{presupuesto.cliente}}
+                        </td>
+                        <td style="width:14%; min-width:10rem;" class="text-center">
+                            <span class="p-column-title">Porcentaje Ganancia</span>
+                            {{presupuesto.pren_PorcentajeGanancia}}
+                        </td>
+
+
+                    </tr>
+                </ng-template>
+
+            </p-table>
+        </div>
+
+    </div>
+</div>
+
+<div class="grid" *ngIf="Create">
+    <div class="col-12">
+        <div class="card">
+            <div class="flex" style="width: 100%; margin: 0 auto; display: flex; align-items: center;">
+                <div style="width: 20%; display: flex; align-items: center; height: 12.5%;">
+                    <button (click)="cerrarFormulario()" class="p-button-link" pButton pRipple type="button"
+                        label="Regresar" icon="pi pi-arrow-left" style="box-shadow: none !important"></button>
+                </div>
+                <div style="flex-grow: 1; display: flex; justify-content: center; align-items: center;">
+                    <h1 class="text-center" style="flex-grow: 1; padding-right: 10%">{{Titulo}}</h1>
+
+                </div>
+                <div style="width: 20%;"></div> <!-- Empty div to balance the space on the right -->
+            </div>
+            <div class="mt-3"></div>
+            <p-tabView [(activeIndex)]="activeIndex">
+                <p-tabPanel header="Datos Generales">
+                    <div class="mt-2 grid">
+                        <form [formGroup]="form" class="grid col-12 p-fluid p-formgrid">
+                            <div class="field col-12 md:col-6">
+                                <label>Título <span *ngIf="submitted && form.controls['pren_Titulo'].invalid"
+                                        style="color: red !important;">*</span></label>
+                                <input #titulo class="col-6"
+                                    [ngClass]="{'ng-invalid ng-dirty': submitted && form.controls['pren_Titulo'].invalid}"
+                                     (input)="allowOnlyAlphanumeric($event)"
+                                    id="titulo" type="text" class="p-inputtext" formControlName="pren_Titulo">
+                                <small class="ng-dirty ng-invalid"
+                                    *ngIf="submitted && form.controls['pren_Titulo'].invalid"
+                                    style="color: red !important;">El campo es requerido.</small>
+                            </div>
+                            <div class="field col-12 md:col-6">
+                                <label>Descripción <span *ngIf="submitted && form.controls['pren_Descripcion'].invalid"
+                                        style="color: red !important">*</span></label>
+                                <input #descripcion
+                                    [ngClass]="{'ng-invalid ng-dirty': submitted && form.controls['pren_Descripcion'].invalid}"
+                                    (keydown)="ValidarTextoNumeros($event)" (input)="allowOnlyAlphanumeric($event)"
+                                    id="descripcion" type="text" class="p-inputtext" formControlName="pren_Descripcion">
+                                <small class="ng-dirty ng-invalid"
+                                    *ngIf="submitted && form.controls['pren_Descripcion'].invalid"
+                                    style="color: red !important;">El campo es requerido.</small>
+                            </div>
+
+                            <div class="field col-12 md:col-6">
+                                <label>Fecha <span *ngIf="submitted && form.controls['pren_Fecha'].invalid"
+                                        style="color: red !important">*</span></label>
+                                <p-calendar [showIcon]="true" inputId="icon"
+                                    [ngClass]="{'ng-invalid ng-dirty': submitted && form.controls['pren_Fecha'].invalid}"
+                                    formControlName="pren_Fecha" dateFormat="mm/dd/yy" [minDate]="minDate">
+                                </p-calendar>
+                                <small class="ng-dirty ng-invalid"
+                                    *ngIf="submitted && form.controls['pren_Fecha'].invalid"
+                                    style="color: red !important;">El campo es requerido.</small>
+                            </div>
+
+                            <div class="field col-12 md:col-6">
+                                <label>Elaborado Por <span *ngIf="submittedEmpleado"
+                                        style="color: red !important">*</span></label>
+                                <p-autoComplete #empleadoAutocomplete formControlName="empleado"
+                                    [suggestions]="filtradoEmpleado" [dropdown]="true"
+                                    (completeMethod)="filterEmpleado($event)" (onSelect)="onEmpleadoSelect($event)"
+                                    field="empleado" (keydown)="ValidarTextoNumeros($event)"
+                                    (input)="allowOnlyAlphanumeric($event)" id="empleado"
+                                    [ngClass]="{'ng-invalid ng-dirty': submittedEmpleado}" />
+                                <small class="ng-dirty ng-invalid" *ngIf="submittedEmpleado"
+                                    style="color: red !important;">Opción no encontrada.</small>
+                            </div>
+
+
+                            <div class="field col-6 md:col-6">
+                                <label>Cliente <span *ngIf="submittedCliente "
+                                        style="color: red !important">*</span></label>
+                                <p-autoComplete #clienteAutocomplete formControlName="cliente"
+                                    [suggestions]="filtradoCliente" [dropdown]="true"
+                                    (completeMethod)="filterCliente($event)" (onSelect)="onClienteSelect($event)"
+                                    field="cliente" (keydown)="ValidarTextoNumeros($event)" id="cliente"
+                                    (input)="allowOnlyAlphanumeric($event)"
+                                    [ngClass]="{'ng-invalid ng-dirty': submittedCliente}" />
+
+                                <small class="ng-dirty ng-invalid" *ngIf="submittedCliente"
+                                    style="color: red !important;">Opción no encontrada.</small>
+                            </div>
+
+                            <div class="field col-12 md:col-3">
+                                <label>Porcentaje de ganancia <span
+                                        *ngIf="submitted && form.controls['pren_PorcentajeGanancia'].invalid"
+                                        style="color: red !important">*</span></label>
+                                    <p-inputNumber #ganancia
+                                        [ngClass]="{'ng-invalid ng-dirty': submitted && form.controls['pren_PorcentajeGanancia'].invalid}"
+                                        type="text" pInputText formControlName="pren_PorcentajeGanancia" maxlength="6"
+                                        mode="decimal" [min]="0" [max]="100" [maxFractionDigits]="2"  suffix="%"
+                                        [showButtons]="true" style="padding: 0px; height: 50%; background-color: transparent;"
+                                         />
+                                    <!-- <button pButton icon="pi pi-percentage" label="">
+                                    </button> -->
+                                <small class="ng-dirty ng-invalid"
+                                    *ngIf="submitted && form.controls['pren_PorcentajeGanancia'].invalid"
+                                    style="color: red !important;">El campo es requerido.</small>
+                            </div>
+
+                            <div class="field col-12 md:col-3">
+                            </div>
+                            <div class="field col-12 md:col-6">
+                                <label>Proyecto <span *ngIf="submittedProyecto"
+                                        style="color: red !important">*</span></label>
+                                <div class="flex">
+                                    <p-autoComplete #proyectoAutocomplete style="width: 100%;"
+                                        formControlName="proyecto" id="proyecto-crear" [suggestions]="filteredProyecto"
+                                        [dropdown]="true" (completeMethod)="filterProjecto($event,'0')"
+                                        (onSelect)="onProyectoSelect($event,'0')" field="proyecto"
+                                        (input)="allowOnlyAlphanumeric($event)" id="proyecto"
+                                        [ngClass]="{'ng-invalid ng-dirty': submittedProyecto}"
+                                        (keydown)="ValidarTextoNumeros($event)" 
+                                        [loading]="loadingProyecto"/>
+                                    <button pButton pRipple type="button" class="p-ml-2" icon="pi pi-plus"
+                                        style="flex-shrink: 0; margin-left: 5px;" (click)="CrearProyecto()"></button>
+                                </div>
+                                <small class="ng-dirty ng-invalid" *ngIf="submittedProyecto"
+                                    style="color: red !important;">Opción no encontrada.</small>
+                            </div>
+                            <div class="field col-12 md:col-6">
+                                <label>¿Desea calcular el costo de las maquinarias?</label>
+                                <div class="flex ml-5 mt-1 algin-items-center justify-content-center">
+                                    <p-checkbox [ngModelOptions]="{standalone: true}" [(ngModel)]="maquinariaCalculo"
+                                        [binary]="true" [disabled]="Titulo == 'Editar Presupuesto'" inputId="binarys" />
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="grid">
+                        <div class="col-12">
+                            <h3>Conversiones</h3>
+                            <div class="col-12">
+                                <button pButton icon="pi pi-plus" label="Agregar" (click)="agregarConversion()">
+                                </button>
+                                <button style="margin-left: 2%;" pButton label="Quitar" class="p-button-secondary"
+                                    icon="pi pi-minus" (click)="quitarFilaConversion()"
+                                    [disabled]="conversiones.length <= 1"></button>
+                            </div>
+                        </div>
+
+
+                        <div *ngFor="let conversion of conversiones; let i = index"
+                            class="grid col-12 p-fluid p-formgrid">
+                            <div *ngIf="selectEliminarConversion" class="field col-12 md:col-1 mt-5">
+                                <p-checkbox [(ngModel)]="conversion.selectt"
+                                    (onChange)="ConfirmarEliminarConversion(conversion, $event)" [binary]="true"
+                                    inputId="binary" />
+                            </div>
+                            <div class="field col-12 md:col-3">
+                                <label>De</label>
+                                <p-dropdown (onChange)="onMonedaChange($event, i)" [options]="monedas"
+                                    placeholder="Seleccione" [showClear]="false" [(ngModel)]="conversion.monedaDe">
+                                </p-dropdown>
+                            </div>
+                            <div class="field col-12 md:col-2">
+                                <label>Valor</label>
+                                <input type="number" class="p-inputtext" disabled [(ngModel)]="conversion.valorDe">
+                            </div>
+
+
+                            <div class="field col-12 md:col-1">
+                                <button pButton pRipple type="button" icon="pi pi-arrow-right-arrow-left"
+                                    class="mt-4"></button>
+                            </div>
+
+                            <div class="field col-12 md:col-3">
+                                <label>A</label>
+                                <p-dropdown [options]="conversion.listaConversiones" placeholder="Seleccione"
+                                    [showClear]="false" [(ngModel)]="conversion.monedaA"
+                                    (onChange)="onChange($event, i)">
+                                </p-dropdown>
+
+                            </div>
+
+                            <div class="field col-12 md:col-2">
+                                <label>Valor</label>
+                                <input type="number" class="p-inputtext" disabled [(ngModel)]="conversion.valorA">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex justify-content-end w-100 mb-3" *ngIf="Titulo === 'Editar Presupuesto'">
+                        <button pButton type="button" style="max-width: 150px" label="Guardar" (click)="ModalEditar()"
+                            icon="pi pi-save"></button>
+                        <button pButton type="button" style="max-width: 150px" class="ml-4 p-button-secondary"
+                            label="Cancelar" (click)="cerrarFormulario()" icon="pi pi-times"></button>
+                    </div>
+                    <div style="display: flex;justify-content: end;">
+                        <button (click)="Siguiente()" class="btn btn-guardar" pButton pRipple type="button"
+                            label="Siguiente" icon="pi pi-arrow-right"></button>
+
+
+                    </div>
+                </p-tabPanel>
+                <p-tabPanel header="Presupuesto Detalle" [disabled]="isTab2Disabled">
+                    <!--       [disabled]="isTab2Disabled"              -->
+
+                    <!--                       -->
+
+                    <div class="grid">
+                        <div class="col-12">
+                            <div class="">
+                                <div class="flex md:flex-row md:align-items-start md:justify-content-between">
+                                    <div class="flex">
+                                        <div class="flex justify-content-between align-items-center mb-2">
+                                            <span class="p-input-icon-right">
+                                                <p-autoComplete [(ngModel)]="selectedCountryAdvanced"
+                                                    [suggestions]="filteredPresupuesto"
+                                                    [(ngModel)]="presupuestoPlantilla"
+                                                    (onSelect)="onPlantillaPresupuesto($event)"
+                                                    (completeMethod)="filterPresupuesto($event)" field="pren_Titulo"
+                                                    [dropdown]="true" placeholder="Importar presupuesto" />
+
+                                                <i class="mr-5 pi pi-exclamation-circle" pTooltip="Al seleccionar importa un presupuesto existente
+                                                 " tooltipPosition="top">
+                                                </i>
+                                            </span>
+                                        </div>
+                                        <div style="width: 100px;"
+                                            class="flex justify-content-between align-items-center mb-2 ml-3">
+                                            <p-inputGroup>
+                                                <input type="text" pInputText maxlength="3"
+                                                    [(ngModel)]="defaultPorcentaje" style="width: 100%;"
+                                                    [disabled]="true"
+                                                    [ngClass]="{'ng-invalid ng-dirty': defaultPorcentaje < 15}" />
+
+                                                <button style="box-shadow: none !important" pButton
+                                                    icon="pi pi-percentage"></button>
+                                            </p-inputGroup>
+                                        </div>
+                                        <div style="width: 100px;"
+                                            class="flex justify-content-between align-items-center mb-2 ml-3">
+                                            <label for="">Utilidad</label>
+                                            <p-inputSwitch [(ngModel)]="valSwitch"
+                                                (onChange)="onValSwitchChange()"></p-inputSwitch>
+                                        </div>
+                                    </div>
+                                </div>
+                                <p-dropdown class="list-conver" [options]="selectconversiones" appendTo="body"
+                                    placeholder="Conversiones" (onChange)="onChangeConversion($event)"
+                                    [(ngModel)]="selectedConversion">
+                                </p-dropdown>
+
+
+                                <div class="grid p-fluid p-formgrid mt-2">
+                                    <div class="field col-12 md:col-4">
+                                        <span>Elaborado Por: <span
+                                                class="text-primary">{{nombreSupervisor}}</span></span>
+                                    </div>
+                                    <div class="field col-12 md:col-4">
+                                        <span> PLAN DE OFERTA OBRA CIVIL</span>
+                                    </div>
+                                    <div class="field col-12 md:col-4">
+                                        <span>Fecha: <span class="text-primary">{{fecha}}</span></span>
+
+                                    </div>
+                                </div>
+                                <div class="grid  p-formgrid">
+                                    <div class="col-12 ">
+                                        <p-table [value]="prueba" scrollHeight="400px" [scrollable]="true"
+                                            styleClass="p-datatable-gridlines" responsiveLayout="scroll">
+                                            <ng-template pTemplate="caption">
+                                                <div class="flex  flex-column sm:flex-row">
+                                                    <button pButton type="button" (click)="AgregarEtapa()"
+                                                        label="Nueva Etapa" icon="pi pi-plus"></button>
+                                                    <button style="left: 10px;" (click)="deleteEtapa()"
+                                                        class="p-button-secondary" [disabled]="isDeleteEtapaDisabled()"
+                                                        pButton type="button" label="Eliminar Etapa"
+                                                        icon="pi pi-minus"></button>
+                                                    <button style="left: 20px;" (click)="OcultarActividad()"
+                                                        class="{{classActividad}}" pButton type="button"
+                                                        label="{{LabelAactividad}}" icon="{{iconActividad}}"></button>
+
+                                                    <span class="p-input-icon-right">
+                                                        <p-autoComplete placeholder="Seleccione un proyecto"
+                                                            [(ngModel)]="proyectoPlantilla"
+                                                            [suggestions]="filteredProyecto2" [dropdown]="true"
+                                                            (completeMethod)="filterProjecto2($event,'1')"
+                                                            (onSelect)="onProyectoSelect($event,'1')" field="proyecto"
+                                                            id="proyecto-auto" [loading]="loadingProyecto"/>
+                                                        <i class="pi pi-exclamation-circle" pTooltip="Al seleccionar un proyecto cargara sus actividades
+                                                            " tooltipPosition="top"></i>
+                                                    </span>
+
+                                                </div>
+                                            </ng-template>
+                                            <ng-template pTemplate="header">
+                                                <tr>
+                                                    <th class="text-center text-white">Acciones</th>
+                                                    <th class="text-center text-white">Ítem</th>
+                                                    <th class="text-center text-white ">Descripción</th>
+                                                    <th class="text-center text-white">Cantidad</th>
+                                                    <th class="text-center text-white">Unidad Medida</th>
+                                                    <th class="text-center text-white">Mano de Obra
+                                                        ({{abreviaturaMoneda}})</th>
+                                                    <th class="text-center text-white">Material ({{abreviaturaMoneda}})
+                                                    </th>
+                                                    <th class="text-center text-white" *ngIf="maquinariaCalculo">
+                                                        Maquinaria ({{abreviaturaMoneda}})</th>
+                                                    <th class="text-center text-white">P.U. ({{abreviaturaMoneda}})</th>
+                                                    <th class="text-center text-white">Subtotal ({{abreviaturaMoneda}})
+                                                    </th>
+                                                    <th class="text-center text-white" *ngIf="valSwitch">Utilidad (%)
+                                                    </th>
+                                                    <th class="text-center text-white" *ngIf="valSwitch">Total antes de
+                                                        ISV
+                                                    </th>
+                                                    <th class="text-center text-white"
+                                                        *ngIf="abreviaturaMonedaConversion">
+                                                        P.U.({{abreviaturaMonedaConversion}})</th>
+                                                    <th class="text-center text-white"
+                                                        *ngIf="abreviaturaMonedaConversion">
+                                                        Subtotal({{abreviaturaMonedaConversion}})</th>
+                                                </tr>
+                                            </ng-template>
+
+                                            <ng-template pTemplate="body" let-rowData let-rowIndex="rowIndex">
+                                                <tr [ngClass]="{'bg-gray-1000': !rowData.esEtapa}"
+                                                    *ngIf="rowData.esEtapa || !ocultarActividades">
+
+                                                    <td>
+                                                        <div class="flex ml-2" *ngIf="btnEliminar && rowData.esEtapa">
+                                                            <button pButton type="button"
+                                                                (click)="ConfirmarEliminar(rowData,rowIndex)"
+                                                                class="p-button-primary" icon="pi pi-minus"></button>
+                                                        </div>
+                                                        <div class="flex ml-2" *ngIf="btnAgregar && rowData.esEtapa">
+                                                            <button pButton type="button"
+                                                                (click)="agregarFila('etapa', rowIndex)"
+                                                                icon="pi pi-plus"></button>
+                                                        </div>
+                                                        <div class="flex"
+                                                            *ngIf="!rowData.esEtapa && btnEliminar == false && btnAgregar == false">
+                                                            <button pButton type="button" icon="pi pi-minus"
+                                                                class="p-button-secondary mr-2"
+                                                                (click)="quitarFila(rowIndex)"
+                                                                [disabled]="isRemoveButtonDisabled(rowData, rowIndex)"></button>
+                                                            <button pButton type="button"
+                                                                [icon]="rowData.verification ? 'pi pi-plus' : 'pi pi-check'"
+                                                                (click)="agregarFila('actividad', rowIndex)"></button>
+                                                        </div>
+                                                    </td>
+                                                    <td>{{ rowData.item }}</td>
+                                                    <td>
+                                                        <p-autoComplete #etapaAutoComplete *ngIf="rowData.esEtapa"
+                                                            appendTo="body" [suggestions]="filteredEtapas"
+                                                            (completeMethod)="filterEtapa($event,rowData)"
+                                                            field="etap_Descripcion" [dropdown]="true"
+                                                            [(ngModel)]="rowData.descripcion"
+                                                            [disabled]="rowData.etpr_Id"
+                                                            (input)="allowOnlyAlphanumeric($event)"
+                                                            placeholder="Seleccione una Etapa"
+                                                            (onSelect)="onEtapaChange($event, rowIndex)"
+                                                            (onBlur)="onEtapaBlur($event,rowIndex)"
+                                                            id="etapa{{rowIndex + 1}}"
+                                                            [ngClass]="{'ng-invalid ng-dirty': rowData.invalid && (!rowData.descripcion || rowData.etap_Id === 0)}">
+                                                        </p-autoComplete>
+                                                        <p-autoComplete #descripcionAutoComplete
+                                                            *ngIf="!rowData.esEtapa" appendTo="body"
+                                                            [suggestions]="filteredActividades"
+                                                            (completeMethod)="filterActividad($event, rowData)"
+                                                            field="acti_Descripcion" [dropdown]="true"
+                                                            [(ngModel)]="rowData.descripcion" [disabled]="rowData.id"
+                                                            (input)="allowOnlyAlphanumeric($event)"
+                                                            (onSelect)="onActividadChange($event,rowData,rowIndex)"
+                                                            (onBlur)="onActividadBlur($event,rowIndex,rowData)"
+                                                            placeholder="Seleccione una Actividad"
+                                                            id="actividad{{rowIndex}}"
+                                                            [ngClass]="{'ng-invalid ng-dirty': rowData.invalid && (!rowData.descripcion || rowData.actiId === 0)}"
+                                                            class="drop-presupuestooo">
+                                                        </p-autoComplete>
+                                                    </td>
+                                                    <td class="text-right">
+                                                        <span
+                                                            *ngIf="rowData.esEtapa && ocultarActividades == false">{{rowData.cant
+                                                            | number:'1.2-2'}}</span>
+                                                        <input #cantidadInput type="text" pInputText
+                                                            [(ngModel)]="rowData.cant" [disabled]="rowData.esEtapa"
+                                                            *ngIf="rowData.esEtapa && ocultarActividades == true"
+                                                            class="input-cantidad" />
+
+                                                        <span class="p-input-icon-left" *ngIf="!rowData.esEtapa">
+                                                            <input style="text-align: right;" #cantidadInput type="text"
+                                                                pInputText [(ngModel)]="rowData.cant"
+                                                                [disabled]="rowData.esEtapa" *ngIf="!rowData.esEtapa"
+                                                                (keydown)="handleFormulaInput($event, rowIndex, 'cant')"
+                                                                (click)="onShiftClick($event, rowIndex, 'cant')"
+                                                                id="cant{{rowData.item}}"
+                                                                (blur)="handleBlur('No', rowData, rowIndex, 'cant')"
+                                                                (ngModelChange)="onValueChange(rowData, rowIndex, 'cant')"
+                                                                [ngClass]="{'ng-invalid ng-dirty': !rowData.esEtapa && (rowData.invalid && validateRow(rowData.cant))}"
+                                                                class="input-cantidad" />
+                                                            <i *ngIf="rowData.cantFormula"
+                                                                class="pi pi-exclamation-circle" pTooltip="1. Con las teclas 'Ctrl + Espacio' recupera la fórmula.
+                                                                2. Con las teclas 'Ctrl + Click' puede tomar valores de (Cantidad, ManoObra, Maquinaria y Material) solo si se esta haciendo una fórmula
+                                                                " tooltipPosition="top"></i>
+                                                        </span>
+
+                                                    </td>
+                                                    <td>
+                                                        <span *ngIf="rowData.esEtapa && ocultarActividades"
+                                                            class="col-8"></span>
+                                                        <p-autoComplete #unidadAutoComplete appendTo="body"
+                                                            [suggestions]="filteredUndiad" field="unme_Nomenclatura"
+                                                            [dropdown]="true"
+                                                            (completeMethod)="filterUnidad($event,rowData)"
+                                                            [(ngModel)]="rowData.unidad" placeholder="Seleccione "
+                                                            [disabled]="rowData.esEtapa" *ngIf="!rowData.esEtapa"
+                                                            (onBlur)="handleBlurUnidad($event,rowData,rowIndex)"
+                                                            (input)="allowOnlyAlphanumeric($event)"
+                                                            (onSelect)="handleUnidadChange($event, rowData,rowIndex)"
+                                                            class="unidad-medida" id="unidad{{rowIndex}}"
+                                                            [ngClass]="{'ng-invalid ng-dirty': rowData.invalid && (!rowData.unidad || !rowData.unme_Id)}">
+                                                        </p-autoComplete>
+                                                    </td>
+                                                    <td class="text-right">
+                                                        <span
+                                                            *ngIf="rowData.esEtapa && ocultarActividades == false">{{rowData.manoDeObra
+                                                            | number:'1.2-2'}}</span>
+                                                        <input type="text"
+                                                            *ngIf="rowData.esEtapa && ocultarActividades == true"
+                                                            pInputText [(ngModel)]="rowData.manoDeObra"
+                                                            [disabled]="rowData.esEtapa" />
+                                                        <span class="p-input-icon-left" *ngIf="!rowData.esEtapa">
+                                                            <input style="text-align: right;" #manoDeObraInput
+                                                                *ngIf="!rowData.esEtapa" type="text" pInputText
+                                                                [(ngModel)]="rowData.manoDeObra"
+                                                                [disabled]="rowData.esEtapa" id="manoObra{{rowIndex}}"
+                                                                (keydown)="handleFormulaInput($event, rowIndex, 'manoDeObra')"
+                                                                (ngModelChange)="onValueChange(rowData,rowIndex, 'manoDeObra')"
+                                                                (blur)="handleBlur('Si',rowData, rowIndex, 'manoDeObra')"
+                                                                (click)="onShiftClick($event, rowIndex, 'manoDeObra')"
+                                                                id="manoDeObra{{rowData.item}}"
+                                                                [ngClass]="{'ng-invalid ng-dirty': !rowData.esEtapa && (rowData.invalid && validateRow(rowData.manoDeObra))}" />
+                                                            <i *ngIf="rowData.manoDeObraFormula"
+                                                                class="pi pi-exclamation-circle" pTooltip="1. Con las teclas 'Ctrl + Espacio' recupera la fórmula.
+
+                                                                2. Con las teclas 'Ctrl + Click' puede tomar valores de (Cantidad, ManoObra, Maquinaria y Material) solo si se esta haciendo una fórmula
+                                                                " tooltipPosition="top"></i>
+
+                                                        </span>
+
+                                                    </td>
+
+                                                    <td class="text-right">
+                                                        <span
+                                                            *ngIf="rowData.esEtapa && ocultarActividades == false">{{rowData.material
+                                                            | number:'1.2-2'}}</span>
+                                                        <input type="text"
+                                                            *ngIf="rowData.esEtapa && ocultarActividades == true"
+                                                            pInputText [(ngModel)]="rowData.material"
+                                                            [disabled]="rowData.esEtapa" />
+
+                                                        <p-inputGroup *ngIf="!rowData.esEtapa">
+                                                            <input #materialInput
+                                                                style="width: 168px; text-align: right;"
+                                                                *ngIf="!rowData.esEtapa" type="text" pInputText
+                                                                [(ngModel)]="rowData.material"
+                                                                [disabled]="rowData.esEtapa"
+                                                                (keydown)="handleFormulaInput($event, rowIndex, 'material')"
+                                                                (ngModelChange)="onMaterialChange(rowData,rowIndex, 'material')"
+                                                                id="material{{rowData.item}}"
+                                                                (click)="onShiftClick($event, rowIndex, 'material')"
+                                                                (blur)="handleBlur('No',rowData, rowIndex, 'material')"
+                                                                [ngClass]="{'ng-invalid ng-dirty': !rowData.esEtapa && (rowData.invalid && validateRow(rowData.material))}" />
+                                                            <span class="p-input-icon-left">
+                                                                <i style="left: -161px;" *ngIf="rowData.materialFormula"
+                                                                    class="pi pi-exclamation-circle" pTooltip="1. Con las teclas 'Ctrl + Espacio' recupera la fórmula.
+
+                                                            2. Con las teclas 'Ctrl + Click' puede tomar valores de (Cantidad, ManoObra, Maquinaria y Material) solo si se esta haciendo una fórmula
+                                                            " tooltipPosition="top"></i>
+                                                            </span>
+
+                                                            <button [disabled]="!rowData.acetId"
+                                                                (click)="GestionarInsumos(rowData, rowIndex,'material')"
+                                                                pTooltip="Gestionar Artículos.
+                                                            " tooltipPosition="top" style=" width: 45px;" pButton
+                                                                icon="pi pi-list"></button>
+                                                            <!-- box-shadow: none !important; -->
+                                                        </p-inputGroup>
+
+                                                    </td>
+                                                    <td *ngIf="maquinariaCalculo">
+                                                        <span
+                                                            *ngIf="rowData.esEtapa && ocultarActividades == false">{{rowData.maquinaria
+                                                            | number:'1.2-2'}}</span>
+                                                        <input type="text"
+                                                            *ngIf="rowData.esEtapa && ocultarActividades == true"
+                                                            pInputText [(ngModel)]="rowData.maquinaria"
+                                                            [disabled]="rowData.esEtapa" />
+                                                        <p-inputGroup *ngIf="!rowData.esEtapa">
+                                                            <input #maquinariaInput *ngIf="!rowData.esEtapa"
+                                                                style="width: 168px; text-align: right;" type="text"
+                                                                pInputText [(ngModel)]="rowData.maquinaria"
+                                                                [disabled]="rowData.esEtapa"
+                                                                (blur)="handleBlur('No',rowData, rowIndex)"
+                                                                (keydown)="handleFormulaInput($event, rowIndex, 'maquinaria')"
+                                                                (ngModelChange)="onValueChange(rowData,rowIndex, 'maquinaria')"
+                                                                (click)="onShiftClick($event, rowIndex, 'maquinaria')"
+                                                                (blur)="handleBlur('No',rowData, rowIndex, 'maquinaria')"
+                                                                id="maquinaria{{rowData.item}}"
+                                                                [ngClass]="{'ng-invalid ng-dirty': !rowData.esEtapa && (rowData.invalid && validateRow(rowData.maquinaria))}" />
+                                                            <span class="p-input-icon-left">
+                                                                <i style="left: -161px;"
+                                                                    *ngIf="rowData.maquinariaFormula"
+                                                                    class="pi pi-exclamation-circle" pTooltip="1. Con las teclas 'Ctrl + Espacio' recupera la fórmula.
+
+                                                            2. Con las teclas 'Ctrl + Click' puede tomar valores de (Cantidad, ManoObra, Maquinaria y Material) solo si se esta haciendo una fórmula
+                                                            " tooltipPosition="top"></i>
+                                                            </span>
+
+                                                            <button [disabled]="!rowData.acetId"
+                                                                (click)="GestionarInsumos(rowData, rowIndex,'maquinaria')"
+                                                                pTooltip="Gestionar artículos .
+                                                                " tooltipPosition="top" style=" width: 45px;" pButton
+                                                                icon="pi pi-list"></button>
+                                                            <!-- box-shadow: none !important; -->
+                                                        </p-inputGroup>
+                                                        <!-- (blur)="handleBlur('No',rowData, rowIndex)" -->
+                                                    </td>
+                                                    <td class="text-right">
+                                                        {{rowData.pu | number:'1.2-2'}}
+                                                    </td>
+                                                    <td style="width:14%; min-width:8rem;" class="text-right">
+                                                        {{rowData.subtotal | number:'1.2-2'}}
+                                                    </td>
+                                                    <td *ngIf="valSwitch" style="width:10%; min-width:8rem;">
+                                                        <p-inputGroup  *ngIf="!rowData.esEtapa">
+                                                            <p-inputNumber 
+                                                                [(ngModel)]="rowData.porcen"
+                                                                
+                                                                (ngModelChange)="handlePorcentajeChange(rowData, rowIndex)"
+                                                                (blur)="handleBlur('No', rowData, rowIndex)"
+                                                                 mode="decimal" [min]="0" [max]="100" [maxFractionDigits]="2"
+                                                                />
+                                                            <button pButton icon="pi pi-percentage" label=""
+                                                                style="box-shadow: none !important"></button>
+                                                        </p-inputGroup>
+                                                    </td>
+                                                    <td *ngIf="valSwitch" class="text-right">
+                                                        {{rowData.subtotalUtil | number:'1.2-2'}}
+                                                    </td>
+                                                    <td class="text-right" *ngIf="abreviaturaMonedaConversion">
+                                                        {{rowData.puUSD | number:'1.2-2'}}
+                                                    </td>
+                                                    <td class="text-right" *ngIf="abreviaturaMonedaConversion">
+                                                        {{rowData.subtotalUSD | number:'1.2-2'}}
+                                                    </td>
+                                                </tr>
+                                            </ng-template>
+                                        </p-table>
+                                    </div>
+                                </div>
+                                <div class="flex justify-content-end mt-1">
+                                    <div class="flex flex-column">
+                                        <div class="flex justify-content-between align-items-center mb-2 mr-4">
+                                            <span class="font-semibold mr-6 text-primary">MANO OBRA</span>
+                                        </div>
+                                        <div *ngIf="maquinariaCalculo"
+                                            class="flex justify-content-between align-items-center mb-2 mr-4">
+                                            <span class="font-semibold mr-6 text-primary">MAQUINARIAS</span>
+                                        </div>
+                                        <div class="flex justify-content-between align-items-center mb-2 mr-4">
+                                            <span class="font-semibold mr-6 text-primary">MATERIALES</span>
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-column">
+                                        <div class="flex justify-content-between align-items-center mb-2 mr-4">
+                                            <span>{{abreviaturaMoneda}} {{TotalManoObra | number:'1.2-2'}}</span>
+                                        </div>
+                                        <div *ngIf="maquinariaCalculo"
+                                            class="flex justify-content-between align-items-center mb-2 mr-4">
+                                            <span>{{abreviaturaMoneda}} {{TotalMaquinaria | number:'1.2-2'}}</span>
+                                        </div>
+                                        <div class="flex justify-content-between align-items-center mb-2 mr-4">
+                                            <span>{{abreviaturaMoneda}} {{TotalMaterial | number:'1.2-2'}}</span>
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-column" *ngIf="abreviaturaMonedaConversion">
+                                        <div class="flex justify-content-between align-items-center mb-2 mr-4">
+                                            <span>{{abreviaturaMonedaConversion}} {{TotalManoObraUSD |
+                                                number:'1.2-2'}}</span>
+                                        </div>
+                                        <div *ngIf="maquinariaCalculo"
+                                            class="flex justify-content-between align-items-center mb-2 mr-4">
+                                            <span>{{abreviaturaMonedaConversion}} {{TotalMaquinariaUSD |
+                                                number:'1.2-2'}}</span>
+                                        </div>
+                                        <div class="flex justify-content-between align-items-center mb-2 mr-4">
+                                            <span>{{abreviaturaMonedaConversion}} {{TotalMaterialUSD |
+                                                number:'1.2-2'}}</span>
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-column">
+                                        <div class="flex justify-content-between align-items-center mb-2 mr-4">
+                                            <span class="font-semibold mr-6 text-primary">SUBTOTAL</span>
+                                        </div>
+                                        <div class="flex justify-content-between align-items-center mb-2 mr-4">
+                                            <span class="font-semibold mr-6 text-primary">ISV({{ValorImpuesto}}%)</span>
+                                        </div>
+                                        <div class="flex justify-content-between align-items-center mr-4">
+                                            <span class="font-semibold mr-6 text-primary">TOTAL</span>
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-column">
+                                        <div class="flex justify-content-between align-items-center mb-2 mr-4">
+                                            <span>{{abreviaturaMoneda}} {{(valSwitch ? subtotalUtil : Subtotal) |
+                                                number: '1.2-2'}}</span>
+                                        </div>
+                                        <!-- <div *ngIf="valSwitch" class="flex justify-content-between align-items-center mb-2 mr-4">
+                                            <span class="font-semibold mr-6 text-primary">UTILIDAD</span>
+                                            <span>{{abreviaturaMoneda}} {{Ganancia | number: '1.2-2'}}</span>
+                                        </div> -->
+                                        <div class="flex justify-content-between align-items-center mb-2 mr-4">
+                                            <span>{{abreviaturaMoneda}} {{((valSwitch ? subtotalUtil : Subtotal ) *
+                                                (ISV/100)) | number:'1.2-2'}}</span>
+                                        </div>
+                                        <div class="flex justify-content-between align-items-center mr-4">
+                                            <span>{{abreviaturaMoneda}} {{(valSwitch ? TotalUtili : Total) | number:
+                                                '1.2-2'}}</span>
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-column" *ngIf="abreviaturaMonedaConversion">
+                                        <div class="flex justify-content-between align-items-center mb-2 mr-4">
+                                            <span class="mr-6">{{abreviaturaMonedaConversion}} {{(valSwitch ?
+                                                subtotalUtilUSD : SubtotalUSD) | number: '1.2-2'}}</span>
+                                        </div>
+                                        <!-- <div *ngIf="valSwitch" class="flex justify-content-between align-items-center mb-2 mr-4">
+                                            <span class="mr-6">{{abreviaturaMonedaConversion}} {{GananciaUSD | number: '1.2-2'}}</span>
+                                        </div>  -->
+                                        <div class="flex justify-content-between align-items-center mb-2 mr-4">
+                                            <span class="mr-6">{{abreviaturaMonedaConversion}} {{(valSwitch ?
+                                                subtotalUtilUSD : SubtotalUSD) * (ISV/100) | number:'1.2-2'}}</span>
+                                        </div>
+                                        <div class="flex justify-content-between align-items-center mr-4">
+                                            <span class="mr-6">{{abreviaturaMonedaConversion}} {{(valSwitch ?
+                                                TotalUtiliUSD : TotalUSD) | number: '1.2-2'}}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex justify-content-between align-items-center w-100 mt-5">
+
+                                    <button pButton type="button" label="Anterior" style="max-width: 150px"
+                                        class="p-button-secondary" (click)="activeIndex = 0" icon="pi pi-arrow-left">
+                                    </button>
+
+                                    <!-- Botones de Guardar e Imprimir, alineados a la derecha -->
+                                    <div class="flex">
+                                        <button class="btn btn-guardar" (click)="GuardarDeta()" pButton pRipple
+                                            type="button" label="Guardar" icon="pi pi-save">
+                                        </button>
+                                        <button (click)="printTab()" class="p-button-secondary ml-2" pButton pRipple
+                                            type="button" label="Imprimir" icon="pi pi-print">
+                                        </button>
+
+                                        <button (click)="cerrarFormulario()" class="p-button-secondary ml-2" pButton
+                                            pRipple type="button" label="Cancelar" icon="pi pi-times">
+                                        </button>
+                                        <!-- -->
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                </p-tabPanel>
+            </p-tabView>
+        </div>
+    </div>
+</div>
+
+<div class="card" *ngIf="isPdfVisible" style="position: relative; padding: 20px;">
+    <div class="flex" style="width: 100%; margin: 0 auto; display: flex; align-items: center;">
+        <div style="width: 20%; display: flex; align-items: center; height: 12.5%;">
+            <button (click)="cerrarFormularioPdf()" class="p-button-link" pButton pRipple type="button" label="Regresar"
+                icon="pi pi-arrow-left" style="box-shadow: none !important"></button>
+        </div>
+        <div style="flex-grow: 1; display: flex; justify-content: center; align-items: center;">
+            <h1 class="text-center mt-2">{{form.value.pren_Titulo}} </h1>
+        </div>
+        <div style="width: 20%;"></div> <!-- Empty div to balance the space on the right -->
+    </div>
+    <hr>
+
+    <div id="pdfContainer" class="pdf-container" style="margin-top: 40px;"></div>
+</div>
+
+
+<div class="card" *ngIf="agregarInsumos">
+    <div class="flex" style="width: 100%; margin: 0 auto; display: flex; align-items: center;">
+        <div style="width: 20%; display: flex; align-items: center; height: 12.5%;">
+            <button (click)="cerrarFormulario()" class="p-button-link" pButton pRipple type="button" label="Regresar"
+                icon="pi pi-arrow-left" style="box-shadow: none !important"></button>
+        </div>
+        <div style="flex-grow: 1; display: flex; justify-content: center; align-items: center;">
+            <h1 class="text-center" style="flex-grow: 1; padding-right: 10%">Gestionar Artículos</h1>
+
+        </div>
+        <div style="width: 20%;"></div> <!-- Empty div to balance the space on the right -->
+    </div>
+    <div class="grid mt-2">
+
+        <div class="col-12 fluid formgrid">
+            <div class="grid">
+                <div class="field col-12 md:col-3">
+                    <label style="font-weight: 800;">Proyecto:
+                    </label>
+                    <div class="flex">
+                        <span>{{proyectoInsumo}}</span>
+                    </div>
+                </div>
+                <div class="field col-12 md:col-3">
+                    <label style="font-weight: 800;">Etapa:
+                    </label>
+                    <div class="flex">
+                        <span>{{etapaInsumo}}</span>
+                    </div>
+                </div>
+                <div class="field col-12 md:col-3">
+                    <label style="font-weight: 800;">Actividad:
+                    </label>
+                    <div class="flex">
+                        <span>{{actividadInsumo}}</span>
+                    </div>
+                </div>
+                <div class="field col-12 md:col-3">
+                    <label style="font-weight: 800;">Unidad Medida:
+                    </label>
+                    <div class="flex">
+                        {{unidadInsumo}}
+                    </div>
+                </div>
+            </div>
+            <div *ngIf="actividadLlenado" class="grid">
+                <div *ngIf="!disabledArticulos" class="field col-12 md:col-6">
+                    <label style="font-weight: 800;">Proveedor:</label>
+                    <div class="flex">
+                        <p-autoComplete [(ngModel)]="prov_Descripcion" [suggestions]="filteredProveedor"
+                            [dropdown]="true" (completeMethod)="filterProveedor($event)"
+                            (input)="allowOnlyAlphanumeric($event)" (onSelect)="onProveedorSelect($event)"
+                            field="prov_Descripcion" />
+                    </div>
+                </div>
+                <div class="field col-12 md:col-6">
+                    <label style="font-weight: 800;">Ver artículos de un proyecto</label>
+                    <div class="flex">
+                        <p-checkbox (onChange)="InsumosProyecto($event)" [binary]="true" inputId="binary" />
+                    </div>
+                </div>
+            </div>
+            <div class="grid">
+                <div *ngIf="disabledArticulos" class="field col-12 md:col-4">
+                    <label style="font-weight: 800;">Proyecto:</label>
+                    <div class="flex" style="width: 100%;">
+                        <p-autoComplete style="width: 100%;" [suggestions]="filteredProyecto" [dropdown]="true"
+                            (completeMethod)="filterProjecto($event,'1')" (input)="allowOnlyAlphanumeric($event)"
+                            (onSelect)="onProyectoSeletArticulo($event)" field="proyecto" id="proyecto-articulo" />
+
+                    </div>
+                </div>
+                <div *ngIf="disabledArticulos" class="field col-12 md:col-4">
+                    <label style="font-weight: 800;">Etapa:</label>
+                    <div class="flex" style="width: 100%;">
+                        <p-autoComplete style="width: 100%;" (input)="allowOnlyAlphanumeric($event)"
+                            [suggestions]="filteredEtapaArticulo" [dropdown]="true"
+                            (completeMethod)="filterEtapaArticulo($event)" (onSelect)="onEtapaSelectArticulo($event)"
+                            field="etap_Descripcion" id="proyecto-articulo" />
+
+                    </div>
+                </div>
+                <div *ngIf="disabledArticulos" class="field col-12 md:col-4">
+                    <label style="font-weight: 800;">Actividad:</label>
+                    <div class="flex" style="width: 100%;">
+                        <p-autoComplete style="width: 100%;" (input)="allowOnlyAlphanumeric($event)"
+                            [suggestions]="filteredActividadArticulo" [dropdown]="true"
+                            (completeMethod)="filterActividadArticulo($event)"
+                            (onSelect)="onActividadSelectArticulo($event)" field="acti_Descripcion"
+                            id="proyecto-articulo" />
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-2 field col-12 md:col-12">
+                <p-tabView [(activeIndex)]="activeIndexArticulos">
+                    <p-tabPanel header="Insumos">
+                        <div class="mt-2  grid">
+                            <div class="grid col-12 p-fluid p-formgrid">
+                                <div *ngIf="actividadLlenado" class="field col-12 md:col-12">
+                                    <h2 class="text-center">Insumos</h2>
+                                    <div class="fieldset-wrapper">
+                                        <p-fieldset *ngIf="!disabledArticulos"
+                                            [legend]="fieldset.collapsed ? 'Abrir' : 'Cerrar'" [toggleable]="true"
+                                            class="line-height-3" #fieldset>
+                                            <p-table #dt20 [value]="insumosOptionsFiltrados" scrollHeight="400px"
+                                                [scrollable]="true" responsiveLayout="scroll"
+                                                [globalFilterFields]="['codigo','insu_Descripcion','mate_Descripcion','cate_Descripcion','unme_Nombre','unme_Nomenclatura','inpp_Preciocompra']">
+                                                <ng-template pTemplate="caption">
+                                                    <div
+                                                        class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+
+                                                        <span class="block mt-2 md:mt-0 p-input-icon-left">
+                                                            <i style="color: white;" class="pi pi-search"></i>
+                                                            <input style="color: white;" pInputText type="text"
+                                                                (input)="onGlobalFilter(dt20, $event)"
+                                                                placeholder="Buscar..." class="w-full sm:w-auto" />
+                                                        </span>
+
+                                                    </div>
+
+                                                </ng-template>
+                                                <ng-template pTemplate="emptymessage">
+                                                    <tr>
+                                                        <td colspan="100">
+                                                            <span>No existen insumos para este proveedor aún.</span>
+                                                        </td>
+                                                    </tr>
+                                                </ng-template>
+                                                <ng-template pTemplate="header">
+                                                    <tr>
+                                                        <th style="color: white;" class="text-center">
+                                                            Seleccione</th>
+                                                        <th style="color: white;" pSortableColumn="codigo"
+                                                            class="text-center">
+                                                            No.<p-sortIcon field="codigo"></p-sortIcon></th>
+                                                      
+                                                        <th style="color: white;" pSortableColumn="insu_Descripcion"
+                                                            class="text-center">Insumo
+                                                            <p-sortIcon field="insu_Descripcion"></p-sortIcon>
+                                                        </th>
+                                                        <th style="color: white;" pSortableColumn="unme_Nombre"
+                                                            class="text-center">Unidad Medida
+                                                            <p-sortIcon field="unme_Nombre"></p-sortIcon>
+                                                        </th>
+                                                        <th style="color: white;" pSortableColumn="prov_Descripcion"
+                                                            class="text-center">Proveedor
+                                                            <p-sortIcon field="prov_Descripcion"></p-sortIcon>
+                                                        </th>
+                                                        <th style="color: white;" pSortableColumn="mate_Descripcion"
+                                                            class="text-center">Material
+                                                            <p-sortIcon field="mate_Descripcion"></p-sortIcon>
+                                                        </th>
+                                                        <th style="color: white;" pSortableColumn="cate_Descripcion"
+                                                            class="text-center">Categoría
+                                                            <p-sortIcon field="cate_Descripcion"></p-sortIcon>
+                                                        </th>
+                                                        <th style="color: white;" pSortableColumn="inpp_Preciocompra"
+                                                        class="text-center">
+                                                        Costo<p-sortIcon field="inpp_Preciocompra"></p-sortIcon>
+                                                    </th>
+                                                    </tr>
+                                                </ng-template>
+                                                <ng-template pTemplate="body" let-insumo>
+                                                    <tr>
+                                                        <td class="text-center">
+                                                            <p-checkbox [(ngModel)]="insumo.selected" [binary]="true"
+                                                                (onChange)="AddInsumo(insumo, $event)" />
+                                                        </td>
+                                                        <td style="width:30%; min-width:6rem;" class="text-center"><span
+                                                                class="p-column-title">No.</span>
+                                                            {{insumo.codigo}}
+                                                        </td>
+                                                    
+                                                        <td style="width:30%; min-width:16rem;" class="text-center">
+                                                            <span class="p-column-title">Insumo</span>
+                                                            {{insumo.insu_Descripcion}}
+                                                        </td>
+                                                        <td style="width:30%; min-width:16rem;" class="text-center">
+                                                            <span class="p-column-title">Unidad Medida</span>
+                                                            {{insumo.unme_Nombre}} ({{insumo.unme_Nomenclatura}})
+                                                        </td>
+                                                        <td style="width:30%; min-width:16rem;" class="text-center">
+                                                            <span class="p-column-title">Proveedor</span>
+                                                            {{insumo.prov_Descripcion}}
+                                                        </td>
+                                                        <td style="width:30%; min-width:10rem;" class="text-center">
+                                                            <span class="p-column-title">Material</span>
+                                                            {{insumo.mate_Descripcion}}
+                                                        </td>
+                                                        <td style="width:30%; min-width:10rem;" class="text-center">
+                                                            <span class="p-column-title">Categoría</span>
+                                                            {{insumo.cate_Descripcion}}
+                                                        </td>
+                                                        <td style="width:30%; min-width:10rem; text-align: right;"
+                                                        class="text-center">
+                                                        <span class="p-column-title">Costo</span>
+                                                        {{abreviaturaMoneda}} {{insumo.inpp_Preciocompra | number:'1.2-2'}}
+                                                    </td>
+                                                    </tr>
+                                                </ng-template>
+                                            </p-table>
+                                        </p-fieldset>
+                                        <p-fieldset *ngIf="disabledArticulos"
+                                            [legend]="fieldsetArticulo.collapsed ? 'Abrir' : 'Cerrar'"
+                                            [toggleable]="true" class="line-height-3" #fieldsetArticulo>
+                                            <p-table #dt21 scrollHeight="400px" [scrollable]="true"
+                                                responsiveLayout="scroll" [value]="insumosLlenado"
+                                                [globalFilterFields]="['codigo','insu_Descripcion ','mate_Descripcion','cate_Descripcion','unme_Nombre','unme_Nomenclatura','inpp_Preciocompra']">
+                                                <ng-template pTemplate="caption">
+                                                    <div
+                                                        class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+
+                                                        <span class="block mt-2 md:mt-0 p-input-icon-left">
+                                                            <i style="color: white;" class="pi pi-search"></i>
+                                                            <input style="color: white;" pInputText type="text"
+                                                                (input)="onGlobalFilter(dt21, $event)"
+                                                                placeholder="Buscar..." class="w-full sm:w-auto" />
+                                                        </span>
+
+                                                    </div>
+
+                                                </ng-template>
+                                                <ng-template pTemplate="emptymessage">
+                                                    <tr>
+                                                        <td colspan="100">
+                                                            <span>No existen insumos para esta actividad aún.</span>
+                                                        </td>
+                                                    </tr>
+                                                </ng-template>
+                                                <ng-template pTemplate="header">
+                                                    <tr>
+                                                        <th style="color: white;" class="text-center">Seleccione</th>
+                                                        <th style="color: white;" class="text-center">No.</th>
+                                                        <th style="color: white;" class="text-center">Descripción </th>
+                                                        <th style="color: white;" class="text-center">Unidad Medida</th>
+                                                        <th style="color: white;" class="text-center">Proveedor</th>
+                                                        <th style="color: white;" class="text-center">Rendimiento</th>
+                                                        <th style="color: white;" class="text-center">Desperdicio</th>
+                                                        <th style="color: white;" class="text-center">Cantidad</th>
+                                                        <th style="color: white;" class="text-center">Precio</th>
+                                                        <th style="color: white;" class="text-center">Costo Unitario
+                                                        </th>
+                                                    </tr>
+                                                </ng-template>
+                                                <ng-template pTemplate="body" let-insumoLLenado let-rowIndex>
+                                                    <tr>
+                                                        <td class="text-center">
+                                                            <p-checkbox [(ngModel)]="insumoLLenado.select"
+                                                                [binary]="true"
+                                                                (onChange)="AddInsumoLlenado(insumoLLenado, $event)" />
+                                                        </td>
+                                                        <td style="width:30%; min-width:10rem;" class="text-center">
+                                                            {{ insumoLLenado.codigo }}
+
+                                                        </td>
+                                                        <td style="width:30%; min-width:16rem;" class="text-center">{{
+                                                            insumoLLenado.insumo }}</td>
+                                                        <td style="width:30%; min-width:16rem;" class="text-center">
+                                                            {{insumoLLenado.unme_Nombre }}
+                                                            ({{insumoLLenado.unme_Nomenclatura}})</td>
+
+
+                                                        <td style="width:30%; min-width:16rem;" class="text-center">{{
+                                                            insumoLLenado.proveedor }}</td>
+
+                                                        <td style="width:30%; min-width:13rem;" class="text-center">
+
+                                                            {{ insumoLLenado.rendimiento }}
+
+                                                        </td>
+                                                        <td style="width:30%; min-width:13rem;" class="text-center">
+
+                                                            {{ insumoLLenado.desperdicio }}%
+
+                                                        </td>
+                                                        <td style="width:30%; min-width:13rem;" class="text-center">
+                                                            {{ insumoLLenado.cantidad | number:'1.2-2'}}
+
+                                                        </td>
+                                                        <td style="width:30%; min-width:13rem;" class="text-right">
+
+                                                            {{abreviaturaMoneda}} {{ insumoLLenado.costo | number:'1.2-2'}}
+                                                        </td>
+
+                                                        <td style="width:30%; min-width:13rem;" class="text-right">
+
+                                                            {{abreviaturaMoneda}} {{ insumoLLenado.costoUnitario | number:'1.2-2'}}
+                                                        </td>
+
+                                                    </tr>
+                                                </ng-template>
+                                            </p-table>
+                                        </p-fieldset>
+                                    </div>
+
+                                </div>
+
+                                <div class="mt-2 field col-12 md:col-12">
+                                    <h2 class="text-center">Insumos Agregados</h2>
+                                    <p-table #dt22 scrollHeight="400px" [scrollable]="true" responsiveLayout="scroll"
+                                        [value]="insumos"
+                                        [globalFilterFields]="['codigo','insumo','proveedor','costo','costoUnitario','rendimiento','desperdicio','mate_Descripcion','cate_Descripcion','unme_Nombre','unme_Nomenclatura','inpp_Preciocompra']">
+                                        <ng-template pTemplate="caption">
+                                            <div
+                                                class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+
+                                                <span class="block mt-2 md:mt-0 p-input-icon-left">
+                                                    <i style="color: white;" class="pi pi-search"></i>
+                                                    <input style="color: white;" pInputText type="text"
+                                                        (input)="onGlobalFilter(dt22, $event)" placeholder="Buscar..."
+                                                        class="w-full sm:w-auto" />
+                                                </span>
+
+                                            </div>
+
+                                        </ng-template>
+                                        <ng-template pTemplate="emptymessage">
+                                            <tr>
+                                                <td colspan="100">
+                                                    <span>No existen insumos para esta actividad aún.</span>
+                                                </td>
+                                            </tr>
+                                        </ng-template>
+                                        <ng-template pTemplate="header">
+                                            <tr>
+                                                <th *ngIf="actividadLlenado" style="color: white;" class="text-center">
+                                                    Acciones</th>
+                                                <th *ngIf="actividadLlenado" style="color: white;" class="text-center">
+                                                    Estado</th>
+                                                <th style="color: white;" class="text-center">No.</th>
+                                                <th style="color: white;" class="text-center">Descripción </th>
+                                                <th style="color: white;" class="text-center">Unidad Medida</th>
+                                                <th style="color: white;" class="text-center">Proveedor</th>
+                                                <th style="color: white;" class="text-center">Rendimiento</th>
+                                                <th style="color: white;" class="text-center">Desperdicio</th>
+                                                <th style="color: white;" class="text-center">Cantidad</th>
+                                                <th style="color: white;" class="text-center">Precio
+                                                    {{abreviaturaMoneda}}</th>
+                                                <th style="color: white;" class="text-center">Costo Unitario</th>
+                                            </tr>
+                                        </ng-template>
+                                        <ng-template pTemplate="body" let-rowData let-rowIndex="rowIndex">
+                                            <tr>
+                                                <td *ngIf="actividadLlenado" class="text-center">
+                                                    <button pButton type="button" icon="pi pi-minus"
+                                                        class="p-button mr-2"
+                                                        (click)="EliminarInsumo(rowData,rowData.codigo)"></button>
+                                                </td>
+                                                <td style="width:30%; min-width:6rem;" *ngIf="actividadLlenado"
+                                                    class="text-center">
+                                                    {{ rowData.estado}}
+
+                                                </td>
+                                                <td style="width:30%; min-width:6rem;" class="text-center">
+                                                    {{ rowData.codigo }}
+                                                </td>
+                                                <td style="width:30%; min-width:16rem;" class="text-center">{{
+                                                    rowData.insumo }}</td>
+                                                <td style="width:30%; min-width:16rem;" class="text-center">
+                                                    {{rowData.unme_Nombre }} ({{rowData.unme_Nomenclatura}})</td>
+                                                <td style="width:30%; min-width:16rem;" class="text-center">{{
+                                                    rowData.proveedor }}</td>
+                                                <td style="width:30%; min-width:13rem;" class="text-center">
+                                                    <span *ngIf="actividadLlenado" class="p-input-icon-left">
+                                                        <input style="text-align: right;" pInputText type="text"
+                                                            [(ngModel)]="rowData.rendimiento"
+                                                            (keydown)="handleFormulaInputRendimiento($event, rowData.codigo,'rendimiento')"
+                                                            id="rendimiento{{rowData.codigo}}"
+                                                            (click)="onCtrlClickRendimiento($event, rowData.codigo,'rendimiento')"
+                                                            (ngModelChange)="onInsumoChange(rowData,'rendimiento')"
+                                                            (blur)="onBlurInsumos(rowIndex,rowData)">
+                                                        <i *ngIf="rowData.rendimientoFormula"
+                                                            class="pi pi-exclamation-circle" pTooltip="1. Con las teclas 'Ctrl + Espacio' recupera la fórmula.
+                                                                    2. Con las teclas 'Ctrl + Click' puede tomar valores solo si se esta haciendo una fórmula
+                                                                    " tooltipPosition="top"></i>
+                                                    </span>
+
+                                                    <span *ngIf="!actividadLlenado">{{rowData.rendimiento}}</span>
+
+                                                </td>
+                                                <td class="text-center">
+                                                    <p-inputGroup style="width: 80px;" *ngIf="actividadLlenado">
+                                                        <input type="text" pInputText maxlength="3"
+                                                            [(ngModel)]="rowData.desperdicio"
+                                                            (keypress)="validateNumberInput($event, rowData)"
+                                                            (ngModelChange)="onInsumoChange(rowData,'desperdicio')"
+                                                            (blur)="onBlurInsumos(rowIndex,rowData)"
+                                                            style="width: 100%; text-align: right;" />
+                                                        <button pButton icon="pi pi-percentage"
+                                                            style="box-shadow: none !important; width: 70px;"></button>
+                                                    </p-inputGroup>
+
+                                                    <span *ngIf="!actividadLlenado">{{rowData.desperdicio}}</span>
+
+                                                </td>
+                                                <td style="width:30%; min-width:13rem;" class="text-center">
+                                                    <span *ngIf="actividadLlenado" class="p-input-icon-left">
+                                                        <input style="text-align: right;" pInputText type="text"
+                                                            [(ngModel)]="rowData.cantidad"
+                                                            (keydown)="handleFormulaInputRendimiento($event, rowData.codigo,'cantidad')"
+                                                            (blur)="onBlurInsumos(rowIndex,rowData)"
+                                                            (click)="onCtrlClickRendimiento($event, rowData.codigo,'cantidad')"
+                                                            id="cantidad{{rowData.codigo}}"
+                                                            (ngModelChange)="onInsumoChange(rowData,'cantidad')">
+
+                                                        <i *ngIf="rowData.cantidadFormula"
+                                                            class="pi pi-exclamation-circle" pTooltip="1. Con las teclas 'Ctrl + Espacio' recupera la fórmula.
+                                                           2. Con las teclas 'Ctrl + Click' puede tomar valores solo si se esta haciendo una fórmula
+                                                           " tooltipPosition="top"></i>
+                                                    </span>
+
+                                                    <span *ngIf="!actividadLlenado">{{rowData.cantidad}}</span>
+
+                                                </td>
+                                                <td style="width:30%; min-width:13rem;" class="text-center">
+                                                    <span *ngIf="actividadLlenado" class="p-input-icon-left">
+                                                        <input style="text-align: right;" pInputText type="text"
+                                                            [(ngModel)]="rowData.costo"
+                                                            (keydown)="handleFormulaInputRendimiento($event, rowData.codigo,'costo')"
+                                                            (blur)="onBlurInsumos(rowIndex,rowData)"
+                                                            (click)="onCtrlClickRendimiento($event, rowData.codigo,'costo')"
+                                                            id="costo{{rowData.codigo}}"
+                                                            (ngModelChange)="onInsumoChange(rowData,'costo')">
+
+                                                        <i *ngIf="rowData.costoFormula" class="pi pi-exclamation-circle"
+                                                            pTooltip="1. Con las teclas 'Ctrl + Espacio' recupera la fórmula.
+                                                            2. Con las teclas 'Ctrl + Click' puede tomar valores solo si se esta haciendo una fórmula
+                                                            " tooltipPosition="top"></i>
+                                                    </span>
+
+                                                    <span *ngIf="!actividadLlenado">{{rowData.costo}}</span>
+
+                                                </td>
+                                                <td style="width:30%; min-width:10rem;" class="text-center">
+                                                    <span>{{abreviaturaMoneda}} {{rowData.costoUnitario |
+                                                        number:'1.2-2'}}</span>
+                                                </td>
+
+                                            </tr>
+                                        </ng-template>
+                                    </p-table>
+                                    <div
+                                        class="flex flex-column md:flex-row md:align-items-end md:justify-content-end mt-3">
+                                        <div class="font-semibold mb-3 md:mb-0"></div>
+                                        <div class="flex flex-column">
+                                            <div class="flex justify-content-between align-items-center mb-2 ">
+                                                <span class="font-semibold mr-6 text-primary">MATERIALES</span>
+                                                <span>{{abreviaturaMoneda}} {{materialInsumo | number:'1.2-2'}}</span>
+                                            </div>
+                                            <div class="flex justify-content-between align-items-center mb-2 ">
+                                                <span class="font-semibold mr-6 text-primary">MAQUINARIAS</span>
+                                                <span>{{abreviaturaMoneda}} {{maquinariaInsumo | number:'1.2-2'}}</span>
+                                            </div>
+
+                                            <div class="flex justify-content-between align-items-center mb-2 ">
+                                                <span class="font-semibold  text-primary">SUBTOTAL</span>
+                                                <span>{{abreviaturaMoneda}} {{subtotalInsumo | number: '1.2-2'}}</span>
+                                            </div>
+                                            <div class="flex justify-content-between align-items-center mb-2 ">
+                                                <span class="font-semibold  text-primary">TOTAL</span>
+                                                <span>{{abreviaturaMoneda}} {{totalActividad | number: '1.2-2'}}</span>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+
+                            </div>
+                            <div class="col-12">
+                                <div style="display: flex; justify-content: end !important;">
+                                    <!-- Botones de Guardar e Imprimir, alineados a la derecha -->
+                                    <button class="btn btn-guardar" (click)="GuardarInsumos()" pButton pRipple
+                                        type="button" label="Guardar" icon="pi pi-save">
+                                    </button>
+                                    <button (click)="printInsumos('Insumo')" class="p-button-secondary ml-2" pButton
+                                        pRipple type="button" label="Imprimir" icon="pi pi-print">
+                                    </button>
+                                    <button class="p-button-secondary ml-2"
+                                        (click)="Create = true; agregarInsumos = false; proyectoInsumo = ''; actualizarMaterial = false"
+                                        pButton pRipple type="button" label="Cancelar" icon="pi pi-times">
+                                    </button>
+                                    <!-- -->
+                                </div>
+                            </div>
+                        </div>
+                    </p-tabPanel>
+                    <p-tabPanel header="Maquinarias" *ngIf="maquinariaCalculo">
+                        <div class="mt-2 grid">
+                            <div class="grid col-12 p-fluid p-formgrid">
+                                <div *ngIf="actividadLlenado" class="field col-12 md:col-12">
+                                    <h2 class="text-center">Maquinarias</h2>
+                                    <div class="fieldset-wrapper">
+                                        <p-fieldset *ngIf="!disabledArticulos"
+                                            [legend]="fieldsetMaquinaria.collapsed ? 'Abrir' : 'Cerrar'"
+                                            [toggleable]="true" class="line-height-3" #fieldsetMaquinaria>
+                                            <p-table #tbMaquinariaOptions [value]="maquinariaOptions"
+                                                scrollHeight="400px" [scrollable]="true" responsiveLayout="scroll"
+                                                [globalFilterFields]="['codigo','maqu_Descripcion','prov_Descripcion','nive_Descripcion','mapr_PrecioCompra','renta','mapr_DiaHora']">
+                                                <ng-template pTemplate="caption">
+                                                    <div
+                                                        class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+
+                                                        <span class="block mt-2 md:mt-0 p-input-icon-left">
+                                                            <i style="color: white;" class="pi pi-search"></i>
+                                                            <input style="color: white;" pInputText type="text"
+                                                                (input)="onGlobalFilterPrueba(tbMaquinariaOptions, $event)"
+                                                                placeholder="Buscar..." class="w-full sm:w-auto" />
+                                                        </span>
+
+                                                    </div>
+
+                                                </ng-template>
+                                                <ng-template pTemplate="emptymessage">
+                                                    <tr>
+                                                        <td colspan="100">
+                                                            <span>No existen maquinarias para este proveedor aún.</span>
+                                                        </td>
+                                                    </tr>
+                                                </ng-template>
+                                                <ng-template pTemplate="header">
+                                                    <tr>
+                                                        <th style="color: white;" class="text-center">
+                                                            Seleccione</th>
+                                                        <th style="color: white;" pSortableColumn="codigo"
+                                                            class="text-center">
+                                                            No.<p-sortIcon field="codigo"></p-sortIcon></th>
+                                                            <th style="color: white;" pSortableColumn="maqu_Descripcion"
+                                                            class="text-center">Maquinaria
+                                                            <p-sortIcon field="maqu_Descripcion"></p-sortIcon>
+                                                        </th>
+                                                       
+                                                        <th style="color: white;" pSortableColumn="mapr_DiaHora"
+                                                            class="text-center">Tipo Renta
+                                                            <p-sortIcon field="mapr_DiaHora"></p-sortIcon>
+                                                        </th>
+                                                        
+                                                        <th style="color: white;" pSortableColumn="nive_Descripcion"
+                                                            class="text-center">Nivel
+                                                            <p-sortIcon field="nive_Descripcion"></p-sortIcon>
+                                                        </th>
+                                                        <th style="color: white;" pSortableColumn="prov_Descripcion"
+                                                            class="text-center">Proveedor
+                                                            <p-sortIcon field="prov_Descripcion"></p-sortIcon>
+                                                        </th>
+                                                        <th style="color: white;" pSortableColumn="mapr_PrecioCompra"
+                                                        class="text-center">
+                                                        Costo<p-sortIcon field="mapr_PrecioCompra"></p-sortIcon>
+                                                    </th>
+                                                    </tr>
+                                                </ng-template>
+                                                <ng-template pTemplate="body" let-maquinaria>
+                                                    <tr>
+                                                        <td class="text-center">
+                                                            <p-checkbox [(ngModel)]="maquinaria.selected"
+                                                                [binary]="true"
+                                                                (onChange)="AddMaquinaria(maquinaria, $event)" />
+                                                        </td>
+                                                        <td style="width:30%; min-width:6rem;" class="text-center"><span
+                                                                class="p-column-title">No.</span>
+                                                            {{maquinaria.codigo}}
+                                                        </td>
+
+                                                        <td style="width:30%; min-width:16rem;" class="text-center">
+                                                            <span class="p-column-title">Maquinaria</span>
+                                                            {{maquinaria.maqu_Descripcion}}
+                                                        </td>
+                                                        <td style="width:30%; min-width:16rem;" class="text-center">
+                                                            <span class="p-column-title">Renta</span>
+                                                            {{maquinaria.mapr_DiaHora === 0 ? 'Horas' :
+                                                            maquinaria.mapr_DiaHora === 1 ? 'Días' : 'Viajes' }}
+                                                        </td>
+                                                       
+                                                        <td style="width:30%; min-width:16rem;" class="text-center">
+                                                            <span class="p-column-title">Nivel</span>
+                                                            {{maquinaria.nive_Descripcion}}
+                                                        </td>
+                                                        <td style="width:30%; min-width:16rem;" class="text-center">
+                                                            <span class="p-column-title">Proveedor</span>
+                                                            {{maquinaria.prov_Descripcion}}
+                                                        </td>
+                                                        <td style="width:30%; min-width:10rem; text-align: right;"
+                                                        class="text-right">
+                                                        <span class="p-column-title">Costo</span>
+                                                        {{abreviaturaMoneda}} {{ maquinaria.mapr_PrecioCompra |
+                                                        number: '1.2-2'}}
+                                                    </td>
+                                                    </tr>
+                                                </ng-template>
+                                            </p-table>
+                                        </p-fieldset>
+
+                                        <p-fieldset *ngIf="disabledArticulos"
+                                            [legend]="fieldsetMaquinariaLlenado.collapsed ? 'Abrir' : 'Cerrar'"
+                                            [toggleable]="true" class="line-height-3" #fieldsetMaquinariaLlenado>
+                                            <p-table #dt11 scrollHeight="400px" [scrollable]="true"
+                                                [globalFilterFields]="['codigo','maqu_Descripcion','rmac_CantidadMaquinas','rmac_CantidadRenta','prov_Descripcion','nive_Descripcion','rmac_PrecioRenta','renta','mapr_DiaHora']"
+                                                responsiveLayout="scroll" [value]="maquinariasAgregadasLlenado">
+                                                <ng-template pTemplate="caption">
+                                                    <div
+                                                        class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+                                                        <span class="block mt-2 md:mt-0 p-input-icon-left">
+                                                            <i style="color: white;" class="pi pi-search"></i>
+                                                            <input style="color: white;" pInputText type="text"
+                                                                (input)="onGlobalFilter(dt11, $event)"
+                                                                placeholder="Buscar..." class="w-full sm:w-auto" />
+                                                        </span>
+                                                    </div>
+                                                </ng-template>
+                                                <ng-template pTemplate="emptymessage">
+                                                    <tr>
+                                                        <td colspan="100">
+                                                            <span>No existen maquinarias para esta actividad aún.</span>
+                                                        </td>
+                                                    </tr>
+                                                </ng-template>
+                                                <ng-template pTemplate="header">
+                                                    <tr>
+                                                        <th style="color: white;" class="text-center">Seleccione</th>
+                                                        <th style="color: white;" class="text-center">No.</th>
+                                                        <th style="color: white;" class="text-center">Maquinaria</th>
+                                                        <th style="color: white;" emptymeclass="text-center">Tipo Renta
+                                                        </th>
+                                                        <th style="color: white;" class="text-center">Nivel</th>
+                                                        <th style="color: white;" class="text-center">Proveedor</th>
+                                                        <th style="color: white;" class="text-center">Cantidad Renta
+                                                        </th>
+                                                        <th style="color: white;" class="text-center">Cantidad
+                                                            Maquinaria</th>
+                                                        <th style="color: white;" class="text-center">Costo</th>
+                                                    </tr>
+                                                </ng-template>
+                                                <ng-template pTemplate="body" let-maquiLlenado let-rowIndex>
+                                                    <tr>
+                                                        <td class="text-center">
+                                                            <p-checkbox [(ngModel)]="maquiLlenado.select"
+                                                                [binary]="true"
+                                                                (onChange)="AddMaquinariaLlenado(maquiLlenado, $event)" />
+                                                        </td>
+                                                        <td style="width:30%; min-width:10rem;" class="text-center">
+                                                            {{ maquiLlenado.codigo }}
+                                                        </td>
+                                                        <td style="width:30%; min-width:16rem;" class="text-center">{{
+                                                            maquiLlenado.maqu_Descripcion }}</td>
+                                                        <td style="width:30%; min-width:10rem;" class="text-center">{{
+                                                            maquiLlenado.renta }}</td>
+                                                        
+
+                                                        <td style="width:30%; min-width:10rem;" class="text-center">{{
+                                                            maquiLlenado.nive_Descripcion }}</td>
+                                                        <td style="width:30%; min-width:16rem;" class="text-center">{{
+                                                            maquiLlenado.prov_Descripcion }}</td>
+                                                        <td style="width:30%; min-width:13rem;" class="text-center">
+                                                            <span>{{maquiLlenado.rmac_CantidadRenta | number:'1.2-2'}}</span>
+                                                        </td>
+                                                        <td style="width:30%; min-width:13rem;" class="text-center">
+                                                            <span>{{maquiLlenado.rmac_CantidadMaquinas | number:'1.2-2'}}</span>
+                                                        </td>
+                                                        <td style="width:30%; min-width:13rem;" class="text-right">
+                                                            <span>{{abreviaturaMoneda}}
+                                                                {{maquiLlenado.rmac_PrecioRenta | number:'1.2-2'}}</span>
+
+                                                        </td>
+                                                    </tr>
+                                                </ng-template>
+                                            </p-table>
+                                        </p-fieldset>
+                                    </div>
+
+                                </div>
+
+                                <div class="mt-2 field col-12 md:col-12">
+                                    <h2 class="text-center">Maquinarias Agregadas</h2>
+                                    <p-table #dt10 scrollHeight="400px" [scrollable]="true" responsiveLayout="scroll"
+                                        [value]="maquinariasAgregadas"
+                                        [globalFilterFields]="['codigo','estado','subtotal','rmac_CantidadRenta','rmac_CantidadMaquinas','maqu_Descripcion','prov_Descripcion','nive_Descripcion','rmac_PrecioRenta','renta','mapr_DiaHora']">
+                                        <ng-template pTemplate="caption">
+                                            <div
+                                                class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+
+                                                <span class="block mt-2 md:mt-0 p-input-icon-left">
+                                                    <i style="color: white;" class="pi pi-search"></i>
+                                                    <input style="color: white;" pInputText type="text"
+                                                        (input)="onGlobalFilter(dt10, $event)" placeholder="Buscar..."
+                                                        class="w-full sm:w-auto" />
+                                                </span>
+
+                                            </div>
+
+                                        </ng-template>
+                                        <ng-template pTemplate="emptymessage">
+                                            <tr>
+                                                <td colspan="100">
+                                                    <span>No existen maquinarias para esta actividad aún.</span>
+                                                </td>
+                                            </tr>
+                                        </ng-template>
+                                        <ng-template pTemplate="header">
+                                            <tr>
+                                                <th *ngIf="actividadLlenado" style="color: white;" class="text-center">
+                                                    Acciones</th>
+                                                <th *ngIf="actividadLlenado" style="color: white;" class="text-center">
+                                                    Estado</th>
+                                                <th style="color: white;" class="text-center">No.</th>
+                                                <th style="color: white;" class="text-center">Descripción</th>
+                                                <th style="color: white;" class="text-center">Tipo Renta</th>
+                                                <th style="color: white;" class="text-center">Nivel</th>
+                                                <th style="color: white;" class="text-center">Proveedor</th>
+                                                <th style="color: white;" class="text-center">Cantidad Renta</th>
+                                                <th style="color: white;" class="text-center">Cantidad Maquinaria</th>
+                                                <th style="color: white;" class="text-center">Costo</th>
+                                                <th style="color: white;" class="text-center">Subtotal</th>
+
+                                            </tr>
+                                        </ng-template>
+                                        <ng-template pTemplate="body" let-rowData let-rowIndex>
+                                            <tr>
+                                                <td *ngIf="actividadLlenado" class="text-center">
+                                                    <button pButton type="button" icon="pi pi-minus"
+                                                        class="p-button mr-2"
+                                                        (click)="EliminarMaquinaria(rowData,rowData.codigo)"></button>
+                                                </td>
+                                                <td style="width:30%; min-width:6rem;" *ngIf="actividadLlenado"
+                                                    class="text-center">
+                                                    {{ rowData.estado}}
+
+                                                </td>
+                                                <td style="width:30%; min-width:6rem;" class="text-center">
+                                                    {{ rowData.codigo }}
+
+                                                </td>
+                                                <td style="width:30%; min-width:16rem;" class="text-center">{{
+                                                    rowData.maqu_Descripcion }}</td>
+                                                <td style="width:30%; min-width:10rem;" class="text-center">{{
+                                                    rowData.renta }}</td>
+                                                <td style="width:30%; min-width:10rem;" class="text-center">{{
+                                                    rowData.nive_Descripcion }}</td>
+                                                <td style="width:30%; min-width:16rem;" class="text-center">{{
+                                                    rowData.prov_Descripcion }}</td>
+                                                <td style="width:30%; min-width:13rem;" class="text-center">
+                                                    <span *ngIf="actividadLlenado" class="p-input-icon-left">
+
+                                                        <input style="text-align: right;" pInputText type="text"
+                                                            [(ngModel)]="rowData.rmac_CantidadRenta"
+                                                            (keydown)="handleFormulaInputMaquinaria($event, rowData.codigo,'rmac_CantidadRenta')"
+                                                            (blur)="onBlurMaquinaria(rowIndex,rowData)"
+                                                            (click)="onCtrlClickMaquinaria($event, rowData.codigo,'rmac_CantidadRenta')"
+                                                            (ngModelChange)="onMaquinariaChange(rowData,'rmac_CantidadRenta')"
+                                                            id="rmac_CantidadRenta{{rowData.codigo}}">
+
+                                                        <i *ngIf="rowData.rmac_CantidadRentaFormula"
+                                                            class="pi pi-exclamation-circle" pTooltip="1. Con las teclas 'Ctrl + Espacio' recupera la fórmula.
+                                                      2. Con las teclas 'Ctrl + Click' puede tomar valores solo si se esta haciendo una fórmula
+                                                      " tooltipPosition="top"></i>
+                                                    </span>
+
+                                                    <span *ngIf="!actividadLlenado">{{rowData.rmac_PrecioRenta}}</span>
+                                                </td>
+                                                <td style="width:30%; min-width:13rem;" class="text-center">
+                                                    <span *ngIf="actividadLlenado" class="p-input-icon-left">
+
+                                                        <input style="text-align: right;" pInputText type="text"
+                                                            [(ngModel)]="rowData.rmac_CantidadMaquinas"
+                                                            (blur)="onBlurMaquinaria(rowIndex,rowData)"
+                                                            (keydown)="handleFormulaInputMaquinaria($event, rowData.codigo,'rmac_CantidadMaquinas')"
+                                                            (ngModelChange)="onMaquinariaChange(rowData,'rmac_CantidadMaquinas')"
+                                                            (click)="onCtrlClickMaquinaria($event, rowData.codigo,'rmac_CantidadMaquinas')"
+                                                            id="rmac_CantidadMaquinas{{rowData.codigo}}">
+
+                                                        <i *ngIf="rowData.rmac_CantidadMaquinasFormula"
+                                                            class="pi pi-exclamation-circle" pTooltip="1. Con las teclas 'Ctrl + Espacio' recupera la fórmula.
+                                                        2. Con las teclas 'Ctrl + Click' puede tomar valores solo si se esta haciendo una fórmula
+                                                        " tooltipPosition="top"></i>
+                                                    </span>
+
+                                                    <span *ngIf="!actividadLlenado">{{rowData.rmac_PrecioRenta}}</span>
+                                                </td>
+                                                <td style="width:30%; min-width:13rem;" class="text-center">
+                                                    <span *ngIf="actividadLlenado" class="p-input-icon-left">
+
+                                                        <input style="text-align: right;" pInputText type="text"
+                                                            [(ngModel)]="rowData.rmac_PrecioRenta"
+                                                            (blur)="onBlurMaquinaria(rowIndex,rowData)"
+                                                            (keydown)="handleFormulaInputMaquinaria($event, rowData.codigo,'rmac_PrecioRenta')"
+                                                            (ngModelChange)="onMaquinariaChange(rowData,'rmac_PrecioRenta')"
+                                                            (click)="onCtrlClickMaquinaria($event, rowData.codigo,'rmac_PrecioRenta')"
+                                                            id="rmac_PrecioRenta{{rowData.codigo}}">
+
+                                                        <i *ngIf="rowData.rmac_PrecioRentaFormula"
+                                                            class="pi pi-exclamation-circle" pTooltip="1. Con las teclas 'Ctrl + Espacio' recupera la fórmula.
+                                                        2. Con las teclas 'Ctrl + Click' puede tomar valores solo si se esta haciendo una fórmula
+                                                        " tooltipPosition="top"></i>
+                                                    </span>
+
+                                                    <span *ngIf="!actividadLlenado">{{abreviaturaMoneda}}
+                                                        {{rowData.rmac_PrecioRenta | number:'1.2-2'}}</span>
+                                                </td>
+                                                <td style="width:30%; min-width:13rem;" class="text-right">
+                                                    <span>{{abreviaturaMoneda}} {{ rowData.subtotal |
+                                                        number:'1.2-2'}}</span>
+
+                                                </td>
+                                            </tr>
+                                        </ng-template>
+                                    </p-table>
+                                    <div
+                                        class="flex flex-column md:flex-row md:align-items-end md:justify-content-end mt-3">
+                                        <div class="font-semibold mb-3 md:mb-0"></div>
+                                        <div class="flex flex-column">
+                                            <div class="flex justify-content-between align-items-center mb-2 ">
+                                                <span class="font-semibold mr-6 text-primary">MATERIALES</span>
+                                                <span>{{abreviaturaMoneda}} {{materialInsumo | number:'1.2-2'}}</span>
+                                            </div>
+                                            <div class="flex justify-content-between align-items-center mb-2 ">
+                                                <span class="font-semibold mr-6 text-primary">MAQUINARIAS</span>
+                                                <span>{{abreviaturaMoneda}} {{maquinariaInsumo | number:'1.2-2'}}</span>
+                                            </div>
+
+                                            <div class="flex justify-content-between align-items-center mb-2 ">
+                                                <span class="font-semibold  text-primary">SUBTOTAL</span>
+                                                <span>{{abreviaturaMoneda}} {{subtotalInsumo | number: '1.2-2'}}</span>
+                                            </div>
+                                            <div class="flex justify-content-between align-items-center mb-2 ">
+                                                <span class="font-semibold  text-primary">TOTAL</span>
+                                                <span>{{abreviaturaMoneda}} {{totalActividad | number: '1.2-2'}}</span>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div style="display: flex; justify-content: end !important;">
+                                    <!-- Botones de Guardar e Imprimir, alineados a la derecha -->
+                                    <button class="btn btn-guardar" (click)="GuardarMaquinarias()" pButton pRipple
+                                        type="button" label="Guardar" icon="pi pi-save">
+                                    </button>
+                                    <button (click)="printInsumos('Maquinaria')" class="p-button-secondary ml-2" pButton
+                                        pRipple type="button" label="Imprimir" icon="pi pi-print">
+                                    </button>
+                                    <button class="p-button-secondary ml-2"
+                                        (click)="Create = true; agregarInsumos = false; proyectoInsumo = ''; actualizarMaquinaria = false;"
+                                        pButton pRipple type="button" label="Cancelar" icon="pi pi-times">
+                                    </button>
+                                    <!-- -->
+                                </div>
+                            </div>
+
+                        </div>
+                    </p-tabPanel>
+                </p-tabView>
+
+            </div>
+        </div>
+        <div class="col-12">
+
+        </div>
+
+    </div>
+</div>
+
+
+<div *ngIf="proyectoNoExiste">
+    <div class="grid">
+        <div class="col-12">
+            <div class="card px-6 py-6">
+                <div [style]="{width: '100%'}" class="p-fluid">
+                    <div class="flex align-items-center mb-4">
+                        <h1 class="w-full text-center">
+                            Nuevo Proyecto
+                        </h1>
+                    </div>
+                    <div>
+                        <!-- Formulario -->
+                        <div class="flex flex-row align-items-center flex-wrap" style="gap: 15px;">
+                            <!-- Campos -->
+                            <div class="field" [style]="{width: '49%'}">
+                                <label for="proy_TipoDescripcion">Tipo de Proyecto
+                                    <small class="ng-dirty ng-invalid"
+                                        *ngIf="submitted2 && !proyecto.tipr_Descripcion">*</small>
+                                </label>
+                                <p-autoComplete [(ngModel)]="proyecto.tipr_Descripcion"
+                                    [suggestions]="filteredTiposProyecto" (completeMethod)="filterTipoProyecto($event)"
+                                    [dropdown]="true" (input)="allowOnlyAlphanumeric($event)"
+                                    (keydown)="ValidarTextoNumeros($event)" (ngModelChange)="detectTipoProyecto()"
+                                    [ngClass]="{'ng-dirty ng-invalid' : submitted2 && (!proyecto.tipr_Descripcion || isOptionTipoProyectoNotFound) }">
+                                </p-autoComplete>
+                                <small class="ng-dirty ng-invalid" *ngIf="submitted2 && !proyecto.tipr_Descripcion">El
+                                    campo es requerido.</small>
+                                <small class="ng-dirty ng-invalid"
+                                    *ngIf="submitted2 && isOptionTipoProyectoNotFound && proyecto.tipr_Descripcion">Opción
+                                    no encontrada.</small>
+                            </div>
+                            <div class="field" [style]="{width: '49%'}">
+                                <label for="proy_Nombre">Nombre del proyecto
+                                    <small class="ng-dirty ng-invalid"
+                                        *ngIf="submitted2 && !proyecto.proy_Nombre">*</small>
+                                </label>
+                                <input type="text" pInputText id="proy_Nombre" [(ngModel)]="proyecto.proy_Nombre"
+                                    autofocus [ngClass]="{'ng-invalid ng-dirty' : submitted2 && !proyecto.proy_Nombre}"
+                                    (input)="allowOnlyAlphanumeric($event)" (keydown)="ValidarTextoNumeros($event)" />
+                                <small class="ng-dirty ng-invalid" *ngIf="submitted2 && !proyecto.proy_Nombre">El campo
+                                    es requerido.</small>
+                            </div>
+                            <div class="field" [style]="{width: '49%'}">
+                                <label for="proy_Descripcion">Descripción del proyecto
+                                    <small class="ng-dirty ng-invalid"
+                                        *ngIf="submitted2 && !proyecto.proy_Descripcion">*</small>
+                                </label>
+                                <textarea rows="2" cols="10" pInputTextarea [autoResize]="true" id="proy_Descripcion"
+                                    [(ngModel)]="proyecto.proy_Descripcion" autofocus
+                                    [ngClass]="{'ng-invalid ng-dirty' : submitted2 && !proyecto.proy_Descripcion}"></textarea>
+                                <small class="ng-dirty ng-invalid" *ngIf="submitted2 && !proyecto.proy_Descripcion">El
+                                    campo es requerido.</small>
+                            </div>
+
+                            <!-- Fechas -->
+                            <div class="field" [style]="{width: '49%'}">
+                                <label for="proy_FechaInicio">Fecha de Inicio
+                                    <small class="ng-dirty ng-invalid"
+                                        *ngIf="submitted2 && !proyecto.proy_FechaInicio">*</small>
+                                </label>
+                                <p-calendar [showIcon]="true" [minDate]="defaultDatabaseDate" dateFormat="dd/mm/yy"
+                                    id="proy_FechaInicio" [(ngModel)]="proyecto.proy_FechaInicio" autofocus
+                                    [ngClass]="{'ng-invalid ng-dirty' : submitted2 && !proyecto.proy_FechaInicio}"></p-calendar>
+                                <small class="ng-dirty ng-invalid" *ngIf="submitted2 && !proyecto.proy_FechaInicio">El
+                                    campo es requerido.</small>
+                            </div>
+                            <div class="field" [style]="{width: '49%'}">
+                                <label for="proy_FechaFin">Fecha de Finalización
+                                    <small class="ng-dirty ng-invalid"
+                                        *ngIf="submitted2 && !proyecto.proy_FechaFin">*</small>
+                                </label>
+                                <p-calendar [showIcon]="true"
+                                    [minDate]="proyecto.proy_FechaInicio || defaultDatabaseDate" dateFormat="dd/mm/yy"
+                                    id="proy_FechaFin" [(ngModel)]="proyecto.proy_FechaFin" autofocus
+                                    [ngClass]="{'ng-invalid ng-dirty' : submitted2 && !proyecto.proy_FechaFin}"></p-calendar>
+                                <small class="ng-dirty ng-invalid" *ngIf="submitted2 && !proyecto.proy_FechaFin">El
+                                    campo es requerido.</small>
+                            </div>
+                            <div class="field" [style]="{width: '49%'}">
+                                <label for="clie_NombreCompleto">Cliente
+                                    <small class="ng-dirty ng-invalid"
+                                        *ngIf="submitted2 && !proyecto.clie_NombreCompleto">*</small>
+                                </label>
+                                <p-autoComplete [(ngModel)]="proyecto.clie_NombreCompleto"
+                                    [suggestions]="filteredClientes" (completeMethod)="filterClientes($event)" field=""
+                                    [dropdown]="true"
+                                    [ngClass]="{'ng-invalid ng-dirty' : submitted2 && (!proyecto.clie_NombreCompleto || isOptionClienteNotFound) }"
+                                    (ngModelChange)="detectCliente()" (input)="allowOnlyAlphanumeric($event)"
+                                    (keydown)="ValidarTextoNumeros($event)">
+                                </p-autoComplete>
+                                <small class="ng-dirty ng-invalid"
+                                    *ngIf="submitted2 && !proyecto.clie_NombreCompleto">El campo es requerido.</small>
+                                <small class="ng-dirty ng-invalid"
+                                    *ngIf="submitted2 && isOptionClienteNotFound && proyecto.clie_NombreCompleto">Opción
+                                    no encontrada.</small>
+                            </div>
+                            <div class="field" [style]="{width: '49%'}">
+                                <label for="esta_Nombre">Departamento o Estado
+                                    <small class="ng-dirty ng-invalid"
+                                        *ngIf="submitted2 && !proyecto.esta_Nombre">*</small>
+                                </label>
+                                <p-autoComplete [(ngModel)]="proyecto.esta_Nombre" [suggestions]="filteredEstados"
+                                    (completeMethod)="filterEstados($event)" [dropdown]="true"
+                                    (ngModelChange)="filtrarCiudades()" (input)="allowOnlyAlphanumeric($event)"
+                                    (keydown)="ValidarTextoNumeros($event)"
+                                    [ngClass]="{'ng-invalid ng-dirty' : submitted2 && (!proyecto.esta_Nombre || isOptionEstadoNotFound) }">
+                                </p-autoComplete>
+                                <small class="ng-dirty ng-invalid" *ngIf="submitted2 && !proyecto.esta_Nombre">El campo
+                                    es requerido.</small>
+                                <small class="ng-dirty ng-invalid"
+                                    *ngIf="submitted2 && isOptionEstadoNotFound && proyecto.esta_Nombre">Opción no
+                                    encontrada.</small>
+                            </div>
+                            <div class="field" [style]="{width: '49%'}">
+                                <label for="ciud_Descripcion">Ciudad o Municipio
+                                    <small class="ng-dirty ng-invalid"
+                                        *ngIf="submitted2 && !proyecto.ciud_Descripcion">*</small>
+                                </label>
+                                <p-autoComplete [(ngModel)]="proyecto.ciud_Descripcion" [suggestions]="filteredCiudades"
+                                    (completeMethod)="filterCiudades($event)" field="" [dropdown]="true"
+                                    (input)="allowOnlyAlphanumeric($event)" (keydown)="ValidarTextoNumeros($event)"
+                                    (ngModelChange)="detectCiudad()"
+                                    [ngClass]="{'ng-invalid ng-dirty' : submitted2 && (!proyecto.ciud_Descripcion || isOptionCiudadNotFound)}">
+                                </p-autoComplete>
+                                <small class="ng-dirty ng-invalid" *ngIf="submitted2 && !proyecto.ciud_Descripcion">El
+                                    campo es requerido.</small>
+                                <small class="ng-dirty ng-invalid"
+                                    *ngIf="submitted2 && isOptionCiudadNotFound && proyecto.ciud_Descripcion">Opción no
+                                    encontrada.</small>
+                            </div>
+                            <div class="field" [style]="{width: '100%'}">
+                                <label>Dirección exacta del proyecto
+                                    <small class="ng-dirty ng-invalid"
+                                        *ngIf="submitted2 && !proyecto.proy_DireccionExacta">*</small>
+                                </label>
+                                <textarea [(ngModel)]="proyecto.proy_DireccionExacta" rows="5" cols="30" pInputTextarea [autoResize]="true"
+                                    [ngClass]="{'ng-invalid ng-dirty' : submitted2 && !proyecto.proy_DireccionExacta}"></textarea>
+                                <small class="ng-dirty ng-invalid"
+                                    *ngIf="submitted2 && !proyecto.proy_DireccionExacta">El campo es requerido.</small>
+                            </div>
+                        </div>
+                        <!-- Botones -->
+                        <div class="flex justify-content-end mb-4">
+                            <div class="flex flex-row" style="gap: 10px;">
+                                <button #guardarButton (click)="guardarDatosGenerales()" pButton pRipple type="button"
+                                    label="Guardar" icon="pi pi-save"></button>
+                                <button (click)="cerrar()" class="p-button-secondary" pButton pRipple type="button"
+                                    label="Cancelar" icon="pi pi-times"></button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="grid" *ngIf="Detail">
+    <div class="col-12">
+        <div class="card">
+            <div class="d-flex justify-content-start align-items-center mb-4 mt-2">
+                <!-- Contenedor del Botón Regresar -->
+                <div style="margin-bottom: -39px;">
+                    <button (click)="cerrarFormulario()" pButton pRipple type="button" class="p-button-link"
+                        label="Regresar" icon="pi pi-arrow-left"></button>
+                </div>
+                <!-- Contenedor del Título -->
+                <div class="mx-auto" style="    margin-left: 16px;">
+                    <h1 class="text-center mt-2">{{ Titulo }}</h1>
+                </div>
+            </div>
+            <hr>
+            <div class="p-fluid p-formgrid grid">
+                <div class="field col-12 md:col-4 " style="position: relative; height: 10%;">
+                    <div class="field rows">
+                        <label for="Codigo" style="font-weight: 800;">No:</label>
+                    </div>
+                    <div class="field rows">
+                        <label for="Codigo">{{ detalle_pren_Id }}</label>
+                    </div>
+                </div>
+                <div class="field col-12 md:col-4" style="position: relative;">
+                    <div class="field rows">
+                        <label for="Municipio" style="font-weight: 800;">Título:</label>
+                    </div>
+                    <div class="field rows">
+                        <label for="Municipio">{{ detalle_pren_Titulo }}</label>
+                    </div>
+                </div>
+                <div class="field col-12 md:col-4 " style="position: relative; height: 10%;">
+                    <div class="field rows">
+                        <label for="Codigo" style="font-weight: 800;">Descripción:</label>
+                    </div>
+                    <div class="field rows">
+                        <label for="Codigo">{{ detalle_pren_Descripcion }}</label>
+                    </div>
+                </div>
+                <div class="field col-12 md:col-4 " style="position: relative; height: 10%;">
+                    <div class="field rows">
+                        <label for="Codigo" style="font-weight: 800;">Fecha:</label>
+                    </div>
+                    <div class="field rows">
+                        <label for="Codigo">{{ detalle_pren_Fecha }}</label>
+                    </div>
+                </div>
+                <div class="field col-12 md:col-4 " style="position: relative; height: 10%;">
+                    <div class="field rows">
+                        <label for="Codigo" style="font-weight: 800;">Porcentaje Ganancia: </label>
+                    </div>
+                    <div class="field rows">
+                        <label for="Codigo">{{ detalle_pren_Porcentaje }} (%)</label>
+                    </div>
+                </div>
+
+                <div class="field col-12 md:col-4 " style="position: relative; height: 10%;">
+                    <div class="field rows">
+                        <label for="Codigo" style="font-weight: 800;">Cliente: </label>
+                    </div>
+                    <div class="field rows">
+                        <label for="Codigo">{{ detalle_cliente }}</label>
+                    </div>
+                </div>
+                <div class="field col-12 md:col-4 " style="position: relative; height: 10%;">
+                    <div class="field rows">
+                        <label for="Codigo" style="font-weight: 800;">Proyecto: </label>
+                    </div>
+                    <div class="field rows">
+                        <label for="Codigo">{{ detalle_proyecto }}</label>
+                    </div>
+                </div>
+                <div class="field col-12 md:col-4 " style="position: relative; height: 10%;">
+                    <div class="field rows">
+                        <label for="Codigo" style="font-weight: 800;">Empleado: </label>
+                    </div>
+                    <div class="field rows">
+                        <label for="Codigo">{{ detalle_empleado }}</label>
+                    </div>
+                </div>
+                <div class="field col-12 md:col-4 " style="position: relative; height: 10%;">
+                    <div class="field rows">
+                        <label for="Codigo" style="font-weight: 800;">Estado: </label>
+                    </div>
+                    <div class="field rows">
+                        <label for="Codigo">{{ detalle_pren_Estado }}</label>
+                    </div>
+                </div>
+                <div *ngIf="detalle_pren_Estado == 'Rechazado'" class="field col-12 md:col-4 "
+                    style="position: relative; height: 10%;">
+                    <div class="field rows">
+                        <label for="Codigo" style="font-weight: 800;">Observación: </label>
+                    </div>
+                    <div class="field rows">
+                        <label for="Codigo">{{ detalle_pren_Observacion }}</label>
+                    </div>
+                </div>
+                <div class="field col-12 md:col-4 " style="position: relative; height: 10%;">
+                    <div class="field rows">
+                        <label for="Codigo" style="font-weight: 800;">Maquinaria: </label>
+                    </div>
+                    <div class="field rows">
+                        <label for="Codigo">{{ llenadoPresupuesto.pren_Maquinaria ? 'Sí' : 'No' }}</label>
+                    </div>
+                </div>
+                <div class="field col-12 md:col-12">
+                    <p-table [value]="prueba" dataKey="acetId" [expandedRowKeys]="expandedRows" scrollHeight="400px"
+                        [scrollable]="true" [styleClass]="!ocultarTabla ? 'p-datatable-gridlines' : ''"
+                        responsiveLayout="scroll">
+                        <ng-template pTemplate="caption">
+                            <div class="flex  flex-column sm:flex-row">
+                                <button (click)="OcultarTabla()" class="{{classTabla}}" pButton type="button"
+                                    label="{{LabelTabla}}" icon="{{iconTabla}}"></button>
+                                <button *ngIf="!ocultarTabla" style="left: 20px;" (click)="OcultarActividad()"
+                                    class="{{classActividad}}" pButton type="button" label="{{LabelAactividad}}"
+                                    icon="{{iconActividad}}"></button>
+                                <div *ngIf="!ocultarTabla" class="mt-2 ml-6">
+                                    <span class="text-white">Utilidad</span>
+                                </div>
+                                <div *ngIf="!ocultarTabla" class="ml-1 mt-2">
+                                    <p-inputSwitch [(ngModel)]="valSwitch"
+                                        (onChange)="onValSwitchChange()"></p-inputSwitch>
+                                </div>
+
+                            </div>
+                        </ng-template>
+
+                        <ng-template pTemplate="header">
+                            <ng-container *ngIf="!ocultarTabla">
+                                <tr>
+                                    <th style="width: 3rem"></th>
+                                    <th class="text-center text-white">Ítem</th>
+                                    <th class="text-center text-white">Descripción</th>
+                                    <th class="text-center text-white">Cantidad</th>
+                                    <th class="text-center text-white">Unidad Medida</th>
+                                    <th class="text-center text-white">Mano de Obra</th>
+                                    <th class="text-center text-white" *ngIf="llenadoPresupuesto.pren_Maquinaria">
+                                        Maquinaria</th>
+                                    <th class="text-center text-white">Material</th>
+                                    <th class="text-center text-white">P.U.</th>
+                                    <th class="text-center text-white" *ngIf="valSwitch">Ganancia.%</th>
+                                    <th class="text-center text-white">Subtotal</th>
+                                    <th class="text-center text-white" *ngIf="valSwitch">Total antes de ISV</th>
+                                </tr>
+                            </ng-container>
+
+                        </ng-template>
+
+                        <ng-template pTemplate="body" let-rowData let-rowIndex="rowIndex" let-expanded="expanded">
+                            <ng-container *ngIf="!ocultarTabla">
+                                <tr [ngClass]="{'bg-gray-1000': !rowData.esEtapa}"
+                                    *ngIf="rowData.esEtapa || !ocultarActividades">
+                                    <td>
+                                        <button *ngIf="!rowData.esEtapa" (click)="toggleExpand(rowData)" [plain]="true"
+                                            [rounded]="true" [text]="true" type="button" pButton pRipple
+                                            [pRowToggler]="rowData"
+                                            class="p-button-text p-button-rounded p-button-plain"
+                                            [icon]="rowData.expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"></button>
+                                    </td>
+                                    <td>{{ rowData.item }}</td>
+                                    <td style="width:30%; min-width:20rem;">
+                                        <span *ngIf="rowData.esEtapa">
+                                            {{rowData.descripcion}}
+                                        </span>
+                                        <span *ngIf="!rowData.esEtapa">
+                                            {{rowData.descripcion}}
+                                        </span>
+                                    </td>
+                                    <td style="width:14%; min-width:10rem;" class="text-right">
+                                        <span *ngIf="rowData.esEtapa && ocultarActividades == false">{{rowData.cant |
+                                            number:'1.2-2'}}</span>
+
+                                        <span *ngIf="rowData.esEtapa && ocultarActividades == true">
+                                            {{rowData.cant | number:'1.2-2'}}
+                                        </span>
+
+                                        <span *ngIf="!rowData.esEtapa">
+                                            {{rowData.cant | number:'1.2-2'}}
+                                        </span>
+
+                                    </td>
+                                    <td style="width:14%; min-width:10rem;">
+                                        <span *ngIf="rowData.esEtapa && ocultarActividades"></span>
+
+                                        <span *ngIf="!rowData.esEtapa" appendTo="body">
+                                            {{rowData.unidad}}
+                                        </span>
+
+                                    </td>
+                                    <td style="width:14%; min-width:10rem;" class="text-right">
+                                        <span
+                                            *ngIf="rowData.esEtapa && ocultarActividades == false">{{abreviaturaMoneda}}
+                                            {{rowData.manoDeObra | number:'1.2-2'}}</span>
+
+                                        <span *ngIf="rowData.esEtapa && ocultarActividades == true">
+                                            {{abreviaturaMoneda}} {{rowData.manoDeObra | number:'1.2-2'}}
+                                        </span>
+
+                                        <span *ngIf="!rowData.esEtapa">
+                                            {{abreviaturaMoneda}} {{rowData.manoDeObra | number:'1.2-2'}}
+                                        </span>
+
+                                    </td>
+                                    <td *ngIf="llenadoPresupuesto.pren_Maquinaria" style="width:14%; min-width:13rem;"
+                                        class="text-right">
+                                        <span
+                                            *ngIf="rowData.esEtapa && ocultarActividades == false">{{abreviaturaMoneda}}
+                                            {{rowData.maquinaria | number:'1.2-2'}}</span>
+
+
+                                        <span *ngIf="rowData.esEtapa && ocultarActividades == true">
+                                            {{abreviaturaMoneda}} {{rowData.maquinaria | number:'1.2-2'}}
+                                        </span>
+                                        <span *ngIf="!rowData.esEtapa">
+                                            {{abreviaturaMoneda}} {{rowData.maquinaria | number:'1.2-2'}}
+                                        </span>
+                                    </td>
+                                    <td style="width:14%; min-width:13rem;" class="text-right">
+                                        <span
+                                            *ngIf="rowData.esEtapa && ocultarActividades == false">{{abreviaturaMoneda}}
+                                            {{rowData.material | number:'1.2-2'}}</span>
+
+
+                                        <span *ngIf="rowData.esEtapa && ocultarActividades == true">
+                                            {{abreviaturaMoneda}} {{rowData.material | number:'1.2-2'}}
+                                        </span>
+                                        <span *ngIf="!rowData.esEtapa">
+                                            {{abreviaturaMoneda}} {{rowData.material | number:'1.2-2'}}
+                                        </span>
+                                    </td>
+                                    <td style="width:14%; min-width:10rem;" class="text-right">
+                                        <span>{{abreviaturaMoneda}} {{rowData.pu | number:'1.2-2'}} </span>
+                                    </td>
+
+                                    <td style="width:14%; min-width:10rem;" *ngIf="valSwitch">
+                                        <span *ngIf="!rowData.esEtapa">
+                                            {{rowData.porcen}}
+                                        </span>
+
+                                    </td>
+                                    <td style="width:14%; min-width:10rem;" class="text-right">
+                                        <span>{{abreviaturaMoneda}} {{rowData.subtotal | number:'1.2-2'}} </span>
+                                    </td>
+                                    <td style="width:14%; min-width:10rem;" *ngIf="valSwitch" class="text-right">
+                                        <span>{{abreviaturaMoneda}} {{rowData.subtotalUtil | number:'1.2-2'}} </span>
+                                    </td>
+                                </tr>
+                            </ng-container>
+
+
+                        </ng-template>
+
+                        <ng-template pTemplate="rowexpansion" let-rowData>
+                            <tr *ngIf="rowData.expanded && !ocultarActividades && !ocultarTabla">
+                                <td colspan="7">
+                                    <div class="p-3">
+                                        <h3 class="text-center">Insumos</h3>
+                                        <p-table [value]="insumosFiltrados" dataKey="acetId" responsiveLayout="scroll"
+                                            [rows]="10" [paginator]="true" [showCurrentPageReport]="true"
+                                            currentPageReportTemplate="Mostrando {first} al {last} de {totalRecords} entradas"
+                                            [rowHover]="true">
+                                            <ng-template pTemplate="header">
+                            <tr>
+                                <th style="color: white;" class="text-center">No.</th>
+                                <th style="color: white;" class="text-center">Insumo</th>
+                                <th style="color: white;" class="text-center">Proveedor</th>
+                                <th style="color: white;" class="text-center">Material</th>
+                                <th style="color: white;" class="text-center">Categoría</th>
+                                <th style="color: white;" class="text-center">Rendimiento</th>
+                                <th style="color: white;" class="text-center">Desperdicio</th>
+                                <th style="color: white;" class="text-center">Cantidad</th>
+                                <th style="color: white;" class="text-center">Precio</th>
+                                <th style="color: white;" class="text-center">Costo Unitario</th>
+
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-insumo>
+                            <tr class="bg-gray-1000">
+                                <td style="width:30%; min-width:5rem;" class="text-center">
+                                    {{ insumo.codigo }}
+                                </td>
+                                <td style="width:30%; min-width:16rem;" class="text-center">{{ insumo.insumo }}</td>
+                                <td style="width:30%; min-width:16rem;" class="text-center">{{ insumo.proveedor }}</td>
+                                <td style="width:30%; min-width:16rem;" class="text-center">{{ insumo.material }}</td>
+                                <td style="width:30%; min-width:16rem;" class="text-center">{{ insumo.categoria }}</td>
+
+                                <td class="text-center">
+                                    {{ insumo.rendimiento }}
+                                </td>
+                                <td class="text-center">
+                                    {{ insumo.desperdicio }}
+                                </td>
+                                <td class="text-center">
+                                    {{ insumo.cantidad | number:'1.2-2' }}
+                                </td>
+
+                                <td style="width:30%; min-width:10rem;" class="text-center">
+                                    {{abreviaturaMoneda}} {{ insumo.costo | number:'1.2-2' }}
+
+                                </td>
+                                <td style="width:30%; min-width:10rem;" class="text-center">
+                                    {{abreviaturaMoneda}} {{ insumo.costoUnitario | number:'1.2-2' }}
+                                </td>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="emptymessage">
+                            <tr>
+                                <td colspan="100">
+                                    <span>No existen insumos para esta actividad aún.</span>
+                                </td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
+                </div>
+                </td>
+                </tr>
+                <tr *ngIf="rowData.expanded && !ocultarActividades && !ocultarTabla">
+                    <td colspan="7">
+                        <div class="p-3">
+                            <h3 class="text-center">Maquinarias</h3>
+                            <p-table [value]="maquinariasFiltrados" dataKey="acetId" responsiveLayout="scroll">
+                                <ng-template pTemplate="header">
+                <tr>
+                    <th style="color: white;" class="text-center">No.</th>
+                    <th style="color: white;" class="text-center">Maquinaria </th>
+                    <th style="color: white;" class="text-center">Tipo Renta </th>
+                    <th style="color: white;" class="text-center">Proveedor</th>
+                    <th style="color: white;" class="text-center">Nivel</th>
+                    <th style="color: white;" class="text-center">Cantidad Renta</th>
+                    <th style="color: white;" class="text-center">Cantidad Maquinaria</th>
+                    <th style="color: white;" class="text-center">Costo</th>
+                    <th style="color: white;" class="text-center">Subtotal</th>
+                </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-maquinaria>
+                    <tr class="bg-gray-1000">
+                        <td style="width:30%; min-width:5rem;" class="text-center">
+                            {{ maquinaria.codigo }}
+
+                        </td>
+                        <td style="width:30%; min-width:20rem;" class="text-center">{{ maquinaria.maqu_Descripcion }}
+                        </td>
+                        <td style="width:30%; min-width:6rem;" class="text-center">{{ maquinaria.renta }}</td>
+
+                        <td style="width:30%; min-width:20rem;" class="text-center">{{ maquinaria.prov_Descripcion }}
+                        </td>
+                        <td style="width:30%; min-width:10rem;" class="text-center">{{ maquinaria.nive_Descripcion }}
+                        </td>
+                        <td style="width:30%; min-width:10rem;" class="text-center">
+                            {{ maquinaria.rmac_CantidadRenta | number:'1.2-2' }}
+                        </td>
+                        <td style="width:30%; min-width:10rem;" class="text-center">
+                            {{ maquinaria.rmac_CantidadMaquinas | number:'1.2-2' }}
+
+                        </td>
+                        <td style="width:30%; min-width:10rem;" class="text-center">
+                            {{abreviaturaMoneda}} {{ maquinaria.rmac_PrecioRenta | number:'1.2-2'}}
+                        </td>
+                        <td style="width:30%; min-width:10rem;" class="text-center">
+                            {{abreviaturaMoneda}} {{ (maquinaria.rmac_PrecioRenta * maquinaria.rmac_CantidadRenta) *
+                            maquinaria.rmac_CantidadMaquinas | number:'1.2-2' }}
+                        </td>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage">
+                    <tr>
+                        <td colspan="100">
+                            <span>No existen maquinarias para esta actividad aún.</span>
+                        </td>
+                    </tr>
+                </ng-template>
+                </p-table>
+            </div>
+            </td>
+            </tr>
+            </ng-template>
+
+
+            </p-table>
+            <div *ngIf="!ocultarTabla" class="flex justify-content-end mt-1">
+                <div class="flex flex-column">
+                    <div class="flex justify-content-between align-items-center mb-2 mr-4">
+                        <span class="font-semibold mr-6 text-primary">MANO OBRA</span>
+                    </div>
+                    <div *ngIf="maquinariaCalculo" class="flex justify-content-between align-items-center mb-2 mr-4">
+                        <span class="font-semibold mr-6 text-primary">MAQUINARIAS</span>
+                    </div>
+                    <div class="flex justify-content-between align-items-center mb-2 mr-4">
+                        <span class="font-semibold mr-6 text-primary">MATERIALES</span>
+                    </div>
+                </div>
+                <div class="flex flex-column">
+                    <div class="flex justify-content-between align-items-center mb-2 mr-4">
+                        <span>{{abreviaturaMoneda}} {{TotalManoObra | number:'1.2-2'}}</span>
+                    </div>
+                    <div *ngIf="maquinariaCalculo" class="flex justify-content-between align-items-center mb-2 mr-4">
+                        <span>{{abreviaturaMoneda}} {{TotalMaquinaria | number:'1.2-2'}}</span>
+                    </div>
+                    <div class="flex justify-content-between align-items-center mb-2 mr-4">
+                        <span>{{abreviaturaMoneda}} {{TotalMaterial | number:'1.2-2'}}</span>
+                    </div>
+                </div>
+                <div class="flex flex-column" *ngIf="abreviaturaMonedaConversion">
+                    <div class="flex justify-content-between align-items-center mb-2 mr-4">
+                        <span>{{abreviaturaMonedaConversion}} {{TotalManoObraUSD | number:'1.2-2'}}</span>
+                    </div>
+                    <div *ngIf="maquinariaCalculo" class="flex justify-content-between align-items-center mb-2 mr-4">
+                        <span>{{abreviaturaMonedaConversion}} {{TotalMaquinariaUSD | number:'1.2-2'}}</span>
+                    </div>
+                    <div class="flex justify-content-between align-items-center mb-2 mr-4">
+                        <span>{{abreviaturaMonedaConversion}} {{TotalMaterialUSD | number:'1.2-2'}}</span>
+                    </div>
+                </div>
+                <div class="flex flex-column">
+                    <div class="flex justify-content-between align-items-center mb-2 mr-4">
+                        <span class="font-semibold mr-6 text-primary">SUBTOTAL</span>
+                    </div>
+                    <div class="flex justify-content-between align-items-center mb-2 mr-4">
+                        <span class="font-semibold mr-6 text-primary">ISV({{ValorImpuesto}}%)</span>
+                    </div>
+                    <div class="flex justify-content-between align-items-center mr-4">
+                        <span class="font-semibold mr-6 text-primary">TOTAL</span>
+                    </div>
+                </div>
+                <div class="flex flex-column">
+                    <div class="flex justify-content-between align-items-center mb-2 mr-4">
+                        <span>{{abreviaturaMoneda}} {{(valSwitch ? subtotalUtil : Subtotal) | number: '1.2-2'}}</span>
+                    </div>
+                    <!-- <div *ngIf="valSwitch" class="flex justify-content-between align-items-center mb-2 mr-4">
+                    <span class="font-semibold mr-6 text-primary">UTILIDAD</span>
+                    <span>{{abreviaturaMoneda}} {{Ganancia | number: '1.2-2'}}</span>
+                </div> -->
+                    <div class="flex justify-content-between align-items-center mb-2 mr-4">
+                        <span>{{abreviaturaMoneda}} {{((valSwitch ? subtotalUtil : Subtotal ) * (ISV/100)) |
+                            number:'1.2-2'}}</span>
+                    </div>
+                    <div class="flex justify-content-between align-items-center mr-4">
+                        <span>{{abreviaturaMoneda}} {{(valSwitch ? TotalUtili : Total) | number: '1.2-2'}}</span>
+                    </div>
+                </div>
+                <div class="flex flex-column" *ngIf="abreviaturaMonedaConversion">
+                    <div class="flex justify-content-between align-items-center mb-2 mr-4">
+                        <span class="mr-6">{{abreviaturaMonedaConversion}} {{(valSwitch ? subtotalUtilUSD : SubtotalUSD)
+                            | number: '1.2-2'}}</span>
+                    </div>
+                    <!-- <div *ngIf="valSwitch" class="flex justify-content-between align-items-center mb-2 mr-4">
+                    <span class="mr-6">{{abreviaturaMonedaConversion}} {{GananciaUSD | number: '1.2-2'}}</span>
+                </div>  -->
+                    <div class="flex justify-content-between align-items-center mb-2 mr-4">
+                        <span class="mr-6">{{abreviaturaMonedaConversion}} {{(valSwitch ? subtotalUtilUSD : SubtotalUSD)
+                            * (ISV/100) | number:'1.2-2'}}</span>
+                    </div>
+                    <div class="flex justify-content-between align-items-center mr-4">
+                        <span class="mr-6">{{abreviaturaMonedaConversion}} {{(valSwitch ? TotalUtiliUSD : TotalUSD) |
+                            number: '1.2-2'}}</span>
+                    </div>
+                </div>
+            </div>
+            <!-- <div 
+                class="flex flex-column md:flex-row md:align-items-end md:justify-content-end mt-3">
+                <div class="font-semibold mb-3 md:mb-0"></div>
+                <div class="flex flex-column">
+                    <div class="flex justify-content-between align-items-center mb-2 ">
+                        <span class="font-semibold mr-6 text-primary">MANO OBRA</span>
+                        <span>{{abreviaturaMoneda}} {{TotalManoObra | number:'1.2-2'}}</span>
+                    </div>
+                    <div *ngIf="maquinariaCalculo" class="flex justify-content-between align-items-center mb-2">
+                        <span class="font-semibold mr-6 text-primary">MAQUINARIAS</span>
+                        <span>{{abreviaturaMoneda}} {{TotalMaquinaria | number:'1.2-2'}}</span>
+                    </div>
+                    <div class="flex justify-content-between align-items-center mb-2 ">
+                        <span class="font-semibold mr-6 text-primary">MATERIALES</span>
+                        <span>{{abreviaturaMoneda}} {{TotalMaterial | number:'1.2-2'}}</span>
+                    </div>
+                    <div *ngIf="valSwitch" class="flex justify-content-between align-items-center mb-2 ">
+                        <span class="font-semibold mr-6 text-primary">ISV({{ValorImpuesto}}%) </span>
+                        <span *ngIf="valSwitch">{{abreviaturaMoneda}} {{ISV | number: '1.2-2'}}</span>
+                    </div>
+                    <div *ngIf="valSwitch" class="flex justify-content-between align-items-center mb-2 ">
+                        <span class="font-semibold mr-6 text-primary">GANANCIA({{defaultPorcentaje}}%)</span>
+                        <span>{{abreviaturaMoneda}} {{Ganancia | number: '1.2-2'}}</span>
+                    </div>
+                    <div class="flex justify-content-between align-items-center mb-2 ">
+                        <span class="font-semibold  text-primary">SUBTOTAL</span>
+                        <span>{{abreviaturaMoneda}} {{Subtotal | number: '1.2-2'}}</span>
+                    </div>
+                    <div class="flex justify-content-between align-items-center ">
+                        <span class="font-semibold  text-primary">TOTAL</span>
+                        <span>{{abreviaturaMoneda}} {{Total | number: '1.2-2'}}</span>
+                    </div>
+                </div>
+
+            </div> -->
+        </div>
+
+    </div>
+    <div style="position: relative;top:-20px;" class="mt-2">
+        <div class="card-title">
+            <h1>Auditoría</h1>
+        </div>
+        <p-table [value]="Datos" styleClass=" mt-2">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th style="width:200px; font-weight: bold;">Acción</th>
+                    <th style="width:200px; font-weight: bold;">Usuario</th>
+                    <th style="width:200px; font-weight: bold;">Fecha</th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-transaction>
+                <tr>
+                    <td style="width:200px;">Creado</td>
+                    <td style="width:200px">{{ detalle_usuaCreacion }}</td>
+                    <td style="width:200px">{{ detalle_FechausuaCreacion }}</td>
+                </tr>
+                <tr>
+                    <td style="width:200px;">Modificado</td>
+                    <td style="width:200px">{{ detalle_usuaModificacion }}</td>
+                    <td style="width:200px">{{ detalle_FechausuaModificacion }}</td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+</div>
+</div>
+
+
+</div>
+
+<p-dialog [(visible)]="opcionImprimir" header="Confirmación" [modal]="true" [style]="{width:'450px'}">
+    <i class="pi pi-print mr-3" style="font-size: 2rem"></i>
+    <span style="font-weight: 600">Seleccione la opción a imprimir</span>
+
+    <div class="mt-4 ml-6 flex flex-wrap gap-3">
+        <div class="flex align-items-center">
+            <p-radioButton name="opcion" value="Original" [disabled]="disableRadioButtons" [(ngModel)]="tipoImpresion" (click)="clickOpcion()"
+                inputId="ingredient2" />
+            <label for="ingredient2" class="ml-2">
+                Costo Original
+            </label>
+        </div>
+
+        <div class="flex align-items-center">
+            <p-radioButton name="opcion" value="Utiliario" [disabled]="disableRadioButtons" [(ngModel)]="tipoImpresion" (click)="clickOpcion()"
+                inputId="ingredient3" />
+            <label for="ingredient3" class="ml-2">
+                Costo Utilitario
+            </label>
+        </div>
+
+        <div class="flex align-items-center">
+            <p-radioButton name="opcion" value="Ambas" [disabled]="disableRadioButtons" (click)="clickOpcion()" [(ngModel)]="tipoImpresion"
+                inputId="ingredient4" />
+            <label for="ingredient4" class="ml-2">
+                Ambos
+            </label>
+        </div>
+    </div>
+    <div class="mt-4 ml-6">
+        <span class="mt-6" style="font-weight: 600">¿Imprimir para cliente?</span>
+    </div>
+    <div class="mt-4 ml-6 flex flex-wrap gap-3">
+        <div class="flex alig-items-center">
+            <p-checkbox [(ngModel)]="checked3" (click)="clienteseleccion()" [binary]="true" inputId="binary" />
+        </div>
+
+    </div>
+    <div class="mt-4 ml-6">
+        <span class="mt-6" style="font-weight: 600">¿Desea imprimir con impuesto?</span>
+    </div>
+    <div class="mt-4 ml-6 flex flex-wrap gap-3">
+        <div class="flex alig-items-center">
+            <p-checkbox [(ngModel)]="checked2" [binary]="true" (onChange)="selectConversion2()" inputId="binary" />
+        </div>
+
+    </div>
+    <div class="mt-4 ml-6">
+        <span class="mt-6" style="font-weight: 600">¿Desea imprimir con una conversión?</span>
+    </div>
+    <div class="mt-4 ml-6 flex flex-wrap gap-3">
+        <div class="flex alig-items-center">
+            <p-checkbox [(ngModel)]="checked" [binary]="true" (onChange)="selectConversion()" inputId="binary" />
+        </div>
+        <div *ngIf="checked" class="ml-3 flex align-items-center">
+            <p-dropdown class="list-conver" [options]="selectconversiones" appendTo="body" placeholder="Conversiones"
+                (onChange)="onChangeConversion($event)" [(ngModel)]="selectedConversion">
+            </p-dropdown>
+        </div>
+    </div>
+
+
+    <ng-template pTemplate="footer">
+        <button pButton pRipple [disabled]="!tipoImpresion" icon="pi pi-check" class=" p-button-primary" label="Aceptar"
+            (click)="ImprimirIndex2()"></button>
+        <button pButton pRipple icon="pi pi-times" class="p-button-outlined p-button-primary" label="Cancelar"
+            (click)="opcionImprimir = false"></button>
+    </ng-template>
+</p-dialog>
+
+
+<p-dialog [(visible)]="DeletePresupuesto" header="Confirmación" [modal]="true" [style]="{width:'450px'}">
+    <div class="flex align-items-center justify-content-center">
+        <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+        <span>¿Está seguro de eliminar el Presupuesto
+            <span style="font-weight: 600">{{ detalle_pren_Titulo }}</span>?</span>
+    </div>
+    <ng-template pTemplate="footer">
+        <button pButton pRipple icon="pi pi-trash" class=" p-button-primary" label="Eliminar"
+            (click)="Eliminar()"></button>
+        <button pButton pRipple icon="pi pi-times" class="p-button-outlined p-button-primary" label="Cancelar"
+            (click)="DeletePresupuesto = false"></button>
+    </ng-template>
+</p-dialog>
+
+
+<p-dialog [(visible)]="opcionEliminarConversion" header="Confirmación" [modal]="true" [style]="{width:'450px'}">
+    <div class="flex align-items-center justify-content-center">
+        <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+        <span>¿Está seguro que desea eliminar la conversión de
+            <span style="font-weight: 600">{{nombreMonedaDe}}</span> A <span
+                style="font-weight: 600">{{nombreMonedaA}}</span> ?
+        </span>
+    </div>
+    <ng-template pTemplate="footer">
+        <button pButton pRipple icon="pi pi-check" class="p-button p-button-primary" label="Sí"
+            (click)="EliminarConversion()"></button>
+        <button pButton pRipple icon="pi pi-times" class="p-button-outlined p-button-primary" label="No"
+            (click)="CancelarEliminarConversion()"></button>
+    </ng-template>
+</p-dialog>
+
+<p-dialog [(visible)]="Delete" header="Confirmación" [modal]="true" [style]="{width:'450px'}">
+    <div class="flex align-items-center justify-content-center">
+        <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+        <span>¿Está seguro que desea eliminar la etapa
+            <span style="font-weight: 600">{{valueFilterEtapa}}</span> ?
+        </span>
+    </div>
+    <ng-template pTemplate="footer">
+        <button pButton pRipple icon="pi pi-check" class="p-button p-button-primary" label="Sí"
+            (click)="EliminarEtapa()"></button>
+        <button pButton pRipple icon="pi pi-times" class="p-button-outlined p-button-primary" label="No"
+            (click)="Delete = false"></button>
+    </ng-template>
+</p-dialog>
+
+<p-dialog [(visible)]="modalEstado" header="Confirmación" [modal]="true" [style]="{width:'450px'}">
+    <div class="flex align-items-center justify-content-center">
+        <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+        <span>¿Está seguro que el presupuesto <span style="font-weight: 600">
+                {{presupuestoNombre}}</span> fue {{presupuestoOpcion}}?</span>
+    </div>
+    <ng-template pTemplate="footer">
+        <button pButton pRipple icon="pi pi-check" class="p-button p-button-primary" label="Sí"
+            (click)="PresupuestoAprobadoORechazado()"></button>
+        <button pButton pRipple icon="pi pi-times" class="p-button-outlined p-button-primary" label="No"
+            (click)="modalEstado = false"></button>
+    </ng-template>
+</p-dialog>
+
+<p-dialog header="Rechazar Presupuesto" [(visible)]="modalRechazado" [modal]="true" showEffect="fade"
+    [style]="{width: '450px'}" [breakpoints]="{'960px': '75vw'}">
+    <form [formGroup]="formRechazado">
+        <div class="p-fluid">
+            <div class="p-formgrid grid">
+                <div class="field col">
+                    <label htmlFor="name2">Observación:</label>
+                    <textarea rows="3" cols="30" pInputTextarea [autoResize]="true" (input)="allowOnlyAlphanumeric($event)"
+                        [ngClass]="{'ng-invalid ng-dirty': submitted && formRechazado.controls['pren_Observacion'].invalid}"
+                        formControlName="pren_Observacion">
+                     </textarea>
+
+                    <small class="ng-dirty ng-invalid"
+                        *ngIf="submitted && formRechazado.controls['pren_Observacion'].invalid"
+                        style="color: red !important;">El campo es requerido.</small>
+                </div>
+
+            </div>
+        </div>
+    </form>
+    <ng-template pTemplate="footer">
+        <button pButton icon="pi pi-save" label="Guardar" (click)="PresupuestoRechazado()"></button>
+        <button pButton icon="pi pi-times" (click)="modalRechazado = false" label="Cancelar"
+            class="p-button-outlined mr-2"></button>
+
+    </ng-template>
+
+</p-dialog>
+
+<p-dialog header="Nueva Unidad Medida" [(visible)]="modalUnidadMedida" [modal]="true" showEffect="fade"
+    [style]="{width: '450px'}" [breakpoints]="{'960px': '75vw'}">
+    <form [formGroup]="formUnidadMedida">
+        <div class="p-fluid">
+            <div class="p-formgrid grid">
+                <div class="field col">
+                    <label htmlFor="name2">Nombre:</label>
+                    <input pInputText formControlName="unme_Nombre" (input)="allowOnlyAlphanumeric($event)"
+                        autocomplete="off" type="text"
+                        [ngClass]="{'ng-invalid ng-dirty': submitted && formUnidadMedida.controls['unme_Nombre'].invalid}" />
+                    <small class="ng-dirty ng-invalid"
+                        *ngIf="submitted && formUnidadMedida.controls['unme_Nombre'].invalid"
+                        style="color: red !important;">El campo es requerido.</small>
+                </div>
+                <div class="field col">
+                    <label htmlFor="email2">Abreviatura:</label>
+                    <input pInputText formControlName="unme_Nomenclatura" (input)="allowOnlyAlphanumeric($event)"
+                        autocomplete="off" type="text"
+                        [ngClass]="{'ng-invalid ng-dirty': submitted && formUnidadMedida.controls['unme_Nomenclatura'].invalid}" />
+                    <small class="ng-dirty ng-invalid"
+                        *ngIf="submitted && formUnidadMedida.controls['unme_Nomenclatura'].invalid"
+                        style="color: red !important;">El campo es requerido.</small>
+                </div>
+
+            </div>
+        </div>
+    </form>
+    <ng-template pTemplate="footer">
+        <button pButton icon="pi pi-save" label="Guardar" (click)="GuardarUnidad()"></button>
+        <button pButton icon="pi pi-times" (click)="modalUnidadMedida = false" label="Cancelar"
+            class="p-button-outlined mr-2"></button>
+
+    </ng-template>
+
+</p-dialog>
+
+<p-dialog [(visible)]="modalUnidad" header="Confirmación" [modal]="true" [closable]="false" [style]="{width:'450px'}">
+    <div class="flex align-items-center justify-content-center">
+        <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+        <span>¿Está seguro de crear la unidad de medidad con
+            abreviatura<span style="font-weight: 600">
+                {{valueFilterUnidad}} </span>?</span>
+    </div>
+    <ng-template pTemplate="footer">
+        <button pButton pRipple icon="pi pi-check" class="p-button p-button-primary" label="Sí"
+            (click)="modalUnidadMedida = true; modalUnidad = false"></button>
+        <button pButton pRipple icon="pi pi-times" class="p-button-outlined p-button-primary" label="No"
+            (click)="NoInsertarUnidad()"></button>
+
+    </ng-template>
+</p-dialog>
+
+<p-dialog [(visible)]="modalEtapa" header="Confirmación" [modal]="true" [closable]="false" [style]="{width:'450px'}">
+    <div class="flex align-items-center justify-content-center">
+        <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+        <span>¿Está seguro de crear la etapa <span style="font-weight: 600">
+                {{valueFilterEtapa}} </span>?</span>
+    </div>
+    <ng-template pTemplate="footer">
+        <button pButton pRipple icon="pi pi-save" class="p-button p-button-primary" label="Guardar"
+            (click)="GuardarEtapa()"></button>
+        <button pButton pRipple icon="pi pi-times" class="p-button-outlined p-button-primary" label="Cancelar"
+            (click)=" modalEtapa = false;"></button>
+
+    </ng-template>
+</p-dialog>
+
+<p-dialog [(visible)]="modalEditar" header="Confirmación" [modal]="true" [closable]="false" [style]="{width:'450px'}">
+    <div class="flex align-items-center justify-content-center">
+        <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+        <span>¿Está seguro de editar el presupuesto <span style="font-weight: 600">
+                {{presupuestoNombre}} </span>?</span>
+    </div>
+    <ng-template pTemplate="footer">
+        <button pButton pRipple icon="pi pi-pencil" class="p-button p-button-primary" label="Aceptar"
+            (click)="Guardar()"></button>
+        <button pButton pRipple icon="pi pi-times" class="p-button-outlined p-button-primary" label="Cancelar"
+            (click)=" modalEditar = false;"></button>
+
+    </ng-template>
+</p-dialog>
+
+<p-dialog [(visible)]="modalActividad" header="Confirmación" [modal]="true" [closable]="false"
+    [style]="{width:'450px'}">
+    <div class="flex align-items-center justify-content-center">
+        <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+        <span>¿Está seguro de crear la actividad <span style="font-weight: 600">
+                {{valueFilterActividad}} </span>?</span>
+    </div>
+    <ng-template pTemplate="footer">
+        <button pButton pRipple icon="pi pi-save" class="p-button p-button-primary" label="Guardar"
+            (click)="GuardarActividad()"></button>
+        <button pButton pRipple icon="pi pi-times" class="p-button-outlined p-button-primary" label="Cancelar"
+            (click)=" modalActividad = false;"></button>
+
+    </ng-template>
+</p-dialog>

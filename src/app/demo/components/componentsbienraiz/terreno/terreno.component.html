@@ -1,0 +1,1504 @@
+<p-toast></p-toast>
+<div class="loader-container" *ngIf="loading">
+  <div class="loader">
+      <span></span>
+  </div>
+</div>
+<div class="card" [hidden]="!mapa">
+    <div class="card-header">
+        <h1 class="text-center mt-2">Agregar ubicación</h1>
+
+        <div class="grid p-justify-end">
+            <div class="col">
+                <button
+                    pButton
+                    pRipple
+                    type="button"
+                    label="Agregar"
+                    icon="pi pi-plus"
+                    (click)="agregarMapa()"
+                ></button>
+            </div>
+            <div class="col">
+                <button
+                    pButton
+                    icon="pi pi-times"
+                    type="button"
+                    label="Cancelar"
+                    class="p-button-outlined"
+                    (click)="ocultarMapa()"
+                ></button>
+            </div>
+        </div>
+    </div>
+    <hr />
+    <hr>
+    <google-map height="500px" width="100%" [center]="center" [zoom]="zoom">
+        <input id="search-box" class="search-box" type="text" placeholder="Buscar un sitio" #searchBox />
+      </google-map>
+</div>
+
+<div class="grid" *ngIf="Index">
+    <div class="col-12">
+        <div class="card">
+            <h1 class="text-center mt-2">Terrenos</h1>
+            <hr />
+            <div class="grid mt-2">
+                <div class="col-12">
+                    <button
+                        (click)="CrearBienRaiz()"
+                        pButton
+                        icon="pi pi-plus"
+                        label="Nuevo"
+                        class="mr-2"
+                    ></button>
+                </div>
+            </div>
+
+
+            <p-table
+                #dt
+                [value]="Terreno"
+                styleClass="mt-2"
+                [tableStyle]="{ background: '#000' }"
+                [style.overflowX]="'auto'"
+                responsiveLayout="scroll"
+
+                [rows]="10"
+                [globalFilterFields]="[
+                    'terr_Id',
+                    'terr_Descripcion',
+                    'terr_Area',
+                    'terr_PecioCompra',
+                    'terr_Identificador'
+                ]"
+                [paginator]="true"
+                [showCurrentPageReport]="true"
+                currentPageReportTemplate="Mostrando {first} al {last} de {totalRecords} entradas"
+                [rowHover]="true"
+                dataKey="terr_Id"
+                [expandedRowKeys]="expandedRows"
+                (onRowExpand)="onRowExpand($event)"
+                (onRowCollapse)="onRowCollapse($event)"
+                [rowsPerPageOptions]="[10,25,50,100]"
+            >
+
+                <ng-template pTemplate="caption">
+                    <div
+                        class="flex flex-column md:flex-row md:justify-content-between md:align-items-center"
+                    >
+                        <span class="block mt-2 md:mt-0 p-input-icon-left">
+                            <i style="color: white" class="pi pi-search"></i>
+                            <input
+                                pInputText
+                                type="text"
+                                (input)="onGlobalFilter(dt, $event)"
+                                placeholder="Buscar..."
+                                class="w-full sm:w-auto"
+                                style="color: white; background-color: #333"
+                            />
+                        </span>
+                        <div class="registros">
+                            <p-dropdown [options]="dt.rowsPerPageOptions" [(ngModel)]="dt.rows" [style]="{ 'margin-right': '5px' }"  [autoWidth]="false"></p-dropdown>
+
+                            <span style="color: #FFF0C6; font-weight: 700; margin-top: 7px;"> Registros por página</span>
+                        </div>
+                    </div>
+
+                </ng-template>
+
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th style="width: 5rem"></th>
+                        <th style="color: white" class="text-center">
+                            Acciones
+                        </th>
+                        <th
+                            style="color: white"
+                            pSortableColumn="terr_Id"
+                            class="text-center"
+                        >
+                            No.<p-sortIcon field="No"></p-sortIcon>
+                        </th>
+                        <th
+                            style="color: white"
+                            pSortableColumn="terr_Descripcion"
+                            class="text-center"
+                        >
+                            Descripción
+                            <p-sortIcon field="terr_Descripcion"></p-sortIcon>
+                        </th>
+                        <th
+                            style="color: white"
+                            pSortableColumn="terr_Area"
+                            class="text-center"
+                        >
+                            Área Terreno
+                            <p-sortIcon field="terr_Area"></p-sortIcon>
+                        </th>
+                        <th
+                            style="color: white"
+                            pSortableColumn="terr_PecioCompra"
+                            class="text-center"
+                        >
+                            Precio Compra<p-sortIcon
+                                field="terr_PecioCompra"
+                            ></p-sortIcon>
+                        </th>
+                        <th
+                        style="color: white"
+                        pSortableColumn="terr_Identificador"
+                        class="text-center"
+                    >
+                        Estado
+                        <p-sortIcon field="terr_Identificador"></p-sortIcon>
+                    </th>
+                        <!-- <th style="color: white;" pSortableColumn="terr_Imagen" class="text-center">Precio Compra<p-sortIcon field="terr_Imagen"></p-sortIcon></th> -->
+                    </tr>
+                </ng-template>
+
+                <!-- <ng-template pTemplate="emptymessage">
+                    <tr>
+                      <td colspan="6" class="text-center">
+                        <div class="loader-container" *ngIf="loading">
+                            <div class="loader">
+                                <span></span>
+                            </div>
+                          </div>
+                      </td>
+                    </tr>
+                  </ng-template> -->
+
+                <ng-template pTemplate="body" let-bienRaiz>
+                    <tr (click)="selectedTerrenos(bienRaiz)">
+                        <td>
+                            <p-button
+                                type="button"
+                                pRipple
+                                [pRowToggler]="bienRaiz"
+                                [text]="true"
+                                [rounded]="true"
+                                [plain]="true"
+                                [icon]="expandedRows[bienRaiz.terr_Id] ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
+                            />
+                        </td>
+                        <td class="text-center">
+                            <p-splitButton
+                                [label]="
+                                bienRaiz.terr_Identificador
+                                        ? 'Acciones'
+                                        : 'Detalles'
+                                "
+                                icon="pi pi-cog"
+                                [model]="
+                                bienRaiz.terr_Identificador
+                                        ? itemsConstruccion
+                                        : itemssinConstruccion
+                                "
+                                styleClass="p-button-secondary"
+                                class="custom-splitbutton"
+                                appendTo="body"
+                            ></p-splitButton>
+                        </td>
+
+                        <td class="text-center">
+                            <span class="p-column-title">ID terreno</span>
+                            {{ bienRaiz.codigo }}
+                        </td>
+                        <td class="text-center">
+                            <span class="p-column-title">Descripción</span>
+                            {{ bienRaiz.terr_Descripcion }}
+                        </td>
+                        <td class="text-center">
+                            <span class="p-column-title">Área</span>
+                            {{ bienRaiz.terr_Area }}.m²
+                        </td>
+                        <td class="text-center">
+                            <span class="p-column-title">Precio Compra</span>
+                            <div style="text-align: center;">
+                                <span>{{globalMoneda.getState().mone_Abreviatura}}</span>
+                                {{bienRaiz.terr_PecioCompra | number:'1.2-2'}}
+                            </div>
+                        </td>
+
+                        <td class="text-center">
+                            <span
+                                [ngClass]="{
+                                    'estado-activo':
+                                    bienRaiz.terr_Identificador,
+                                    'estado-inactivo':
+                                        !bienRaiz.terr_Identificador
+                                }"
+                            >
+                            <span class="text-span">
+
+                                {{
+
+                                    bienRaiz.terr_Identificador
+                                        ? "En proyecto"
+                                        : "Sin proyecto"
+                                }}
+                                </span>
+                            </span>
+                        </td>
+                        <!-- <td class="text-center">
+            <span class="p-column-title">Imagen</span>
+            <ng-container *ngIf="bienRaiz.terr_Imagen; else noImage">
+              <img
+                [src]="getSafeUrl(bienRaiz.terr_Imagen)"
+                alt="Imagen Bien Raiz"
+                width="100"
+                (error)="onImageError($event)" />
+            </ng-container>
+            <ng-template #noImage>
+              <span>No hay imágenes disponibles</span>
+            </ng-template>
+          </td> -->
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="rowexpansion" let-bienRaiz>
+                    <tr>
+                      <td colspan="6">
+                        <div class="p-3">
+                          <p-table [value]="TablaMaestra" dataKey="terr_Id">
+                            <ng-template pTemplate="header">
+                              <tr>
+                                <th pSortableColumn="codigo2">Código
+                                  <p-sortIcon field="codigo2" />
+                                </th>
+                                <th pSortableColumn="descripcionDocumento">Descripción
+                                  <p-sortIcon field="descripcionDocumento" />
+                                </th>
+                                <th pSortableColumn="tipoDocumentoDescripcion">Tipo documento
+                                  <p-sortIcon field="tipoDocumentoDescripcion" />
+                                </th>
+                                <th pSortableColumn="Descargar">Descargar
+                                  <p-sortIcon field="Descargar" />
+                                </th>
+                              </tr>
+                            </ng-template>
+                  
+                            <ng-template pTemplate="body" let-item>
+                              <tr>
+                                <td>{{ item.codigo2 }}</td>
+                                <td>{{ item.descripcionDocumento }}</td>
+                                <td>{{ item.tipoDocumentoDescripcion }}</td>
+                                <td>
+                                  <button
+                                    pButton
+                                    type="button"
+                                    icon="pi pi-download"
+                                    class="btn p-button-primary"
+                                    (click)="downloadDocument(item.documentoImagen, item.descripcionDocumento)"
+                                  ></button>
+                                </td>
+                              </tr>
+                            </ng-template>
+                  
+                            <ng-template pTemplate="emptymessage">
+                              <tr>
+                                <td colspan="5">No hay datos disponibles.</td>
+                              </tr>
+                            </ng-template>
+                          </p-table>
+                  
+                        </div>
+                      </td>
+                    </tr>
+                  </ng-template>
+                  
+                
+            </p-table>
+        </div>
+    </div>
+</div>
+
+<div class="loader-container" *ngIf="loadingtow">
+    <div class="loader">
+      <span></span>
+    </div>
+  </div>
+<div class="grid" *ngIf="Create">
+    <div class="col-12">
+        <div class="card">
+            <div class="flex">
+                <div style="width: 20%; display: flex; align-items: center; position: absolute; height: 12.5%;">
+                    <button (click)="CerrarBienRaiz()" class="p-button-link" pButton pRipple type="button" label="Regresar" icon="pi pi-arrow-left" style="box-shadow: none !important; margin-top: -80px;"></button>
+                </div>
+                <div style="width: 100%; display: flex; justify-content: center; align-items: center;">
+
+                <h1 class="text-center mt-2">{{ titulo }} Terreno</h1>
+
+                </div>
+            </div>
+            <span style="color: gray;" class="">{{terrenoForm.controls['terr_Descripcion'].value}}</span>
+              <p-tabView [(activeIndex)]="currentStep" (onTabChange)="handleTabChange($event)">
+            <p-tabPanel header="Datos Generales">
+            <!-- Step 1 Form -->
+            <form
+                [formGroup]="terrenoForm"
+                class="grid col-12"
+                *ngIf="currentStep === 0"
+            >
+            <div class="field col-12 md:col-6">
+                <div class="container">
+                    <!-- Descripción del Terreno -->
+                    <div class="field col-12">
+                        <label style="display: inline-block;">
+                          Descripción&nbsp;
+                          <small
+                            style="display: inline-block; color: red !important;"
+                            class="ng-dirty ng-invalid"
+                            *ngIf="submitted && terrenoForm.controls['terr_Descripcion'].invalid"
+                          >
+                            *
+                          </small>
+                        </label>
+                        <input
+                          [ngClass]="{
+                            'ng-invalid ng-dirty': submitted && terrenoForm.controls['terr_Descripcion'].invalid
+                          }"
+                          type="text"
+                          class="p-inputtext"
+                          formControlName="terr_Descripcion"
+                          (paste)="validarPegar($event)"
+                          (keydown)="validarTexto($event)"
+                          [readonly]="detalle_identificador"
+                        />
+                        <small
+                          class="ng-dirty ng-invalid"
+                          *ngIf="submitted && terrenoForm.controls['terr_Descripcion'].invalid"
+                          style="color: red !important"
+                        >
+                          El campo es requerido.
+                        </small>
+                      </div>
+
+
+
+                    <!-- Área del Terreno -->
+                    <div class="field col-12 md:col-6">
+                        <label>Área (m²)&nbsp;
+                          <small
+                            style="display: inline-block; color: red !important; vertical-align: super;"
+                            class="ng-dirty ng-invalid"
+                            *ngIf="submitted && terrenoForm.controls['terr_Area'].invalid"
+                          >*</small>
+                        </label>
+                        <p-inputNumber
+                          (keydown)="validarArea($event)"
+                          (blur)="handleBlur($event)"
+                          [ngClass]="{
+                            'ng-invalid ng-dirty': submitted && terrenoForm.controls['terr_Area'].invalid
+                          }"
+                          formControlName="terr_Area"
+                          [readonly]="detalle_identificador"
+                          [min]="0"
+                          [step]="0.01"
+                          [mode]="'decimal'"
+                          [locale]="'es-ES'"
+
+                        />
+                        <small
+                          class="ng-dirty ng-invalid"
+                          *ngIf="submitted && terrenoForm.controls['terr_Area'].invalid"
+                          style="color: red !important"
+                        >El campo es requerido.</small>
+                      </div>
+
+
+
+                    <!-- Precio Compra -->
+                    <div class="field col-12">
+                        <label>Precio Compra&nbsp;
+                            <small
+                                style="display: inline-block; color: red !important; vertical-align: super;"
+                                class="ng-dirty ng-invalid"
+                                *ngIf="submitted && terrenoForm.controls['terr_PecioCompra'].invalid"
+                            >*</small>
+                        </label>
+                        <p-inputNumber
+                            [ngClass]="{
+                                'ng-invalid ng-dirty':
+                                    submitted && terrenoForm.controls['terr_PecioCompra'].invalid
+                            }"
+                            [maxFractionDigits]="2"
+                            maxlength="8"
+                            formControlName="terr_PecioCompra"
+                            [prefix]="globalMoneda.getState().mone_Abreviatura + ' '"
+                            [min]="1"
+                            maxlength="50"
+                            (input)="formatNumber($event)"
+                            (keydown)="ValidarNumeros2($event)"
+                            [readonly]="detalle_identificador"
+                        />
+                        <small
+                            class="ng-dirty ng-invalid"
+                            *ngIf="
+                                submitted &&
+                                terrenoForm.controls['terr_PecioCompra'].invalid
+                            "
+                            style="color: red !important"
+                        >El campo es requerido.</small>
+                    </div>
+
+
+                    <!-- Agregar Ubicacion -->
+                    <div class="field col-12" style="display: flex; flex-direction: column; justify-content: flex-end; margin-top: 1rem; grid-gap: 5px;">
+                        <label>
+                            Agregar Ubicación
+                            <span *ngIf="submitted && terrenoForm.controls['terr_Longitud'].invalid" style="color: red;">*</span>
+                        </label>
+                        <button
+                            pButton
+                            icon="pi pi-map-marker"
+                            type="button"
+                            label="Agregar Ubicación"
+                            class="p-button-outlined"
+                            (click)="mostrarMapa()"
+                            [disabled]="detalle_identificador"
+                            style="margin-top: 5px;"
+                        ></button>
+                        <small
+                            class="ng-dirty ng-invalid"
+                            *ngIf="submitted && terrenoForm.controls['terr_Longitud'].invalid"
+                            style="color: red !important; margin-top: 5px;"
+                        >El campo es requerido.</small>
+                    </div>
+
+
+
+
+                    <!-- Latitud -->
+                    <div class="field col-12">
+                        <label>Latitud&nbsp;
+                            <small
+                                style="display: inline-block; color: red !important; vertical-align: super;"
+                                class="ng-dirty ng-invalid"
+                                *ngIf="submitted && terrenoForm.controls['terr_Latitud'].invalid"
+                            >*</small>
+                        </label>
+                        <input
+                            pinputtext
+                            [ngClass]="{
+                                'ng-invalid ng-dirty':
+                                    submitted &&
+                                    terrenoForm.controls['terr_Latitud'].invalid
+                            }"
+                            type="text"
+                            class="p-inputtext"
+                            formControlName="terr_Latitud"
+
+                            readonly
+                        />
+                        <small
+                            class="ng-dirty ng-invalid"
+                            *ngIf="
+                                submitted &&
+                                terrenoForm.controls['terr_Longitud'].invalid
+                            "
+                            style="color: red !important"
+                        >El campo es requerido.</small>
+                    </div>
+
+
+                    <!-- Longitud -->
+                    <div class="field col-12">
+                        <label>Longitud&nbsp;
+                            <small
+                                style="display: inline-block; color: red !important; vertical-align: super;"
+                                class="ng-dirty ng-invalid"
+                                *ngIf="submitted && terrenoForm.controls['terr_Longitud'].invalid"
+                            >*</small>
+                        </label>
+                        <input
+                            pinputtext
+                            [ngClass]="{
+                                'ng-invalid ng-dirty':
+                                    submitted &&
+                                    terrenoForm.controls['terr_Longitud'].invalid
+                            }"
+                            type="text"
+                            class="p-inputtext"
+                            formControlName="terr_Longitud"
+
+                            readonly
+                        />
+                        <small
+                            class="ng-dirty ng-invalid"
+                            *ngIf="
+                                submitted &&
+                                terrenoForm.controls['terr_Longitud'].invalid
+                            "
+                            style="color: red !important"
+                        >El campo es requerido.</small>
+                    </div>
+
+                </div>
+
+        </div>
+
+        <div class="field col-12 md:col-6">
+            <div class="col-12 md:col-12">
+                <div class="field col-12">
+                    <label style="margin-right: 4px;">Link Ubicación&nbsp;
+                        <small
+                            style="color: red !important; vertical-align: super;"
+                            class="ng-dirty ng-invalid"
+                            *ngIf="submitted && terrenoForm.controls['terr_LinkUbicacion'].invalid"
+                        >*</small>
+                    </label>
+                    <div class="link-container">
+                      <a
+                          href="{{ terrenoForm.controls['terr_LinkUbicacion'].value }}"
+                          target="_blank"
+                          class="link-text"
+                      >
+                          {{ terrenoForm.controls['terr_LinkUbicacion'].value }}
+                      </a>
+                      <button
+                          type="button"
+                          class="p-button-secondary"
+                          pButton pRipple
+                          style="text-align: left;"
+                          [icon]="isCopied ? 'pi pi-check' : 'pi pi-clone'"
+                          (click)="copyLink()"
+                      >
+                      </button>
+                  </div>
+                  
+                    <small
+                        class="ng-dirty ng-invalid"
+                        *ngIf="
+                            submitted &&
+                            terrenoForm.controls['terr_LinkUbicacion'].invalid
+                        "
+                        style="color: red !important"
+                    >
+                        El campo es requerido.
+                    </small>
+                </div>
+
+                <div class="col-12">
+                    <div class="field">
+                      <label style="margin-right: 4px;">Subir Imagen&nbsp;
+                        <small
+                          style="display: inline-block; color: red !important; vertical-align: super;"
+                          class="ng-dirty ng-invalid"
+                          *ngIf="submitted && terrenoForm.controls['terr_Imagen'].invalid"
+                        >*</small>
+                      </label>
+                      <p-fileUpload
+                        id="p-fileupload"
+                        #fileUpload
+                        name="demo[]"
+                        accept="image/*"
+                        (onSelect)="onImageSelect($event)"
+                        (onRemove)="onImageRemove($event)"
+                        [customUpload]="true"
+                        [multiple]="false"
+                        chooseLabel="Subir"
+                        [showUploadButton]="false"
+                        [showCancelButton]="false"
+                        [auto]="true"
+                        [showClear]="false"
+                        class="w-full"
+                        [disabled]="detalle_identificador"
+                      >
+                        <ng-template pTemplate="content">
+                          <div class="image-upload-container" (click)="fileUpload.choose()">
+                            <ng-container *ngIf="!terrenoForm.get('terr_Imagen').value; else showImage">
+                              <div class="upload-placeholder">
+                                <i class="pi pi-image text-900 text-4xl mb-3 custom-icon-size"></i>
+                                <span class="font-bold text-900 text-2xl mb-3">Subir Imagen</span>
+                                <span class="font-medium text-600 text-lg text-center">Seleccione Una Imagen</span>
+                              </div>
+                            </ng-container>
+                            <ng-template #showImage>
+                              <div class="image-preview-container">
+                                <img [src]="terrenoForm.get('terr_Imagen').value" alt="Imagen seleccionada" class="image-preview" />
+                              </div>
+                            </ng-template>
+                          </div>
+                        </ng-template>
+                      </p-fileUpload>
+                      <small
+                        class="error-message"
+                        *ngIf="submitted && terrenoForm.controls['terr_Imagen'].invalid"
+                        style="color: red !important"
+                      >
+                        El campo es requerido.
+                      </small>
+                    </div>
+                  </div>
+
+
+
+
+
+
+            </div>
+        </div>
+
+        <div  *ngIf="isEditMode"class="col-12" style="display: flex; justify-content: flex-end; ">
+            <div class="button-group d-flex justify-content-end" style="margin-right: 12px;">
+              <!-- <button
+
+              (click)="nextStep()"
+              pButton
+              pRipple
+              label="Guardar"
+              icon="pi pi-save"
+          ></button> -->
+
+          <!-- <div class="button-group d-flex justify-content-end" style="margin-right: 12px;">
+            <button (click)="guardar()" class="btn btn-guardar" pButton pRipple type="button" label="Guardar" icon="pi pi-save"></button>
+        </div>
+        <div class="button-group d-flex justify-content-start">
+            <button (click)="nextStep()" class="btn btn-guardar" pButton pRipple type="button" label="Siguiente" icon="pi pi-arrow-right"></button>
+        </div>
+         -->
+
+         <button (click)="guardar()" class="btn btn-guardar" pButton pRipple type="button" label="Guardar" icon="pi pi-save"  [disabled]="detalle_identificador"></button>
+        </div>
+            <div class="button-group d-flex justify-content-start">
+              <button  (click)="CerrarBienRaiz()"       style="margin-left: 1%"class="p-button-secondary" pButton pRipple type="button" label="Cancelar" icon="pi pi-times"></button>
+            </div>
+          </div>
+          <div class="col-12" style="display: flex; justify-content: flex-end;">
+            <div class="button-group d-flex justify-content-start">
+                <button (click)="GuardarDocumento()" class="btn btn-guardar" pButton pRipple type="button" label="Siguiente" icon="pi pi-arrow-right"  [disabled]="detalle_identificador"></button>
+            </div>
+          </div>
+
+
+
+<!--
+
+        <div style="display: flex; justify-content: end" class="botones">
+            <button
+            (click)="GuardarDocumento()"
+            pButton
+            pRipple
+            type="button"
+            class="btn btn-guardar"
+            label="Guardar"
+            icon="pi pi-save"
+            [disabled]="detalle_identificador"
+        ></button>
+
+        <button
+        (click)="CerrarBienRaiz()"
+        pButton
+        pRipple
+        type="button"
+        class="p-button-secondary"
+        label="Cancelar"
+        icon="pi pi-times"
+    ></button>
+    </div> -->
+
+
+    </form>
+
+</p-tabPanel>
+
+
+
+            <p-tabPanel header="Documento del Terreno" [disabled]="!isEditMode">
+            <form
+                [formGroup]="documentoForm"
+                class="grid col-12 p-fluid p-formgrid"
+                *ngIf="currentStep === 1"
+            >
+            <!-- <div class="floating-button-container">
+                <button (click)="previousStep()" icon="pi pi-arrow-left" pButton type="button" class="btn-regresar" label="Regresar"></button>
+              </div> -->
+              
+                <div class="field col-12 md:col-6">
+                    <div class="field" style="margin-top: 1rem">
+                        <label style="display: inline-block;">Descripción del Documento&nbsp;
+                            <small
+                                style="display: inline-block; color: red !important; vertical-align: super;"
+                                class="ng-dirty ng-invalid"
+                                *ngIf="submitted2 && documentoForm.controls['dobt_DescipcionDocumento'].invalid"
+                            >*</small>
+                        </label>
+                        <input
+                            pInputText
+                            [ngClass]="{
+                                'ng-invalid ng-dirty':
+                                submitted2 &&
+                                    documentoForm.controls['dobt_DescipcionDocumento'].invalid
+                            }"
+                            type="text"
+                            class="p-inputtext"
+                            formControlName="dobt_DescipcionDocumento"
+                            (keydown)="validarTexto($event)"
+                        />
+                        <small
+                            class="ng-dirty ng-invalid"
+                            *ngIf="
+                                submitted2 &&
+                                documentoForm.controls['dobt_DescipcionDocumento'].invalid
+                            "
+                            style="color: red !important"
+                        >
+                            El campo es requerido.
+                        </small>
+                    </div>
+
+                    <div class="field" style="margin-top: 1rem" *ngIf="Tipodocumento">
+                        <label>Tipo de Documento
+                          <span class="ng-dirty ng-invalid" *ngIf="submitted2 && documentoForm.controls['tido_Descripcion'].invalid"
+                          style="color: red !important;"> *</span>
+                        </label>
+                        <p-autoComplete
+                          formControlName="tido_Descripcion"
+                          [suggestions]="filtradoDocumento"
+                          (completeMethod)="filterDocumento($event)"
+                          (onSelect)="onDocumentoSelect($event)"
+                          field="tido_Descripcion"
+                          [dropdown]="true"
+                          appendTo="body"
+                          [ngClass]="{'ng-invalid ng-dirty': submitted2 && documentoForm.controls['tido_Descripcion'].invalid}">
+                        </p-autoComplete>
+                        <!-- Mensaje de error -->
+                        <small class="ng-dirty ng-invalid" *ngIf="submitted2 && documentoForm.controls['tido_Descripcion'].invalid"
+                          style="color: red !important;">{{ Error_TipoDocumento }}</small>
+                      </div>
+
+
+                </div>
+
+                <div class="col-12 md:col-6">
+                  <div class="field file-upload-container">
+                    <label style="display: inline-block;">
+                      Subir Archivos&nbsp;
+                      <small class="error-message" *ngIf="submitted2 && documentoForm.controls['dobt_DescipcionDocumento'].invalid">*</small>
+                    </label>
+                    <p-fileUpload
+                      #docUploader
+                      name="demo[]"
+                      accept=""
+                      (onSelect)="onImageSelect2($event)"
+                      (onRemove)="onFileRemove($event)"
+                      [customUpload]="true"
+                      [multiple]="false"
+                      [showUploadButton]="false"
+                      [showCancelButton]="false"
+                      [auto]="true"
+                      class="w-full"
+                      chooseLabel="Subir"
+                    >
+                      <ng-template pTemplate="content">
+                        <div class="image-upload-container" (click)="docUploader.choose()">
+                          <ng-container *ngIf="!previewImage && !previewPDF && !previewFile; else showDoc">
+                            <div class="h-full flex flex-column justify-content-center align-items-center">
+                              <i class="pi pi-upload text-900 text-2xl mb-3"></i>
+                              <span class="font-bold text-900 text-xl mb-3">Subir Archivos</span>
+                              <span class="font-medium text-600 text-md text-center">Seleccione los Archivos</span>
+                            </div>
+                          </ng-container>
+                          <ng-template #showDoc>
+                            <div class="preview-container">
+                              <ng-container *ngIf="previewImage">
+                                <img [src]="previewImage" alt="Documento seleccionado" class="image-preview" />
+                              </ng-container>
+                              <ng-container *ngIf="previewPDF">
+                                <iframe [src]="previewPDF" style="width: 100%; height: 500px;" frameborder="0"></iframe>
+                              </ng-container>
+                              <ng-container *ngIf="!previewImage && !previewPDF && previewFile">
+                                <img [src]="previewFile" alt="Archivo no soportado" class="image-preview" />
+                              </ng-container>
+                            </div>
+                          </ng-template>
+                        </div>
+                      </ng-template>
+                    </p-fileUpload>
+                    <small *ngIf="submitted2 && documentoForm.controls['dobt_Imagen'].invalid" class="error-message">
+                      El campo es requerido.
+                    </small>
+                  </div>
+                
+                  <div class="col-12" style="display: flex; flex-direction: column; align-items: center;">
+                    <div class="button-group" style="margin: 12px 0;">
+                      <button (click)="GuardarDocumento2()" class="btn btn-guardar" pButton pRipple type="button" label="Agregar" style="margin-top: 10px;" icon="pi pi-plus"></button>
+                      <button (click)="limpiarDocumento()" class="p-button-secondary" pButton pRipple type="button" label="Limpiar" style="margin-top: 10px;">
+                        <img alt="button icon" style="max-width: 16px; margin-right: 5px;" src="../../../../../../assets/icons/broom-icon.png">
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                  <div class="loader-container" *ngIf="isLoading">
+                    <div class="loader">
+                      <span></span>
+                    </div>
+                  </div>
+<style>
+ /* Contenedor principal del archivo */
+.file-upload-container {
+    width: 100%;
+    max-width: 400px;
+    height: auto;
+    margin: auto;
+    position: relative;
+    box-sizing: border-box;
+}
+
+/* Evitar que el componente p-fileUpload se expanda con el contenido */
+.p-fileupload {
+    width: 100%;
+    max-width: auto; /* Asegura que el ancho máximo no exceda el límite deseado */
+    height: auto;
+    overflow: hidden; /* Oculta el contenido desbordado */
+    box-sizing: border-box;
+}
+
+/* Mensaje de error */
+.error-message {
+    color: red;
+    font-size: 0.875rem; /* Tamaño de fuente para el mensaje de error */
+    margin-top: 0.5rem; /* Espacio encima del mensaje de error */
+    display: block;
+    white-space: nowrap; /* Evita que el texto del mensaje de error se envuelva */
+    overflow: hidden; /* Oculta el contenido desbordado */
+    text-overflow: ellipsis; /* Añade puntos suspensivos al final si el texto es demasiado largo */
+}
+
+/* Evitar que el input de vista previa se deforme */
+.image-preview, iframe {
+    max-width: 100%;
+    max-height: 200px; /* Ajusta la altura máxima según tus necesidades */
+    object-fit: contain; /* Asegura que el contenido se ajuste sin distorsión */
+}
+
+
+
+</style>
+
+
+
+
+<!--
+
+
+    <div
+    style="
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 1rem;
+        grid-gap: 5px;
+    "
+    class="botones"
+>
+<button
+
+(click)="previousStep()"
+pButton
+label="Anterior"
+icon="pi pi-arrow-left"
+class="p-button-outlined p-button-primary "
+></button>
+<button
+(click)="finalizar2()"
+pButton
+pRipple
+type="button"
+class="btn btn-guardar"
+label="Guardar"
+icon="pi pi-save"
+[disabled]="detalle_identificador"
+></button>
+    </div> -->
+
+
+    <div class="card col-12 mt-4">
+        <div class="text-900 text-xl font-semibold mb-3">Documentación</div>
+        <div class="grid">
+          <!-- Imágenes -->
+          <div class="col-12 md:col-6 xl:col-4">
+            <div class="p-3 border-1 surface-border flex align-items-center justify-content-between  border-round">
+              <div class="flex align-items-center">
+                <i class="pi pi-image text-2xl custom-mr"></i>
+                <span class="text-900 text-lg font-medium">Imágenes</span>
+              </div>
+            </div>
+            <div class="table-container">
+              <p-listbox [options]="ImagenSubida" formControlName="selectedImage" optionLabel="dobt_DescipcionDocumento" [style]="{width: '100%'}" emptyMessage="No hay archivos de imágenes disponibles.">
+                <ng-template let-image pTemplate="item">
+                  <div class="d-flex align-items-center doc-item">
+                    <i class="pi pi-image"></i>
+                    <span class="doc-name">{{image.dobt_DescipcionDocumento}}</span>
+                    <button type="button" pButton icon="pi pi-trash" class="p-button-outlined" (click)="EliminarDocumento(image)"></button>
+                  </div>
+                </ng-template>
+              </p-listbox>
+            </div>
+          </div>
+
+          <!-- PDF -->
+          <div class="col-12 md:col-6 xl:col-4">
+            <div class="p-3 border-1 surface-border flex align-items-center justify-content-between  border-round">
+              <div class="flex align-items-center">
+                <i class="pi pi-file text-2xl custom-mr"></i>
+                <span class="text-900 text-lg font-medium">PDF</span>
+              </div>
+            </div>
+            <div class="table-container">
+              <p-listbox [options]="PDFSubida" formControlName="selectedPDF" optionLabel="dobt_DescipcionDocumento" [style]="{width: '100%'}" emptyMessage="No hay archivos PDF disponibles.">
+                <ng-template let-pdf pTemplate="item">
+                  <div class="d-flex align-items-center doc-item">
+                    <i class="pi pi-file-pdf"></i>
+                    <span class="doc-name">{{pdf.dobt_DescipcionDocumento}}</span>
+                    <button type="button" pButton icon="pi pi-trash" class="p-button-outlined" (click)="EliminarDocumento(pdf)"></button>
+                  </div>
+                </ng-template>
+              </p-listbox>
+            </div>
+          </div>
+
+          <!-- Excel -->
+          <div class="col-12 md:col-6 xl:col-4">
+            <div class="p-3 border-1 surface-border flex align-items-center justify-content-between  border-round">
+              <div class="flex align-items-center">
+                <i class="pi pi-file-excel text-2xl custom-mr"></i>
+                <span class="text-900 text-lg font-medium">Excel</span>
+              </div>
+            </div>
+            <div class="table-container">
+              <p-listbox [options]="ExcelSubida" formControlName="selectedExcel" optionLabel="dobt_DescipcionDocumento" [style]="{width: '100%'}" emptyMessage="No hay archivos Excel disponibles.">
+                <ng-template let-excel pTemplate="item">
+                  <div class="d-flex align-items-center doc-item">
+                    <i class="pi pi-file-excel"></i>
+                    <span class="doc-name">{{excel.dobt_DescipcionDocumento}}</span>
+                    <button type="button" pButton icon="pi pi-trash" class="p-button-outlined" (click)="EliminarDocumento(excel)"></button>
+                  </div>
+                </ng-template>
+              </p-listbox>
+            </div>
+          </div>
+
+          <!-- Word -->
+          <div class="col-12 md:col-6 xl:col-4">
+            <div class="p-3 border-1 surface-border flex align-items-center justify-content-between  border-round">
+              <div class="flex align-items-center">
+                <i class="pi pi-file-word text-2xl custom-mr"></i>
+                <span class="text-900 text-lg font-medium">Word</span>
+              </div>
+            </div>
+            <div class="table-container">
+              <p-listbox [options]="WordSubida" formControlName="selectedWord" optionLabel="dobt_DescipcionDocumento" [style]="{width: '100%'}" emptyMessage="No hay archivos Word disponibles.">
+                <ng-template let-word pTemplate="item">
+                  <div class="d-flex align-items-center doc-item">
+                    <i class="pi pi-file-word"></i>
+                    <span class="doc-name">{{word.dobt_DescipcionDocumento}}</span>
+                    <button type="button" pButton icon="pi pi-trash" class="p-button-outlined" (click)="EliminarDocumento(word)"></button>
+                  </div>
+                </ng-template>
+              </p-listbox>
+            </div>
+          </div>
+
+          <!-- Otros -->
+          <div class="col-12 md:col-6 xl:col-4">
+            <div class="p-3 border-1 surface-border flex align-items-center justify-content-between  border-round">
+              <div class="flex align-items-center">
+                <i class="pi pi-folder text-2xl custom-mr"></i>
+                <span class="text-900 text-lg font-medium">Otros</span>
+              </div>
+            </div>
+            <div class="table-container">
+              <p-listbox [options]="OtrosSubida" formControlName="selectedOtros" optionLabel="dobt_DescipcionDocumento" [style]="{width: '100%'}" emptyMessage="No hay otros archivos disponibles.">
+                <ng-template let-otros pTemplate="item">
+                  <div class="d-flex align-items-center doc-item">
+                    <i class="pi pi-folder"></i>
+                    <span class="doc-name">{{otros.dobt_DescipcionDocumento}}</span>
+                    <button type="button" pButton icon="pi pi-trash" class="p-button-outlined" (click)="EliminarDocumento(otros)"></button>
+                  </div>
+                </ng-template>
+              </p-listbox>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+
+      <div
+      style="
+          width: 100%;
+          display: flex;
+          justify-content: space-between;
+          margin-top: 20px;
+      "
+  >
+      <button
+          (click)="Regresartap()"
+          pButton
+          label="Anterior"
+          icon="pi pi-arrow-left"
+          class="p-button-secondary"
+      ></button>
+      <button
+          (click)="Elmodalquelevantaunmnesajeparaelusaurio()"
+          pButton
+          label="Guardar"
+          icon="pi pi-save"
+          [disabled]="detalle_identificador"
+      ></button>
+  </div>
+
+            </form>
+        </p-tabPanel>
+    </p-tabView>
+        </div>
+    </div>
+</div>
+
+<style>
+    .custom-mr {
+        margin-right: 1rem;
+    }
+
+    .custom-ml {
+        margin-left: 4rem;
+    }
+</style>
+
+<!--
+<style>
+  .image-upload-container {
+    border: 2px dashed #ccc;
+    border-radius: 5px;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    width: 100%;
+    height: 200px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .image-upload-container:hover {
+    background-color: #000000;
+  }
+
+  .image-preview {
+    max-width: 100%;
+    max-height: 100%;
+    height: auto;
+    border-radius: 5px;
+  }
+
+  .image-placeholder {
+    color: #000000;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+</style> -->
+
+<div class="grid" *ngIf="Detail">
+    <div class="col-12">
+        <div class="card">
+            <div class="flex" style="width: 100%; margin: 0 auto; display: flex; align-items: center; height: 42px; position: relative;">
+                <div style="width: 20%; display: flex; align-items: center; height: 12.5%;">
+                    <button (click)="CerrarBienRaiz()" class="p-button-link" pButton pRipple type="button" label="Regresar" icon="pi pi-arrow-left" style="box-shadow: none !important;"></button>
+                </div>
+                <div style="flex-grow: 1; display: flex; justify-content: center; align-items: center;">
+                    <h1 class="text-center mt-4">Detalle Terreno</h1>
+                </div>
+                <div style="width: 20%;"></div> <!-- Div vacío para balancear el espacio a la derecha -->
+            </div>
+            <hr>
+            <div class="p-fluid p-formgrid grid">
+                <div class="field col-12 md:col-4">
+                    <div class="field rows">
+                        <label for="Imagen" style="font-weight: 800"
+                            >Imagen:</label
+                        >
+                    </div>
+                    <div class="field rows">
+                        <img
+                            [src]="detalle_bien_Imagen"
+                            alt="Imagen del Bien Raíz"
+                            style="max-width: 100%; height: 100px; width: 200px; margin-top: 0px;"
+                        />
+                    </div>
+                </div>
+                <div class="field col-12 md:col-4">
+                    <div class="field rows">
+                        <label for="Codigo" style="font-weight: 800"
+                            >No:</label
+                        >
+                    </div>
+                    <div class="field rows">
+                        <label for="Codigo">{{ detalle_bien_Id }}</label>
+                    </div>
+                </div>
+                <div class="field col-12 md:col-4">
+                    <div class="field rows">
+                        <label for="Descripcion" style="font-weight: 800"
+                            >Descripción:</label
+                        >
+                    </div>
+                    <div class="field rows">
+                        <label for="Descripcion">{{
+                            detalle_bien_Desripcion
+                        }}</label>
+                    </div>
+                </div>
+                <div class="field col-12 md:col-4">
+                    <div class="field rows">
+                        <label for="Area" style="font-weight: 800">Área:</label>
+                    </div>
+                    <div class="field rows">
+                        <label for="Area">{{ detalle_bien_Area }}</label>
+                    </div>
+                </div>
+                <div class="field col-12 md:col-4">
+                    <div class="field rows">
+                        <label for="PecioCompra" style="font-weight: 800"
+
+                            >Precio de Compra:</label
+                        >
+                    </div>
+                    <div class="field rows">
+                        <label for="PecioCompra">{{globalMoneda.getState().mone_Abreviatura}} {{
+                            detalle_bien_PecioCompra   | number:'1.2-2'
+                        }}</label>
+                    </div>
+                </div>
+                <!-- <div class="field col-12 md:col-4">
+                    <div class="field rows">
+                        <label for="PrecioVenta" style="font-weight: 800"
+                            >Precio de Venta:</label
+                        >
+                    </div>
+                    <div class="field rows">
+                        <label for="PrecioVenta">{{
+                            detalle_bien_PrecioVenta
+                        }}</label>
+                    </div>
+                </div> -->
+                <div class="field col-12 md:col-4">
+                    <div class="field rows">
+                        <label for="Latitud" style="font-weight: 800"
+                            >Latitud:</label
+                        >
+                    </div>
+                    <div class="field rows">
+                        <label for="Latitud">{{ detalle_bien_Latitud }}</label>
+                    </div>
+                </div>
+                <div class="field col-12 md:col-4">
+                    <div class="field rows">
+                        <label for="Longitud" style="font-weight: 800"
+                            >Longitud:</label
+                        >
+                    </div>
+                    <div class="field rows">
+                        <label for="Longitud">{{
+                            detalle_bien_Longitud
+                        }}</label>
+                    </div>
+                </div>
+                <div class="field col-12 md:col-4">
+                    <div class="field rows">
+                        <label for="LinkUbicacion" style="font-weight: 800"
+                            >Link de Ubicación:</label
+                        >
+                    </div>
+                    <div class="field rows">
+                        <a [href]="detalle_bien_LinkUbicacion" target="_blank"
+                            >Ver ubicación</a
+                        >
+                    </div>
+                </div>
+                <div class="field col-12 md:col-4">
+                    <div class="field rows">
+                        <label for="LinkUbicacion" style="font-weight: 800"
+                            >País:</label
+                        >
+                    </div>
+                    <div class="field rows">
+                        <label for="Longitud">{{ pais }}</label>
+                    </div>
+                </div>
+                <div class="field col-12 md:col-4">
+                    <div class="field rows">
+                        <label for="LinkUbicacion" style="font-weight: 800"
+                            >Ciudad:</label
+                        >
+                    </div>
+                    <div class="field rows">
+                        <label for="Longitud">{{ ciudad }}</label>
+                    </div>
+                </div>
+                <!-- <div class="field col-12 md:col-4">
+                    <div class="field rows">
+                        <label for="LinkUbicacion" style="font-weight: 800"
+                            >Docuemnto:</label
+                        >
+                    </div>
+                    <div class="field rows">
+                        <label for="Longitud">{{ detalle_Documento }}</label>
+                    </div>
+                </div> -->
+
+            </div>
+            <!-- Auditoría -->
+            <div class="card-title">
+                <h1>Auditoría</h1>
+            </div>
+            <p-table [value]="Datos" styleClass="mt-2">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th style="width: 200px; font-weight: bold">Acción</th>
+                        <th style="width: 200px; font-weight: bold">Usuario</th>
+                        <th style="width: 200px; font-weight: bold">Fecha</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body">
+                    <!-- Mostrar detalles de creación -->
+                    <tr>
+                        <td style="width: 200px">Creado</td>
+                        <td style="width: 200px">{{ detalle_usuaCreacion || ' ' }}</td>
+                        <td style="width: 200px">{{ detalle_bien_FechaCreacion || '' }}</td>
+                    </tr>
+                    <!-- Mostrar detalles de modificación -->
+                    <tr>
+                        <td style="width: 200px">Modificado</td>
+                        <td style="width: 200px">{{ detalle_usuaModificacion || ' ' }}</td>
+                        <td style="width: 200px">{{ detalle_bien_FechaModificacion || ' ' }}</td>
+                    </tr>
+                </ng-template>
+            </p-table>
+
+            <!-- <div
+                style="
+                    display: flex;
+                    justify-content: flex-end;
+                    margin-top: 1rem;
+                    grid-gap: 5px;
+                "
+            >
+                <button
+                    (click)="CerrarBienRaiz()"
+                    pButton
+                    icon="pi pi-arrow-left"
+                    type="button"
+                    label="Regresar"
+                    class="p-button-outlined"
+                ></button>
+            </div> -->
+        </div>
+    </div>
+</div>
+
+<style>
+    ::ng-deep .project-item {
+        margin-bottom: 1rem;
+    }
+
+    ::ng-deep .project-card {
+        backdrop-filter: blur(10px);
+        border-radius: 8px;
+        padding: 0.5rem 1rem; /* Ajustar padding para hacer el ítem menos alto */
+    }
+
+    ::ng-deep .checkbox-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    ::ng-deep .project-details {
+        margin-right: 10px; /* Espacio entre los detalles y el checkbox */
+    }
+
+    ::ng-deep .project-title {
+        font-weight: bold;
+    }
+
+    ::ng-deep .project-description,
+    ::ng-deep .project-address {
+        font-size: 0.9em;
+        color: #ccc;
+    }
+
+    ::ng-deep .modal-footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+</style>
+
+<p-dialog
+    [(visible)]="Delete"
+    header="Confirmación "
+    [modal]="true"
+    class="custom-modal"
+    [style]="{ width: '450px' }"
+>
+    <div class="flex align-items-center justify-content-center">
+        <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+        <span
+            >¿Está seguro que desea eliminar
+            <span style="font-weight: 600">{{ detalle_bien_Desripcion }}</span
+            >?</span
+        >
+    </div>
+    <ng-template pTemplate="footer">
+        <button
+            pButton
+            pRipple
+            icon="pi pi-trash" type="button" label="Eliminar"
+            (click)="Eliminar()"
+        ></button>
+        <button
+            pButton
+            pRipple
+            icon="pi pi-times" class="p-button-outlined p-button-primary" label="Cancelar"
+            (click)="Delete = false"
+        ></button>
+    </ng-template>
+</p-dialog>
+
+<p-dialog
+    [(visible)]="MandarterrenoAProyecto"
+    header="Inicio de Construcción en el Terreno"
+    [modal]="true"
+    class="custom-modal"
+>
+    <form [formGroup]="proyectoForm">
+        <div class="content-container">
+            <div class="field" *ngIf="proyecto" style="display: flex; flex-direction: column; align-items: center;">
+                <label for="proyectoSelect">Seleccione el proyecto donde iniciará la construcción en el terreno:</label>
+                <p-autoComplete
+                    formControlName="proy_Nombre"
+                    [suggestions]="filtradoproyecto"
+                    (completeMethod)="filterProyecto($event)"
+                    (onSelect)="onProyectoSelect($event)"
+                    field="proy_Nombre"
+                    appendTo="body"
+                    (keydown)="ValidarTextoNumeros($event)"
+                    placeholder="Buscar proyecto"
+                    [dropdown]="true"
+                    [ngClass]="{'ng-invalid ng-dirty': submitted2 && proyectoForm.controls['proy_Id'].invalid}"
+                ></p-autoComplete>
+                <small class="ng-dirty ng-invalid" *ngIf="submitted2 && proyectoForm.controls['proy_Id'].invalid"
+                    style="color: red !important;">El campo es requerido</small>
+            </div>
+        </div>
+    </form>
+    <ng-template pTemplate="footer">
+        <button
+            pButton
+            pRipple
+            icon="pi pi-save"
+            label="Guardar"
+            (click)="GuardarProyecto()"
+        ></button>
+        <button
+            pButton
+            pRipple
+            icon="pi pi-times"
+            class="p-button-outlined p-button-primary"
+            label="Cancelar"
+            (click)="cancelar()"
+        ></button>
+    </ng-template>
+</p-dialog>
+<p-dialog
+    [(visible)]="isVisible"
+    header="Confirmación"
+    [modal]="true"
+    [closable]="true"
+    [style]="{width: '300px'}"
+    class="custom-modal"
+>
+    <div class="confirm-dialog-content">
+        <p>¿Desea enviar el terreno "<strong>{{ terrenoForm.controls['terr_Descripcion'].value }}</strong>" a un proyecto?</p>
+    </div>
+    <ng-template pTemplate="footer">
+        <button
+            pButton
+            pRipple
+            pRipple icon="pi pi-check" type="button" label="Aceptar"
+            (click)="finalizar2()"
+        ></button>
+        <button
+            pButton
+            pRipple
+            icon="pi pi-times"
+            icon="pi pi-times" class="p-button-outlined p-button-primary" label="Cancelar"
+            (click)="IdentificadorDesactivar()"
+        ></button>
+    </ng-template>
+</p-dialog>
+<!-- <p-dialog
+    [(visible)]="ModalConfirmar"
+    header="Confirmación"
+    [modal]="true"
+    class="custom-modal"
+>
+    <div class="content-container">
+        <div class="confirmation-message">
+            <p class="message-text">¿Desea guardar el terreno en el proyecto?</p>
+            <div class="details">
+                <p><strong>Terreno:</strong> {{ detalle_bien_Desripcion }}</p>
+                <p><strong>Proyecto:</strong> {{ proyectoNombre }}</p>
+            </div>
+        </div>
+    </div>
+    <ng-template pTemplate="footer">
+        <button
+            pButton
+            pRipple
+            icon="pi pi-save"
+            class="btn btn-confirmar p-button-sm"
+            label="Guardar"
+            (click)="GuardarProyecto()"
+        ></button>
+        <button
+            pButton
+            pRipple
+            icon="pi pi-times"
+            class="p-button-outlined p-button-primary p-button-sm"
+            label="Cancelar"
+            (click)="CancelarConfirmacion()"
+        ></button>
+    </ng-template>
+</p-dialog> -->
+
+
+
+<p-dialog [(visible)]="confirmInsumoDialog" class="custom-modal" header="Confirmación " [modal]="true" [style]="{width:'450px'}">
+    <div class="flex align-items-center justify-content-center">
+        <i class="pi pi-pencil mr-3" style="font-size: 2rem"></i>
+        <span>¿Está seguro de editar el Terreno <span style="font-weight: 600;">{{terrenoForm.controls['terr_Descripcion'].value}}</span>?</span>
+    </div>
+
+    <ng-template pTemplate="footer">
+        <button pButton pRipple icon="pi pi-pencil" type="button" label="Aceptar" (click)="confirmarActualizar()"></button>
+        <button pButton pRipple icon="pi pi-times" class="p-button-outlined p-button-primary" label="Cancelar" (click)="cerrar()"></button>
+    </ng-template>
+</p-dialog>
+
+<p-dialog [(visible)]="deleteDocumentoDialog" header="Confirmación" [modal]="true" [style]="{width:'450px'}">
+    <div class="flex align-items-center justify-content-center">
+      <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+      <span>¿Está seguro de eliminar el documento <strong>{{selectedDocumento?.dobt_DescipcionDocumento}}</strong>?</span>
+    </div>
+    <ng-template pTemplate="footer">
+      <button pButton pRipple icon="pi pi-trash" type="button" label="Eliminar" (click)="confirmarEliminarDocumento()"></button>
+      <button pButton pRipple icon="pi pi-times" class="p-button-outlined p-button-primary" label="Cancelar" (click)="deleteDocumentoDialog = false"></button>
+    </ng-template>
+  </p-dialog>

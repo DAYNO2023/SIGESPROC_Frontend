@@ -1,0 +1,1778 @@
+<p-toast></p-toast>
+
+
+<div class="grid" *ngIf="Index">
+    <div class="col-12">
+        <div class="card">
+            <h1 class="text-center mt-2">Bienes Raíces en Venta</h1>
+            <hr />
+            <div class="grid mt-2">
+                <div class="col-12">
+                    <button (click)="CrearProcesoVenta()" pButton icon="pi pi-plus" label="Nuevo" class="mr-2"></button>
+                </div>
+            </div>
+
+            <!-- <div class="spinner-container" *ngIf="isLoading">
+                <p-progressSpinner
+                    styleClass="w-4rem h-4rem"
+                    strokeWidth="8"
+                    fill="var(--surface-ground)"
+                    animationDuration=".3s"
+                ></p-progressSpinner>
+            </div> -->
+
+            <p-table [tableStyle]="{ background: '#000' }" #dt [value]="ventabienraiz" styleClass="mt-2"
+                responsiveLayout="scroll" [style.overflowX]="'auto'" [rows]="10" [globalFilterFields]="[
+                    'btrp_Id',
+                    'agen_NombreCompleto',
+                    'btrp_Identificador',
+                    'btrp_PrecioVenta_Final',
+                    'Descripcion'
+                ]" [paginator]="true" [showCurrentPageReport]="true"
+                currentPageReportTemplate="Mostrando {first} al {last} de {totalRecords} entradas" [paginator]="true"
+                [rowsPerPageOptions]="[10, 25, 50, 100]" [rowHover]="true">
+                <ng-template pTemplate="caption">
+                    <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+                        <span class="block mt-2 md:mt-0 p-input-icon-left">
+                            <i class="pi pi-search" style="color: white"></i>
+                            <input (input)="onGlobalFilter(dt, $event)" placeholder="Buscar..." class="w-full sm:w-auto"
+                                style="color: white; background-color: #333" pInputText type="text" />
+                        </span>
+                        <div class="registros">
+                            <p-dropdown [options]="dt.rowsPerPageOptions" [(ngModel)]="dt.rows"
+                                [style]="{ 'margin-right': '5px' }" [autoWidth]="false"></p-dropdown>
+
+                            <span style="
+                                    color: #fff0c6;
+                                    font-weight: 700;
+                                    margin-top: 7px;
+                                ">
+                                Registros por página</span>
+                        </div>
+                    </div>
+                </ng-template>
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th style="color: white" class="text-center">
+                            Acciones
+                        </th>
+                        <th style="color: white" pSortableColumn="btrp_Id" class="text-center">
+                            No. <p-sortIcon field="codigo"></p-sortIcon>
+                        </th>
+                        <th style="color: white" pSortableColumn="btrp_Terreno_O_BienRaizId" class="text-center">
+                            Tipo
+                            <p-sortIcon field="btrp_Terreno_O_BienRaizId"></p-sortIcon>
+                        </th>
+                        <th style="color: white" pSortableColumn="agen_NombreCompleto" class="text-center">
+                            Agente Encargado
+                            <p-sortIcon field="agen_NombreCompleto"></p-sortIcon>
+                        </th>
+                        <th style="color: white" pSortableColumn="Descripcion" class="text-center">
+                            Descripción
+                            <p-sortIcon field="Descripcion"></p-sortIcon>
+                        </th>
+                        <th style="color: white" pSortableColumn="btrp_PrecioVenta_Final" class="text-center">
+                            Precio Inicial
+                            <p-sortIcon field="btrp_PrecioVenta_Final"></p-sortIcon>
+                        </th>
+                        <th style="color: white" pSortableColumn="btrp_FechaPuestaVenta" class="text-center">
+                            Fecha en Venta
+                            <p-sortIcon field="btrp_FechaPuestaVenta"></p-sortIcon>
+                        </th>
+                        <th style="color: white" pSortableColumn="btrp_Identificador" class="text-center">
+                            Estado Venta
+                            <p-sortIcon field="btrp_Identificador"></p-sortIcon>
+                        </th>
+                    </tr>
+                </ng-template>
+
+                <ng-template pTemplate="emptymessage">
+                    <tr>
+                      <td colspan="6" class="text-center">
+                        <div class="loader-container" *ngIf="isLoading">
+                            <div class="loader">
+                                <span></span>
+                            </div>
+                          </div>
+                      </td>
+                    </tr>
+                  </ng-template>
+                <!--Inicio loader-->
+                <!-- <ng-template pTemplate="emptymessage">
+                    <tr>
+                      <td colspan="6" class="text-center">
+                        <div class="loader-container" *ngIf="isLoading">
+                          <div class="loader"></div>
+                        </div>
+                      </td>
+                    </tr>
+                  </ng-template> -->
+                <!-- Fin loader -->
+
+
+                <ng-template pTemplate="body" let-procesoVenta>
+                    <tr (click)="selectProcesoVenta(procesoVenta)">
+                        <td class="text-center">
+                            <p-splitButton [label]="
+                                    procesoVenta.btrp_Identificador
+                                        ? 'Acciones'
+                                        : 'Detalles'
+                                " icon="pi pi-cog" [model]="
+                                    procesoVenta.btrp_Identificador
+                                        ? itemsVenta
+                                        : itemsVendido
+                                " styleClass="p-button-secondary" appendTo="body"
+                                class="custom-splitbutton"></p-splitButton>
+                        </td>
+                        <td class="text-center">{{ procesoVenta.codigo }}</td>
+                        <td class="text-center">
+                            <span class="otro-estado">
+                                <span class="text-span">
+                                    {{
+                                    procesoVenta.btrp_Terreno_O_BienRaizId
+                                    ? "&nbsp;Terreno&nbsp;"
+                                    : " Bien Raíz "
+                                    }}
+                                </span>
+                            </span>
+                        </td>
+                        <td class="text-center">
+                            {{ procesoVenta.agen_NombreCompleto }}
+                        </td>
+                        <td class="text-center">
+                            {{ procesoVenta.descripcion }}
+                        </td>
+                        <td class="text-center">
+                            <span style="padding-right: 0.5rem;">{{globalMoneda.getState().mone_Abreviatura}}
+                                {{procesoVenta.btrp_PrecioVenta_Inicio | number:'1.2-2'}}</span>
+
+                        </td>
+                        <td class="text-center">
+                            {{
+                            procesoVenta.btrp_FechaPuestaVenta
+                            | date : "MMM d, y"
+                            }}
+                        </td>
+                        <td class="text-center">
+                            <span [ngClass]="{
+                                    'estado-activo':
+                                        procesoVenta.btrp_Identificador,
+                                    'estado-inactivo':
+                                        !procesoVenta.btrp_Identificador
+                                }">
+                                <span class="text-span">
+                                    {{
+                                    procesoVenta.btrp_Identificador
+                                    ? "En Venta"
+                                    : "Vendido"
+                                    }}
+                                </span>
+                            </span>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+    </div>
+</div>
+
+<div class="loader-container" *ngIf="Loading2">
+    <div class="loader">
+        <span></span>
+    </div>
+</div>
+
+
+<div class="grid" *ngIf="Create">
+    <div class="col-12">
+        <div class="card">
+            <!-- <h1 class="text-center mt-2">Venta Bien Raíz - Terreno</h1>
+            <hr />
+            <div
+                class="mb-4"
+                class="flex flex-row justify-content-between align-items-center mb-4"
+            >
+                <div class="flex flex-column">
+                    <h2>{{ titulo }}</h2>
+                </div>
+                <div class="flex">
+                    <button
+                        (click)="CerrarProcesoVenta()"
+                        pButton
+                        icon="pi pi-arrow-left"
+                        type="button"
+                        label="Regresar"
+                        class="p-button-link"
+                    ></button>
+                </div>
+            </div> -->
+            <div class="flex">
+                <div style="width: 20%; display: flex; align-items: center; position: absolute; height: 12.5%;">
+                    <button (click)="CerrarProcesoVenta()" class="p-button-link" pButton pRipple type="button"
+                        label="Regresar" icon="pi pi-arrow-left"
+                        style="box-shadow: none !important; margin-top: -90px;"></button>
+                </div>
+                <div style="width: 100%; display: flex; justify-content: center; align-items: center;">
+
+                    <h1 class="text-center mt-2">{{ titulo }} venta Bien Raíz - Terreno</h1>
+                </div>
+            </div>
+
+            <p-tabView [(activeIndex)]="activeIndex" (onTabChange)="handleTabChange($event)">
+                <!-- Panel de Datos Generales -->
+                <!-- Parte del formulario HTML -->
+                <p-tabPanel header="Datos Generales">
+                    <form [formGroup]="formDatosGenerales" class="grid col-12 p-fluid p-formgrid"
+                        *ngIf="activeIndex === 0">
+                        <div class="grid col-12 p-fluid p-formgrid">
+                            <div class="field col-12 md:col-6">
+                                <label for="">Escoja un Terreno/Bien Raíz</label>&nbsp;
+                                <small style="display: inline-block; color: red !important;" class="ng-dirty ng-invalid"
+                                    *ngIf="submitted && !formDatosGenerales.get('id').value">
+                                    *
+                                </small> <br />
+                                <button class="btn btn-guardar" pButton pRipple type="button"
+                                    label="Bien Raíz - Terreno" icon="pi pi-plus" (click)="openPropiedadesModal()"
+                                    [disabled]="isEditing" style="width: 180px;"></button>
+                                <br>
+                                <!-- Ejemplo de validación visual -->
+                                <small class="ng-dirty ng-invalid" *ngIf="
+                                    submitted &&
+                                    !formDatosGenerales.get('id').value
+                                " style="color: red !important">Seleccione un Terreno/Bien Raíz</small>
+                            </div>
+
+                            <div class="field col-11 md:col-4" style="margin-left: 40px;">
+                                <label>Agente</label>&nbsp;
+                                <small style="display: inline-block; color: red !important;" class="ng-dirty ng-invalid"
+                                    *ngIf="submitted && formDatosGenerales.controls['agen_DNI'].invalid">
+                                    *
+                                </small>
+                                <div style="width: 140%;">
+                                    <p-autoComplete formControlName="agen_DNI" [suggestions]="filtradoInsumo"
+                                        (completeMethod)="filterInsumo($event)" (onSelect)="onInsumoSelect($event)"
+                                        [dropdown]="true" [showClear]="true" placeholder="Seleccione un agente"
+                                        [field]="'display'" [ngClass]="{
+                                        'ng-invalid ng-dirty':
+                                            submitted &&
+                                            formDatosGenerales.controls['agen_DNI'].invalid
+                                    }" style="width: 140%;">
+                                        <ng-template let-item pTemplate="item">
+                                            <div>
+                                                <span>{{ item.agen_DNI }}</span> - <span>{{ item.agen_Nombre }} {{
+                                                    item.agen_Apellido }}</span>
+                                            </div>
+                                        </ng-template>
+                                    </p-autoComplete>
+                                </div>
+                                <!-- Validación para el campo agen_DNI -->
+                                <small class="ng-dirty ng-invalid" *ngIf="
+                                    submitted &&
+                                    formDatosGenerales.controls['agen_DNI'].invalid
+                                " style="color: red !important">Seleccione un agente.</small>
+                            </div>
+
+                            <div class="field col-12 md:col-1">
+                                <button pButton type="button" style="margin-top: 23px; margin-left: 180%;"
+                                    icon="pi pi-user-plus" (click)="openagenteModal()"></button>
+                            </div>
+                        </div>
+
+
+                        <div class="grid">
+                            <div class="col-12 md:col-6">
+                                <input type="hidden" formControlName="tipo" />
+                                <input type="hidden" formControlName="id" />
+                                <input type="hidden" formControlName="agente" />
+                                <p-fieldset legend="Datos del Bien Raíz/Terreno">
+                                    <div class="grid p-fluid">
+                                        <div class="field col-12" style="margin-bottom: 0px">
+                                            <label for="descripcion">Descripción&nbsp;
+                                                <small style="display: inline-block; color: red !important;"
+                                                    class="ng-dirty ng-invalid"
+                                                    *ngIf="submitted && formDatosGenerales.controls['descripcion'].invalid">
+                                                    *
+                                                </small>
+                                            </label>
+                                            <input id="descripcion" formControlName="descripcion" name="descripcion"
+                                                type="text" pInputText readonly disabled
+                                                pTooltip="El campo se completa automáticamente."
+                                                tooltipPosition="bottom" />
+                                            <small class="ng-dirty ng-invalid" *ngIf="
+                                                submitted &&
+                                                formDatosGenerales.controls[
+                                                    'descripcion'
+                                                ].invalid
+                                            " style="color: red !important">El campo es requerido.</small>
+                                        </div>
+                                        <div class="field col-12" style="margin-bottom: 0px">
+                                            <label for="direccion">Dirección&nbsp;
+                                                <small style="display: inline-block; color: red !important;"
+                                                    class="ng-dirty ng-invalid"
+                                                    *ngIf="submitted && formDatosGenerales.controls['direccion'].invalid">
+                                                    *
+                                                </small>
+
+
+                                            </label>
+                                            <input id="direccion" formControlName="direccion" name="direccion"
+                                                type="text" pInputText readonly disabled
+                                                pTooltip="El campo se completa automáticamente."
+                                                tooltipPosition="bottom" />
+                                            <small class="ng-dirty ng-invalid" *ngIf="
+                                                submitted &&
+                                                formDatosGenerales.controls[
+                                                    'direccion'
+                                                ].invalid
+                                            " style="color: red !important">El campo es requerido.</small>
+                                        </div>
+                                        <div class="field col-12" style="margin-bottom: 0px">
+                                            <label for="area">Área (m²)&nbsp;
+                                                <small style="display: inline-block; color: red !important;"
+                                                    class="ng-dirty ng-invalid"
+                                                    *ngIf="submitted && formDatosGenerales.controls['area'].invalid">
+                                                    *
+                                                </small>
+
+                                            </label>
+                                            <input id="area" formControlName="area" name="area" type="text" pInputText
+                                                readonly pTooltip="El campo se completa automáticamente."
+                                                tooltipPosition="bottom" disabled />
+                                            <small class="ng-dirty ng-invalid" *ngIf="
+                                                submitted &&
+                                                formDatosGenerales.controls[
+                                                    'area'
+                                                ].invalid
+                                            " style="color: red !important">El campo es requerido.</small>
+                                        </div>
+                                        <div class="field col-12" style="margin-bottom: 0px">
+                                            <label for="precio">
+                                                Precio Compra 
+                                                <small style="display: inline-block; color: red !important;"
+                                                    class="ng-dirty ng-invalid"
+                                                    *ngIf="submitted && formDatosGenerales.controls['precio'].invalid">
+                                                    *
+                                                </small>
+                                            </label>
+                                            <p-inputNumber id="precio" formControlName="precio" name="precio"
+                                                type="text" readonly pTooltip="El campo se completa automáticamente."
+                                                tooltipPosition="bottom" mode="decimal" [readonly]="bloqueado" [minFractionDigits]="2"
+                                                [maxFractionDigits]="2" [prefix]="'LPS '"
+                                                (keydown)="preventInput($event)"></p-inputNumber>
+                                            <small class="ng-dirty ng-invalid"
+                                                *ngIf="submitted && formDatosGenerales.controls['precio'].invalid"
+                                                style="color: red !important">
+                                                El campo es requerido.
+                                            </small>
+                                        </div>
+
+
+                                    </div>
+                                    <div class="image-container">
+                                        <img [src]="
+                                                formDatosGenerales.get('imagen')
+                                                    .value
+                                            " aria-haspopup="true" class="max-w-full image-center" />
+                                        <p-contextMenu [target]="img" [model]="items"></p-contextMenu>
+                                    </div>
+                                </p-fieldset>
+                            </div>
+
+                            <div class="col-12 md:col-6">
+                                <p-fieldset legend="Datos del Agente">
+                                    <div class="grid p-fluid">
+                                        <div class="field col-12" style="margin-bottom: 0px">
+                                            <label for="agenteId">Identidad del Agente a
+                                                Cargo&nbsp;
+                                                <small style="display: inline-block; color: red !important;"
+                                                    class="ng-dirty ng-invalid"
+                                                    *ngIf="submitted && formDatosGenerales.controls['agenteId'].invalid">
+                                                    *
+                                                </small>
+                                            </label>
+                                            <input id="agenteId" formControlName="agenteId" type="text" pInputText
+                                                readonly disabled pTooltip="El campo se completa automáticamente."
+                                                tooltipPosition="bottom" />
+                                            <small class="ng-dirty ng-invalid" *ngIf="
+                                                submitted &&
+                                                formDatosGenerales.controls[
+                                                    'agenteId'
+                                                ].invalid
+                                            " style="color: red !important">El campo es requerido.</small>
+                                        </div>
+                                        <div class="field col-12" style="margin-bottom: 0px">
+                                            <label for="agenteNombre">Nombre del Agente&nbsp;
+                                                <small style="display: inline-block; color: red !important;"
+                                                    class="ng-dirty ng-invalid"
+                                                    *ngIf="submitted && formDatosGenerales.controls['agenteNombre'].invalid">
+                                                    *
+                                                </small>
+
+                                            </label>
+                                            <input id="agenteNombre" formControlName="agenteNombre" type="text"
+                                                pInputText readonly disabled
+                                                pTooltip="El campo se completa automáticamente."
+                                                tooltipPosition="bottom" />
+                                            <small class="ng-dirty ng-invalid" *ngIf="
+                                                submitted &&
+                                                formDatosGenerales.controls[
+                                                    'agenteNombre'
+                                                ].invalid
+                                            " style="color: red !important">El campo es requerido.</small>
+                                        </div>
+                                        <div class="field col-12" style="margin-bottom: 0px">
+                                            <label for="agenteCorreo">Correo del Agente&nbsp;
+                                                <small style="display: inline-block; color: red !important;"
+                                                    class="ng-dirty ng-invalid"
+                                                    *ngIf="submitted && formDatosGenerales.controls['agenteCorreo'].invalid">
+                                                    *
+                                                </small>
+                                            </label>
+                                            <input id="agenteCorreo" formControlName="agenteCorreo" type="text"
+                                                pInputText readonly disabled
+                                                pTooltip="El campo se completa automáticamente."
+                                                tooltipPosition="bottom" />
+                                            <small class="ng-dirty ng-invalid" *ngIf="
+                                                submitted &&
+                                                formDatosGenerales.controls[
+                                                    'agenteCorreo'
+                                                ].invalid
+                                            " style="color: red !important">El campo es requerido.</small>
+                                        </div>
+                                        <div class="field col-12" style="margin-bottom: 0px">
+                                            <label for="telefono">Teléfono &nbsp;
+                                                <small style="display: inline-block; color: red !important;"
+                                                    class="ng-dirty ng-invalid"
+                                                    *ngIf="submitted && formDatosGenerales.controls['telefono'].invalid">
+                                                    *
+                                                </small>
+                                            </label>
+                                            <input id="telefono" formControlName="telefono" type="text" pInputText
+                                                readonly disabled pTooltip="El campo se completa automáticamente."
+                                                tooltipPosition="bottom" />
+                                            <small class="ng-dirty ng-invalid" *ngIf="
+                                                submitted &&
+                                                formDatosGenerales.controls[
+                                                    'telefono'
+                                                ].invalid
+                                            " style="color: red !important">El campo es requerido.</small>
+                                        </div>
+                                    </div>
+                                </p-fieldset>
+                                <br />
+                                <div class="grid p-fluid">
+                                    <div class="field col-12 md:col-12">
+                                        <label>Fecha de Venta Inicial&nbsp;
+                                            <small style="display: inline-block; color: red !important;"
+                                                class="ng-dirty ng-invalid"
+                                                *ngIf="submitted && formDatosGenerales.controls['fechaVentaInicial'].invalid">
+                                                *
+                                            </small>
+
+                                        </label><br />
+                                        <p-calendar 
+                                        [minDate]="minDate"
+                                        [ngClass]="{
+                                            'ng-invalid ng-dirty':
+                                                submitted &&
+                                                formDatosGenerales.controls['fechaVentaInicial'].invalid
+                                        }" [showIcon]="true" inputId="icon" class="col-12"
+                                            formControlName="fechaVentaInicial" dateFormat="dd/mm/yy"></p-calendar>
+                                        <small class="ng-dirty ng-invalid" *ngIf="
+                                                submitted &&
+                                                formDatosGenerales.controls[
+                                                    'fechaVentaInicial'
+                                                ].invalid
+                                            " style="color: red !important">El campo es requerido.</small>
+                                        <br>
+                                        <br>
+
+                                        <label>Precio Inicial
+                                            &nbsp;
+                                            <small style="display: inline-block; color: red !important;"
+                                                class="ng-dirty ng-invalid"
+                                                *ngIf="submitted && formDatosGenerales.controls['precioInicial'].invalid">
+                                                *
+                                            </small>
+                                        </label>
+
+                                        <p-inputNumber id="precioInicial" formControlName="precioInicial"
+                                            name="precioInicial" [ngClass]="{
+                                                'ng-invalid ng-dirty': submitted && formDatosGenerales.controls['precioInicial'].invalid
+                                            }" mode="decimal" [minFractionDigits]="2" [maxFractionDigits]="2"
+                                            [prefix]="'LPS '" readonly disabled placeholder="LPS 0.00"
+                                            (keydown)="ValidarNumeros($event)" (keypress)="soloNumerosKeypress($event)"
+                                            maxlength="25"></p-inputNumber>
+                                        <small class="ng-dirty ng-invalid" *ngIf="
+                                                submitted &&
+                                                formDatosGenerales.controls[
+                                                    'precioInicial'
+                                                ].invalid
+                                            " style="color: red !important">El campo es requerido.</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+
+                    <div style="display: flex; justify-content: end">
+
+                        <button *ngIf="isEditing" (click)="GuardarTab()" pButton label="Guardar"
+                            icon="pi pi-save"></button>
+                        <button *ngIf="isEditing" (click)="CerrarProcesoVenta()" style="margin-left: 2%"
+                            class="p-button-secondary" pButton pRipple type="button" label="Cancelar"
+                            icon="pi pi-times"></button>
+                    </div>
+                    <br>
+                    <div style="display: flex; justify-content: end">
+                        <button (click)="onSiguienteClick()" pButton label="Siguiente"
+                            icon="pi pi-arrow-right"></button>
+                    </div>
+
+                </p-tabPanel>
+
+                <!-- Panel de Imágenes Terreno/Bien Raíz -->
+                <p-tabPanel header="Imágenes Terreno/Bien Raíz" [disabled]="!isEditing">
+                    <form [formGroup]="formImagenes" class="grid col-12 p-fluid p-formgrid" style="text-align: center"
+                        *ngIf="activeIndex === 1">
+                        <label for="" style="
+                                font-size: 20px;
+                                display: block;
+                                margin-bottom: 20px;
+                            ">Seleccione las Imágenes</label>
+                        <div class="col-12">
+                            <div class="contenedor-principal2">
+                                <div class="tarjeta2">
+                                    <div class="grid mb-12">
+                                        <div class="col-12 lg:col-12">
+                                            <div class="flex">
+                                                <div class="lista-imagenes2">
+                                                    <i class="pi pi-angle-up" (click)="scrollUp()"
+                                                        style="cursor: pointer; font-size: 24px; color: #FFF0C6;"></i>
+                                                    <div class="imagenes-contenedor2">
+                                                        <ng-container *ngFor="let i of [0, 1, 2, 3]">
+                                                            <div *ngIf="i >= visibleImages.length"
+                                                                class="imagen-lista2 placeholder">
+                                                                <!-- Cuadro vacío sin texto -->
+                                                            </div>
+                                                            <img *ngIf="i < visibleImages.length"
+                                                                [ngClass]="{'borde-primario2': selectedImageIndex === i}"
+                                                                [src]="visibleImages[i]" class="imagen-lista2"
+                                                                (click)="onImageSelect(i)" />
+                                                        </ng-container>
+                                                    </div>
+                                                    <i class="pi pi-angle-down" (click)="scrollDown()"
+                                                        style="cursor: pointer; font-size: 24px; color: #FFF0C6;"></i>
+                                                </div>
+                                                <div class="imagen-principal-contenedor2">
+                                                    <div *ngIf="selectedImage" class="imagen-seleccionada2">
+                                                        <img [src]="selectedImage" alt="Imagen Seleccionada2"
+                                                            class="imagen-principal2" />
+                                                    </div>
+                                                    <div *ngIf="!selectedImage" class="caja-subir2"
+                                                        (click)="triggerFileInput()">
+                                                        <input type="file" id="fileInput"
+                                                            (change)="onFilesSelected($event)" accept="image/*" multiple
+                                                            style="display: none;" />
+                                                        <div class="texto-subir2">
+                                                            <p>Subir Imágenes</p>
+                                                            <span>Seleccione las Imágenes</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="botones">
+                                        <button (click)="GuardarImagenes()" class="tamano" pButton pRipple
+                                            label="Guardar" icon="pi pi-save"></button>
+
+
+                                        <button pButton type="button" label="Limpiar" (click)="limpiar()"
+                                            class="p-button-secondary" iconPos="left">
+                                            <img alt="button icon" style="max-width: 16px; margin-right: 5px;"
+                                                src="../../../../../../assets/icons/broom-icon.png">
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </form>
+                    <div style="
+                            width: 100%;
+                            display: flex;
+                            justify-content: space-between;
+                            margin-top: 20px;
+                        ">
+                        <button *ngIf="isEditing" (click)="anteriorTab()" pButton label="Anterior"
+                            icon="pi pi-arrow-left" class="p-button-secondary"></button>
+                        <button *ngIf="isEditing" (click)="siguienteTab2()" pButton label="Siguiente"
+                            icon="pi pi-arrow-right"></button>
+                    </div>
+
+                    <div style="display: flex; justify-content: end">
+                        <button *ngIf="!isEditing" (click)="siguienteTab2()" pButton label="Siguiente"
+                            icon="pi pi-arrow-right"></button>
+                    </div>
+                </p-tabPanel>
+
+                <!-- Panel de Inicio de Venta -->
+                <p-tabPanel header="Inicio de Venta" [disabled]="!isEditing">
+                    <form [formGroup]="formInicioVenta" class="grid col-12 p-fluid p-formgrid"
+                        *ngIf="activeIndex === 2">
+                        <label for="" style="font-size: 20px">¿Desea someter este Bien Raíz a Venta?</label>
+                        <br />
+                        <div class="grid col-12">
+                            <div class="field col-12 md:col-6">
+                                <div class="container">
+                                    <div class="field col-12" style="margin-bottom: 0px">
+                                        <label>Bien Raíz</label>
+                                        <input id="descripcion" formControlName="descripcion" name="descripcion"
+                                            type="text" pInputText readonly disabled />
+                                    </div>
+                                    <div class="field col-12" style="margin-bottom: 0px">
+                                        <label>Dirección</label>
+                                        <input id="direccion" formControlName="direccion" name="direccion" type="text"
+                                            pInputText readonly disabled />
+                                    </div>
+                                    <div class="field col-12" style="margin-bottom: 0px">
+                                        <label>Agente Encargado</label>
+                                        <input id="agenteNombre" formControlName="agenteNombre" type="text" pInputText
+                                            readonly disabled />
+                                    </div>
+                                </div>
+                                <div class="col-12 md:col-12">
+                                    <p-fieldset legend="Galeria de Imágenes">
+                                        <div class="card">
+                                            <div class="col-12">
+                                                <div class="contenedor-principal">
+                                                    <div class="tarjeta">
+                                                        <div class="grid mb-12">
+                                                            <div class="col-12 lg:col-12">
+                                                                <div class="flex">
+                                                                    <div class="lista-imagenes">
+                                                                        <i class="pi pi-angle-up" (click)="scrollUp()"
+                                                                            style="cursor: pointer; font-size: 24px; color: #FFF0C6;">
+                                                                        </i>
+                                                                        <div class="imagenes-contenedor">
+                                                                            <img *ngFor="let image of visibleImages; let i = index"
+                                                                                [ngClass]="{'borde-primario': selectedImageIndex === i}"
+                                                                                [src]="visibleImages[i]"
+                                                                                class="imagen-lista"
+                                                                                (click)="onImageSelect(i)" />
+                                                                        </div>
+                                                                        <i class="pi pi-angle-down"
+                                                                            (click)="scrollDown()"
+                                                                            style="cursor: pointer; font-size: 24px; color: #FFF0C6;">
+                                                                        </i>
+                                                                    </div>
+                                                                    <div class="imagen-principal-contenedor">
+                                                                        <div *ngIf="selectedImage"
+                                                                            class="imagenes-seleccionadas">
+                                                                            <img [src]="selectedImage"
+                                                                                alt="Imagen Seleccionada"
+                                                                                class="imagen-principal" />
+                                                                        </div>
+                                                                        <div *ngIf="!selectedImage" class="caja-subir">
+                                                                            <input type="file" id="fileInput"
+                                                                                (change)="onFileSelected($event)"
+                                                                                multiple style="display: none;" />
+                                                                            <div class="texto-subir"></div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </p-fieldset>
+                                </div>
+
+                            </div>
+                            <div class="justify-content-center col-12 md:col-6">
+                                <div class="col-12 md:col-12">
+                                    <p-fieldset legend="Documentos" class="fieldset-responsive">
+                                        <form [formGroup]="prueba">
+                                            <div class="flex-container">
+                                                <div class="flex-item">
+                                                    <div class="card2">
+                                                        <div *ngFor="let doc of documents" class="document-container">
+                                                            <ng-container *ngIf="isPdf(doc.url)">
+                                                                <div id="pdfContent">
+                                                                    <iframe [src]="sanitizeUrl(doc.url)"
+                                                                        class="responsive-iframe"></iframe>
+                                                                </div>
+                                                            </ng-container>
+                                                            <ng-container *ngIf="isDoc(doc.url)">
+                                                                <div id="pdfContent">
+                                                                    <iframe [src]="sanitizeUrl(doc.url)"
+                                                                        class="responsive-iframe"></iframe>
+                                                                </div>
+                                                            </ng-container>
+                                                            <ng-container *ngIf="isImage(doc.url)">
+                                                                <img [src]="doc.url" alt="Document Image"
+                                                                    class="responsive-image" />
+                                                            </ng-container>
+                                                        </div>
+                                                    </div>
+                                                    <p-scrollTop target="parent" styleClass="custom-scrolltop"
+                                                        [threshold]="100" icon="pi pi-arrow-up"></p-scrollTop>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </p-fieldset>
+
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                    <div style="
+                            width: 100%;
+                            display: flex;
+                            justify-content: space-between;
+                            margin-top: 20px;
+                        ">
+                        <button (click)="anteriorTab()" pButton pRipple label="Anterior" icon="pi pi-arrow-left "
+                            class="p-button-secondary"></button>
+                        <button (click)="mostrarModalGuardar()" pButton pRipple icon="pi pi-save"
+                            label="Guardar"></button>
+
+                    </div>
+                </p-tabPanel>
+            </p-tabView>
+        </div>
+    </div>
+</div>
+
+<p-dialog [(visible)]="Delete" header="Confirmación" [modal]="true" [style]="{ width: '450px' }">
+    <div class="flex align-items-center justify-content-center">
+        <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+        <span>¿Está seguro de eliminar el proceso de venta del agente
+            <span style="font-weight: 600">{{
+                detalle_agen_NombreCompleto
+                }}</span>?</span>
+    </div>
+    <ng-template pTemplate="footer">
+        <!-- <button
+            pButton
+            pRipple
+            type="button"
+            icon="pi pi-check"
+            label="Si"
+            (click)="Eliminar()"
+        ></button> -->
+        <button pButton pRipple icon="pi pi-trash" type="button" label="Eliminar" (click)="Eliminar()"></button>
+        <button pButton pRipple type="button" icon="pi pi-times" class="p-button-outlined p-button-primary"
+            label="Cancelar" (click)="Delete = false"></button>
+    </ng-template>
+</p-dialog>
+
+<p-dialog [(visible)]="actualizar" header="Confirmación" [modal]="true" [style]="{ width: '450px' }">
+    <div class="flex align-items-center justify-content-center">
+        <i class="pi pi-pencil mr-3" style="font-size: 2rem"></i>
+        <span>¿Está seguro de {{ isEditing ? 'editar' : 'crear' }} el proceso de venta?</span>
+    </div>
+    <ng-template pTemplate="footer">
+        <!-- <button
+      pButton
+      pRipple
+      type="button"
+      icon="pi pi-check"
+      label="Sí"
+      (click)="confirmarGuardar()"
+    ></button> -->
+
+        <button pButton pRipple icon="pi pi-pencil" type="button" label="Aceptar" (click)="confirmarGuardar()">
+        </button>
+
+        <button pButton pRipple type="button" icon="pi pi-times" class="p-button-outlined p-button-primary"
+            label="Cancelar" (click)="actualizar = false"></button>
+    </ng-template>
+</p-dialog>
+
+
+
+<p-dialog [(visible)]="actualizar2" header="Confirmación" [modal]="true" [style]="{ width: '450px' }">
+    <div class="flex align-items-center justify-content-center">
+        <i class="pi pi-pencil mr-3" style="font-size: 2rem"></i>
+        <span>¿Está seguro de {{ isEditing ? 'editar' : 'crear' }} el proceso de venta?</span>
+    </div>
+    <ng-template pTemplate="footer">
+        <!-- <button
+      pButton
+      pRipple
+      type="button"
+      icon="pi pi-check"
+      label="Sí"
+      (click)="confirmarGuardar2()"
+    ></button> -->
+
+        <button pButton pRipple icon="pi pi-pencil" type="button" label="Aceptar" (click)="confirmarGuardar2()">
+        </button>
+        <button pButton pRipple type="button" icon="pi pi-times" class="p-button-outlined p-button-primary"
+            label="Cancelar" (click)="actualizar2 = false"></button>
+    </ng-template>
+</p-dialog>
+
+
+<div class="loader-container" *ngIf="loading">
+    <div class="loader">
+        <span></span>
+    </div>
+</div>
+
+<p-dialog [(visible)]="propiedades" [modal]="true" [style]="{ width: '1000px' }" (onHide)="CerrarPropiedades()">
+
+    <ng-template pTemplate="header">
+        <div class="p-d-flex p-jc-center p-ai-center" style="width: 100%;">
+            <h1 class="text-center" style="margin: 0; font-size: 2em;">Seleccione el Bien Raíz para su proceso de Venta:
+            </h1>
+        </div>
+    </ng-template>
+    <!-- <div *ngIf="loading" class="card flex justify-content-center">
+        <p-progressSpinner
+            styleClass="w-4rem h-4rem"
+            strokeWidth="8"
+            fill="var(--surface-ground)"
+            animationDuration=".5s"
+        ></p-progressSpinner>
+    </div> -->
+
+    <!-- <ng-template pTemplate="emptymessage">
+        <div class="text-center" style="display: flex; justify-content: center; align-items: center; height: 100%; width: 100%;">
+            <div class="loader-container" *ngIf="loading" style="display: flex; justify-content: center; align-items: center; margin-left: -50%;">
+                <div class="loader"></div>
+            </div>
+        </div>
+    </ng-template> -->
+    <!-- Fin loader -->
+
+
+
+    <div *ngIf="!loading" class="flex align-items-center justify-content-center" x>
+        <div class="card">
+            <div class="grid -mt-2 -ml-2 -mr-2">
+                <div class="col-12">
+
+                    <div class="flex flex-wrap gap-3">
+                        <label for="filtro">Filtrar por</label>
+
+                        <div class="flex align-items-center">
+                            <p-radioButton id="filtroTodo" value="Todos" [(ngModel)]="filtroSeleccionado"
+                                (onClick)="onFiltroChange($event)" inputId="filtroTodo" />
+                            <label for="filtroTodo" class="ml-2">
+                                Todo
+                            </label>
+                        </div>
+
+                        <div class="flex align-items-center">
+                            <p-radioButton id="filtroBienesRaices" value="Bienes Raices"
+                                [(ngModel)]="filtroSeleccionado" (onClick)="onFiltroChange($event)"
+                                inputId="filtroBienesRaices" />
+                            <label for="filtroBienesRaices" class="ml-2">
+                                Bienes Raíces
+                            </label>
+                        </div>
+
+                        <div class="flex align-items-center">
+                            <p-radioButton id="filtroTerrenos" value="Terrenos" [(ngModel)]="filtroSeleccionado"
+                                (onClick)="onFiltroChange($event)" inputId="filtroTerrenos" />
+                            <label for="filtroTerrenos" class="ml-2">
+                                Terrenos
+                            </label>
+                        </div>
+                    </div>
+
+
+
+
+
+
+                </div>
+                <div class="col-12 md:col-6 lg:col-3" *ngFor="let product of productosFiltrados">
+                    <div class="p-1" style="width: 220px; margin-bottom: -15px">
+                        <div class="shadow-2 p-3 surface-card border-round">
+                            <div class="relative mb-3">
+                                <img [src]="
+                                        product.bien_Imagen ||
+                                        product.terr_Imagen
+                                    " class="w-full" style="width: 200px; height: 150px" />
+                            </div>
+                            <div class="flex justify-content-between align-items-center mb-2">
+                                <span class="text-900 font-medium text-xl"
+                                    style="white-space: pre-wrap; word-wrap: break-word; overflow-wrap: break-word; max-width: 200px;">{{
+                                    product.bien_Desripcion ||
+                                    product.terr_Descripcion
+                                    }}</span>
+                            </div>
+                            <div *ngIf="product.terr_Area" class="mb-2">
+                                <span class="text-700">Área: {{ product.terr_Area }}</span>
+                            </div>
+                            <div *ngIf="product.terr_LinkUbicacion" class="mb-2">
+                                <a [href]="product.terr_LinkUbicacion" target="_blank">Ver ubicación</a>
+                            </div>
+
+                            <div class="flex justify-content-between align-items-center mb-2">
+                                <span style="padding-right: 0.5rem;">{{globalMoneda.getState().mone_Abreviatura}}
+                                    {{product.terr_PecioCompra || product.bien_Precio | number:'1.2-2'}}</span>
+                            </div>
+
+                            <div class="flex align-items-center">
+                                <p-radioButton name="selectedProduct" [value]="product" [(ngModel)]="selectedProduct"
+                                    (onClick)="onRowSelect(product)"></p-radioButton>
+                                <i class="pi pi-check-circle text-green-500 ml-1"
+                                    *ngIf="selectedProduct === product"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br />
+    <ng-template pTemplate="footer">
+        <br />
+        <div class="custom-modal-footer">
+            <button (click)="Guardar()" class="btn btn-guardar" pButton pRipple type="button" label="Guardar"
+                icon="pi pi-save"></button>
+            <button (click)="CerrarPropiedades()" style="margin-left: 0%" class="p-button-outlined p-button-primary"
+                pButton pRipple type="button" label="Cancelar" icon="pi pi-times"></button>
+        </div>
+    </ng-template>
+</p-dialog>
+
+<div class="grid" *ngIf="CreateAgente">
+    <div class="col-12">
+        <div class="card">
+            <div class="flex">
+                <div
+                    style="width: 20%; display: flex; align-items: center; position: absolute; height: 12.5%; margin-top: 40px;">
+                    <button (click)="CerrarAgenteBienRaiz()" class="p-button-link" pButton pRipple type="button"
+                        label="Regresar" icon="pi pi-arrow-left"
+                        style="box-shadow: none !important; margin-top: -90px;"></button>
+                </div>
+                <div style="width: 100%; display: flex; justify-content: center; align-items: center;">
+
+                    <h1 class="text-center mt-2">Nuevo Agente</h1>
+                </div>
+            </div>
+            <hr>
+            <div class=" mt-2 grid">
+                <form *ngIf="form2" [formGroup]="form2" class="grid col-12 p-fluid p-formgrid">
+                    <div class="field col-12 md:col-6">
+                        <label>DNI&nbsp;
+                            <small style="display: inline-block; color: red !important;" class="ng-dirty ng-invalid"
+                                *ngIf="submitted && form2.controls['agen_DNI'].invalid">
+                                *
+                            </small>
+
+                        </label>
+                        <input [ngClass]="{
+                            'ng-invalid ng-dirty':
+                                submitted && form2.controls['agen_DNI'].invalid
+                        }" type="text" class="p-inputtext" formControlName="agen_DNI" (keydown)="ValidarDNI($event)" />
+                        <small class="ng-dirty ng-invalid" *ngIf="submitted && form2.controls['agen_DNI'].invalid"
+                            style="color: red !important">El campo es requerido.</small>
+                    </div>
+                    <div class="field col-12 md:col-6">
+                        <label>Nombre
+                            <small style="display: inline-block; color: red !important;" class="ng-dirty ng-invalid"
+                                *ngIf="submitted && form2.controls['agen_Nombre'].invalid">
+                                *
+                            </small> </label>
+                        <input [ngClass]="{
+                            'ng-invalid ng-dirty':
+                                submitted &&
+                                form2.controls['agen_Nombre'].invalid
+                        }" type="text" (keydown)="validarTexto($event)" class="p-inputtext"
+                            formControlName="agen_Nombre" />
+                        <small class="ng-dirty ng-invalid" *ngIf="
+                            submitted && form2.controls['agen_Nombre'].invalid
+                        " style="color: red !important">El campo es requerido.</small>
+                    </div>
+                    <div class="field col-12 md:col-6">
+                        <label>Apellido
+                            <small style="display: inline-block; color: red !important;" class="ng-dirty ng-invalid"
+                                *ngIf="submitted && form2.controls['agen_Apellido'].invalid">
+                                *
+                            </small></label>
+                        <input [ngClass]="{
+                            'ng-invalid ng-dirty':
+                                submitted &&
+                                form2.controls['agen_Apellido'].invalid
+                        }" type="text" (keydown)="validarTexto($event)" class="p-inputtext"
+                            formControlName="agen_Apellido" />
+                        <small class="ng-dirty ng-invalid" *ngIf="
+                            submitted && form2.controls['agen_Apellido'].invalid
+                        " style="color: red !important">El campo es requerido.</small>
+                    </div>
+                    <div class="field col-12 md:col-6">
+                        <label>Teléfono
+                            <small style="display: inline-block; color: red !important;" class="ng-dirty ng-invalid"
+                                *ngIf="submitted && form2.controls['agen_Telefono'].invalid">
+                                *
+                            </small></label>
+                        <input [ngClass]="{
+                            'ng-invalid ng-dirty':
+                                submitted &&
+                                form2.controls['agen_Telefono'].invalid
+                        }" type="text" class="p-inputtext" formControlName="agen_Telefono" (keydown)="
+                        ValidarNumeros($event)
+                        " (keydown)="ValidarNumeros2($event)" />
+                        <small class="ng-dirty ng-invalid" *ngIf="
+                            submitted && form2.controls['agen_Telefono'].invalid
+                        " style="color: red !important">El campo es requerido.</small>
+                    </div>
+                    <div class="field col-12 md:col-6">
+                        <label>Correo <small style="display: inline-block; color: red !important;"
+                                class="ng-dirty ng-invalid" *ngIf="submitted && form2.controls['agen_Correo'].invalid">
+                                *
+                            </small></label>
+                        <input [ngClass]="{
+                            'ng-invalid ng-dirty':
+                                submitted &&
+                                form2.controls['agen_Correo'].invalid
+                        }" type="text" class="p-inputtext" formControlName="agen_Correo" />
+                        <small class="ng-dirty ng-invalid" *ngIf="
+                            submitted && form2.controls['agen_Correo'].invalid
+                        " style="color: red !important">El campo es requerido.</small>
+                    </div>
+                    <div class="field col-12 md:col-6">
+                        <label>Empresa <small style="display: inline-block; color: red !important;"
+                                class="ng-dirty ng-invalid" *ngIf="submitted && form2.controls['embr_Id'].invalid">
+                                *
+                            </small></label>
+                        <p-dropdown [options]="empresas" formControlName="embr_Id" placeholder="Seleccione una empresa"
+                            optionLabel="label" optionValue="value" [ngClass]="{
+                            'ng-invalid ng-dirty':
+                                submitted && form2.controls['embr_Id'].invalid
+                        }">
+                        </p-dropdown>
+                        <small class="ng-dirty ng-invalid" *ngIf="submitted && form2.controls['embr_Id'].invalid"
+                            style="color: red !important">El campo es requerido.</small>
+                    </div>
+                </form>
+            </div>
+            <div style="display: flex; justify-content: end">
+                <button (click)="GuardarAgente()" class="btn btn-guardar" pButton pRipple type="button" label="Guardar"
+                    icon="pi pi-save"></button>
+                <button (click)="CerrarAgenteBienRaiz()" style="margin-left: 2%" class="p-button-secondary" pButton
+                    pRipple type="button" label="Cancelar" icon="pi pi-times"></button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!--detalles-->
+<div class="grid" *ngIf="Detail">
+    <div class="col-12">
+        <div class="card">
+            <div class="flex" style="height: 42px;">
+                <div style="width: 20%; display: flex; align-items: center; position: absolute; height: 12.5%;">
+                    <button (click)="CerrarPais()" class="p-button-link" pButton pRipple type="button" label="Regresar"
+                        icon="pi pi-arrow-left" style="box-shadow: none !important; margin-top: -50px;"></button>
+                </div>
+                <div style="width: 100%; display: flex; justify-content: center; align-items: center;">
+
+                    <h1 class="text-center mt-4">Detalle Venta Bien Raíz</h1>
+                </div>
+            </div>
+            <hr>
+
+
+
+            <div class="p-fluid p-formgrid grid">
+
+                <div class="field col-12 md:col-4" style="position: relative">
+                    <div class="field rows">
+                        <label for="Municipio" style="font-weight: 800">No:</label>
+                    </div>
+                    <div class="field rows">
+                        <label for="Municipio">{{
+                            detalle_agen_codigo
+                            }}</label>
+                    </div>
+                </div>
+
+                <div class="field col-12 md:col-4" style="position: relative">
+                    <div class="field rows">
+                        <label for="Municipio" style="font-weight: 800">Terreno - Bien Raíz:</label>
+                    </div>
+                    <div class="field rows">
+                        <label for="Municipio">{{
+                            detalle_btrp_Terreno_O_BienRaizId
+                            ? "Terreno"
+                            : "Bien Raíz"
+                            }}</label>
+                    </div>
+                </div>
+
+                <div class="field col-12 md:col-4" style="position: relative">
+                    <div class="field rows">
+                        <label for="Municipio" style="font-weight: 800">Agente:</label>
+                    </div>
+                    <div class="field rows">
+                        <label for="Municipio">{{
+                            detalle_agen_NombreCompleto
+                            }}</label>
+                    </div>
+                </div>
+
+                <div class="field col-12 md:col-4" style="position: relative">
+                    <div class="field rows">
+                        <label for="Municipio" style="font-weight: 800">Precio Incial:</label>
+                    </div>
+                    <div class="field rows">
+                        <label for="Municipio">{{globalMoneda.getState().mone_Abreviatura}} {{
+                            detalle_btrp_PrecioVenta_Inicio | number:'1.2-2'
+                            }}</label>
+                    </div>
+                </div>
+
+                <div class="field col-12 md:col-4" style="position: relative">
+                    <div class="field rows">
+                        <label for="Municipio" style="font-weight: 800">Fecha Inicial:</label>
+                    </div>
+                    <div class="field rows">
+                        <label for="Municipio">{{
+                            detalle_btrp_FechaPuestaVenta
+                            }}</label>
+                    </div>
+                </div>
+
+                <div class="field col-12 md:col-4" style="position: relative">
+                    <div class="field rows">
+                        <label for="Municipio" style="font-weight: 800">Precio Final:</label>
+                    </div>
+                    <div class="field rows">
+                        <label for="Municipio">{{globalMoneda.getState().mone_Abreviatura}} {{
+                            detalle_btrp_PrecioVenta_Final | number:'1.2-2'
+                            }}</label>
+                    </div>
+                </div>
+
+                <div class="field col-12 md:col-4" style="position: relative">
+                    <div class="field rows">
+                        <label for="Municipio" style="font-weight: 800">Fecha Final:</label>
+                    </div>
+                    <div class="field rows">
+                        <label for="Municipio">{{
+                            detalle_btrp_FechaVendida
+                            }}</label>
+                    </div>
+                </div>
+
+                <div class="field col-12 md:col-4" style="position: relative">
+                    <div class="field rows">
+                        <label for="Municipio" style="font-weight: 800">DNI Cliente:</label>
+                    </div>
+                    <div class="field rows">
+                        <label for="Municipio">{{
+                            detalle_mant_DNI
+                            }}</label>
+                    </div>
+                </div>
+
+                <div class="field col-12 md:col-4" style="position: relative">
+                    <div class="field rows">
+                        <label for="Municipio" style="font-weight: 800">Nombre Completo Cliente:</label>
+                    </div>
+                    <div class="field rows">
+                        <label for="Municipio">{{
+                            detalle_mant_NombreCompleto
+                            }}</label>
+                    </div>
+                </div>
+
+
+
+                <div class="field col-12 md:col-4" style="position: relative">
+                    <div class="field rows">
+                        <label for="Municipio" style="font-weight: 800">Teléfonos del cliente:</label>
+                    </div>
+                    <div class="field rows">
+                        <label for="Municipio">{{
+                            detalle_mant_Telefono
+                            }}</label>
+                    </div>
+                </div>
+            </div>
+            <div style="position: relative; top: -20px">
+                <div class="card-title">
+                    <h1>Auditoría</h1>
+                </div>
+                <p-table [value]="Datos" styleClass="mt-2">
+                    <ng-template pTemplate="header">
+                        <tr>
+                            <th style="width: 200px; font-weight: bold">
+                                Acción
+                            </th>
+                            <th style="width: 200px; font-weight: bold">
+                                Usuario
+                            </th>
+                            <th style="width: 200px; font-weight: bold">
+                                Fecha
+                            </th>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-transaction>
+                        <tr>
+                            <td style="width: 200px">Creado</td>
+                            <td style="width: 200px">
+                                {{ detalle_usuaCreacion }}
+                            </td>
+                            <td style="width: 200px">
+                                {{ detalle_FechausuaCreacion }}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="width: 200px">Modificado</td>
+                            <td style="width: 200px">
+                                {{ detalle_usuaModificacion }}
+                            </td>
+                            <td style="width: 200px">
+                                {{ detalle_FechausuaModificacion }}
+                            </td>
+                        </tr>
+                    </ng-template>
+                </p-table>
+            </div>
+
+            <!-- <div
+                style="
+                    display: flex;
+                    justify-content: flex-end;
+                    margin-top: 1rem;
+                    grid-gap: 5px;
+                "
+            >
+                <button
+                    (click)="CerrarPais()"
+                    pButton
+                    icon="pi pi-arrow-left"
+                    type="button"
+                    label="Regresar"
+                    class="p-button-outlined"
+                ></button>
+            </div> -->
+        </div>
+    </div>
+</div>
+
+<!--Formulario de venta-->
+<div class="grid" *ngIf="venderprocesoventa">
+    <div class="col-12">
+        <div class="card">
+            <div class="flex">
+                <div
+                    style="width: 20%; display: flex; align-items: center; position: absolute; height: 12.5%; margin-top: 40px;">
+                    <button (click)="cancelarventa()" class="p-button-link" pButton pRipple type="button"
+                        label="Regresar" icon="pi pi-arrow-left"
+                        style="box-shadow: none !important; margin-top: -90px;"></button>
+                </div>
+                <div style="width: 100%; display: flex; justify-content: center; align-items: center;">
+
+                    <h1 class="text-center mt-2">Vender Propiedad</h1>
+                </div>
+            </div>
+            <hr>
+            <form *ngIf="form" [formGroup]="form" class="grid col-12 p-fluid p-formgrid">
+                <input type="hidden" formControlName="btrp_Id" />
+                <input type="hidden" formControlName="clie_Id" />
+
+                <div class="field col-12 md:col-6">
+                    <label for="dni">DNI del Cliente</label>
+                    <div style="display: flex; align-items: center;">
+                        <p-autoComplete id="dni" formControlName="clie_DNI" [suggestions]="filtradoClientes"
+                            (completeMethod)="filterClientes($event)" (onSelect)="onClienteSelect($event)"
+                            [dropdown]="true" [showClear]="true" placeholder="Seleccione un cliente" [field]="'display'"
+                            [ngClass]="{
+                                'ng-invalid ng-dirty':
+                                    submitted &&
+                                    form.controls['clie_DNI'].invalid
+                            }" style="flex-grow: 1;">
+                            <ng-template let-item pTemplate="item">
+                                <div>
+                                    <span>{{ item.clie_DNI }}</span> -
+                                    <span>{{ item.clie_Nombre }}</span>
+                                    <span>{{ item.clie_Apellido }}</span>
+                                </div>
+                            </ng-template>
+                        </p-autoComplete>
+
+                        <button pButton pRipple type="button" class="p-ml-2" icon="pi pi-user-plus"
+                            style="flex-shrink: 0; margin-left: 5px;" (click)="CrearCliente()"></button>
+                    </div>
+                </div>
+
+                <div class="field col-12 md:col-6">
+                    <label for="nombre">Nombre Completo</label>
+                    <input id="nombre" [ngClass]="{
+                            'ng-invalid ng-dirty':
+                                submitted &&
+                                form.controls['clie_NombreCompleto'].invalid
+                        }" type="text" class="p-inputtext" pTooltip="El campo se completa automáticamente."  tooltipPosition="bottom"formControlName="clie_NombreCompleto" />
+                </div>
+
+                <div class="field col-12 md:col-6">
+                    <label for="telefono">Teléfono</label>
+                    <input id="telefono" [ngClass]="{
+                            'ng-invalid ng-dirty':
+                                submitted &&
+                                form.controls['clie_Telefono'].invalid
+                        }" type="text" class="p-inputtext" pTooltip="El campo se completa automáticamente." tooltipPosition="bottom" formControlName="clie_Telefono"
+                        (keydown)="ValidarNumeros($event)" />
+                </div>
+                <div class="field col-12 md:col-6">
+                    <label for="precio">Precio Inicial
+                        &nbsp;
+                        <small style="display: inline-block; color: red !important;" class="ng-dirty ng-invalid"
+                            *ngIf="submitted && form.controls['btrp_PrecioVenta_Inicio'].invalid">
+                            *
+                        </small>
+                    </label>
+                    <p-inputNumber id="precio" [ngClass]="{
+        'ng-invalid ng-dirty':
+            submitted && form.controls['btrp_PrecioVenta_Inicio'].invalid
+    }" formControlName="btrp_PrecioVenta_Inicio" mode="decimal" [minFractionDigits]="2" [maxFractionDigits]="2"
+                        (keydown)="ValidarNumeros($event)" (keypress)="soloNumerosKeypress($event)"
+                        placeholder="LPS 0.00" [prefix]="'LPS '" pTooltip="El campo se completa automáticamente." tooltipPosition="bottom" maxlength="25" [readonly]="bloqueado" />
+
+                    <small class="ng-dirty ng-invalid" *ngIf="
+                            submitted &&
+                            form.controls['btrp_PrecioVenta_Inicio'].invalid
+                        " style="color: red !important">El campo es requerido.</small>
+                </div>
+                <div class="field col-12 md:col-6">
+                    <label for="fecha">Fecha de Venta Inicial&nbsp;
+                        <small style="display: inline-block; color: red !important;" class="ng-dirty ng-invalid"
+                            *ngIf="submitted && form.controls['btrp_FechaPuestaVenta'].invalid">
+                            *
+                        </small>
+                    </label><br />
+                    <p-calendar id="btrp_FechaPuestaVenta" [ngClass]="{
+                            'ng-invalid ng-dirty':
+                                submitted && form.controls['btrp_FechaPuestaVenta'].invalid
+                        }" [showIcon]="true" inputId="icon" appendTo="body" pTooltip="El campo se completa automáticamente." tooltipPosition="bottom" formControlName="btrp_FechaPuestaVenta"
+                        dateFormat="dd/mm/yy" [disabled]="true"></p-calendar>
+                    <small class="ng-dirty ng-invalid" *ngIf="
+                            submitted && form.controls['btrp_FechaPuestaVenta'].invalid
+                        " style="color: red !important">El campo es requerido.</small>
+                </div>
+
+
+                <div class="field col-12 md:col-6">
+                    <label for="precio">Precio Final
+                        &nbsp;
+                        <small style="display: inline-block; color: red !important;" class="ng-dirty ng-invalid"
+                            *ngIf="submitted && form.controls['btrp_PrecioVenta_Final'].invalid">
+                            *
+                        </small>
+                    </label>
+                    <p-inputNumber id="precio" [ngClass]="{
+        'ng-invalid ng-dirty':
+            submitted && form.controls['btrp_PrecioVenta_Final'].invalid
+    }" formControlName="btrp_PrecioVenta_Final" mode="decimal" [minFractionDigits]="2" [maxFractionDigits]="2"
+                        (keydown)="ValidarNumeros($event)" (keypress)="soloNumerosKeypress($event)"
+                        placeholder="LPS 0.00" [prefix]="'LPS '" maxlength="25"></p-inputNumber>
+
+                    <small class="ng-dirty ng-invalid" *ngIf="
+                            submitted &&
+                            form.controls['btrp_PrecioVenta_Final'].invalid
+                        " style="color: red !important">El campo es requerido.</small>
+                </div>
+
+                <div class="field col-12 md:col-6">
+                    <label for="fecha">Fecha de Venta Final&nbsp;
+                        <small style="display: inline-block; color: red !important;" class="ng-dirty ng-invalid"
+                            *ngIf="submitted && form.controls['btrp_FechaVendida'].invalid">
+                            *
+                        </small>
+
+                    </label><br />
+                    <p-calendar id="btrp_FechaVendida" [ngClass]="{
+                            'ng-invalid ng-dirty':
+                                submitted &&
+                                form.controls['btrp_FechaVendida'].invalid
+                        }" [showIcon]="true" inputId="icon" appendTo="body" formControlName="btrp_FechaVendida"
+                        dateFormat="dd/mm/yy"></p-calendar>
+                    <small class="ng-dirty ng-invalid" *ngIf="
+                            submitted &&
+                            form.controls['btrp_FechaVendida'].invalid
+                        " style="color: red !important">El campo es requerido.</small>
+                </div>
+            </form>
+            <div style="display: flex; justify-content: end">
+                <button (click)="vender()" class="btn btn-guardar" pButton pRipple type="button" label="Guardar"
+                    icon="pi pi-save"></button>
+                <button (click)="cancelarventa()" style="margin-left: 2%" class="p-button-secondary" pButton pRipple
+                    type="button" label="Cancelar" icon="pi pi-times"></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!--Inicio del formulario-->
+<div class="grid" *ngIf="Createcliente">
+    <div class="col-12">
+        <div class="card">
+            <div class="flex">
+                <div
+                    style="width: 20%; display: flex; align-items: center; position: absolute; height: 12.5%; margin-top: 20px;">
+                    <button (click)="CerrarCliente()" class="p-button-link" pButton pRipple type="button"
+                        label="Regresar" icon="pi pi-arrow-left"
+                        style="box-shadow: none !important; margin-top: -90px;"></button>
+                </div>
+                <div style="width: 100%; display: flex; justify-content: center; align-items: center;">
+
+                    <h1 class="text-center mt-2">Nuevo Cliente</h1>
+                </div>
+            </div>
+            <hr>
+            <form [formGroup]="formCliente" class="p-fluid grid" (ngSubmit)="onSave()">
+                <div class="field col-12 md:col-6">
+                    <label for="clie_DNI">DNI
+                        <small style="display: inline-block; color: red !important;" class="ng-dirty ng-invalid"
+                            *ngIf="submitted && formCliente.controls['clie_DNI'].invalid">
+                            *
+                        </small>
+
+                    </label>
+                    <input (keydown)="ValidarDNI($event)" id="clie_DNI" pInputText formControlName="clie_DNI"
+                        [ngClass]="{'ng-invalid ng-dirty': submitted && formCliente.controls['clie_DNI'].invalid}" />
+
+                    <small *ngIf="submitted && formCliente.controls['clie_DNI'].invalid" class="p-error"
+                        style="color: red !important;">El campo es requerido.</small>
+                </div>
+                <div class="field col-12 md:col-6">
+                    <label for="clie_Nombre">Nombre
+                        <small style="display: inline-block; color: red !important;" class="ng-dirty ng-invalid"
+                            *ngIf="submitted && formCliente.controls['clie_Nombre'].invalid">
+                            *
+                        </small>
+
+                    </label>
+                    <input (keypress)="soloLetrasKeypress($event)" id="clie_Nombre" pInputText
+                        formControlName="clie_Nombre"
+                        [ngClass]="{'ng-invalid ng-dirty': submitted && formCliente.controls['clie_Nombre'].invalid}" />
+                    <small *ngIf="submitted && formCliente.controls['clie_Nombre'].invalid" class="p-error"
+                        style="color: red !important;">El campo es requerido.</small>
+                </div>
+                <div class="field col-12 md:col-6">
+                    <label for="clie_Apellido">Apellido
+                        <small style="display: inline-block; color: red !important;" class="ng-dirty ng-invalid"
+                            *ngIf="submitted && formCliente.controls['clie_Apellido'].invalid">
+                            *
+                        </small> </label>
+                    <input (keypress)="soloLetrasKeypress($event)" id="clie_Apellido" pInputText
+                        formControlName="clie_Apellido"
+                        [ngClass]="{'ng-invalid ng-dirty': submitted && formCliente.controls['clie_Apellido'].invalid}" />
+                    <small *ngIf="submitted && formCliente.controls['clie_Apellido'].invalid" class="p-error"
+                        style="color: red !important;">El campo es requerido.</small>
+                </div>
+                <div class="field col-12 md:col-6">
+                    <label for="clie_CorreoElectronico">Correo Electrónico
+                        <small style="display: inline-block; color: red !important;" class="ng-dirty ng-invalid"
+                            *ngIf="submitted && formCliente.controls['clie_CorreoElectronico'].invalid">
+                            *
+                        </small> </label>
+                    <input id="clie_CorreoElectronico" pInputText formControlName="clie_CorreoElectronico"
+                        [ngClass]="{'ng-invalid ng-dirty': submitted && formCliente.controls['clie_CorreoElectronico'].invalid}" />
+                    <small *ngIf="submitted && formCliente.controls['clie_CorreoElectronico'].invalid" class="p-error"
+                        style="color: red !important;">El campo es requerido.</small>
+                </div>
+                <div class="field col-12 md:col-6">
+                    <label for="clie_Telefono">Teléfono
+                        <small style="display: inline-block; color: red !important;" class="ng-dirty ng-invalid"
+                            *ngIf="submitted && formCliente.controls['clie_Telefono'].invalid">
+                            *
+                        </small> </label>
+                    <input id="clie_Telefono" pInputText formControlName="clie_Telefono"
+                        [ngClass]="{'ng-invalid ng-dirty': submitted && formCliente.controls['clie_Telefono'].invalid}" />
+                    <small *ngIf="submitted && formCliente.controls['clie_Telefono'].invalid" class="p-error"
+                        style="color: red !important;"> El campo es requerido.</small>
+                </div>
+                <div class="field col-12 md:col-6">
+                    <label for="clie_FechaNacimiento">Fecha de Nacimiento
+                        <small style="display: inline-block; color: red !important;" class="ng-dirty ng-invalid"
+                            *ngIf="submitted && formCliente.controls['clie_FechaNacimiento'].invalid">
+                            *
+                        </small>
+                    </label>
+                    <p-calendar [showIcon]="true" id="clie_FechaNacimiento" formControlName="clie_FechaNacimiento"
+                        [ngClass]="{'ng-invalid ng-dirty': submitted && formCliente.controls['clie_FechaNacimiento'].invalid}"></p-calendar>
+                    <small *ngIf="submitted && formCliente.controls['clie_FechaNacimiento'].invalid" class="p-error"
+                        style="color: red !important;">El campo es requerido.</small>
+                </div>
+                <div class="field col-12 md:col-6">
+                    <label for="clie_Sexo">Sexo:
+                        <small style="display: inline-block; color: red !important;" class="ng-dirty ng-invalid"
+                            *ngIf="submitted && formCliente.controls['clie_Sexo'].invalid">
+                            *
+                        </small> </label>
+                    <div>
+                        <p-radioButton name="clie_Sexo" value="M" formControlName="clie_Sexo" label="Masculino"
+                            style="margin-right: 20px;"></p-radioButton>
+                        <p-radioButton name="clie_Sexo" value="F" formControlName="clie_Sexo"
+                            label="Femenino"></p-radioButton>
+                    </div>
+                    <small *ngIf="submitted && formCliente.controls['clie_Sexo'].invalid" class="p-error"
+                        style="color: red !important;">El campo es requerido.</small>
+                </div>
+                <div class="field col-12 md:col-6">
+                    <label for="clie_Tipo">Tipo de Cliente
+                        <small style="display: inline-block; color: red !important;" class="ng-dirty ng-invalid"
+                            *ngIf="submitted && formCliente.controls['clie_Tipo'].invalid">
+                            *
+                        </small> </label>
+                    <div>
+                        <p-radioButton name="clie_Tipo" value="B" formControlName="clie_Tipo" label="Bien Raíz"
+                            [checked]="formCliente.get('clie_Tipo')?.value === 'B'"></p-radioButton>
+                        <p-radioButton name="clie_Tipo" value="P" formControlName="clie_Tipo" label="Proyecto"
+                            [checked]="formCliente.get('clie_Tipo')?.value === 'P'"></p-radioButton>
+                        <p-radioButton name="clie_Tipo" value="A" formControlName="clie_Tipo" label="Ambos"
+                            [checked]="formCliente.get('clie_Tipo')?.value === 'A'"></p-radioButton>
+                    </div>
+                    <small *ngIf="submitted && formCliente.controls['clie_Tipo'].invalid" class="p-error"
+                        style="color: red !important;">El campo es requerido.</small>
+                </div>
+                <div class="field col-12 md:col-6">
+                    <label for="clie_DireccionExacta">Dirección Exacta
+                        <small style="display: inline-block; color: red !important;" class="ng-dirty ng-invalid"
+                            *ngIf="submitted && formCliente.controls['clie_DireccionExacta'].invalid">
+                            *
+                        </small> </label>
+                    <input id="clie_DireccionExacta" pInputText formControlName="clie_DireccionExacta"
+                        [ngClass]="{'ng-invalid ng-dirty': submitted && formCliente.controls['clie_DireccionExacta'].invalid}" />
+                    <small *ngIf="submitted && formCliente.controls['clie_DireccionExacta'].invalid" class="p-error"
+                        style="color: red !important;">El campo es requerido.</small>
+                </div>
+                <div class="field col-12 md:col-6">
+                    <label>País
+                        <small style="display: inline-block; color: red !important;" class="ng-dirty ng-invalid"
+                            *ngIf="submitted && formCliente.controls['pais_Nombre'].invalid">
+                            *
+                        </small> </label>
+                    <p-autoComplete formControlName="pais_Nombre" [suggestions]="paisfill"
+                        (completeMethod)="filterPais($event)" (onSelect)="onCountryChange($event)" field="pais_Nombre"
+                        placeholder="Seleccione un país" [dropdown]="true"
+                        [ngClass]="{'ng-invalid ng-dirty': submitted && formCliente.controls['pais_Nombre'].invalid}" />
+
+                    <small class="ng-dirty ng-invalid" *ngIf="submitted && formCliente.controls['pais_Nombre'].invalid"
+                        style="color: red !important;">El campo es requerido.</small>
+                </div>
+
+                <div class="field col-12 md:col-6">
+                    <label>Estado
+                        <small style="display: inline-block; color: red !important;" class="ng-dirty ng-invalid"
+                            *ngIf="submitted && formCliente.controls['esta_Nombre'].invalid">
+                            *
+                        </small> </label>
+                    <p-autoComplete formControlName="esta_Nombre" [suggestions]="estadofill"
+                        (completeMethod)="filterEstado($event)" (onSelect)="onStateChange($event)" field="esta_Nombre"
+                        placeholder="Seleccione un estado" [dropdown]="true"
+                        [ngClass]="{'ng-invalid ng-dirty': submitted && formCliente.controls['esta_Nombre'].invalid}" />
+
+                    <small class="ng-dirty ng-invalid" *ngIf="submitted && formCliente.controls['esta_Nombre'].invalid"
+                        style="color: red !important;">El campo es requerido.</small>
+                </div>
+
+                <div class="field col-12 md:col-6">
+                    <label>Ciudad
+                        <small style="display: inline-block; color: red !important;" class="ng-dirty ng-invalid"
+                            *ngIf="submitted && formCliente.controls['ciud_Descripcion'].invalid">
+                            *
+                        </small> </label>
+                    <p-autoComplete formControlName="ciud_Descripcion" [suggestions]="ciudadfill"
+                        (completeMethod)="filterCiudad($event)" (onSelect)="onCitySelect($event)"
+                        field="ciud_Descripcion" placeholder="Seleccione una ciudad" [dropdown]="true"
+                        [ngClass]="{'ng-invalid ng-dirty': submitted && formCliente.controls['ciud_Descripcion'].invalid}" />
+
+                    <small class="ng-dirty ng-invalid"
+                        *ngIf="submitted && formCliente.controls['ciud_Descripcion'].invalid"
+                        style="color: red !important;">El campo es requerido.</small>
+                </div>
+                <div class="field col-12 md:col-6">
+                    <label for="civi_Id">Estado Civil &nbsp;
+                        <small style="display: inline-block; color: red !important;" class="ng-dirty ng-invalid"
+                            *ngIf="submitted && formCliente.controls['civi_Id'].invalid">
+                            *
+                        </small> </label>
+                    <!--Inicio del DropDown de Estados Civiles-->
+
+                    <p-dropdown formControlName="civi_Id" [options]="civiles" optionLabel="civi_Descripcion"
+                        optionValue="civi_Id" placeholder="Seleccione un estado"
+                        [ngClass]="{'ng-invalid ng-dirty': submitted && formCliente.controls['civi_Id'].invalid}"></p-dropdown>
+                    <!--FIn del DropDown de Estados Civiles-->
+
+                    <small *ngIf="submitted && formCliente.controls['civi_Id'].invalid" class="p-error"
+                        style="color: red !important;">El campo es requerido.</small>
+                </div>
+            </form>
+            <div style="display: flex; justify-content: end;">
+                <button (click)="Guardarcliente()" pButton pRipple type="button" label="Guardar"
+                    icon="pi pi-save"></button>
+                <button (click)="CerrarCliente()" pButton pRipple type="button" label="Cancelar" icon="pi pi-times"
+                    class="ml-2 p-button-secondary"></button>
+            </div>
+        </div>
+    </div>
+</div>
+<!--Fin del formulario-->
+
+
+
+
+<!-- Modal de creación de nuevo cliente
+<p-dialog
+    header="Crear Nuevo Cliente"
+    [(visible)]="mostrarModalCrearCliente"
+    [modal]="true"
+    [style]="{ width: '450px' }"
+    [closable]="true"
+    [draggable]="false"
+    [resizable]="false">
+
+    <div class="p-fluid">
+        <div class="field">
+            <label for="nuevoDNI">DNI</label>
+            <input id="nuevoDNI" type="text" pInputText [(ngModel)]="nuevoCliente.mant_DNI" (keydown)="ValidarDNI($event)"/>
+            <small
+            class="ng-dirty ng-invalid"
+            *ngIf="
+                submitted &&
+                form.controls['mant_DNI'].invalid
+            "
+            style="color: red !important"
+            >Debe seleccionar un cliente</small
+            >
+        </div>
+        <div class="field">
+            <label for="nuevoNombreCompleto">Nombre Completo</label>
+            <input id="nuevoNombreCompleto" type="text" pInputText [(ngModel)]="nuevoCliente.mant_NombreCompleto"/>
+            <small
+            class="ng-dirty ng-invalid"
+            *ngIf="
+                submitted && form.controls['mant_NombreCompleto'].invalid
+            "
+            style="color: red !important"
+            >El campo es requerido.</small
+        >
+        </div>
+        <div class="field">
+            <label for="nuevoTelefono">Teléfono</label>
+            <input id="nuevoTelefono" type="text" pInputText [(ngModel)]="nuevoCliente.mant_Telefono"
+            (keydown)="ValidarNumeros($event)"
+            (keydown)="ValidarNumeros2($event)"/>
+            <small
+            class="ng-dirty ng-invalid"
+            *ngIf="
+                submitted && form.controls['mant_Telefono'].invalid
+            "
+            style="color: red !important"
+            >El campo es requerido.</small
+        >
+        </div>
+    </div>
+
+    <p-footer>
+        <button type="button" pButton label="Guardar" icon="pi pi-save" (click)="guardarClienteDesdeModal()"></button>
+        <button type="button" pButton label="Cancelar" icon="pi pi-times" class="p-button-secondary" (click)="cerrarModalCrearCliente()"></button>
+    </p-footer>
+</p-dialog> -->
+
+
+
+
+<!-- <p-dialog
+    [(visible)]="vendido"
+    header="Propiedad de Venta"
+    [modal]="true"
+    [style]="{ width: '450px' }"
+>
+    <div class="flex align-items-center justify-content-center">
+        <div class="container flex justify-center">
+            <div class="card">
+                <form [formGroup]="form" class="grid col-12 p-fluid p-formgrid">
+                    <div class="container flex justify-content-center"></div>
+
+                    <div class="field col-12 md:col-12">
+                        <label>Precio Final:</label>
+                        <input
+                            class="field col-12"
+                            [ngClass]="{
+                                'ng-invalid ng-dirty':
+                                    submitted &&
+                                    form.controls['btrp_PrecioVenta_Final']
+                                        .invalid
+                            }"
+                            type="text"
+                            class="p-inputtext"
+                            formControlName="btrp_PrecioVenta_Final"
+                            (keydown)="
+                            ValidarNumeros($event)
+                            "
+                        />
+                        <small
+                            class="ng-dirty ng-invalid"
+                            *ngIf="
+                                submitted &&
+                                form.controls['btrp_PrecioVenta_Final'].invalid
+                            "
+                            style="color: red !important"
+                            >El campo es requerido.</small
+                        >
+                    </div>
+
+                    <div class="field col-12 md:col-12">
+                        <label>Fecha de Venta Final:</label><br />
+                        <p-calendar
+                            [ngClass]="{
+                                'ng-invalid ng-dirty':
+                                    submitted &&
+                                    form.controls['btrp_FechaVendida'].invalid
+                            }"
+                            [showIcon]="true"
+                            inputId="icon"
+                            appendTo="body"
+                            formControlName="btrp_FechaVendida"
+                            dateFormat="dd/mm/yy"
+                        ></p-calendar>
+                        <small
+                            class="ng-dirty ng-invalid"
+                            *ngIf="
+                                submitted &&
+                                form.controls['btrp_FechaVendida'].invalid
+                            "
+                            style="color: red !important"
+                            >El campo es requerido.</small
+                        >
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <ng-template pTemplate="footer">
+        <button
+            pButton
+            pRipple
+            icon="pi pi-save"
+            class="btn btn-guardar"
+            label="Guardar"
+            (click)="vender()"
+        ></button>
+        <button
+            pButton
+            pRipple
+            icon="pi pi-times"
+            class="p-button-outlined p-button-primary"
+            label="Cancelar"
+            (click)="cancelarventa() || vendido = false"
+        ></button>
+    </ng-template>
+</p-dialog> -->

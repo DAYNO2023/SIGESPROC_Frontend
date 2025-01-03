@@ -1,0 +1,2310 @@
+
+<style>
+    .bordered-table th,
+    .bordered-table td {
+        border: 1px solid white;
+        padding: 8px;
+    };
+
+    .clastd{
+        border: 1px solid #fff0c6;
+        text-align: end;
+        color: #868c9b;
+        white-space: nowrap;
+    }
+
+    .spinner-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* O la altura que necesites */
+  }
+  
+  .hidden-spinner {
+    display: none;
+  }
+</style>
+
+<p-toast></p-toast>
+
+<!-- INDEX COLABORADORES -->
+<div class="loader-container" *ngIf="loading3">
+    <div class="loader">
+        <span></span>
+    </div>
+  </div>
+
+<div class="grid" *ngIf="Index"> 
+    <div class="col-12">
+        <div class="card">
+            <h1 class="text-center mt-2">Planillas</h1>
+            <hr />
+            <div class="grid mt-2">
+                <div class="col-12">
+                    <button
+                        (click)="CrearPlanilla()"
+                        pButton
+                        icon="pi pi-plus"
+                        label="Nuevo"
+                        class="mr-2"
+                    ></button>
+                </div>
+            </div>
+           
+            <p-table
+                #dt
+                [value]="planillaListado"
+                styleClass=" mt-2"
+                responsiveLayout="scroll"
+                [rows]="10"
+                [globalFilterFields]="['plan_NumNomina', 'plan_FechaPago', 'Creado', 'planilla', 'frec_Descripcion']"
+                [rows]="10"
+                [paginator]="true"
+                [showCurrentPageReport]="true"
+                currentPageReportTemplate="Mostrando {first} al {last} de {totalRecords} entradas"
+                [rowHover]="true"
+                [rowsPerPageOptions]="[10,25,50,100]"
+            >
+                <ng-template pTemplate="caption">
+                    <div
+                        class="flex flex-column md:flex-row md:justify-content-between md:align-items-center"
+                    >
+                        <span class="block mt-2 md:mt-0 p-input-icon-left">
+                            <i style="color: white" class="pi pi-search"></i>
+                            <input
+                                style="color: white"
+                                pInputText
+                                type="text"
+                                (input)="onGlobalFilter(dt, $event)"
+                                placeholder="Buscar..."
+                                class="w-full sm:w-auto"
+                            />
+                        </span>
+                        <div class="registros">
+                            <p-dropdown [options]="dt.rowsPerPageOptions" [(ngModel)]="dt.rows" [style]="{ 'margin-right': '5px' }"  [autoWidth]="false"></p-dropdown>
+        
+                            <span style="color: #FFF0C6; font-weight: 700; margin-top: 7px;"> Registros por página</span>
+                        </div>
+                    </div>
+                </ng-template>
+
+                                <!--Inicio loader-->
+                         
+                                <!--Fin loader-->
+
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th style="color: white" class="text-center">
+                            Acciones
+                        </th>
+                        <th
+                        style="color: white"
+                        pSortableColumn="codigo"
+                        class="text-center"
+                    >
+                        No. <p-sortIcon field="codigo"></p-sortIcon>
+                    </th>
+                        <th
+                            style="color: white"
+                            pSortableColumn="plan_NumNomina"
+                            class="text-center"
+                        >
+                            No Nómina <p-sortIcon field="plan_NumNomina"></p-sortIcon>
+                        </th>
+                        <th
+                            style="color: white"
+                            pSortableColumn="plan_FechaPago"
+                            class="text-center"
+                        >
+                            Fecha Pago
+                            <p-sortIcon field="plan_FechaPago"></p-sortIcon>
+                        </th>
+                        <th
+                        style="color: white"
+                        pSortableColumn="planilla"
+                        class="text-center"
+                        >
+                        Planilla
+                        <p-sortIcon field="planilla"></p-sortIcon>
+                        </th>
+                        <th
+                        style="color: white"
+                        pSortableColumn="frec_Descripcion"
+                        class="text-center"
+                        >
+                        Frecuencia
+                        <p-sortIcon field="frec_Descripcion"></p-sortIcon>
+                        </th>
+                        <!-- <th
+                            style="color: white"
+                            pSortableColumn="CreadoUsua"
+                            class="text-center"
+                        >
+                            Creado <p-sortIcon field="CreadoUsua"></p-sortIcon>
+                        </th> -->
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-planillaListado>
+                    <tr (click)="selectPlanillaIndex(planillaListado)">
+                        <td class="text-center">
+                        <p-splitButton
+                        label="Acciones"
+                        icon="pi pi-cog"
+                        [model]="itemsS"
+                        appendTo="body"
+                        styleClass="p-button-secondary"
+                        class="custom-splitbutton"
+                        ></p-splitButton>
+                        </td>
+
+                        <td
+                            style="width: 14%; min-width: 10rem"
+                            class="text-center"
+                        >
+                            <span class="p-column-title">No Nómina</span>
+                            {{ planillaListado.codigo }}
+                        </td>
+                        <td
+                            style="width: 14%; min-width: 10rem"
+                            class="text-center"
+                        >
+                            <span class="p-column-title">No Nómina</span>
+                            {{ planillaListado.plan_NumNomina }}
+                        </td>
+                        <td
+                            style="width: 14%; min-width: 10rem"
+                            class="text-center"
+                        >
+                            <span class="p-column-title">Fecha Pago </span>
+                            {{ planillaListado.plan_FechaPago }}
+                        </td>
+                        <td
+                        style="width: 14%; min-width: 10rem"
+                        class="text-center"
+                        >
+                        <span class="p-column-title">Planilla </span>
+                        {{ planillaListado.planilla }}
+                        </td>
+                        <td
+                        style="width: 14%; min-width: 10rem"
+                        class="text-center"
+                        >
+                        <span class="p-column-title">Frecuencia </span>
+                        {{ planillaListado.frec_Descripcion }}
+                        </td>
+                        <!-- <td
+                            style="width: 14%; min-width: 10rem"
+                            class="text-center"
+                        >
+                            <span class="p-column-title">Creado</span>
+                            {{ registro.Creado }}
+                        </td> -->
+                    </tr>
+                </ng-template>
+            </p-table>
+            
+        </div>
+    </div>
+</div>
+<!-- INDEX COLABORADORES -->
+
+
+
+<!-- jefe obra -->
+ <!-- #region PLANILLA DE TABLA JASON -->
+<div class="grid" *ngIf="coso">
+    <div class="col-12">
+        <div class="card">
+            <div class="flex" style="width: 100%; margin: 0 auto; display: flex; align-items: center; height: 42px;">
+                <div style="width: 20%; display: flex; align-items: center; height: 12.5%;">
+                    <button (click)="togglePdfVisibility();" class="p-button-link" pButton pRipple type="button" label="Regresar" icon="pi pi-arrow-left" style="box-shadow: none !important"></button>
+                </div>
+                <div style="flex-grow: 1; display: flex; justify-content: center; align-items: center;">
+                    <h1 class="text-center mt-4">Planilla Jefes de Obra</h1>
+                </div>
+                <div style="width: 20%;"></div> <!-- Empty div to balance the space on the right -->
+            </div>
+            
+            <hr />
+            
+            <div class="p-fluid p-formgrid grid" *ngIf="verplanilla && !loading3">
+                <div
+                    class="field col-12 md:col-6"
+                    style="position: relative; height: 10%"
+                >
+                    <div class="field rows">
+                        <label for="Codigo" style="font-weight: 800"
+                            >No. Nómina:
+                            <span style="color: #fff0c6">{{ NoNomina }}</span></label
+                        >
+                    </div>
+                </div>
+                <div class="field col-12 md:col-6" style="position: relative">
+                    <div class="field rows">
+                        <label for="Maquinaria" style="font-weight: 800"
+                            >Fecha de pago:
+                            <span style="color: #fff0c6">{{ FechaPago }}</span></label
+                        >
+                    </div>
+                </div>
+                <div class="field col-12 md:col-6" style="position: relative">
+                    <div class="field rows">
+                        <label for="Nivel" style="font-weight: 800"
+                            >Elaborado por:
+                            <span style="color: #fff0c6">{{ UsuarioCreo }}</span></label
+                        >
+                    </div>
+                </div>
+                <div class="field col-12 md:col-6" style="position: relative">
+                    <div class="field rows">
+                        <label for="Nivel" style="font-weight: 800"
+                            >Fecha y hora de emisión:
+                            <span style="color: #fff0c6">{{ FechaCreo }}</span></label
+                        >
+                    </div>
+                </div>
+                <div class="field col-12 md:col-6" style="position: relative">
+                    <div class="field rows">
+                        <label for="Nivel" style="font-weight: 800"
+                            >Planilla:
+                            <span style="color: #fff0c6">{{ emplejefe }}</span></label
+                        >
+                    </div>
+                </div>
+                <div class="field col-12 md:col-6" style="position: relative">
+                    <div class="field rows">
+                        <label for="Nivel" style="font-weight: 800"
+                            >Frecuencia:
+                            <span style="color: #fff0c6">{{ frecuencia }}</span></label
+                        >
+                    </div>
+                </div>
+            </div>
+            <!-- Tabla con clase personalizada para bordes -->
+            <p-table
+                *ngIf="!isRegresarVisible"
+                #dt
+                [value]="PlanillJefeOBr"
+                styleClass="mt-2 bordered-table"
+                responsiveLayout="scroll"
+                [rows]="10"
+                [paginator]="true"
+                [showCurrentPageReport]="true"
+                currentPageReportTemplate="Mostrando {first} al {last} de {totalRecords} entradas"
+                [rowHover]="true"
+                [rowsPerPageOptions]="[10,25,50,100]"
+                [globalFilterFields]="['empl_Id', 'vien_MontoEstimado', 'vien_TotalGastado', 'vien_FechaEmicion', 'vien_TotalReconocido']"
+                [tableStyle]="{ background: '#000' }"
+            >
+            <ng-template pTemplate="emptymessage">
+                <tr>
+                    <td colspan="100">
+                        <span>No hay datos para esta planilla.</span>
+                    </td>
+                </tr>
+            </ng-template>
+            <!-- <div *ngIf="loading3" class="loader-container">
+                <div class="loader"></div>
+              </div> -->
+                <!-- <ng-template pTemplate="caption">
+                    <div
+                        class="flex flex-column md:flex-row md:justify-content-between md:align-items-center"
+                    >
+                        <span class="block mt-2 md:mt-0 p-input-icon-left">
+                            <i style="color: white" class="pi pi-search"></i>
+                            <input
+                                style="color: white"
+                                pInputText
+                                type="text"
+                                (input)="onGlobalFilter(dt, $event)"
+                                placeholder="Buscar..."
+                                class="w-full sm:w-auto"
+                            />
+                        </span>
+
+                        <div class="flex align-items-center">
+                            <span style="color: white; margin-right: 8px;">Resumida</span>
+                            <p-inputSwitch [(ngModel)]="detalleActivo" (onChange)="onSwitchChange()"></p-inputSwitch>
+                            <span style="color: white; margin-left: 8px;">Detallada</span>
+                        </div>
+                    </div>
+                </ng-template> -->
+                
+                <ng-template pTemplate="caption">
+                    <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+                      <span class="block mt-2 md:mt-0 p-input-icon-left">
+                        <i style="color: white" class="pi pi-search"></i>
+                        <input
+                          style="color: white"
+                          pInputText
+                          type="text"
+                          (input)="onGlobalFilter(dt, $event)"
+                          placeholder="Buscar..."
+                          class="w-full sm:w-auto"
+                        />
+                      </span>
+                      
+                      <!-- Nuevo contenedor con flexbox para el switch y registros -->
+                      <div class="flex align-items-center">
+                        <div class="flex align-items-center" style="margin-right: 16px;">
+                          <span style="color: white; margin-right: 8px;">Resumida</span>
+                          <p-inputSwitch [(ngModel)]="detalleActivo" (onChange)="onSwitchChange()"></p-inputSwitch>
+                          <span style="color: white; margin-left: 8px;">Detallada</span>
+                        </div>
+                  
+                        <div class="flex align-items-center">
+                          <p-dropdown [options]="dt.rowsPerPageOptions" [(ngModel)]="dt.rows" [style]="{ 'margin-right': '5px' }" [autoWidth]="false"></p-dropdown>
+                          <span style="color: #FFF0C6; font-weight: 700; margin-top: 7px;"> Registros por página</span>
+                        </div>
+                      </div>
+                    </div>
+                  </ng-template>
+
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th
+                            rowspan="2"
+                            style="
+                                vertical-align: middle;
+                                text-align: center;
+                                border: 1px solid #fff0c6;
+                                color: #fff0c6;
+                            "
+                            pSortableColumn="Acciones"
+                            class="text-center"
+                        >
+                            Acciones
+                        </th>
+                        <th
+                            rowspan="2"
+                            style="
+                                vertical-align: middle;
+                                text-align: center;
+                                border: 1px solid #fff0c6;
+                                color: #fff0c6;
+                            "
+                            pSortableColumn="empl_Id"
+                            class="text-center"
+                        >
+                            No.
+                        </th>
+                        <th
+                            rowspan="2"
+                            style="
+                                vertical-align: middle;
+                                text-align: center;
+                                border: 1px solid #fff0c6;
+                                color: #fff0c6;
+                            "
+                            pSortableColumn="empl_Nombre"
+                            class="text-center"
+                        >
+                            Nombre Completo
+                        </th>
+                        <th
+                            rowspan="2"
+                            style="
+                                vertical-align: middle;
+                                text-align: center;
+                                border: 1px solid #fff0c6;
+                                color: #fff0c6;
+                            "
+                            pSortableColumn="cargo"
+                            class="text-center"
+                        >
+                            Cargo
+                        </th>
+                       
+                        <th
+                            rowspan="2"
+                            style="
+                                vertical-align: middle;
+                                text-align: center;
+                                border: 1px solid #fff0c6;
+                                color: #fff0c6;
+                            "
+                            pSortableColumn="frecuencia"
+                            class="text-center"
+                        >
+                            Frecuencia
+                        </th>
+                        <th
+                        rowspan="2"
+                        style="
+                            vertical-align: middle;
+                            text-align: center;
+                            border: 1px solid #fff0c6;
+                            color: #fff0c6;
+                        "
+                        pSortableColumn="cargo"
+                        class="text-center"
+                        >
+                            Etapa
+                        </th>
+                        <th
+                        rowspan="2"
+                        style="
+                            vertical-align: middle;
+                            text-align: center;
+                            border: 1px solid #fff0c6;
+                            color: #fff0c6;
+                        "
+                        pSortableColumn="cargo"
+                        class="text-center"
+                        >
+                            Actividad
+                        </th>
+                        <th
+                        rowspan="2"
+                        style="
+                            vertical-align: middle;
+                            text-align: center;
+                            border: 1px solid #fff0c6;
+                            color: #fff0c6;
+                        "
+                        pSortableColumn="cargo"
+                        class="text-center"
+                        >
+                            Metros Trabajados
+                        </th>
+                        <th
+                        rowspan="2"
+                        style="
+                            vertical-align: middle;
+                            text-align: center;
+                            border: 1px solid #fff0c6;
+                            color: #fff0c6;
+                        "
+                        pSortableColumn="cargo"
+                        class="text-center"
+                        >
+                            Precio Unidad Medida
+                        </th>
+                        <th
+                            colspan="2"
+                            style="border: 1px solid #fff0c6; color: #fff0c6"
+                            class="text-center"
+                        >
+                            Salario
+                        </th>
+                        <th
+                            rowspan="2"
+                            style="
+                                vertical-align: middle;
+                                text-align: center;
+                                border: 1px solid #fff0c6;
+                                color: #fff0c6;
+                            "
+                            pSortableColumn="totalDevenagado"
+                            class="text-center"
+                        >
+                            Total Devengado
+                        </th>
+                        <th
+                            [attr.colspan]="numDeduccionesJFObra"
+                            style="border: 1px solid #fff0c6; color: #fff0c6"
+                            class="text-center"
+                        >
+                            Deducciones
+                        </th>
+                        <th
+                            rowspan="2"
+                            style="
+                                vertical-align: middle;
+                                text-align: center;
+                                border: 1px solid #fff0c6;
+                                color: #fff0c6;
+                            "
+                            pSortableColumn="sueldoTotal"
+                            class="text-center"
+                        >
+                            Total Salario
+                        </th>
+                    </tr>
+                    <tr>
+                        <th
+                            style="border: 1px solid #fff0c6; color: #fff0c6"
+                            class="text-center" pSortableColumn="salarioDiario"
+                        >
+                            Diario
+                        </th>
+                        <th
+                            style="border: 1px solid #fff0c6; color: #fff0c6"
+                            class="text-center" pSortableColumn="empl_Salario"
+                        >
+                            Ordinario
+                        </th>
+                        <th
+                            style="border: 1px solid #fff0c6; color: #fff0c6"
+                            class="text-center"  pSortableColumn="{{dedu.dedu_Descripcion}}"
+                            *ngFor="let dedu of getUniqueDeducciones(deduccionesJefe)"
+                        >
+                            {{ dedu.dedu_Descripcion }}
+                        </th>
+                        <th
+                        style="border: 1px solid #fff0c6; color: #fff0c6"
+                        class="text-center"  pSortableColumn="totalPrestamos"
+                    >
+                        Préstamos
+                    </th>
+                    </tr>
+                </ng-template>
+
+                <ng-template pTemplate="body" let-planilla let-rowIndex="rowIndex">
+                    <tr (click)="selectPlanilla(planilla)">
+                        <td
+                            class="text-center"
+                            style="
+                                width: 5%;
+                                min-width: 10rem;
+                                border: 1px solid #fff0c6;
+                                text-align: center;
+                                color: #868c9b;
+                            "
+                        >
+                        <p-splitButton
+                        label="Acciones"
+                        icon="pi pi-cog"
+                        [model]="items2"
+                        appendTo="body"
+                        styleClass="p-button-secondary"
+                        class="custom-splitbutton"
+                        ></p-splitButton>
+                        </td>
+                        <td
+                           
+                            style="
+                            border: 1px solid #fff0c6;
+                            text-align: center;
+                            color: #868c9b;
+                            white-space: nowrap;
+                        "
+                        >
+                            {{ (dt.first + rowIndex + 1) }}
+                        </td>
+                        <td
+                               style="
+                            border: 1px solid #fff0c6;
+                            text-align: center;
+                            color: #868c9b;
+                            white-space: nowrap;
+                        "
+                        >
+                            {{ planilla.nombreCompleto }}
+                        </td>
+                        <td
+                               style="
+                            border: 1px solid #fff0c6;
+                            text-align: center;
+                            color: #868c9b;
+                            white-space: nowrap;
+                        "
+                        >
+                            {{ planilla.carg_Descripcion }}
+                        </td>
+                        <td
+                           style="
+                            border: 1px solid #fff0c6;
+                            text-align: center;
+                            color: #868c9b;
+                            white-space: nowrap;
+                        "
+                        >
+                            Semanal
+                        </td>
+                        <td
+                               style="
+                            border: 1px solid #fff0c6;
+                            text-align: center;
+                            color: #868c9b;
+                            white-space: nowrap;
+                        "
+                        >
+                            {{ planilla.etapa }}
+                        </td>
+                        <td
+                               style="
+                            border: 1px solid #fff0c6;
+                            text-align: center;
+                            color: #868c9b;
+                            white-space: nowrap;
+                        "
+                        >
+                            {{ planilla.actividad }}
+                        </td>
+                        <td
+                               style="
+                            border: 1px solid #fff0c6;
+                            text-align: center;
+                            color: #868c9b;
+                            white-space: nowrap;
+                        "
+                        >
+                            {{ planilla.totalMetrosTrabajados }}
+                        </td>
+                        <td
+                               style="
+                            border: 1px solid #fff0c6;
+                            text-align: center;
+                            color: #868c9b;
+                            white-space: nowrap;
+                        "
+                        >
+                        {{globalmoneda.getState().mone_Abreviatura}} {{ planilla.precioPorMetro | number: '1.2-2'}}
+                        </td>
+                        <td
+                               style="
+                            border: 1px solid #fff0c6;
+                            text-align: center;
+                            color: #868c9b;
+                            white-space: nowrap;
+                        "
+                        >
+                        {{globalmoneda.getState().mone_Abreviatura}} {{ (planilla.sueldoTotal / 6 ).toFixed(2) | number: '1.2-2'}}
+                        </td>
+                        <td
+                               style="
+                            border: 1px solid #fff0c6;
+                            text-align: center;
+                            color: #868c9b;
+                            white-space: nowrap;
+                        "
+                        >
+                        {{globalmoneda.getState().mone_Abreviatura}} {{ planilla.sueldoTotal | number: '1.2-2'}}
+                        </td>
+                        <td
+                               style="
+                            border: 1px solid #fff0c6;
+                            text-align: center;
+                            color: #868c9b;
+                            white-space: nowrap;
+                        "
+                        >
+                        {{globalmoneda.getState().mone_Abreviatura}} {{ planilla.sueldoTotal | number: '1.2-2'}}
+                        </td>
+
+                        <td
+                        style="
+                            border: 1px solid #fff0c6;
+                            text-align: end;
+                            color: #868c9b;
+                            white-space: nowrap;
+                        "
+                        *ngFor="let dedu of getUniqueDeducciones(deduccionesJefe)"
+                    >
+                        {{ globalmoneda.getState().mone_Abreviatura }} 
+                        {{ getDeduccionParaEmpleado(deduccionesJefe, dedu.dedu_Descripcion,planilla.sueldoTotal, planilla.empl_Id) | number: '1.2-2' }}
+                    </td>
+                     
+                      <td
+                               style="
+                            border: 1px solid #fff0c6;
+                            text-align: center;
+                            color: #868c9b;
+                            white-space: nowrap;
+                        "
+                        >
+                        {{ globalmoneda.getState().mone_Abreviatura }} {{planilla.cuotaPrestamo??0 | number: '1.2-2'}}
+                        </td>
+                       
+                       
+                        <td
+                               style="
+                            border: 1px solid #fff0c6;
+                            text-align: center;
+                            color: #868c9b;
+                            white-space: nowrap;
+                        "
+                        >
+                            {{ globalmoneda.getState().mone_Abreviatura }} {{ calcularSueldoNeto(planilla.empl_Id, planilla.sueldoTotal) - planilla.cuotaPrestamo | number: '1.2-2' }}
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+            <div
+            id="pdfContainer"
+            [ngClass]="{ 'pdf-container-active': isPdfVisible }"
+            style="padding-bottom: 10px;"
+
+        ></div>
+            <div style="display: flex; justify-content: end">
+                <button
+                    *ngIf="btnGuardar && PlanillJefeOBr2.length > 0"
+                    (click)="enviarPlanillaJefeObra()"
+                    class="btn btn-guardar"
+                    style="margin-right: 2%;"
+                    pButton
+                    pRipple
+                    type="button"
+                    label="Guardar"
+                    icon="pi pi-save"
+                ></button>
+                <button
+                *ngIf="isPdfVisible===false && PlanillJefeOBr2.length > 0"
+                style="margin-left: 2%"
+
+                pButton
+                type="button"
+                label="Imprimir"
+                style="max-width: 150px"
+                class="p-button-primary"
+                (click)="mostrarPrevisualizacion3()"
+                icon="pi pi-print"
+            ></button>
+                <button
+                *ngIf="isPdfVisible===false"
+                
+
+                    (click)="cerrarPlanilla(); this.coso = false"
+                    style="margin-left: 2%"
+                    class="p-button-secondary"
+                    pButton
+                    pRipple
+                    type="button"
+                    label="Cancelar"
+                    icon="pi pi-times"
+                ></button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- jefe obra -->
+
+<!-- jefe obra 2 -->
+
+<div class="grid" *ngIf="coso2">
+    <div class="col-12">
+        <div class="card">
+            <div class="flex" style="width: 100%; margin: 0 auto; display: flex; align-items: center;">
+                <div style="width: 20%; display: flex; align-items: center; height: 12.5%;">
+                    <button (click)="togglePdfVisibility2()" class="p-button-link" pButton pRipple type="button" label="Regresar" icon="pi pi-arrow-left" style="box-shadow: none !important"></button>
+                </div>
+                <div style="flex-grow: 1; display: flex; justify-content: center; align-items: center;">
+                    <h1 class="text-center mt-2">Planilla Jefes de Obra</h1>
+                </div>
+                <div style="width: 20%;"></div> <!-- Empty div to balance the space on the right -->
+            </div>
+            
+            <hr />
+            <div class="p-fluid p-formgrid grid" *ngIf="verplanilla && !loading3">
+                <div
+                    class="field col-12 md:col-6"
+                    style="position: relative; height: 10%"
+                >
+                    <div class="field rows">
+                        <label for="Codigo" style="font-weight: 800"
+                            >No. Nómina:
+                            <span style="color: #fff0c6">{{ NoNomina }}</span></label
+                        >
+                    </div>
+                </div>
+                <div class="field col-12 md:col-6" style="position: relative">
+                    <div class="field rows">
+                        <label for="Maquinaria" style="font-weight: 800"
+                            >Fecha de pago:
+                            <span style="color: #fff0c6">{{ FechaPago }}</span></label
+                        >
+                    </div>
+                </div>
+                <div class="field col-12 md:col-6" style="position: relative">
+                    <div class="field rows">
+                        <label for="Nivel" style="font-weight: 800"
+                            >Elaborado por:
+                            <span style="color: #fff0c6">{{ UsuarioCreo }}</span></label
+                        >
+                    </div>
+                </div>
+                <div class="field col-12 md:col-6" style="position: relative">
+                    <div class="field rows">
+                        <label for="Nivel" style="font-weight: 800"
+                            >Fecha y hora de emisión:
+                            <span style="color: #fff0c6">{{ FechaCreo }}</span></label
+                        >
+                    </div>
+                </div>
+                <div class="field col-12 md:col-6" style="position: relative">
+                    <div class="field rows">
+                        <label for="Nivel" style="font-weight: 800"
+                            >Planilla:
+                            <span style="color: #fff0c6">{{ emplejefe }}</span></label
+                        >
+                    </div>
+                </div>
+                <div class="field col-12 md:col-6" style="position: relative">
+                    <div class="field rows">
+                        <label for="Nivel" style="font-weight: 800"
+                            >Frecuencia:
+                            <span style="color: #fff0c6">{{ frecuencia }}</span></label
+                        >
+                    </div>
+                </div>
+            </div>
+            <!-- Tabla con clase personalizada para bordes -->
+            <p-table
+                *ngIf="!isRegresarVisible"
+                #dt
+                [value]="PlanillJefeOBr2"
+                styleClass="mt-2 bordered-table"
+                responsiveLayout="scroll"
+                [rows]="10"
+                [paginator]="true"
+                [showCurrentPageReport]="true"
+                currentPageReportTemplate="Mostrando {first} al {last} de {totalRecords} entradas"
+                [rowHover]="true"
+                [rowsPerPageOptions]="[10,25,50,100]"
+            >
+            
+            <!-- <div *ngIf="loading3" class="loader-container">
+                <div class="loader"></div>
+              </div> -->
+              <ng-template pTemplate="emptymessage">
+                <tr>
+                    <td colspan="100">
+                        <span>No hay datos para esta planilla.</span>
+                    </td>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="caption">
+                <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+                  <span class="block mt-2 md:mt-0 p-input-icon-left">
+                    <i style="color: white" class="pi pi-search"></i>
+                    <input
+                      style="color: white"
+                      pInputText
+                      type="text"
+                      (input)="onGlobalFilter(dt, $event)"
+                      placeholder="Buscar..."
+                      class="w-full sm:w-auto"
+                    />
+                  </span>
+                  
+                  <!-- Nuevo contenedor con flexbox para el switch y registros -->
+                  <div class="flex align-items-center">
+                    <div class="flex align-items-center" style="margin-right: 16px;">
+                      <span style="color: white; margin-right: 8px;">Resumida</span>
+                      <p-inputSwitch [(ngModel)]="detalleActivo" (onChange)="onSwitchChange()"></p-inputSwitch>
+                      <span style="color: white; margin-left: 8px;">Detallada</span>
+                    </div>
+              
+                    <div class="flex align-items-center">
+                      <p-dropdown [options]="dt.rowsPerPageOptions" [(ngModel)]="dt.rows" [style]="{ 'margin-right': '5px' }" [autoWidth]="false"></p-dropdown>
+                      <span style="color: #FFF0C6; font-weight: 700; margin-top: 7px;"> Registros por página</span>
+                    </div>
+                  </div>
+                </div>
+              </ng-template>
+               
+
+                <ng-template pTemplate="header">
+                    <tr>
+                        <!-- <th
+                            rowspan="2"
+                            style="
+                                vertical-align: middle;
+                                text-align: center;
+                                border: 1px solid #fff0c6;
+                                color: #fff0c6;
+                            "
+                            pSortableColumn="Acciones"
+                            class="text-center"
+                        >
+                            Acciones
+                        </th> -->
+                        <th
+                            rowspan="2"
+                            style="
+                                vertical-align: middle;
+                                text-align: center;
+                                border: 1px solid #fff0c6;
+                                color: #fff0c6;
+                            "
+                            pSortableColumn="empl_Id"
+                            class="text-center"
+                        >
+                            No.
+                        </th>
+                        <th
+                            rowspan="2"
+                            style="
+                                vertical-align: middle;
+                                text-align: center;
+                                border: 1px solid #fff0c6;
+                                color: #fff0c6;
+                            "
+                            pSortableColumn="empl_Nombre"
+                            class="text-center"
+                        >
+                            Nombre Completo
+                        </th>
+                        <th
+                            rowspan="2"
+                            style="
+                                vertical-align: middle;
+                                text-align: center;
+                                border: 1px solid #fff0c6;
+                                color: #fff0c6;
+                            "
+                            pSortableColumn="cargo"
+                            class="text-center"
+                        >
+                            Cargo
+                        </th>
+                       
+                        <th
+                            rowspan="2"
+                            style="
+                                vertical-align: middle;
+                                text-align: center;
+                                border: 1px solid #fff0c6;
+                                color: #fff0c6;
+                            "
+                            pSortableColumn="frecuencia"
+                            class="text-center"
+                        >
+                            Frecuencia
+                        </th>
+                        <!-- <th
+                        rowspan="2"
+                        style="
+                            vertical-align: middle;
+                            text-align: center;
+                            border: 1px solid #fff0c6;
+                            color: #fff0c6;
+                        "
+                        pSortableColumn="cargo"
+                        class="text-center"
+                        >
+                            Etapa
+                        </th> -->
+                        <!-- <th
+                        rowspan="2"
+                        style="
+                            vertical-align: middle;
+                            text-align: center;
+                            border: 1px solid #fff0c6;
+                            color: #fff0c6;
+                        "
+                        pSortableColumn="cargo"
+                        class="text-center"
+                        >
+                            Actividad
+                        </th> -->
+                        <th
+                        rowspan="2"
+                        style="
+                            vertical-align: middle;
+                            text-align: center;
+                            border: 1px solid #fff0c6;
+                            color: #fff0c6;
+                        "
+                        pSortableColumn="cargo"
+                        class="text-center"
+                        >
+                            Metros Trabajados
+                        </th>
+                        <!-- <th
+                        rowspan="2"
+                        style="
+                            vertical-align: middle;
+                            text-align: center;
+                            border: 1px solid #fff0c6;
+                            color: #fff0c6;
+                        "
+                        pSortableColumn="cargo"
+                        class="text-center"
+                        >
+                            Precio Unidad Medida
+                        </th> -->
+                        <th
+                            colspan="2"
+                            style="border: 1px solid #fff0c6; color: #fff0c6"
+                            class="text-center"
+                        >
+                            Salario
+                        </th>
+                        <th
+                            rowspan="2"
+                            style="
+                                vertical-align: middle;
+                                text-align: center;
+                                border: 1px solid #fff0c6;
+                                color: #fff0c6;
+                            "
+                            pSortableColumn="totalDevenagado"
+                            class="text-center"
+                        >
+                            Total Devengado
+                        </th>
+                        <th
+                            [attr.colspan]="numDeduccionesJFObra"
+                            style="border: 1px solid #fff0c6; color: #fff0c6"
+                            class="text-center"
+                        >
+                            Deducciones
+                        </th>
+                        <th
+                            rowspan="2"
+                            style="
+                                vertical-align: middle;
+                                text-align: center;
+                                border: 1px solid #fff0c6;
+                                color: #fff0c6;
+                            "
+                            pSortableColumn="sueldoTotal"
+                            class="text-center"
+                        >
+                            Total Salario
+                        </th>
+                    </tr>
+                    <tr>
+                        <th
+                            style="border: 1px solid #fff0c6; color: #fff0c6"
+                            class="text-center" pSortableColumn="salarioDiario"
+                        >
+                            Diario
+                        </th>
+                        <th
+                            style="border: 1px solid #fff0c6; color: #fff0c6"
+                            class="text-center" pSortableColumn="empl_Salario"
+                        >
+                            Ordinario
+                        </th>
+                        <th
+                            style="border: 1px solid #fff0c6; color: #fff0c6"
+                            class="text-center"  pSortableColumn="{{dedu.dedu_Descripcion}}"
+                            *ngFor="let dedu of getUniqueDeducciones(deduccionesJefe)"
+                        >
+                            {{ dedu.dedu_Descripcion }}
+                        </th>
+                        <th
+                        style="border: 1px solid #fff0c6; color: #fff0c6"
+                        class="text-center"  pSortableColumn="totalPrestamos"
+                    >
+                        Prestamos
+                    </th>
+                    </tr>
+                </ng-template>
+
+                <ng-template pTemplate="body" let-planilla let-rowIndex="rowIndex">
+                    <tr (click)="selectPlanilla(planilla)">
+                        <!-- <td
+                            class="text-center"
+                            style="
+                                width: 5%;
+                                min-width: 10rem;
+                                border: 1px solid #fff0c6;
+                                text-align: center;
+                                color: #868c9b;
+                            "
+                        >
+                        <p-splitButton
+                        label="Acciones"
+                        icon="pi pi-cog"
+                        [model]="items2"
+                        appendTo="body"
+                        styleClass="p-button-secondary"
+                        class="custom-splitbutton"
+                        ></p-splitButton>
+                        </td> -->
+                        <td
+                           
+                            style="
+                            border: 1px solid #fff0c6;
+                            text-align: center;
+                            color: #868c9b;
+                            white-space: nowrap;
+                        "
+                        >
+                            {{ (dt.first + rowIndex + 1) }}
+                        </td>
+                        <td
+                               style="
+                            border: 1px solid #fff0c6;
+                            text-align: center;
+                            color: #868c9b;
+                            white-space: nowrap;
+                        "
+                        >
+                            {{ planilla.nombreCompleto }}
+                        </td>
+                        <td
+                               style="
+                            border: 1px solid #fff0c6;
+                            text-align: center;
+                            color: #868c9b;
+                            white-space: nowrap;
+                        "
+                        >
+                            {{ planilla.carg_Descripcion }}
+                        </td>
+                        <td
+                           style="
+                            border: 1px solid #fff0c6;
+                            text-align: center;
+                            color: #868c9b;
+                            white-space: nowrap;
+                        "
+                        >
+                            Semanal
+                        </td>
+                        <!-- <td
+                               style="
+                            border: 1px solid #fff0c6;
+                            text-align: center;
+                            color: #868c9b;
+                            white-space: nowrap;
+                        "
+                        >
+                            {{ planilla.etapa }}
+                        </td> -->
+                        <!-- <td
+                               style="
+                            border: 1px solid #fff0c6;
+                            text-align: center;
+                            color: #868c9b;
+                            white-space: nowrap;
+                        "
+                        >
+                            {{ planilla.actividad }}
+                        </td> -->
+                        <td
+                               style="
+                            border: 1px solid #fff0c6;
+                            text-align: center;
+                            color: #868c9b;
+                            white-space: nowrap;
+                        "
+                        >
+                            {{ planilla.totalMetrosTrabajados }}
+                        </td>
+                        <!-- <td
+                               style="
+                            border: 1px solid #fff0c6;
+                            text-align: center;
+                            color: #868c9b;
+                            white-space: nowrap;
+                        "
+                        >
+                        {{globalmoneda.getState().mone_Abreviatura}} {{ planilla.precioPorMetro }}
+                        </td> -->
+                        <td
+                               style="
+                            border: 1px solid #fff0c6;
+                            text-align: center;
+                            color: #868c9b;
+                            white-space: nowrap;
+                        "
+                        >
+                        {{globalmoneda.getState().mone_Abreviatura}} {{ (planilla.sueldoTotal / 6 ).toFixed(2) | number: '1.2-2'}}
+                        </td>
+                        <td
+                               style="
+                            border: 1px solid #fff0c6;
+                            text-align: center;
+                            color: #868c9b;
+                            white-space: nowrap;
+                        "
+                        >
+                        {{globalmoneda.getState().mone_Abreviatura}} {{ planilla.sueldoTotal | number: '1.2-2'}}
+                        </td>
+                        <td
+                               style="
+                            border: 1px solid #fff0c6;
+                            text-align: center;
+                            color: #868c9b;
+                            white-space: nowrap;
+                        "
+                        >
+                        {{globalmoneda.getState().mone_Abreviatura}} {{ planilla.sueldoTotal | number: '1.2-2'}}
+                        </td>
+
+                        <td
+                        style="
+                            border: 1px solid #fff0c6;
+                            text-align: end;
+                            color: #868c9b;
+                            white-space: nowrap;
+                        "
+                        *ngFor="let dedu of getUniqueDeducciones(deduccionesJefe)"
+                    >
+                        {{ globalmoneda.getState().mone_Abreviatura }} 
+                        {{ getDeduccionParaEmpleado(deduccionesJefe, dedu.dedu_Descripcion,planilla.sueldoTotal, planilla.empl_Id) | number: '1.2-2' }}
+                    </td>
+                     
+                      <td
+                               style="
+                            border: 1px solid #fff0c6;
+                            text-align: center;
+                            color: #868c9b;
+                            white-space: nowrap;
+                        "
+                        >
+                        {{ globalmoneda.getState().mone_Abreviatura }} {{planilla.cuotaPrestamo??0 | number: '1.2-2'}}
+                        </td>
+                       
+                       
+                        <td
+                               style="
+                            border: 1px solid #fff0c6;
+                            text-align: center;
+                            color: #868c9b;
+                            white-space: nowrap;
+                        "
+                        >
+                            {{ globalmoneda.getState().mone_Abreviatura }} {{ calcularSueldoNeto(planilla.empl_Id, planilla.sueldoTotal) - planilla.cuotaPrestamo | number: '1.2-2' }}
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+            <div
+            id="pdfContainer"
+            [ngClass]="{ 'pdf-container-active': isPdfVisible }"
+            style="padding-bottom: 10px;"
+             ></div>
+             
+            <div style="display: flex; justify-content: end">
+                <button
+                    *ngIf="btnGuardar && PlanillJefeOBr2.length > 0"
+                    (click)="enviarPlanillaJefeObra()"
+                    class="btn btn-guardar"
+                    style="margin-right: 2%;"
+                    pButton
+                    pRipple
+                    type="button"
+                    label="Guardar"
+                    icon="pi pi-save"
+                ></button>
+                <button
+                    *ngIf="isPdfVisible===false && PlanillJefeOBr2.length > 0"
+                    style="margin-left: 2%"
+                    pButton
+                    type="button"
+                    label="Imprimir"
+                    style="max-width: 150px"
+                    class="p-button-primary"
+                    (click)="mostrarPrevisualizacion2()"
+                    icon="pi pi-print"
+                ></button>
+                <button
+                *ngIf="isPdfVisible===false"
+
+                    (click)="cerrarPlanilla(); this.coso2 = false"
+                    style="margin-left: 2%"
+                    class="p-button-secondary"
+                    pButton
+                    pRipple
+                    type="button"
+                    label="Cancelar"
+                    icon="pi pi-times"
+                ></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- jefe obra 2 -->
+
+<!-- PLANILLA COLABORADORES INTERNOS -->
+<div class="grid" *ngIf="create">
+    <div class="col-12">
+        <div class="card">
+            <div class="flex" style="width: 100%; margin: 0 auto; display: flex; align-items: center; height: 42px;">
+                <div style="width: 20%; display: flex; align-items: center; height: 12.5%;">
+                    <button (click)="cerrarPlanilla()" class="p-button-link" pButton pRipple type="button" label="Regresar" icon="pi pi-arrow-left" style="box-shadow: none !important"></button>
+                </div>
+                <div style="flex-grow: 1; display: flex; justify-content: center; align-items: center;">
+                    <h1 class="text-center mt-4">Planilla</h1>
+                </div>
+                <div style="width: 20%;"></div> <!-- Empty div to balance the space on the right -->
+            </div>
+            <hr>
+
+            <!-- <div *ngIf="loading3" class="loader-container">
+                <div class="loader"></div>
+              </div> -->
+              
+              <div class="p-fluid p-formgrid grid" *ngIf="verplanilla && !loading3">
+                  <div
+                      class="field col-12 md:col-6"
+                      style="position: relative; height: 10%"
+                  >
+                      <div class="field rows">
+                          <label for="Codigo" style="font-weight: 800"
+                              >No. Nómina:
+                              <span style="color: #fff0c6">{{ NoNomina }}</span></label
+                          >
+                      </div>
+                  </div>
+                  <div class="field col-12 md:col-6" style="position: relative">
+                      <div class="field rows">
+                          <label for="Maquinaria" style="font-weight: 800"
+                              >Fecha de pago:
+                              <span style="color: #fff0c6">{{ FechaPago }}</span></label
+                          >
+                      </div>
+                  </div>
+                  <div class="field col-12 md:col-6" style="position: relative">
+                      <div class="field rows">
+                          <label for="Nivel" style="font-weight: 800"
+                              >Elaborado por:
+                              <span style="color: #fff0c6">{{ UsuarioCreo }}</span></label
+                          >
+                      </div>
+                  </div>
+                  <div class="field col-12 md:col-6" style="position: relative">
+                      <div class="field rows">
+                          <label for="Nivel" style="font-weight: 800"
+                              >Fecha y hora de emisión:
+                              <span style="color: #fff0c6">{{ FechaCreo }}</span></label
+                          >
+                      </div>
+                  </div>
+                  <div class="field col-12 md:col-6" style="position: relative">
+                      <div class="field rows">
+                          <label for="Nivel" style="font-weight: 800"
+                              >Planilla:
+                              <span style="color: #fff0c6">{{ emplejefe }}</span></label
+                          >
+                      </div>
+                  </div>
+                  <div class="field col-12 md:col-6" style="position: relative">
+                      <div class="field rows">
+                          <label for="Nivel" style="font-weight: 800"
+                              >Frecuencia:
+                              <span style="color: #fff0c6">{{ frecuencia }}</span></label
+                          >
+                      </div>
+                  </div>
+              </div>
+              
+                            <!--Fin loader-->
+
+            
+            <!-- Tabla con clase personalizada para bordes -->
+             <!-- #region  REGION DE PLANILLA Madian -->
+            <p-table
+                *ngIf="!isRegresarVisible"
+                #dt
+                [value]="listadoplanilla"
+                styleClass="mt-2 bordered-table"
+                responsiveLayout="scroll"
+                [rows]="10"
+                [globalFilterFields]="[
+                    'empl_Id',
+                    'empl_Nombre',
+                    'cargo',
+                    'frecuencia',
+                    'totalDevenagado',
+                    'sueldoTotal',
+                    'salarioDiario',
+                    'empl_Salario',
+                    'totalPrestamos',
+                    'sueldoTotal',
+                    '{{dedu.dedu_Descripcion}}'
+
+                ]"
+                [paginator]="true"
+                [showCurrentPageReport]="true"
+                currentPageReportTemplate="Mostrando {first} al {last} de {totalRecords} entradas"
+                [rowHover]="true" 
+                [rowsPerPageOptions]="[10,25,50,100]"
+            >
+                <ng-template pTemplate="caption">
+                    <div
+                        class="flex flex-column md:flex-row md:justify-content-between md:align-items-center"
+                    >
+                        <span class="block mt-2 md:mt-0 p-input-icon-left">
+                            <i style="color: white" class="pi pi-search"></i>
+                            <input
+                                style="color: white"
+                                pInputText
+                                type="text"
+                                (input)="onGlobalFilter(dt, $event)"
+                                placeholder="Buscar..."
+                                class="w-full sm:w-auto"
+                            />
+                        </span>
+                        <div class="registros">
+                            <p-dropdown [options]="dt.rowsPerPageOptions" [(ngModel)]="dt.rows" [style]="{ 'margin-right': '5px' }"  [autoWidth]="false"></p-dropdown>
+        
+                            <span style="color: #FFF0C6; font-weight: 700; margin-top: 7px;"> Registros por página</span>
+                        </div>
+                    </div>
+                </ng-template>
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th
+                            rowspan="2"
+                            style="
+                                vertical-align: middle;
+                                text-align: center;
+                                border: 1px solid #fff0c6;
+                                color: #fff0c6;
+                            "
+                            pSortableColumn="Acciones"
+                            class="text-center"
+                        >
+                            Acciones
+                        </th>
+                        <th
+                            rowspan="2"
+                            style="
+                                vertical-align: middle;
+                                text-align: center;
+                                border: 1px solid #fff0c6;
+                                color: #fff0c6;
+                            "
+                            pSortableColumn="empl_Id"
+                            class="text-center"
+                        >
+                            No.
+                        </th>
+                        <th
+                            rowspan="2"
+                            style="
+                                vertical-align: middle;
+                                text-align: center;
+                                border: 1px solid #fff0c6;
+                                color: #fff0c6;
+                            "
+                            pSortableColumn="empl_Nombre"
+                            class="text-center"
+                        >
+                            Nombre Completo
+                        </th>
+                        <th
+                            rowspan="2"
+                            style="
+                                vertical-align: middle;
+                                text-align: center;
+                                border: 1px solid #fff0c6;
+                                color: #fff0c6;
+                            "
+                            pSortableColumn="cargo"
+                            class="text-center"
+                        >
+                            Cargo
+                        </th>
+                        <th
+                            rowspan="2"
+                            style="
+                                vertical-align: middle;
+                                text-align: center;
+                                border: 1px solid #fff0c6;
+                                color: #fff0c6;
+                            "
+                            pSortableColumn="frecuencia"
+                            class="text-center"
+                        >
+                            Frecuencia
+                        </th>
+                        <th
+                            colspan="2"
+                            style="border: 1px solid #fff0c6; color: #fff0c6"
+                            class="text-center"
+                        >
+                            Salario
+                        </th>
+                        <th
+                            rowspan="2"
+                            style="
+                                vertical-align: middle;
+                                text-align: center;
+                                border: 1px solid #fff0c6;
+                                color: #fff0c6;
+                            "
+                            pSortableColumn="totalDevenagado"
+                            class="text-center"
+                        >
+                            Total Devengado
+                        </th>
+                        <th
+                            [attr.colspan]="numDeducciones"
+                            style="border: 1px solid #fff0c6; color: #fff0c6"
+                            class="text-center"
+                        >
+                            Deducciones
+                        </th>
+                        <th
+                            rowspan="2"
+                            style="
+                                vertical-align: middle;
+                                text-align: center;
+                                border: 1px solid #fff0c6;
+                                color: #fff0c6;
+                            "
+                            pSortableColumn="sueldoTotal"
+                            class="text-center"
+                        >
+                            Total Salario
+                        </th>
+                    </tr>
+
+                    <tr>
+                        <th
+                            style="border: 1px solid #fff0c6; color: #fff0c6"
+                            class="text-center" pSortableColumn="salarioDiario"
+                        >
+                            Diario
+                        </th>
+                        <th
+                            style="border: 1px solid #fff0c6; color: #fff0c6"
+                            class="text-center" pSortableColumn="empl_Salario"
+                        >
+                            Ordinario
+                        </th>
+                        <th
+                            style="border: 1px solid #fff0c6; color: #fff0c6"
+                            class="text-center"  pSortableColumn="{{dedu.dedu_Descripcion}}"
+                            *ngFor="let dedu of deduccion"
+                        >
+                            {{ dedu.dedu_Descripcion }}
+                        </th>
+                        <th
+                        style="border: 1px solid #fff0c6; color: #fff0c6"
+                        class="text-center"  pSortableColumn="totalPrestamos"
+                    >
+                        Préstamos
+                    </th>
+                    </tr>
+                </ng-template>
+
+
+                <!--Inicio loader-->
+                <!-- <ng-template pTemplate="emptymessage">
+                    <tr>
+                        <td [attr.colspan]="totalColumnas" class="text-center">
+                            <div class="loader-container" *ngIf="loading">
+                                <div class="loader"></div>
+                            </div>
+                        </td>
+                    </tr>
+                </ng-template> -->
+                <!--Fin loader-->
+
+
+                <ng-template pTemplate="body" let-planilla>
+                    <tr (click)="selectPlanilla(planilla)">
+                        <td
+                            class="text-center"
+                            style="
+                                width: 5%;
+                                min-width: 10rem;
+                                border: 1px solid #fff0c6;
+                                text-align: center;
+                                color: #868c9b;
+                            "
+                        >
+                        <p-splitButton
+                        label="Acciones"
+                        icon="pi pi-cog"
+                        [model]="items"
+                        appendTo="body"
+                        styleClass="p-button-secondary"
+                        class="custom-splitbutton"
+                        ></p-splitButton>
+                        </td>
+                        <td
+                            style="
+                                border: 1px solid #fff0c6;
+                                text-align: center;
+                                color: #868c9b;
+                                white-space: nowrap;
+                            "
+                        >
+                            {{ planilla.codigo }}
+                        </td>
+                        <td
+                            style="
+                                border: 1px solid #fff0c6;
+                                text-align: center;
+                                color: #868c9b;
+                                white-space: nowrap;
+                            "
+                        >
+                            {{
+                                planilla.empl_Nombre +
+                                    " " +
+                                    planilla.empl_Apellido
+                            }}
+                        </td>
+                        <td
+                            style="
+                                border: 1px solid #fff0c6;
+                                text-align: center;
+                                color: #868c9b;
+                                white-space: nowrap;
+                            "
+                        >
+                            {{ planilla.cargo }}
+                        </td>
+                        <td
+                            style="
+                                border: 1px solid #fff0c6;
+                                text-align: center;
+                                color: #868c9b;
+                                white-space: nowrap;
+                            "
+                        >
+                            {{ planilla.frecuencia }}
+                        </td>
+                        <td
+                        style="
+                            border: 1px solid #fff0c6;
+                            text-align: end;
+                            color: #868c9b;
+                            white-space: nowrap;
+                        "
+                    >
+                        {{globalmoneda.getState().mone_Abreviatura}} {{ ((planilla.empl_Salario / planilla.frec_NumeroDias) | number: "1.2-2") }}
+                    </td>
+                    <td
+                        style="
+                            border: 1px solid #fff0c6;
+                            text-align: end;
+                            color: #868c9b;
+                            white-space: nowrap;
+                        "
+                    >
+                        {{globalmoneda.getState().mone_Abreviatura}} {{ planilla.empl_Salario | number: "1.2-2" }} 
+                    </td>
+                    <td
+                        style="
+                            border: 1px solid #fff0c6;
+                            text-align: end;
+                            color: #868c9b;
+                            white-space: nowrap;
+                        "
+                    >
+                        {{globalmoneda.getState().mone_Abreviatura}} {{ planilla.empl_Salario | number: "1.2-2"}}
+                    </td>
+                    <td
+                        style="
+                            border: 1px solid #fff0c6;
+                            text-align: end;
+                            color: #868c9b;
+                            white-space: nowrap;
+                        "
+                        *ngFor="let plan of planilla.deducciones"
+                    >
+                        {{globalmoneda.getState().mone_Abreviatura}} {{ plan.totalPorDeduccion | number: "1.2-2"}}
+                    </td>
+                    <td
+                        style="
+                            border: 1px solid #fff0c6;
+                            text-align: end;
+                            color: #868c9b;
+                            white-space: nowrap;
+                        "
+                    >
+                        {{globalmoneda.getState().mone_Abreviatura}} {{ planilla.totalPrestamos | number: "1.2-2"}}
+                    </td>
+                    <td
+                        style="
+                            border: 1px solid #fff0c6;
+                            text-align: end;
+                            color: #868c9b;
+                            white-space: nowrap;
+                        "
+                    >   
+                        {{globalmoneda.getState().mone_Abreviatura}} {{ (planilla.empl_Salario - (planilla.totalPrestamos + (planilla.deducciones?.[0]?.totalDeducido ?? 0)))| number: "1.2-2" }}
+                    </td>
+                    
+                    </tr>
+                </ng-template>
+            </p-table>
+
+            <div
+                id="pdfContainer"
+                [ngClass]="{ 'pdf-container-active': isPdfVisible }"
+            ></div>
+            <div
+                *ngIf="!isRegresarVisible"
+                style="display: flex; justify-content: end; gap: 20px"
+            >
+                <button
+                    *ngIf="btnGuardar"
+                    (click)="guardar()"
+                    class="btn btn-guardar"
+                    pButton
+                    pRipple
+                    type="button"
+                    label="Guardar"
+                    icon="pi pi-save"
+                ></button>
+                <button
+                    pButton
+                    type="button"
+                    label="Imprimir"
+                    style="max-width: 150px"
+                    class="p-button-primary"
+                    (click)="mostrarPrevisualizacion()"
+                    icon="pi pi-print"
+                ></button>
+                <button
+                (click)="cerrarPlanilla()"
+                style="margin-left: 2%"
+                class="p-button-secondary"
+                pButton
+                pRipple
+                type="button"
+                label="Cancelar"
+                icon="pi pi-times"
+                ></button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- PLANILLA COLABORADORES INTERNOS -->
+
+
+<!-- MODAL GENERAR PLANILLA -->
+<div class="grid" *ngIf="modal">
+    <div class="col-12">
+        <div class="card">
+            <div class="flex" style="width: 100%; margin: 0 auto; display: flex; align-items: center; height: 42px;">
+                <div style="width: 20%; display: flex; align-items: center; height: 12.5%;">
+                    <button (click)="cerrarPlanilla()" class="p-button-link" pButton pRipple type="button" label="Regresar" icon="pi pi-arrow-left" style="box-shadow: none !important"></button>
+                </div>
+                <div style="flex-grow: 1; display: flex; justify-content: center; align-items: center;">
+                    <h1 class="text-center mt-4">Generar Planilla</h1>
+                </div>
+                <div style="width: 20%;"></div> <!-- Empty div to balance the space on the right -->
+            </div>
+            <hr>
+            <div class="mt-2 grid">
+                <div class="field col-12 md:col-11" style="margin-block-end: -2%;">
+                    <div style="display: flex; align-items: center; margin-left: -2.5%; margin-top:-2%">
+                        <h5 style="margin-left: 2.5%; color: #fff0c6;">Nota:&nbsp;</h5><p> </p><h6 style="margin-top: 0.2%;"> El rango de fechas entre el inicio y el fin del periodo de la planilla debe coincidir con la frecuencia seleccionada.</h6>
+                    </div>
+                    </div>
+                <form [formGroup]="form" class="grid col-12 p-fluid p-formgrid">
+                    <div class="field col-12 md:col-6">
+                        <label for="nombre">Es Jefe de Cuadrilla </label>
+                        <div class="md:col-6" style="margin-top: -2%">
+                            <p-inputSwitch
+                                formControlName="plan_PlanillaJefes"
+                                (ngModelChange)="onPlanillaJefesChange($event)">
+                            </p-inputSwitch>
+                        </div>
+                    </div>
+                    <div *ngIf="hideFrecuencia ===true " class="field col-12 md:col-6">
+                        <label style="display: inline-block;">Frecuencia&nbsp;</label> <small style="display:inline-block;"  class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['frecuencia'].invalid"
+                        style="color: red !important;">*</small>
+                        <small style="display:inline-block;"  class="ng-dirty ng-invalid" *ngIf="lbOpcionNA"
+                        style="color: red !important;">*</small>
+                        <p-autoComplete
+                            [dropdown]="true"
+                            formControlName="frecuencia"
+                            [suggestions]=" frecuenciaDdlSaber ? filteredFrecuenciaPla : filteredFrecuenciaPla2"
+                            (completeMethod)="searchFrecuencia($event)"
+                            (onSelect)="onNivelSelect($event)"
+                            field="frecuencia"
+                            placeholder="Seleccione una frecuencia"
+                            appendTo="body"
+                            [disabled]="isJefeDeCuadrilla"
+                            [ngClass]="{
+                                'ng-invalid ng-dirty':
+                                    (submitted &&
+                                    form.controls['frecuencia'].invalid) || lbOpcionNA
+                            }"
+                        >
+                        </p-autoComplete>
+                        <small
+                            class="ng-dirty ng-invalid"
+                            *ngIf="
+                                submitted && form.controls['frecuencia'].invalid
+                            "
+                            style="color: red !important"
+                            >El campo es requerido.</small
+                        >
+                        <small
+                        class="ng-dirty ng-invalid"
+                        *ngIf="
+                            lbOpcionNA
+                        "
+                        style="color: red !important"
+                        >Opción no encontrada.</small
+                    >
+                    </div>
+                    <div class="field col-12 md:col-6">
+                        <label for="nombre">Fecha de la Última Planilla - {{nombreFrecuencia}}</label>
+                        <div style="display: flex; align-items: center; margin-left: -2.5%; margin-top:-2%">
+                            <p-calendar
+                                [showIcon]="true"
+                                inputId="icon"
+                                class="col-12"
+                                name="plan_FechaPeriodoInicio"
+                                dateFormat="dd/mm/yy"
+                                appendTo="body"
+                                [disabled]="true"
+                                [placeholder]="formattedDate"
+                            ></p-calendar>
+                            <!-- Ícono de información con tooltip -->
+                             <div style="margin-left: -2%">
+                            <i
+                                class="pi pi-info-circle ml-2"
+                                pTooltip="Se selecciona la última fecha del fin de periodo de la última planilla ingresada según la frecuencia escogida."
+                                tooltipPosition="top"
+                                style="cursor: pointer; font-size: 1.2em; margin-left: -5%; align-self: center;"
+                            ></i>
+                            <!-- {{!fecha ? new Date() : fecha}} -->
+                        </div>
+                        </div>
+                    </div>
+                    <div class="field col-12 md:col-6">
+                        <label style="display: inline-block;">Fecha Fin del Periodo Planilla&nbsp;</label> <small style="display:inline-block;"  class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['plan_FechaPeriodoFin'].invalid"
+                        style="color: red !important;">*</small>
+                        <p-calendar
+                            [showIcon]="true"
+                            inputId="icon"
+                            class="col-12"
+                            name="plan_FechaPeriodoFin"
+                            dateFormat="dd/mm/yy"
+                            appendTo="body"
+                            formControlName="plan_FechaPeriodoFin"
+                            [ngClass]="{
+                                'ng-invalid ng-dirty':
+                                    submitted &&
+                                    form.controls['plan_FechaPeriodoFin'].invalid
+                            }"
+                            [minDate]="minDate"
+                        ></p-calendar>
+                        <small
+                            class="ng-dirty ng-invalid"
+                            *ngIf="
+                                submitted &&
+                                form.controls['plan_FechaPeriodoFin'].invalid
+                            "
+                            style="color: red !important;  margin-left: -2.8%;"
+                            >El campo es requerido.</small
+                        >
+                    </div>
+                    <div class="field col-12 md:col-6">
+                        <label style="display: inline-block;">Fecha de Pago&nbsp;</label> <small style="display:inline-block;"  class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['plan_FechaPago'].invalid"
+                        style="color: red !important;">*</small>
+                        <p-calendar
+                            [showIcon]="true"
+                            inputId="icon"
+                            class="col-12"
+                            name="plan_FechaPago"
+                            dateFormat="dd/mm/yy"
+                            appendTo="body"
+                            formControlName="plan_FechaPago"
+                            [ngClass]="{
+                                'ng-invalid ng-dirty':
+                                    submitted &&
+                                    form.controls['plan_FechaPago'].invalid
+                            }"
+                            [minDate]="minDate"
+                        ></p-calendar>
+                        <small
+                            class="ng-dirty ng-invalid"
+                            *ngIf="
+                                submitted &&
+                                form.controls['plan_FechaPago'].invalid
+                            "
+                            style="color: red !important; margin-left: -2.8%;"
+                            >El campo es requerido.</small
+                        >
+                    </div>
+                    <div class="field col-12 md:col-6">
+                        <label for="nombre">Observaciones </label>
+                        <input
+                            type="text"
+                            pInputText
+                            [showIcon]="true"
+                            inputId="icon"
+                            autofocus
+                            formControlName="plan_Observaciones"
+                            class="p-inputtext"
+                            (input)="handleInput($event)"
+                        />
+                    </div>
+                </form>
+            </div>
+            <div style="display: flex; justify-content: end">
+                <button
+                    (click)="isJefeDeCuadrilla? ValidacionesPlanilla2() : ValidacionesPlanilla1()"
+                    class="btn btn-guardar"
+                    pButton
+                    pRipple
+                    type="button"
+                    label="Generar Planilla"
+                    icon="pi pi-file-export"
+                ></button>
+                <button
+                    (click)="CerrarPlanilla()"
+                    style="margin-left: 2%"
+                    class="p-button-secondary"
+                    pButton
+                    pRipple
+                    type="button"
+                    label="Cancelar"
+                    icon="pi pi-times"
+                ></button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- MODAL GENERAR PLANILLA -->
+
+<p-dialog [(visible)]="modalValidaciones" header="Advertencia" [modal]="true" [style]="{width:'450px'}">
+    <div class="flex align-items-center justify-content-center">
+        <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+        <div>
+            <span>El periodo de pago de planilla seleccionado no concuerda con la frecuencia seleccionada.</span><br><br>
+            <strong style="color: white;"><b>Tenga en cuenta que esto puede afectar planillas posteriores.</b></strong><br><br>
+            <span>¿Desea continuar?</span>
+        </div>
+    </div>
+    <ng-template pTemplate="footer">
+        <button pButton pRipple icon="pi pi-check" class="p-button-primary" label="Sí" (click)="GenerarPlanilla(); modalValidaciones = false"></button>
+        <button pButton pRipple icon="pi pi-times" class="p-button-outlined p-button-primary" label="No" (click)="modalValidaciones = false"></button>
+    </ng-template>
+</p-dialog>
+
+
+
+<!-- MODAL DEDUCCIONES COLABORADORES INTERNOS -->
+<div class="grid" *ngIf="modalDeducciones">
+    <div class="col-12">
+        <div class="card">
+            <div class="flex" style="width: 100%; margin: 0 auto; display: flex; align-items: center; height: 42px;">
+                <div style="width: 20%; display: flex; align-items: center; height: 12.5%;">
+                    <button (click)="modalDeducciones = false; create = true; Index = false" class="p-button-link" pButton pRipple type="button" label="Regresar" icon="pi pi-arrow-left" style="box-shadow: none !important"></button>
+                </div>
+                <div style="flex-grow: 1; display: flex; justify-content: center; align-items: center;">
+                    <h1 class="text-center mt-4">Deducciones Colaborador</h1>
+                </div>
+                <div style="width: 20%;"></div> <!-- Empty div to balance the space on the right -->
+            </div>
+            <hr />
+            <div class="p-fluid p-formgrid grid" style="margin-left: 3%">
+                <div
+                    class="field col-12 md:col-12"
+                    style="
+                        position: relative;
+                        height: 10%;
+                        margin-block-end: -1%;
+                        margin-top: 2%;
+                    "
+                >
+                    <div class="field rows">
+                        <label
+                            for="Codigo"
+                            style="
+                                font-weight: 800;
+                                color: #fff0c6;
+                                font-size: x-large;
+                            "
+                            >Colaborador -
+                            <span>{{
+                                empl_Nombre + " " + empl_Apellido
+                            }}</span></label
+                        >
+                    </div>
+                </div>
+                <div
+                    class="field col-12 md:col-12"
+                    style="
+                        position: relative;
+                        height: 10%;
+                        display: flex;
+                        flex-wrap: wrap;
+                    "
+                >
+                    <div
+                        class="field rows"
+                        style="
+                            width: 50%;
+                            display: flex;
+                            justify-content: space-between;
+                        "
+                        *ngFor="let dedu of empleadosFiltradorDeducciones[0].deducciones"
+                    >
+                        <label for="Codigo" style="font-weight: 800"
+                            >{{
+                                dedu.dedu_Descripcion +
+                                    " - " +
+                                    dedu.dedu_Porcentaje +
+                                    "%"
+                            }}
+                            : </label
+                        ><label
+                            class="text-primary"
+                            style="
+                                flex-grow: 1;
+                                font-weight: 800;
+                                max-width: 240px;
+                            "
+                            >{{this.globalmoneda.getState().mone_Abreviatura}} {{ dedu.totalPorDeduccion | number: "1.2-2" }}</label
+                        >
+                    </div>
+                </div>
+
+                <div
+                    class="field col-12 md:col-12"
+                    style="
+                        position: relative;
+                        height: 10%;
+                        margin-top: 2%;
+                        padding-right: 50px;
+                    "
+                >
+                    <div
+                        class="field rows"
+                        style="display: flex; justify-content: end"
+                    >
+                        <label for="Codigo" style="font-weight: 800"
+                            >Salario Base:
+                            <span
+                                class="text-primary"
+                                style="padding-left: 33px;
+                                padding-right: 13px;
+                                position: relative;
+                                left: -18px;
+                                top: 1px;
+                                transition: none;
+                                "
+                            >
+                            {{this.globalmoneda.getState().mone_Abreviatura}} 
+                                {{
+                                    (!salariobase
+                                        ? salariobasePlanilla
+                                        : salariobase) | number: "1.2-2"
+                                }}
+                            </span>
+                        </label>
+                    </div>
+                    <div
+                        class="field rows"
+                        style="display: flex; justify-content: end"
+                    >
+                        <label for="Codigo" style="font-weight: 800 ; margin-left: 24px;"
+                            >Total Deducido:
+                            <span class="text-primary" style="margin-left: 24px;
+                            padding-right: 11px;
+                            position: relative;
+                            left: -11px;
+                            top: 2px;"
+                                >{{this.globalmoneda.getState().mone_Abreviatura}}  {{ totalDeducido | number: "1.2-2" }}</span
+                            >
+                        </label>
+                    </div>
+                    <div
+                        class="field rows"
+                        style="display: flex; justify-content: end"
+                    >
+                        <label for="Codigo" style="font-weight: 800"
+                            >Sueldo Total:
+                            <span
+                                class="text-primary"
+                                style="padding-left: 20px;
+                                padding-right: 11px;
+                                transform: translate(0px);
+                                position: relative;
+                                left: -4px;
+                                top: -1px;"
+                                >{{this.globalmoneda.getState().mone_Abreviatura}} 
+                                {{ (salariobase - totalDeducido) | number: "1.2-2"}}</span
+                            >
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div
+                style="
+                    display: flex;
+                    justify-content: flex-end;
+                    margin-top: 1rem;
+                    grid-gap: 5px;
+                    padding-right: 30px;
+                "
+            >
+            </div>
+        </div>
+    </div>
+</div>
+<!-- MODAL DEDUCCIONES COLABORADORES INTERNOS -->
+
+
+
+<!-- MODAL DEDUCCIONES JEFES DE OBRA -->
+<div class="grid" *ngIf="modaldedujefes">
+    <div class="col-12">
+        <div class="card">
+            <div class="flex" style="width: 100%; margin: 0 auto; display: flex; align-items: center; height: 42px;">
+                <div style="width: 20%; display: flex; align-items: center; height: 12.5%;">
+                    <button (click)="modaldedujefes = false; coso = true; Index = false" class="p-button-link" pButton pRipple type="button" label="Regresar" icon="pi pi-arrow-left" style="box-shadow: none !important"></button>
+                </div>
+                <div style="flex-grow: 1; display: flex; justify-content: center; align-items: center;">
+                    <h1 class="text-center mt-4">Deducciones Colaborador</h1>
+                </div>
+                <div style="width: 20%;"></div> <!-- Empty div to balance the space on the right -->
+            </div>
+            <hr />
+            <div class="p-fluid p-formgrid grid" style="margin-left: 3%">
+                <div
+                    class="field col-12 md:col-12"
+                    style="
+                        position: relative;
+                        height: 10%;
+                        margin-block-end: -1%;
+                        margin-top: 2%;
+                    "
+                >
+                    <div class="field rows">
+                        <label
+                            for="Codigo"
+                            style="
+                                font-weight: 800;
+                                color: #fff0c6;
+                                font-size: x-large;
+                            "
+                            >Colaborador -
+                            <span>{{
+                                this.selectedPlanilla.nombreCompleto
+                            }}</span></label
+                        >
+                    </div>
+                </div>
+                <div
+                    class="field col-12 md:col-12"
+                    style="
+                        position: relative;
+                        height: 10%;
+                        display: flex;
+                        flex-wrap: wrap;
+                    "
+                >
+                   
+
+
+                        <div
+                        class="field rows"
+                        style="
+                            width: 50%;
+                            display: flex;
+                            justify-content: space-between;
+                        "
+                        *ngFor="let dedu of getUniqueDeducciones(deduccionesJefe)"
+                        >
+                            <label for="Codigo" style="font-weight: 800"
+                                >{{
+                                    dedu.dedu_Descripcion +
+                                        " - " +
+                                        dedu.dedu_Porcentaje +
+                                        "%"
+                                }}
+                                : </label
+                            ><label
+                                class="text-primary"
+                                style="
+                                    flex-grow: 1;
+                                    font-weight: 800;
+                                    max-width: 240px;
+                                "
+                                > {{ globalmoneda.getState().mone_Abreviatura }} {{ getDeduccionParaEmpleado(deduccionesJefe, dedu.dedu_Descripcion,selectedPlanilla.sueldoTotal, selectedPlanilla.empl_Id) | number: '1.2-2' }}</label
+                            >
+                        </div>
+                </div>
+                <div
+                class="field col-12 md:col-12"
+                    style="
+                        position: relative;
+                        height: 10%;
+                        margin-top: 2%;
+                        padding-right: 50px;
+                    ">
+                <div class="font-semibold mb-3 md:mb-0"></div>
+                <div class="flex flex-column">
+                    <div class="field rows"
+                        style="display: flex;font-weight: 800; justify-content: end; ">
+                        <span class=" mr-6 text-primary" style="font-weight: 800;">Salario Base:</span>
+                        <span>{{ globalmoneda.getState().mone_Abreviatura }}
+                            {{
+                                this.selectedPlanilla.sueldoTotal | number:'1.2-2'
+                                   
+                            }}</span>
+                    </div>
+                    <div class="field rows"
+                        style="display: flex;font-weight: 800; justify-content: end">
+                        <span class=" mr-6 text-primary" style="font-weight: 800;">Total Deducido:</span>
+                        <span>{{ globalmoneda.getState().mone_Abreviatura }} {{selectedPlanilla.sueldoTotal- calcularSueldoNeto(selectedPlanilla.empl_Id, selectedPlanilla.sueldoTotal) | number: '1.2-2' }}</span>
+                    </div>
+                    <div class="field rows"
+                        style="display: flex;font-weight: 800; justify-content: end">
+                        <span class=" mr-6 text-primary" style="font-weight: 800;">Sueldo Total: </span>
+                        <span>{{ globalmoneda.getState().mone_Abreviatura }} {{ calcularSueldoNeto(selectedPlanilla.empl_Id, selectedPlanilla.sueldoTotal) | number: '1.2-2' }}</span>
+                    </div>
+                </div>
+            </div>
+<!-- 
+                <div
+                    class="field col-12 md:col-12"
+                    style="
+                        position: relative;
+                        height: 10%;
+                        margin-top: 2%;
+                        padding-right: 50px;
+                    "
+                >
+                    <div
+                        class="field rows"
+                        style="display: flex; justify-content: end"
+                    >
+                        <label for="Codigo" style="font-weight: 800"
+                            >Salario Base:
+                            <span
+                                class="text-primary"
+                                style="padding-left: 20px"
+                            >
+                            {{ globalmoneda.getState().mone_Abreviatura }}
+                                {{
+                                    this.selectedPlanilla.sueldoTotal | number:'1.2-2'
+                                       
+                                }}
+                            </span>
+                        </label>
+                    </div>
+                    <div
+                        class="field rows"
+                        style="display: flex; justify-content: end"
+                    >
+                        <label for="Codigo" style="font-weight: 800"
+                            >Total Deducido:
+                            <span class="text-primary"
+                                >{{ globalmoneda.getState().mone_Abreviatura }} {{selectedPlanilla.sueldoTotal- calcularSueldoNeto(selectedPlanilla.empl_Id, selectedPlanilla.sueldoTotal) | number: '1.2-2' }}</span
+                            >
+                        </label>
+                    </div>
+                    <div
+                        class="field rows"
+                        style="display: flex; justify-content: end"
+                    >
+                        <label for="Codigo" style="font-weight: 800"
+                            >Sueldo Total:
+                            <span
+                                class="text-primary"
+                                style="padding-left: 20px"
+                                >{{ globalmoneda.getState().mone_Abreviatura }} {{ calcularSueldoNeto(selectedPlanilla.empl_Id, selectedPlanilla.sueldoTotal) | number: '1.2-2' }}</span
+                            >
+                        </label>
+                    </div>
+                </div> -->
+            </div>
+            <div
+                style="
+                    display: flex;
+                    justify-content: flex-end;
+                    margin-top: 1rem;
+                    grid-gap: 5px;
+                    padding-right: 30px;
+                "
+            >
+            </div>
+        </div>
+    </div>
+</div>
+<!-- MODAL DEDUCCIONES JEFES DE OBRA -->

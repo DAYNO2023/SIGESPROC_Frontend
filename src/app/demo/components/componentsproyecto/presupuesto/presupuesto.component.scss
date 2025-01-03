@@ -1,0 +1,178 @@
+::ng-deep .custom-splitbutton .p-splitbutton-defaultbutton {
+  display: none; /* Oculta el botón izquierdo */
+}
+
+
+::ng-deep .custom-splitbutton .p-splitbutton-menubutton {
+  width: 133.73px;
+  height: 29.49px;
+  display: flex;
+  align-items: center;
+  padding: 0.5rem;
+  border-radius: 5px;
+  position: relative;
+}
+
+
+::ng-deep .custom-splitbutton .p-splitbutton-menubutton .p-button-label {
+  display: flex;
+  align-items: center;
+}
+
+
+::ng-deep .custom-splitbutton .p-splitbutton-menubutton::before {
+  content: '\e94a   Acciones ';
+  font-family: 'PrimeIcons', sans-serif;
+  font-size: 1rem;
+  display: inline-flex;
+  align-items: center;
+  margin-right: 17px;
+}
+
+
+/* Añadir el icono de engranaje a la izquierda del texto */
+::ng-deep .custom-splitbutton .p-splitbutton-menubutton::before {
+  position: relative;
+}
+
+::ng-deep .custom-splitbutton .p-splitbutton-menubutton .p-button-icon-right .p-icon-wrapper{
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  margin-left: 0;
+}
+.spinner-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh; 
+}
+
+
+.hidden-spinner {
+  display: none;
+}
+
+
+.floating-button-container {
+    position: fixed;
+    bottom: 20px;
+    left: 460px;
+    z-index: 1000;
+  }
+
+  .floating-button-container-left {
+    position: fixed;
+    bottom: 20px;
+    left: 350px;
+    z-index: 1000;
+  }
+  .floating-button-container-left .large-button {
+    width: 100px;
+    height: 40px;
+    font-size: 12px;
+  }
+  
+  .floating-button-container .large-button {
+    width: 100px;
+    height: 40px;
+    font-size: 12px;
+  }
+  .floating-button-container-left .large-button .pi {
+    font-size: 10px;
+    
+  }
+  
+  .floating-button-container .large-button .pi {
+    font-size: 24px;  
+  }
+  
+  .conversionbtn{
+    margin-top: 2.6rem !important;
+  }
+  ::ng-deep #dropPresupuesto > div > input.p-autocomplete-input {
+    max-width: 175px;
+  }
+
+  ::ng-deep #dropPorcentaje > div > input.p-autocomplete-input {
+    max-width: 85px;
+  }
+
+  ::ng-deep #dropMoneda > div > input.p-autocomplete-input {
+    max-width: 85px;
+  }
+  .custom-dropdown-item {
+    display: flex;
+    align-items: center;
+}
+
+.label-text {
+    margin: 0 4px; /* Espacio entre el texto y el ícono */
+}
+
+.icon-separator {
+    margin: 0 4px; /* Espacio entre el ícono y el texto */
+}
+
+
+  ::ng-deep .unidad-medida > div > input.p-autocomplete-input {
+    max-width: 100px;
+  }
+
+  ::ng-deep #proyecto-auto > div  {
+    left: 30px;
+  }
+
+  ::ng-deep #proyecto-crear > div > input.p-autocomplete-input > button{
+    width: 5px;
+  }
+
+  ::ng-deep #proyecto-auto > div > input.p-autocomplete-input {
+    max-width: 230px;
+  }
+
+  ::ng-deep #proyecto-articulo > div > input.p-autocomplete-input {
+    max-width: 230px;
+  }
+
+  .estado-pendiente {
+    color: #ffffff;
+    font-family: "Raleway", sans-serif;
+    background: #a78b3e;
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+    backdrop-filter: blur(0px);
+    -webkit-backdrop-filter: blur(0px);
+    border-radius: 5px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    display: flow;
+    clip-path: fill-box;
+    height: 30px;
+}
+.hidden {
+  display: none;
+}
+
+.pdf-container-active {
+  width: 100%;
+  height: 800px;
+}
+
+  .bg-gray-1000 {
+    background-color: #252424 !important;
+}
+.fieldset-wrapper {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+
+::ng-deep .p-tabview .p-tabview-nav .p-tabview-ink-bar {
+  z-index: 1 !important;
+  display: block !important;
+  position: absolute !important;
+  bottom: 0 !important;
+  height: 2px !important;
+  // background-color: #FFF0C6;
+  transition: 500ms cubic-bezier(0.35, 0, 0.25, 1) !important;
+}

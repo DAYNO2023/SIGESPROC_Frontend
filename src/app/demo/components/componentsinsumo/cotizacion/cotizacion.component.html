@@ -1,0 +1,1436 @@
+
+<p-toast ></p-toast>
+<div class="loader-container" *ngIf="isLoading">
+  <div class="loader">
+      <span></span>
+  </div>
+</div>
+<div class="grid" *ngIf="Index">
+    <div class="col-12">
+        <div class="card">
+            <h1 class="text-center mt-2">Cotizaciones</h1>
+            <hr>
+            <div class="grid mt-2">
+                <div class="col-12">
+                    <button  (click)="CrearCotizacion()"  pButton icon="pi pi-plus" label="Nuevo" class="mr-2">
+                    </button>
+                </div>
+            </div>
+            <p-table #dt [value]="Cotizaciones" styleClass=" mt-2" responsiveLayout="scroll" [rows]="10"
+            [globalFilterFields]="['codigo','prov_Descripcion','empleado','fecha','total']"  [tableStyle]="{ background: '#000' }"
+            [rows]="10" [paginator]="true" [showCurrentPageReport]="true"
+            currentPageReportTemplate="Mostrando {first} al {last} de {totalRecords} entradas" [rowHover]="true"
+             dataKey="coti_Id" [expandedRowKeys]="expandedRows" (onRowExpand)="onRowExpand($event)" (onRowCollapse)="onRowCollapse($event)" [rowsPerPageOptions]="[10,25,50,100]">
+                <ng-template pTemplate="caption">
+                    <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+                        <span class="block mt-2 md:mt-0 p-input-icon-left">
+                            <i style="color: white;" class="pi pi-search"></i>
+                            <input style="color: white;" pInputText type="text" (input)="onGlobalFilter(dt, $event)"
+                                placeholder="Buscar..." class="w-full sm:w-auto" />
+                        </span>
+                        <div class="registros">
+                            <p-dropdown [options]="dt.rowsPerPageOptions" [(ngModel)]="dt.rows" [style]="{ 'margin-right': '5px' }"  [autoWidth]="false"></p-dropdown>
+
+                            <span style="color: #FFF0C6; font-weight: 700; margin-top: 7px;"> Registros por página</span>
+                        </div>
+                    </div>
+                </ng-template>
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th  style="color: white;" style="width: 5rem"></th>
+                        <th style="color: white;" class="text-center">Acciones</th>
+                        <th style="color: white;" pSortableColumn="codigo"  class="text-center">No. <p-sortIcon field="codigo" /></th>
+                        <th pSortableColumn="coti_Estado" class="text-center">Emisión <p-sortIcon field="coti_Estado" ></p-sortIcon>
+                        </th>
+                        <th style="color: white;" pSortableColumn="prov_Descripcion"  class="text-center">Proveedor <p-sortIcon field="prov_Descripcion" /></th>
+
+                        <th  style="color: white;"pSortableColumn="fecha"  class="text-center">Fecha <p-sortIcon field="fecha" /></th>
+                        <th  style="color: white;"pSortableColumn="total"  class="text-center">Total <p-sortIcon field="total" /></th>
+                    </tr>
+                </ng-template>
+                <!-- <ng-template pTemplate="emptymessage">
+                    <tr>
+                      <td colspan="6" class="text-center">
+                        <div class="loader-container" *ngIf="isLoading">
+                            <div class="loader">
+                                <span></span>
+                            </div>
+                          </div>
+                      </td>
+                    </tr>
+                  </ng-template> -->
+                <ng-template pTemplate="body" let-coti let-expanded="expanded">
+                    <tr (click)="selectCoti(coti)">
+                        <td>
+                            <p-button   type="button" pRipple [pRowToggler]="coti" [text]="true" [rounded]="true" [plain]="true" [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'" />
+                        </td>  <td>
+                            <p-splitButton 
+                            class="custom-splitbutton" 
+                            label="Acciones" 
+                            icon="pi pi-cog" 
+                            [model]="
+                              coti.coti_Estado ? items : itemsDocumentos" 
+                            styleClass="p-button-secondary" 
+                            appendTo="body">
+                          </p-splitButton>
+                </td>
+                        <td>{{ coti.codigo }}</td>
+                        <td class="text-center">
+                            <span style="display: flex; justify-content: center; align-items: center;"  class="text-span"
+                              [ngClass]="!coti.coti_Estado ? 'estado-activo' : 'estado-inactivo'">
+                              {{coti.coti_Estado ? 'Sin Emitir' : 'Emitida'}}
+                            </span>
+                          </td>
+                        <td>{{ coti.prov_Descripcion }}</td>
+
+                        <td>{{ coti.fecha }}</td>
+                        <td style="width:2%; min-width:8rem;"> <div style=" text-align: end;">{{ globalMoneda.getState().mone_Abreviatura }} {{ coti.total }}
+                        </div>
+                        </td>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="rowexpansion" let-coti>
+                    <tr>
+                        <td colspan="6">
+                            <div class="p-3">
+                                <p-table [value]="TablaMaestra" dataKey="coti_Id">
+                                    <ng-template pTemplate="header">
+                                        <tr>
+
+                                            <th style="color: white;" pSortableColumn="codigo" class="text-center">No. <p-sortIcon field="codigo" /></th>
+                                            <th  style="color: white;"pSortableColumn="articulo" class="text-center">Artículo <p-sortIcon field="articulo" /></th>
+                                            <th  style="color: white;"pSortableColumn="cantidad" class="text-center">Cantidad <p-sortIcon field="cantidad" /></th>
+                                            <th style="color: white;" pSortableColumn="precio" class="text-center">Precio <p-sortIcon field="precio" /></th>
+                                            <th  style="color: white;"pSortableColumn="subtotal" class="text-center">Subtotal <p-sortIcon field="subtotal" /></th>
+                                            <th  style="color: white;"pSortableColumn="impuesto" class="text-center">Impuesto <p-sortIcon field="impuesto " /></th>
+                                            <th  style="color: white;" pSortableColumn="total" class="text-center">Total <p-sortIcon field="total " /></th>
+                                        </tr>
+                                    </ng-template>
+                                    <ng-template pTemplate="body" let-item>
+                                        <tr>
+                                            <td>{{ item.codigo }}</td>
+                                            <td>{{ item.articulo }}</td>
+                                            <td class="text-center">{{ item.cantidad }}</td>
+                                            <td class="text-right"> {{globalMoneda.getState().mone_Abreviatura}} {{ item.precio  }}</td>
+                                            <td class="text-right"> {{globalMoneda.getState().mone_Abreviatura}} {{ item.subtotal }}</td>
+                                            <td class="text-right"> {{globalMoneda.getState().mone_Abreviatura}} {{ item.impuesto }}</td>
+                                            <td  class="text-right">
+                                                    <!-- Llamamos a la nomenclatura de la moneda -->
+                                                   {{globalMoneda.getState().mone_Abreviatura}} {{ item.total }}
+
+                                               </td>
+                                        </tr>
+                                    </ng-template>
+
+                                </p-table>
+                            </div>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+
+        </div>
+
+    </div>
+</div>
+
+
+<div class="grid" *ngIf="Create">
+    <div class="col-12">
+
+        <div class="card">
+
+            <div class="flex" style="width: 100%; margin: 0 auto; display: flex; align-items: center; height: 42px;">
+                <div style="width: 20%; display: flex; align-items: center; height: 12.5%;">
+                    <button (click)="CerrarCotizacion()" class="p-button-link" pButton pRipple type="button" label="Regresar" icon="pi pi-arrow-left" style="box-shadow: none !important"></button>
+                </div>
+                <div style="flex-grow: 1; display: flex; justify-content: center; align-items: center;">
+                    <h1 class="text-center mt-4">{{ titulo }} Cotización</h1>
+                </div>
+                <div style="width: 20%;"></div> <!-- Empty div to balance the space on the right -->
+            </div>
+                    <p-tabView style="justify-content: space-between;" [(activeIndex)]="activeIndex" (onChange)="onTabChange($event)">
+                        <p-tabPanel header="Cotización">
+                            <div class=" mt-2 grid">
+                                <form [formGroup]="form" class="grid col-12 p-fluid p-formgrid">
+                                    <div class="field col-12 md:col-6" >
+                                        <label style="display: inline-block;">Proveedor&nbsp;</label><small class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['prov_Descripcion'].invalid"
+                                        style="color: red !important; display: inline-block;">*</small>
+                                        <div style="display: flex; flex-direction: row;">
+                                        
+                                            <p-autoComplete
+                                            [suggestions]="filteredProveedores"
+                                            (completeMethod)="filterProveedores($event)"
+                                            formControlName="prov_Descripcion"
+                                            field="prov_Descripcion"
+                                            (input)="allowObservacion($event)"
+                                            [dropdown]="true"
+                                            placeholder="Seleccione un proveedor"
+                                            (onSelect)="SelectProveedores($event)"
+                                            [ngClass]="{'ng-invalid ng-dirty': submitted && form.controls['prov_Descripcion'].invalid}">
+                                        </p-autoComplete>
+                                     
+                                        <button
+                                        pButton
+                                        pRipple
+                                        type="button"
+                                        class="p-ml-2"
+                                        icon="pi pi-user-plus"
+                                        style="flex-shrink: 0; margin-left: 5px;"
+                                        (click)="CreateProveedor()" [disabled]="botonCrear"
+                                        ></button>
+                                        </div>
+                                        <small class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['prov_Descripcion'].invalid"
+                                        style="color: red !important;">El campo es requerido.</small>
+                                        </div>
+                                    <div class="field col-12 md:col-6" >
+                                        <label>Fecha&nbsp;</label>
+                                        <p-calendar [showIcon]="true" inputId="icon" dateFormat="mm/dd/yy" formControlName="coti_Fecha" [ngClass]="{'ng-invalid ng-dirty': submitted && form.controls['coti_Fecha'].invalid}"  [minDate]="minDate"></p-calendar>
+                                        <small class="ng-dirty ng-invalid" *ngIf="submitted && form.controls['coti_Fecha'].invalid"
+                                            style="color: red !important;">El campo es requerido.</small>
+                                    </div>
+                                    <div class="field col-12 md:col-6" >
+                                        <h5>Impuesto incluido: {{LabelIncluido}}</h5>
+                                    </div>
+                                </form>
+                            </div>
+                            <div style="position: relative; top: -40px;">
+                            <p-table #dt [value]="filteredCotizacionesTabla" styleClass="mt-2" responsiveLayout="scroll"
+                            [globalFilterFields]="['codigo','articulo','medida','cantidad','precio','total','agregadoACotizacion']"
+                            [rows]="10" [paginator]="true" [showCurrentPageReport]="true"
+                            currentPageReportTemplate="Mostrando {first} al {last} de {totalRecords} entradas" [rowHover]="true" [rowsPerPageOptions]="[10,25,50,100]">
+                            <ng-template pTemplate="caption">
+                                <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+                                    <div class="flex flex-column md:flex-row  md:align-items-center" style="width: 100%;">
+                                    <span class="block mt-2 md:mt-0 p-input-icon-left">
+                                        <i style="color: white;" class="pi pi-search"></i>
+                                        <input style="color: white;" pInputText type="text" (input)="onGlobalFilter(dt, $event)"
+                                            placeholder="Buscar..." class="w-full sm:w-auto" />
+                                    </span>
+                                    <div class="field" *ngIf="filtroboton" style="width: 100%; justify-content: center;"  >
+
+                                        <div class="formgrid grid" style="position: relative; top: 10px;">
+                                            <div class="field-radiobutton col-4" *ngIf="tabInsumo == true" style="display: flex; justify-content: center; align-items: center;">
+                                                <p-radioButton
+                                                    id="venta"
+                                                    value="1"
+                                                    [(ngModel)]="radioButton"
+                                                    (onClick)="filterCotizaciones(false)"
+
+                                                ></p-radioButton>
+                                                <label for="venta">Insumos</label>
+                                            </div>
+                                            <div class="field-radiobutton col-4" *ngIf="tabMaquinaria == true">
+                                                <p-radioButton
+                                                    id="venta"
+                                                    value="0"
+                                                    [(ngModel)]="radioButton"
+                                                    (onClick)="filterCotizaciones(false)"
+                                                ></p-radioButton>
+                                                <label for="venta">Maquinaria</label>
+                                            </div>
+                                            <div class="field-radiobutton col-4">
+                                                <p-radioButton
+                                                    id="venta"
+                                                    value="2"
+                                                    [(ngModel)]="radioButton"
+                                                    (onClick)="filterCotizaciones(false)"
+                                                ></p-radioButton>
+                                                <label for="venta">Equipo Seguridad</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    </div>
+                                    <div class="registros" style="width: auto !important;">
+                                        <p-dropdown [options]="dt.rowsPerPageOptions" [(ngModel)]="dt.rows" [style]="{ 'margin-right': '5px' }"  [autoWidth]="false"></p-dropdown>
+                                        <span style="color: #FFF0C6; font-weight: 700; margin-top: 7px;"> Registros por página</span>
+                                    </div>
+                                </div>
+                            </ng-template>
+                            <ng-template pTemplate="header">
+                                <tr>
+                                    <th style="color: white;"  class="text-center"><p-checkbox binary="true"
+                                        [(ngModel)]="selectAll"
+                                        (onChange)="onSelectAllChange($event,CotizacionesTabla)"
+                                        [disabled]="idProveedor == 0"
+                                        >
+                            </p-checkbox></th>
+                                    <th style="color: white;" pSortableColumn="codigo" class="text-center">No. <p-sortIcon field="codigo"></p-sortIcon></th>
+                                    <th style="color: white;" pSortableColumn="articulo" class="text-center">Artículo <p-sortIcon field="articulo"></p-sortIcon></th>
+                                    <th style="color: white;" pSortableColumn="unidad" class="text-center" *ngIf="radioButton == 0 ">Renta <p-sortIcon field="unidad"></p-sortIcon></th>
+                                    <th style="color: white;" pSortableColumn="medida" class="text-center" *ngIf="radioButton != 2">{{EncabezadoMedida}} <p-sortIcon field="medida"></p-sortIcon></th>
+                                    <th style="color: white;" pSortableColumn="cantidad" class="text-center">{{EncabezadoCantidad}} <p-sortIcon field="cantidad"></p-sortIcon></th>
+                                    <th style="color: white;" pSortableColumn="precio" class="text-center">Precio <p-sortIcon field="precio"></p-sortIcon></th>
+                                    <th style="color: white;" pSortableColumn="total" class="text-center">Total <p-sortIcon field="total"></p-sortIcon></th>
+                                </tr>
+                            </ng-template>
+                            <ng-template pTemplate="body" let-coti >
+                                <tr >
+                                    <td style="width:5%; min-width:5rem;" class="text-center">
+                                        <p-checkbox binary="true"
+                                        [(ngModel)]="coti.agregadoACotizacion"
+                                        (onChange)="onCheckboxChange($event,coti.cantidad,coti.precio,coti.idP,coti.categoria,coti.unidad,coti.medidaORenta)"
+                                        [disabled]="idProveedor == 0"
+                                       >
+                                        </p-checkbox>
+                                    </td>
+                                    <td style="width:5%; min-width:5rem;" class="text-center"><span class="p-column-title">No.</span>{{coti.codigo}}</td>
+                                    <td style="width:14%; min-width:10rem;" class="text-center"><span class="p-column-title">Articulo</span>{{coti.articulo}}</td>
+                                    <td style="width:14%; min-width:10rem;" class="text-center" *ngIf="radioButton == 0"><span class="p-column-title">Unidad</span>{{coti.medidaORenta}}</td>
+                                    <td style="width:14%; min-width:10rem;" class="text-center" *ngIf="radioButton != 2">
+                                    <span class="p-column-title">Medida</span>
+                                    <ng-container *ngIf="radioButton == 0; else displayMedida" >
+                                        <p-inputNumber type="text" [(ngModel)]="coti.unidad"  (onBlur)="verificarUnidad(coti)" (ngModelChange)="updateUnidad(coti)"  [min]="1" [ngClass]="{'ng-invalid ng-dirty': coti.unidad <= 0}" />
+                                    </ng-container >
+                                    <ng-template #displayMedida>
+                                    {{coti.medida}}
+                                    </ng-template>
+                                     </td>
+                                    <td style="width:14%; min-width:5rem;" class="text-center">
+                                        <span class="p-column-title">Cantidad</span>
+                                        <p-inputNumber  maxlength="7"
+                                        (onBlur)="verificarInputCantidad(coti)"
+                                        [max]="99999999" 
+                                           [(ngModel)]="coti.cantidad"  (ngModelChange)="updateTotal(coti)"  [min]="1"  [ngClass]="{'ng-invalid ng-dirty': coti.cantidad <= 0}"/>
+                                    </td>
+                                    <td style="width:14%; min-width:10rem;" class="text-center " >
+                                        <span class="p-column-title">Precio</span>
+                                        <p-inputNumber 
+                                        [(ngModel)]="coti.precio" 
+                                        mode="decimal" 
+                                        maxlength="10"
+                                        [prefix]="globalMoneda.getState().mone_Abreviatura + ' '" 
+                                        (ngModelChange)="updateTotal(coti)" 
+                                        [maxFractionDigits]="2"
+    
+                                        [min]="1" 
+                                        (onBlur)="verificarInputPrecio(coti)"
+                                        [ngClass]="{'ng-invalid ng-dirty': coti.precio <= 0}" 
+                                      ></p-inputNumber>
+                                    </td>
+                                    <td style="width:14%; min-width:10rem; text-align: end; padding-right: 30px;" >
+
+                                        <span class="p-column-title">Total</span>
+                                        {{ globalMoneda.getState().mone_Abreviatura }} {{ coti.total | number:'1.2-2' }}
+
+                                    </td>
+
+                                </tr>
+                            </ng-template>
+                            <ng-template pTemplate="emptymessage">
+                                <tr>
+                                  <td colspan="7" class="text-center">
+                                    <div class="loader-container" *ngIf="isLoading">
+                                      <div class="loader"></div>
+                                    </div>
+                                  </td>
+                                </tr>
+
+                                <tr *ngIf="!isLoading">
+                                    <td colspan="7" style="text-align: center;">
+                                        No existe ningún artículo relacionado con este proveedor.
+                                      </td>
+                                </tr>
+
+                              </ng-template>
+                        </p-table>
+                    </div>
+                    <div
+                    class="flex flex-column md:flex-row md:align-items-end md:justify-content-end mt-1">
+                    <div class="font-semibold mb-3 md:mb-0"></div>
+                    <div class="flex flex-column">
+                        <div 
+                            class="flex justify-content-between align-items-center mb-2 mr-4">
+                            <span class="font-semibold mr-6 text-primary">ISV({{ValorImpuesto}}%) </span>
+                            <span>{{ globalMoneda.getState().mone_Abreviatura }} {{tax | number:'1.2-2'}}</span>
+                        </div>
+                        <div class="flex justify-content-between align-items-center mb-2 mr-4">
+                            <span class="font-semibold mr-6 text-primary">SUBTOTAL</span>
+                            <span>{{ globalMoneda.getState().mone_Abreviatura }} {{subtotal | number:'1.2-2' }}</span>
+                        </div>
+                        <div class="flex justify-content-between align-items-center mr-4">
+                            <span class="font-semibold mr-6 text-primary">TOTAL</span>
+                            <span>{{ globalMoneda.getState().mone_Abreviatura }} {{total | number:'1.2-2'}}</span>
+                        </div>
+                    </div>     
+                </div>
+                <div class="flex justify-content-end align-items-center w-100 mt-5">
+
+                    <!-- Botones de Guardar e Imprimir, alineados a la derecha -->
+                    <div class="flex">
+                        <button (click)="confirmarCoti(); Enviado = true;"  class="btn btn-guardar" pButton pRipple type="button" label="Guardar" icon="pi pi-save"></button>
+                        <button (click)="CerrarCotizacion()" style="margin-left: 2%;" class=" p-button-secondary" pButton pRipple type="button" label="Cancelar" icon="pi pi-times"></button>
+                      
+                    </div>
+                </div>
+
+
+                          
+
+                            <div style="display: flex;justify-content: end;"  class="mt-2"  *ngIf="idProveedor != 0" >
+                            <button
+                            pButton
+                            type="button"
+                            style="width: 100px;"
+                            label="Siguiente"
+
+                            (click)="onTabChange({ index: 1 })"
+                            class="btn btn-guardar"
+                            icon="pi pi-arrow-right"
+                            ></button>
+                        </div>
+                        </p-tabPanel>
+                        <p-tabPanel header="Insumo" [disabled]="dhTab" *ngIf="tabInsumo">
+                            <form [formGroup]="formInsumo" class="grid col-12 p-fluid p-formgrid" style="padding: 0px !important; width: 103% !important;">
+                              <div class="field col-12 md:col-6">
+                                <label style="display: inline-block;">Insumo&nbsp;</label><small style="display: inline-block;" class="ng-dirty ng-invalid" *ngIf="submitted && formInsumo.controls['insu_Descripcion'].invalid"
+                                style="color: red !important;">*</small>
+                                <p-autoComplete
+                                  formControlName="insu_Descripcion"
+                                  [suggestions]="filtradoInsumo"
+                                  (completeMethod)="filterInsumo($event)"
+                                  (onSelect)="onInsumoSelect($event)"
+                                  field="insumos"
+                                  (onBlur)="blur()"
+                                  [dropdown]="true"
+                                  placeholder="Seleccione un insumo"
+
+                                  (input)="handleInputInsumo($event)"
+                                  [ngClass]="{'ng-invalid ng-dirty': submitted && formInsumo.controls['insu_Descripcion'].invalid}" />
+                                <small class="ng-dirty ng-invalid" *ngIf="submitted && formInsumo.controls['insu_Descripcion'].invalid"
+                                  style="color: red !important;">El campo es requerido.</small>
+                              </div>
+
+                              <div class="field col-12 md:col-6">
+                                <label style="display: inline-block;">Categoría&nbsp;</label><small style="display: inline-block;" class="ng-dirty ng-invalid" *ngIf="submitted && formInsumo.controls['cate_Descripcion'].invalid"
+                                style="color: red !important;">*</small>
+                                <p-autoComplete
+                                  [suggestions]="filteredCategorias"
+                                  (completeMethod)="filterCategoria($event)"
+                                  formControlName="cate_Descripcion"
+                                  field="cate_Descripcion"
+                                  [dropdown]="true"
+                                  (onSelect)="onCategoriaSelect($event)"
+                                  placeholder="Seleccione una categoría"
+                                  (input)="handleInputCategoria($event)"
+                                  [ngClass]="{'ng-invalid ng-dirty': submitted && formInsumo.controls['cate_Descripcion'].invalid}">
+                                </p-autoComplete>
+                                <small class="ng-dirty ng-invalid" *ngIf="submitted && formInsumo.controls['cate_Descripcion'].invalid"
+                                  style="color: red !important;">El campo es requerido.</small>
+                              </div>
+
+                              <div class="field col-12 md:col-6">
+                                <label style="display: inline-block;">Sub Categoría&nbsp;</label><small style="display: inline-block;" class="ng-dirty ng-invalid" *ngIf="submitted && formInsumo.controls['suca_Descripcion'].invalid"
+                                style="color: red !important;">*</small>
+                                <p-autoComplete
+                                  [suggestions]="filteredSubCategorias"
+                                  (completeMethod)="filterSubCategoria($event)"
+                                  formControlName="suca_Descripcion"
+                                  field="suca_Descripcion"
+                                  [dropdown]="true"
+                                  (onSelect)="onSubCategoriaSelect($event)"
+                                  placeholder="Seleccione una sub categoría"
+                                  (input)="handleInputSuca($event)"
+                                  [ngClass]="{'ng-invalid ng-dirty': submitted && formInsumo.controls['suca_Descripcion'].invalid}">
+                                </p-autoComplete>
+                                <small class="ng-dirty ng-invalid" *ngIf="submitted && formInsumo.controls['suca_Descripcion'].invalid"
+                                  style="color: red !important;">El campo es requerido.</small>
+                              </div>
+
+                              <div class="field col-12 md:col-6">
+                                <label style="display: inline-block;">Material&nbsp;</label><small style="display: inline-block;" class="ng-dirty ng-invalid" *ngIf="submitted && formInsumo.controls['mate_Descripcion'].invalid"
+                                style="color: red !important;">*</small>
+                                <p-autoComplete
+                                  [suggestions]="filteredMateriales"
+                                  (completeMethod)="filterMateriales($event)"
+                                  formControlName="mate_Descripcion"
+                                  field="mate_Descripcion"
+                                  [dropdown]="true"
+                                  (onSelect)="onMaterialSelect($event)"
+                                  placeholder="Seleccione un material"
+                                  (input)="handleInputMaterial($event)"
+                                  [ngClass]="{'ng-invalid ng-dirty': submitted && formInsumo.controls['mate_Descripcion'].invalid}">
+                                </p-autoComplete>
+                                <small class="ng-dirty ng-invalid" *ngIf="submitted && formInsumo.controls['mate_Descripcion'].invalid"
+                                  style="color: red !important;">El campo es requerido.</small>
+                              </div>
+                            </form>
+
+                            <h2 style="text-align: center;">Unidades de Medida</h2>
+                            <form [formGroup]="formUnidad" class="grid col-12 p-fluid p-formgrid" style="display: flex; justify-content: center;" >
+                              <p-table #dt [value]="UnidadesMedida"  styleClass="w-full mt-2" responsiveLayout="scroll" [rows]="10"
+                                [globalFilterFields]="['codigo','unme_Nombre','inpp_Preciocompra']"
+                                [rows]="10" [paginator]="true" [showCurrentPageReport]="true" [rowsPerPageOptions]="[10,25,50,100]"
+                                currentPageReportTemplate="Mostrando {first} al {last} de {totalRecords} entradas" [rowHover]="true">
+                                <ng-template pTemplate="caption">
+                                  <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+                                    <span class="block mt-2 md:mt-0 p-input-icon-left">
+                                      <i style="color: white;" class="pi pi-search"></i>
+                                      <input style="color: white;" pInputText type="text" (input)="onGlobalFilter(dt, $event)"
+                                        placeholder="Buscar..." class="w-full sm:w-auto" />
+                                    </span>
+                                    <div class="registros">
+                                        <p-dropdown [options]="dt.rowsPerPageOptions" [(ngModel)]="dt.rows" [style]="{ 'margin-right': '5px' }"  [autoWidth]="false"></p-dropdown>
+
+                                        <span style="color: #FFF0C6; font-weight: 700; margin-top: 7px;"> Registros por página</span>
+                                    </div>
+                                  </div>
+                                </ng-template>
+                                <ng-template pTemplate="header">
+                                  <tr>
+                                    <th style="color: white;" pSortableColumn="inpp_Observacion" class="text-center">Acciones</th>
+                                    <th style="color: white;" pSortableColumn="inpp_Observacion" class="text-center">Estado<p-sortIcon
+                                        field="inpp_Observacion"></p-sortIcon></th>
+                                    <th style="color: white;" pSortableColumn="codigo" class="text-center">No. <p-sortIcon
+                                        field="codigo"></p-sortIcon></th>
+                                    <th style="color: white;" pSortableColumn="unme_Nombre" class="text-center">Unidad Medida <p-sortIcon
+                                        field="unme_Nombre"></p-sortIcon></th>
+                                    <th style="color: white;" pSortableColumn="inpp_Preciocompra" class="text-center">Precio Compra <p-sortIcon
+                                        field="inpp_Preciocompra"></p-sortIcon></th>
+                                    <th style="color: white;" pSortableColumn="inpp_Observacion" class="text-center">Observación<p-sortIcon
+                                        field="inpp_Observacion"></p-sortIcon></th>
+                                  </tr>
+                                </ng-template>
+                                <ng-template pTemplate="body" let-uni>
+                                  <tr>
+                                    <td style="width:5%;" class="text-center">
+                                        <button pButton pRipple icon="pi pi-minus" class="button-rounded p-button-icon-only p-button-primary"
+                                        (click)="ModalEliminarInsumo(uni.inpp_Id,uni.unme_Nombre)"></button>
+                                      </td>
+                                      <td style="width:14%; min-width:10rem;" class="text-center">
+                                        <span class="p-column-title">Estado</span>
+                                        {{uni.estado}}
+                                      </td>
+                                    <td style="width:14%; min-width:10rem;" class="text-center"><span
+                                        class="p-column-title">No.</span>
+                                      {{uni.codigo}}
+                                    </td>
+                                    <td style="width:14%; min-width:10rem; " class="text-center" >
+                                      <span class="p-column-title">Unidad Medida</span>
+                                      {{uni.unme_Nombre}}
+                                    </td>
+                                    <td style="width:14%; min-width:10rem; text-align: end;padding-right: 20px;" >
+                                      <span class="p-column-title">Precio</span>
+                                      {{ globalMoneda.getState().mone_Abreviatura }} {{uni.inpp_PrecioCompra | number:'1.2-2'}}
+                                    </td>
+                                    <td style="width:14%; min-width:10rem;" class="text-center">
+                                      <span class="p-column-title">Observación</span>
+                                      {{ uni.inpp_Observacion === 'N/A' ? '' : uni.inpp_Observacion }}
+                                    </td>
+
+
+                                  </tr>
+                                </ng-template>
+
+                                <ng-template pTemplate="footer">
+                                  <tr>
+                                    <td style="width:10%; min-width:2rem;" class="text-center">
+                                        <button pButton pRipple icon="pi pi-plus" class="button-rounded p-button-icon-only p-button-primary"
+                                        (click)="GuardarInsumo()"></button>
+
+                                      </td>
+                                      <td style="width:30%; min-width:10rem;" class="text-center">
+                                        <label for="" style="color: #FFF;">Sin Guardar</label>
+                                      </td>
+                                    <td style="text-align: center; width:10%; min-width:10rem;">
+                                      #
+                                    </td>
+                                    <td style="width:30%; min-width:10rem;">
+                                      <div style="display: flex; flex-direction: column; justify-content: center;">
+                                        <p-autoComplete
+                                          [suggestions]="filteredUnidades"
+                                          (completeMethod)="filterUnidades($event)"
+                                          formControlName="unme_Nombre"
+                                          field="unme_Nombre"
+                                          [dropdown]="true"
+                                          (input)="handleInputUnidad($event)"
+                                          (onSelect)="onUnidadSelect($event)"
+                                          placeholder="Seleccione una unidad de medida"
+                                          [ngClass]="{'ng-invalid ng-dirty': submitted && formUnidad.controls['unme_Nombre'].invalid}"
+                                          appendTo="body">
+                                        </p-autoComplete>
+                                      </div>
+                                    </td>
+                                    <td style="width:20%; min-width:10rem;">
+                                      <div style="display: flex; flex-direction: column;">
+                                        <p-inputNumber mode="decimal"                       
+                                         maxlength="10"
+                                        [maxFractionDigits]="2"
+                                        [max]="99999999" 
+                                        (input)="handleInputNumeroPrecio($event)"
+                                        [prefix]="globalMoneda.getState().mone_Abreviatura + ' '"  
+                                        [ngClass]="{'ng-invalid ng-dirty': submitted && formUnidad.controls['inpp_Preciocompra'].invalid}" type="text"
+                                        formControlName="inpp_Preciocompra"
+                                        [min]="1" />
+                                      </div>
+                                    </td>
+                                    <td style="width:30%; min-width:10rem;">
+                                      <div style="display: flex; flex-direction: column;">
+                                        <input class="col-3"
+                                          type="text" class="p-inputtext" formControlName="inpp_Observacion"
+                                          (keydown)="ValidarTextoNumeros($event)"
+                                          (keypress)="ValidarTextoNumeros($event)"
+                                          >
+                                      </div>
+                                    </td>
+
+
+                                  </tr>
+                                </ng-template>
+                              </p-table>
+                            </form>
+
+                            <div style="display: flex; justify-content: space-between;">
+                                <div style="display: flex; align-items: end;">
+                                    <button   (click)="onTabChange({ index: 0 })" style="margin-left: 2%; width: 100px;" class=" p-button-secondary" pButton pRipple type="button" icon="pi pi-arrow-left" label="Anterior"  ></button>
+
+                                </div>
+                                <div style="display: flex; gap:5px; flex-direction: column;">
+                              <!-- <button (click)="GuardarInsumoBoton()" class="btn btn-guardar" pButton pRipple type="button" label="Guardar" icon="pi pi-save" style="position: relative; top: -10px;"></button> -->
+                              <div style="display: flex;justify-content: end;"  *ngIf="filtroboton == true" >
+                                <button
+                                pButton
+                                type="button"
+                                style="width: 100px;"
+                                label="Siguiente"
+
+                                (click)="onTabChange({ index: 2 })"
+                                class="btn btn-guardar"
+                                icon="pi pi-arrow-right"
+                                ></button>
+                            </div>
+                            </div>
+
+
+                            </div>
+
+                          </p-tabPanel>
+
+                        <p-tabPanel header="Maquinaria" [disabled]="dhTab" *ngIf="tabMaquinaria">
+                            <p>
+                                <form [formGroup]="formMaquinaria" class="grid col-12 p-fluid p-formgrid">
+                                    <div class="field col-12 md:col-6" >
+                                        <label style="display: inline-block;">Maquinaria&nbsp;</label><small class="ng-dirty ng-invalid" *ngIf="submitted && formMaquinaria.controls['maqu_Descripcion'].invalid"
+                                        style="color: red !important; display: inline-block;">*</small>
+                                        <p-autoComplete
+                                        formControlName="maqu_Descripcion"
+                                        [suggestions]="filtradoMaquinaria"
+                                        (completeMethod)="filterMaquinaria($event)"
+                                        (onSelect)="onMaquinariaSelect($event)"
+                                        field="maqu_Descripcion"
+                                        placeholder="Seleccione una maquinaria"
+                                        [dropdown]="true"
+                                        appendTo="body"
+                                        (input)="handleMaquinaria($event)"
+                                        [ngClass]="{'ng-invalid ng-dirty': submitted && formMaquinaria.controls['maqu_Descripcion'].invalid}"
+                                         />
+                                    <small class="ng-dirty ng-invalid" *ngIf="submitted && formMaquinaria.controls['maqu_Descripcion'].invalid"
+                                        style="color: red !important;">El campo es requerido.</small>
+                                    </div>
+                                    <div class="field col-12 md:col-6" >
+                                        <label style="display: inline-block;">Nivel&nbsp;</label><small class="ng-dirty ng-invalid" *ngIf="submitted && formMaquinaria.controls['nive_Descripcion'].invalid"
+                                        style="color: red !important; display: inline-block;">*</small>
+                                        <p-autoComplete
+                                        formControlName="nive_Descripcion"
+                                        [suggestions]="Filtradonivel"
+                                        (completeMethod)="filterNivel($event)"
+                                        (onSelect)="onNivelSelect($event)"
+                                        field="nive_Descripcion"
+                                        placeholder="Seleccione una maquinaria"
+                                        [dropdown]="true"
+                                        appendTo="body"
+                                        (keydown)="ValidarTexto($event)"
+                                        [ngClass]="{'ng-invalid ng-dirty': submitted && formMaquinaria.controls['nive_Descripcion'].invalid}"
+                                         />
+                                    <small class="ng-dirty ng-invalid" *ngIf="submitted && formMaquinaria.controls['nive_Descripcion'].invalid"
+                                        style="color: red !important;">{{Error_Nivel}}</small>
+                                    </div>
+                                    <div class="field col-12 md:col-6">
+                                        <label style="display: inline-block;">Precio Compra&nbsp;</label><small class="ng-dirty ng-invalid" *ngIf="submitted && formMaquinaria.controls['maqu_UltimoPrecioUnitario'].invalid"
+                                        style="color: red !important; display: inline-block;">*</small>
+                                        <p-inputNumber  
+                                        [ngClass]="{'ng-invalid ng-dirty': submitted && formMaquinaria.controls['maqu_UltimoPrecioUnitario'].invalid}" 
+                                        type="text" 
+                                        formControlName="maqu_UltimoPrecioUnitario"
+                                        [prefix]="globalMoneda.getState().mone_Abreviatura + ' '" 
+                                        (input)="handleInputNumeroPrecioMaquinaria($event)" 
+                                        [min]="1" 
+                                        maxlength="10"
+                                        mode="decimal"
+                                        [maxFractionDigits]="2"
+                                        [max]="99999999" 
+                                      />
+                                        <small class="ng-dirty ng-invalid" *ngIf="submitted && formMaquinaria.controls['maqu_UltimoPrecioUnitario'].invalid"
+                                            style="color: red !important;">El campo es requerido.</small>
+                                    </div>
+                                    <div class="field col-12 md:col-6">
+                                        <label for="renta" style="display: inline-block;">Renta&nbsp;</label><small class="ng-dirty ng-invalid" *ngIf="submitted && formMaquinaria.controls['mapr_DiaHora'].invalid"
+                                        style="color: red !important; display: inline-block;">*</small>
+                                        <div class="formgrid grid">
+                                            <div class="field-radiobutton col-4">
+                                                <p-radioButton
+                                                    id="rentaDia"
+                                                    value="1"
+                                                    [ngClass]="{'ng-invalid ng-dirty': submitted && formMaquinaria.controls['mapr_DiaHora'].invalid}"
+                                                    formControlName="mapr_DiaHora"
+                                                ></p-radioButton>
+                                                <label for="rentaDia">Día</label>
+                                            </div>
+                                            <div class="field-radiobutton col-4">
+                                                <p-radioButton
+                                                    id="rentaHora"
+                                                    value="0"
+                                                    [ngClass]="{'ng-invalid ng-dirty': submitted && formMaquinaria.controls['mapr_DiaHora'].invalid}"
+                                                    formControlName="mapr_DiaHora"
+                                                ></p-radioButton>
+                                                <label for="rentaHora">Hora</label>
+                                            </div>
+                                            <div class="field-radiobutton col-4">
+                                                <p-radioButton
+                                                    id="rentaHora"
+                                                    value="2"
+                                                    [ngClass]="{'ng-invalid ng-dirty': submitted && formMaquinaria.controls['mapr_DiaHora'].invalid}"
+                                                    formControlName="mapr_DiaHora"
+                                                ></p-radioButton>
+                                                <label for="rentaHora">Viajes</label>
+                                            </div>
+                                        </div>
+                                        <small class="ng-dirty ng-invalid" *ngIf="submitted && formMaquinaria.controls['mapr_DiaHora'].invalid"
+                                            style="color: red !important;">El campo es requerido.</small>
+                                    </div>
+                                    <div class="field col-12 md:col-12" style="display: flex; justify-content: end;">
+                                        <button (click)="GuardarMaquinaria()" class="btn btn-guardar" pButton pRipple type="button" label="Guardar" icon="pi pi-save" style="position: relative; top: -10px;"></button>
+                                     </div>
+                                </form>
+                                <p-table #dt [value]="maquinariaPorProveedor"  styleClass="w-full mt-2" responsiveLayout="scroll" [rows]="10"
+                                [globalFilterFields]="['codigo','maqu_Descripcion','nive_Descripcion','mapr_PrecioCompra','renta','estado']"
+                                [rows]="10" [paginator]="true" [showCurrentPageReport]="true"
+                                currentPageReportTemplate="Mostrando {first} al {last} de {totalRecords} entradas" [rowHover]="true" [rowsPerPageOptions]="[10,25,50,100]">
+                                <ng-template pTemplate="caption">
+                                  <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+                                    <span class="block mt-2 md:mt-0 p-input-icon-left">
+                                      <i style="color: white;" class="pi pi-search"></i>
+                                      <input style="color: white;" pInputText type="text" (input)="onGlobalFilter(dt, $event)"
+                                        placeholder="Buscar..." class="w-full sm:w-auto" />
+                                    </span>
+                                    <div class="registros">
+                                        <p-dropdown [options]="dt.rowsPerPageOptions" [(ngModel)]="dt.rows" [style]="{ 'margin-right': '5px' }"  [autoWidth]="false"></p-dropdown>
+
+                                        <span style="color: #FFF0C6; font-weight: 700; margin-top: 7px;"> Registros por página</span>
+                                    </div>
+                                  </div>
+                                </ng-template>
+                                <ng-template pTemplate="header">
+                                  <tr>
+                                    <th style="color: white;" pSortableColumn="codigo" class="text-center">Acciones</th>
+                                    <th style="color: white;" pSortableColumn="codigo" class="text-center">No. <p-sortIcon
+                                        field="codigo"></p-sortIcon></th>
+                                    <th style="color: white;" pSortableColumn="maqu_Descripcion" class="text-center">Maquinaria <p-sortIcon
+                                        field="maqu_Descripcion"></p-sortIcon></th>
+                                    <th style="color: white;" pSortableColumn="nive_Descripcion" class="text-center">Nivel <p-sortIcon
+                                        field="nive_Descripcion"></p-sortIcon></th>
+                                    <th style="color: white;" pSortableColumn="mapr_PrecioCompra" class="text-center">Precio<p-sortIcon
+                                        field="mapr_PrecioCompra"></p-sortIcon></th>
+                                    <th style="color: white;" pSortableColumn="renta" class="text-center">Renta<p-sortIcon
+                                        field="renta"></p-sortIcon></th>
+                                    <th style="color: white;" pSortableColumn="estado" class="text-center">Estado<p-sortIcon
+                                        field="estado"></p-sortIcon></th>
+                                  </tr>
+                                </ng-template>
+                                <ng-template pTemplate="body" let-maquinaria>
+                                  <tr>
+                                    <td style="width:5%;" class="text-center">
+                                        <button pButton pRipple icon="pi pi-minus" class="button-rounded p-button-icon-only p-button-primary"
+                                        (click)="eliminarMaquinariaModal(maquinaria.mapr_Id,maquinaria.maqu_Descripcion)"></button>
+                                      </td>
+                                    <td style="width:14%; min-width:10rem;" class="text-center"><span
+                                        class="p-column-title">No.</span>
+                                      {{maquinaria.codigo}}
+                                    </td>
+                                    <td style="width:14%; min-width:10rem;" class="text-center">
+                                      <span class="p-column-title">Maquinaria</span>
+                                      {{maquinaria.maqu_Descripcion}}
+                                    </td>
+                                    <td style="width:14%; min-width:10rem;" class="text-center">
+                                      <span class="p-column-title">Nivel</span>
+                                      {{maquinaria.nive_Descripcion}}
+                                    </td>
+                                    <td style="width:14%; min-width:10rem; text-align: end; padding-right: 20px;" >
+                                      <span class="p-column-title">Precio</span>
+                                      {{ globalMoneda.getState().mone_Abreviatura }} {{ maquinaria.mapr_PrecioCompra | number:'1.2-2'}}
+                                    </td>
+                                    <td style="width:14%; min-width:10rem;" class="text-center">
+                                        <span class="p-column-title">Renta</span>
+                                        {{maquinaria.renta}}
+                                      </td>
+                                      <td style="width:14%; min-width:10rem;" class="text-center">
+                                        <span class="p-column-title">Estado</span>
+                                        {{maquinaria.estado}}
+                                      </td>
+                                  </tr>
+                                </ng-template>
+
+                              </p-table>
+                              <div style="display: flex; justify-content: space-between;">
+                                <div style="display: flex; align-items: end;">
+                                    <button   (click)="onTabChange({ index: tabInsumo ? 1 : 0 })" style="margin-left: 2%; width: 100px;" class=" p-button-secondary" pButton pRipple type="button" icon="pi pi-arrow-left" label="Anterior"  ></button>
+
+                                </div>
+                                <div style="display: flex; gap:5px; flex-direction: column;">
+                              <!-- <button (click)="GuardarMaquinaria()" class="btn btn-guardar" pButton pRipple type="button" label="Guardar" icon="pi pi-save" style="position: relative; top: -10px;"></button> -->
+                              <div style="display: flex;justify-content: end;"  *ngIf="filtroboton == true" >
+                                <button
+                                pButton
+                                type="button"
+                                style="width: 100px;"
+                                label="Siguiente"
+
+                                (click)="onTabChange({ index: tabInsumo ? 3 : 2 })"
+                                class="btn btn-guardar"
+                                icon="pi pi-arrow-right"
+                                ></button>
+                            </div>
+                            </div>
+
+
+                            </div>
+
+                        </p-tabPanel>
+
+                        <p-tabPanel header="Equipo Seguridad" [disabled]="dhTab" *ngIf="tabEquiposSeguridad">
+                            <p>
+
+                                    <form [formGroup]="formEquipo" class="grid col-12 p-fluid p-formgrid">
+                                        <div class="field col-12 md:col-6">
+                                            <label style="display: inline-block;">Equipo Seguridad&nbsp;</label><small class="ng-dirty ng-invalid" *ngIf="submitted && formEquipo.controls['equs_Nombre'].invalid"
+                                            style="color: red !important; display: inline-block;">*</small>
+                                            <p-autoComplete
+                                            formControlName="equs_Nombre"
+                                            [suggestions]="filteredEquiposSeguridad"
+                                            (completeMethod)="filterEquipoSeguridad($event)"
+                                            (onSelect)="onEquipoSelect($event)"
+                                            field="equs_Nombre"
+                                            (input)="allowObservacion($event)"
+                                            [dropdown]="true"
+                                            placeholder="Seleccione un equipo de seguridad"
+                                            (input)="handleEquipo($event)" 
+                                            [ngClass]="{'ng-invalid ng-dirty': submitted && formEquipo.controls['equs_Nombre'].invalid}" />
+                                            <small class="ng-dirty ng-invalid" *ngIf="submitted && formEquipo.controls['equs_Nombre'].invalid"
+                                                style="color: red !important;">El campo es requerido.</small>
+                                        </div>
+                                        <div class="field col-12 md:col-6">
+                                            <label style="display: inline-block;">Precio&nbsp;</label><small class="ng-dirty ng-invalid" *ngIf="submitted && formEquipo.controls['eqpp_PrecioCompra'].invalid"
+                                            style="color: red !important; display: inline-block;">*</small>
+                                            <p-inputNumber 
+                                            [ngClass]="{'ng-invalid ng-dirty': submitted && formEquipo.controls['eqpp_PrecioCompra'].invalid}" type="text" 
+                                            formControlName="eqpp_PrecioCompra"
+                                            mode="decimal" 
+                                            [min]="1" 
+                                            maxlength="10"
+                                            mode="decimal"
+                                            [maxFractionDigits]="2"
+                                            [max]="9999999" 
+                                            [prefix]="globalMoneda.getState().mone_Abreviatura + ' '" 
+                                            [min]="1" />
+
+                                            <small class="ng-dirty ng-invalid" *ngIf="submitted && formEquipo.controls['eqpp_PrecioCompra'].invalid"
+                                              style="color: red !important;">El campo es requerido.</small>
+                                         </div>
+                                         <div class="field col-12 md:col-12" style="display: flex; justify-content: end;">
+                                            <button (click)="GuardarEquipo()" class="btn btn-guardar" pButton pRipple type="button" label="Guardar" icon="pi pi-save"></button>
+                                         </div>
+                                    </form>
+                                    <p-table #dt [value]="EquiposSeguridadPorProveedor"  styleClass="w-full mt-2" responsiveLayout="scroll" [rows]="10" style="position: relative; top: -30px;"
+                                [globalFilterFields]="['codigo','equs_Nombre','estado','eqpp_PrecioCompra']"
+                                [rows]="10" [paginator]="true" [showCurrentPageReport]="true"
+                                currentPageReportTemplate="Mostrando {first} al {last} de {totalRecords} entradas" [rowHover]="true" [rowsPerPageOptions]="[10,25,50,100]">
+                                <ng-template pTemplate="caption">
+                                  <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+                                    <span class="block mt-2 md:mt-0 p-input-icon-left">
+                                      <i style="color: white;" class="pi pi-search"></i>
+                                      <input style="color: white;" pInputText type="text" (input)="onGlobalFilter(dt, $event)"
+                                        placeholder="Buscar..." class="w-full sm:w-auto" />
+                                    </span>
+                                    <div class="registros">
+                                        <p-dropdown [options]="dt.rowsPerPageOptions" [(ngModel)]="dt.rows" [style]="{ 'margin-right': '5px' }"  [autoWidth]="false"></p-dropdown>
+
+                                        <span style="color: #FFF0C6; font-weight: 700; margin-top: 7px;"> Registros por página</span>
+                                    </div>
+                                  </div>
+                                </ng-template>
+                                <ng-template pTemplate="header">
+                                  <tr>
+                                    <th style="color: white;" pSortableColumn="codigo" class="text-center">Acciones</th>
+                                    <th style="color: white;" pSortableColumn="codigo" class="text-center">No. <p-sortIcon
+                                        field="codigo"></p-sortIcon></th>
+                                    <th style="color: white;" pSortableColumn="maqu_Descripcion" class="text-center">Equipo Seguridad <p-sortIcon
+                                        field="maqu_Descripcion"></p-sortIcon></th>
+                                    <th style="color: white;" pSortableColumn="eqpp_PrecioCompra" class="text-center">Precio <p-sortIcon
+                                        field="nive_Descripcion"></p-sortIcon></th>
+                                    <th style="color: white;" pSortableColumn="estado" class="text-center">Estado<p-sortIcon
+                                        field="estado"></p-sortIcon></th>
+                                  </tr>
+                                </ng-template>
+                                <ng-template pTemplate="body" let-equi>
+                                  <tr>
+                                    <td style="width:5%;" class="text-center">
+                                        <button pButton pRipple icon="pi pi-minus" class="button-rounded p-button-icon-only p-button-primary"
+                                        (click)="eliminarEquipoModal(equi.eqpp_Id,equi.equs_Nombre)"></button>
+                                      </td>
+                                    <td style="width:14%; min-width:10rem;" class="text-center"><span
+                                        class="p-column-title">No.</span>
+                                      {{equi.codigo}}
+                                    </td>
+                                    <td style="width:14%; min-width:10rem;" class="text-center">
+                                      <span class="p-column-title">Maquinaria</span>
+                                      {{equi.equs_Nombre}}
+                                    </td>
+                                    <td style="width:14%; min-width:10rem; text-align: end; padding-right: 20px;" >
+                                      <span class="p-column-title">Precio</span>
+                                      {{ globalMoneda.getState().mone_Abreviatura }} {{ equi.eqpp_PrecioCompra | number:'1.2-2'}}
+                                    </td>
+                                      <td style="width:14%; min-width:10rem;" class="text-center">
+                                        <span class="p-column-title">Estado</span>
+                                        {{equi.estado}}
+                                      </td>
+                                  </tr>
+                                </ng-template>
+
+                              </p-table>
+
+                                <div style="display: flex;justify-content: space-between;" >
+                                    <div style="display: flex; align-items: end;">
+                                        <button   (click)="onTabChange({ index: (tabInsumo && tabMaquinaria) ? 2 : 1 })" style="margin-left: 2%; width: 100px;" class=" p-button-secondary" pButton pRipple type="button" icon="pi pi-arrow-left" label="Anterior"  ></button>
+                                    </div>
+                                    <!-- <div style="display: flex; gap:5px; flex-direction: column;">
+                                        <button (click)="GuardarEquipo()" class="btn btn-guardar" pButton pRipple type="button" label="Guardar" icon="pi pi-save"></button>
+
+                                      </div> -->
+                                </div>
+
+                        </p-tabPanel>
+                    </p-tabView>
+
+
+        </div>
+
+    </div>
+</div>
+
+<div class="grid" *ngIf="IndexDocumentos">
+    <div class="col-12">
+
+        <div class="card">
+
+            <div class="flex" style="width: 100%; margin: 0 auto; display: flex; align-items: center; height: 42px;">
+                <div style="width: 20%; display: flex; align-items: center; height: 12.5%;">
+                    <button (click)="CerrarCotizacion()" class="p-button-link" pButton pRipple type="button" label="Regresar" icon="pi pi-arrow-left" style="box-shadow: none !important"></button>
+                </div>
+                <div style="flex-grow: 1; display: flex; justify-content: center; align-items: center;">
+                    <h1 class="text-center mt-4">Documentos Cotización</h1>
+                </div>
+                <div style="width: 20%;"></div> <!-- Empty div to balance the space on the right -->
+            </div>
+            <hr>
+            <form [formGroup]="formDocumento" class="grid col-12 p-fluid p-formgrid" >
+       
+                <div class="col-12 md:col-6">
+                  <div class="field" style="margin-top: 1rem;">
+                    <label style="display: inline-block;">Descripción del Documento&nbsp;</label>
+                    <small class="ng-dirty ng-invalid" *ngIf="submitted && formDocumento.controls['copd_Descripcion'].invalid"
+                    style="color: red !important; display: inline-block;">*</small>
+                    
+                    <input [ngClass]="{'ng-invalid ng-dirty': submitted && formDocumento.controls['copd_Descripcion'].invalid}"
+                      (keydown)="ValidarTextoNumeros($event)" type="text" class="p-inputtext" formControlName="copd_Descripcion">
+                     
+                    <small class="ng-dirty ng-invalid" *ngIf="submitted && formDocumento.controls['copd_Descripcion'].invalid"
+                      style="color: red !important;">El campo es requerido.</small>
+                </div>
+                </div>
+                <div class="col-12 md:col-6">
+                  <div class="field">
+                    <label></label>
+                    <p-fileUpload
+                      #docUploader
+                      name="demo[]"
+                      (onSelect)="onImageSelect($event)"
+                      (onRemove)="onFileRemove($event)"
+                      [customUpload]="true"
+                      [multiple]="false"
+                      [showUploadButton]="false"
+                      [showCancelButton]="false"
+                      [auto]="true"
+                      class="w-full"
+                      chooseLabel="Subir"
+                    >
+                      <ng-template pTemplate="content">
+                        <div class="image-upload-container" (click)="docUploader.choose()">
+                          <ng-container *ngIf="!previewImage && !previewPDF; else showDoc">
+                            <div class="h-full flex flex-column justify-content-center align-items-center">
+                              <i class="pi pi-upload text-900 text-2xl mb-3"></i>
+                              <span class="font-bold text-900 text-xl mb-3">Subir Archivo</span>
+                              <span class="font-medium text-600 text-md text-center">Seleccione un Archivo</span>
+                            </div>
+                          </ng-container>
+                          <ng-template #showDoc>
+                              <div class="h-full flex flex-column justify-content-center align-items-center">
+                                <ng-container *ngIf="previewImage">
+                                  <img [src]="previewImage" alt="Documento seleccionado" class="image-preview" style="height: 100px;" />
+                                </ng-container>
+                                <ng-container *ngIf="previewPDF">
+                                  <iframe [src]="previewPDF" style="width: 100%; height: 500px;" frameborder="0"></iframe>
+                                </ng-container>
+                                <ng-container *ngIf="!previewImage && !previewPDF">
+                                  <div class="file-info">
+                                    <span>Documento: {{ formDocumento.get('copd_Documento')?.value ? 'Archivo cargado' : 'No hay archivo' }}</span>
+                                  </div>
+                                </ng-container>
+                              </div>
+                            </ng-template>
+                            
+                        </div>
+                      </ng-template>
+                    </p-fileUpload>
+                    <small *ngIf="submitted && formDocumento.controls['copd_Documento'].invalid" style="color: red !important">El campo es requerido.</small>
+                  </div>
+                  
+                <div class="col-12" style="display: flex; justify-content: flex-end; ">
+                  <div class="button-group d-flex justify-content-end" style="margin-right: 12px;">
+              
+                  
+                    <button (click)="GuardarDocumento()" class="btn btn-guardar" pButton pRipple type="button" label="Guardar" icon="pi pi-save"></button>
+                  </div>
+                  <div class="button-group d-flex justify-content-start">
+                    <button
+                        pButton
+                        style="width: 94.97px;"
+                        type="button"
+                        label="Limpiar"
+                        (click)="clearDocForm()"
+                        class="p-button-secondary"
+                        iconPos="left"
+                    >
+                        <img alt="button icon" style="max-width: 16px; margin-right: 5px;" src="../../../../../../assets/icons/broom-icon.png">
+                  
+                      </button>
+                  </div>
+                </div>
+        
+                  
+                </div>
+                <div class="card col-12 mt-4">
+                  <div class="text-900 text-xl font-semibold mb-3">Documentación</div>
+                  <div class="grid">
+                    <!-- Imagenes -->
+                    <div class="col-12 md:col-6 xl:col-4">
+                      <div class="p-3 border-1 surface-border flex align-items-center justify-content-between  border-round">
+                        <div class="flex align-items-center">
+                          <i class="pi pi-image text-2xl custom-mr"></i>
+                          <span class="text-900 text-lg font-medium">Imágenes</span>
+                        </div>
+                      </div>
+                      <div class="table-container">
+                        <p-listbox [options]="ImagenSubida" optionLabel="copd_Descripcion" [style]="{width: '100%'}" emptyMessage="No hay archivos de imágenes disponibles.">
+                          <ng-template let-image pTemplate="item">
+                            <div class="d-flex align-items-center doc-item" style="gap: 5px;">
+                              <i class="pi pi-image"></i>
+                              <span class="doc-name">{{image.copd_Descripcion}}</span>
+                              <button type="button" pButton icon="pi pi-trash" class="p-button-outlined" (click)="EliminarImagen(image)"></button>
+                              <button type="button" pButton icon="pi pi-eye" class="p-button-outlined" (click)="descargarPDF(image)"></button>
+                            </div>
+                          </ng-template>
+                        </p-listbox>
+                      </div>
+                    </div>
+                
+                    <!-- PDF -->
+                    <div class="col-12 md:col-6 xl:col-4">
+                    <div class="p-3 border-1 surface-border flex align-items-center justify-content-between border-round">
+                      <div class="flex align-items-center">
+                        <i class="pi pi-file text-2xl custom-mr"></i>
+                        <span class="text-900 text-lg font-medium">PDF</span>
+                      </div>
+                    </div>
+                    <div class="table-container">
+                      <p-listbox [options]="PDFSubida" optionLabel="copd_Descripcion" [style]="{width: '100%'}" emptyMessage="No hay archivos PDF disponibles.">
+                        <ng-template let-pdf pTemplate="item">
+                          <div class="d-flex align-items-center doc-item" style="gap: 5px;">
+                            <i class="pi pi-file-pdf"></i>
+                            <span class="doc-name">{{pdf.copd_Descripcion}}</span>
+                            <button type="button" pButton icon="pi pi-trash" class="p-button-outlined" (click)="EliminarImagen(pdf)"></button>
+                            <button type="button" pButton icon="pi pi-eye" class="p-button-outlined" (click)="descargarPDF(pdf)"></button>
+                          </div>
+                        </ng-template>
+                      </p-listbox>
+                    </div>
+                  </div>
+                
+                    <!-- Word -->
+                    <div class="col-12 md:col-6 xl:col-4">
+                      <div class="p-3 border-1 surface-border flex align-items-center justify-content-between  border-round">
+                        <div class="flex align-items-center">
+                          <i class="pi pi-file-word text-2xl custom-mr"></i>
+                          <span class="text-900 text-lg font-medium">Word</span>
+                        </div>
+                      </div>
+                      <div class="table-container">
+                        <p-listbox [options]="WordSubida" optionLabel="copd_Descripcion" [style]="{width: '100%'}" emptyMessage="No hay archivos Word disponibles.">
+                          <ng-template let-word pTemplate="item">
+                            <div class="d-flex align-items-center doc-item" style="gap: 5px;">
+                              <i class="pi pi-file-word"></i>
+                              <span class="doc-name">{{word.copd_Descripcion}}</span>
+                              <button type="button" pButton icon="pi pi-trash" class="p-button-outlined" (click)="EliminarImagen(word)" ></button>
+                              <button type="button" pButton icon="pi pi-eye" class="p-button-outlined" (click)="descargarPDF(word)"></button>
+                            </div>
+                          </ng-template>
+                        </p-listbox>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+        
+                <div
+                style="
+                    width: 100%;
+                    display: flex;
+                    justify-content:end;
+                    margin-top: 20px;
+                "
+            >
+                <button (click)="CerrarCotizacion()" class=" p-button-secondary" pButton pRipple type="button" label="Cancelar" icon="pi pi-times"></button>
+           
+            </div>
+            
+              </form>
+        
+        </div>
+   
+
+    </div>
+</div>
+
+<p-dialog [(visible)]="ModalImpuesto" header="Impuesto" [modal]="true"  [closable]="false" [style]="{width:'450px'}">
+    <div class="flex align-items-center justify-content-center">
+        <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+        <span>¿El impuesto viene incluido?</span>
+    </div>
+    <ng-template pTemplate="footer">
+        <button pButton pRipple icon="pi pi-check" type="button"  label="Sí" (click)="ConImpuesto('Si')"></button>
+        <button pButton pRipple icon="pi pi-times" class="p-button-outlined p-button-primary" label="No" (click)="ConImpuesto('No')"></button>
+    </ng-template>
+</p-dialog>
+
+<p-dialog [(visible)]="ModalFinalizars" header="Confirmación" [modal]="true"  [closable]="false" [style]="{width:'450px'}">
+    <div class="flex align-items-center justify-content-center">
+        <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+        <span>¿Está seguro de finalizar la cotización?</span>
+    </div>
+    <ng-template pTemplate="footer">
+        <button pButton pRipple icon="pi pi-check" type="button"  label="Finalizar" (click)="Finalizar()"></button>
+        <button pButton pRipple icon="pi pi-times" class="p-button-outlined p-button-primary" label="Cancelar" (click)="ModalFinalizars = false"></button>
+
+    </ng-template>
+</p-dialog>
+
+<p-dialog [(visible)]="ModalEliminarImagen" header="Confirmación" [modal]="true"  [closable]="false" [style]="{width:'450px'}">
+  <div class="flex align-items-center justify-content-center">
+      <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+      <span>¿Está seguro de eliminar la imagen <span style="font-weight: 700;">{{detalle_codp_Descripcion}}</span>?</span>
+  </div>
+  <ng-template pTemplate="footer">
+      <button pButton pRipple icon="pi pi-trash" type="button"  label="Eliminar" (click)="EliminarImagenDocumento()"></button>
+      <button pButton pRipple icon="pi pi-times" class="p-button-outlined p-button-primary" label="Cancelar" (click)="ModalEliminarImagen = false"></button>
+
+  </ng-template>
+</p-dialog>
+
+<p-dialog [(visible)]="ModalMaquinariaEliminar" header="Confirmación" [modal]="true"  [closable]="false" [style]="{width:'450px'}">
+    <div class="flex align-items-center justify-content-center">
+        <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+        <span>¿Está seguro de eliminar la maquinaria <span style="font-weight: 600">{{Deta_MaquinariaDescripcion}} </span> al proveedor <span style="font-weight: 600">{{form.value.prov_Descripcion}}</span>?</span>
+    </div>
+    <ng-template pTemplate="footer">
+        <button pButton pRipple icon="pi pi-trash"  type="button" label="Eliminar" (click)="EliminarMaquinaria()"></button>
+        <button pButton pRipple icon="pi pi-times" class="p-button-outlined p-button-primary" label="Cancelar" (click)="ModalMaquinariaEliminar = false"></button>
+
+    </ng-template>
+</p-dialog>
+
+<p-dialog [(visible)]="ModalEquipoEliminar" header="Confirmación" [modal]="true"  [closable]="false" [style]="{width:'450px'}">
+    <div class="flex align-items-center justify-content-center">
+        <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+        <span>¿Está seguro de eliminar el equipo <span style="font-weight: 600">{{Deta_Equipo}} </span> al proveedor <span style="font-weight: 600">{{form.value.prov_Descripcion}}</span>?</span>
+    </div>
+    <ng-template pTemplate="footer">
+        <button pButton pRipple icon="pi pi-trash" type="button" label="Sí" label="Eliminar" (click)="EliminarEquipo()"></button>
+        <button pButton pRipple icon="pi pi-times" class="p-button-outlined p-button-primary" label="Cancelar" (click)="ModalEquipoEliminar = false"></button>
+
+    </ng-template>
+</p-dialog>
+
+<p-dialog [(visible)]="ModalInsumoEliminar" header="Confirmación" [modal]="true"  [closable]="false" [style]="{width:'450px'}">
+    <div class="flex align-items-center justify-content-center">
+        <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+        <span>¿Está seguro de eliminar la unidad de medida <span style="font-weight: 600">{{deta_Unidad}} </span>  del insumo <span style="font-weight: 600">{{formInsumo.value.insu_Descripcion}}</span>?</span>
+    </div>
+    <ng-template pTemplate="footer">
+        <button pButton pRipple icon="pi pi-trash" type="button" label="Sí" label="Eliminar" (click)="EliminarInsumo()"></button>
+        <button pButton pRipple icon="pi pi-times" class="p-button-outlined p-button-primary" label="Cancelar" (click)="ModalInsumoEliminar = false"></button>
+
+    </ng-template>
+</p-dialog>
+
+
+<p-dialog [(visible)]="ModalMaquinariaCrear" header="Confirmación" [modal]="true"  [closable]="false" [style]="{width:'450px'}">
+    <div class="flex align-items-center justify-content-center">
+        <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+        <span>¿Está seguro de crear la maquinaria <span style="font-weight: 600">{{formMaquinaria.value.maqu_Descripcion}}</span>?</span>
+    </div>
+    <ng-template pTemplate="footer">
+        <button pButton pRipple icon="pi pi-save" type="button" label="Sí" label="Guardar" (click)="GuardarMaquinaria()"></button>
+        <button pButton pRipple icon="pi pi-times" class="p-button-outlined p-button-primary" label="Cancelar" (click)="ModalMaquinariaCrear = false; ConfirmarCrearMaquinaria = false"></button>
+
+    </ng-template>
+</p-dialog>
+
+<p-dialog [(visible)]="ModalEquipoCrear" header="Confirmación"  [modal]="true"  [closable]="false" [style]="{width:'450px'}">
+    <div class="flex align-items-center justify-content-center">
+        <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+        <span>¿Está seguro de crear el equipo <span style="font-weight: 600">{{formEquipo.value.equs_Nombre}}</span>?</span>
+    </div>
+    <ng-template pTemplate="footer">
+        <button pButton pRipple icon="pi pi-save" type="button" label="Sí" label="Guardar" (click)="GuardarEquipo()"></button>
+        <button pButton pRipple icon="pi pi-times" class="p-button-outlined p-button-primary" label="Cancelar" (click)="ModalEquipoCrear = false; ConfirmarCrearEquipo = false"></button>
+
+    </ng-template>
+</p-dialog>
+
+
+<p-dialog [(visible)]="ConfirmarInsumo" header="Confirmación" [modal]="true" [closable]="false" [style]="{width:'450px'}">
+    <div class="flex align-items-center justify-content-center">
+        <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+        <span>¿Está seguro de crear los siguientes campos?</span>
+    </div>
+    <div class="flex align-items-center mt-3" style="margin-left: 10px;">
+        <ul>
+            <li *ngIf="deta_Insumo" > <span style="font-weight: 600">Insumo:</span>{{deta_Insumo}}</li>
+            <li *ngIf="deta_Categoria" ><span style="font-weight: 600">Categoría:</span>{{deta_Categoria}}</li>
+            <li *ngIf="deta_SubCategoria"><span style="font-weight: 600">Sub Categoría:</span>{{deta_SubCategoria}}</li>
+            <li *ngIf="deta_Material"><span style="font-weight: 600">Material:</span>{{deta_Material}}</li>
+            <li *ngIf="deta_Unidad" ><span style="font-weight: 600">Unidad:</span>{{deta_Unidad}}</li>
+        </ul>
+    </div>
+    <ng-template pTemplate="footer">
+        <button pButton pRipple icon="pi pi-save" type="button" label="Guardar"  (click)="GuardarInsumoBoton(); deta_Modal = true"></button>
+        <button pButton pRipple icon="pi pi-times" class="p-button-outlined p-button-primary" label="Cancelar" (click)="ConfirmarInsumo = false; deta_Modal = false"></button>
+    </ng-template>
+</p-dialog>
+
+<p-dialog [(visible)]="ConfirmarInsumoBoton" header="Confirmación" [modal]="true"  [closable]="false" [style]="{width:'450px'}">
+    <div class="flex align-items-center justify-content-center">
+        <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+        <span>¿Está seguro de crear los siguientes campos?</span>
+    </div>
+    <div class="flex align-items-center mt-3" style="margin-left: 10px;">
+        <ul>
+            <li *ngIf="deta_Insumo" > <span style="font-weight: 600">Insumo:</span>{{deta_Insumo}}</li>
+            <li *ngIf="deta_Categoria" ><span style="font-weight: 600">Categoría:</span>{{deta_Categoria}}</li>
+            <li *ngIf="deta_SubCategoria"><span style="font-weight: 600">Sub Categoría:</span>{{deta_SubCategoria}}</li>
+            <li *ngIf="deta_Material"><span style="font-weight: 600">Material:</span>{{deta_Material}}</li>
+            <li *ngIf="deta_Unidad" ><span style="font-weight: 600">Unidad:</span>{{deta_Unidad}}</li>
+        </ul>
+    </div>
+    <ng-template pTemplate="footer">
+        <button pButton pRipple icon="pi pi-save" type="button" label="Guardar"  (click)="GuardarInsumo()"></button>
+        <button pButton pRipple icon="pi pi-times" class="p-button-outlined p-button-primary" label="Cancelar" (click)="ConfirmarInsumoBoton = false"></button>
+    </ng-template>
+</p-dialog>
+
+
+<p-dialog [(visible)]="confirmarCotizacion" header="Confirmación" [modal]="true"  [closable]="false" [style]="{width:'450px'}">
+    <div class="flex align-items-center justify-content-center">
+        <i class="pi pi-pencil mr-3" style="font-size: 2rem"></i>
+        <span>¿Está seguro de editar la cotización?</span>
+    </div>
+    <ng-template pTemplate="footer">
+        <button pButton pRipple icon="pi pi-pencil" type="button" label="Aceptar" (click)="GuardarEditado()"></button>
+        <button pButton pRipple icon="pi pi-times" class="p-button-outlined p-button-primary" label="Cancelar" (click)="confirmarCotizacion = false"></button>
+    </ng-template>
+</p-dialog>
+
+
+
+
+
+<p-dialog [(visible)]="ModalProveedor" header="Confirmación" [modal]="true"  [closable]="false" [style]="{width:'450px'}">
+    <div class="flex align-items-center justify-content-center">
+        <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+        <span>¿Está seguro de crear el proveedor <span style="font-weight: 600">{{proveedorForm.prov_Descripcion}}</span>?</span>
+    </div>
+    <ng-template pTemplate="footer">
+        <button pButton pRipple icon="pi pi-save" type="button" label="Guardar" (click)="guardarProveedor()"></button>
+        <button pButton pRipple icon="pi pi-times" class="p-button-outlined p-button-primary" label="Cancelar" (click)="ModalProveedor = false;"></button>
+
+    </ng-template>
+</p-dialog>
+
+
+<div *ngIf="proveedorFormulario"  >
+    <div class="col-12">
+        <div class="card">
+            <div class="flex" style="width: 100%; margin: 0 auto; display: flex; align-items: center; height: 42px;">
+                <div style="width: 20%; display: flex; align-items: center; height: 12.5%;">
+                    <button (click)="cerrarProveedor()" class="p-button-link" pButton pRipple type="button" label="Regresar" icon="pi pi-arrow-left" style="box-shadow: none !important"></button>
+                </div>
+                <div style="flex-grow: 1; display: flex; justify-content: center; align-items: center;">
+                    <h1 class="text-center mt-4">Nuevo Proveedor</h1>
+                </div>
+                <div style="width: 20%;"></div> <!-- Empty div to balance the space on the right -->
+            </div>
+    
+            <hr>
+            <div class="grid mt-2">
+    <!-- Campos -->
+    <div  [style]="{width: '100%'}" class="p-fluid">
+    <form [formGroup]="formPaises" class="flex flex-row  flex-wrap" style="gap: 10px; padding: 0px 6px 0px 16px;">
+        <div class="field" [style]="{width: '49%'}">
+            <label for="prov_Descripcion" style="display: inline-block;">Nombre del Proveedor&nbsp;</label> <small class="ng-dirty ng-invalid" style="display: inline-block;"  style="color: red !important;"*ngIf="submitted && !proveedorForm.prov_Descripcion">*</small>
+            <input type="text" maxlength="100" (input)="allowObservacion($event)" pInputText id="prov_Descripcion" [(ngModel)]="proveedorForm.prov_Descripcion"  [ngModelOptions]="{standalone: true}" required autofocus [ngClass]="{'ng-invalid ng-dirty' : submitted && !proveedorForm.prov_Descripcion}" (keydown)="ValidarTexto($event)"/>
+            <small class="ng-dirty ng-invalid"  style="color: red !important;"*ngIf="submitted && !proveedorForm.prov_Descripcion">El campo es requerido.</small>
+        </div>
+        <div class="field" [style]="{width: '49%'}">
+            <label for="prov_Correo"  maxlength="50" style="display: inline-block;">Correo Electrónico&nbsp;</label>  <small  style="display: inline-block;" class="ng-dirty ng-invalid" style="color: red !important;"*ngIf="submitted && !proveedorForm.prov_Correo">*</small>
+            <input type="text" pInputText id="prov_Correo" [(ngModel)]="proveedorForm.prov_Correo"   [ngModelOptions]="{standalone: true}" required [ngClass]="{'ng-invalid ng-dirty' : submitted && !proveedorForm.prov_Correo}"   (keypress)="correoValidoKeypress($event)"/>
+            <small class="ng-dirty ng-invalid" style="color: red !important;"*ngIf="submitted && !proveedorForm.prov_Correo">El campo es requerido.</small>
+            <small
+            class="ng-dirty ng-invalid"
+            style="color: red"
+            *ngIf="
+                submitted &&
+                proveedorForm.prov_Correo &&
+                !validarCorreo()
+            "
+            >El correo electrónico es inválido.</small
+        >
+        </div>
+        <div class="field" [style]="{width: '49%'}">
+            <label for="prov_Telefono" style="display: inline-block;">Teléfono&nbsp;</label> <small style="display: inline-block;" class="ng-dirty ng-invalid" style="color: red !important;" *ngIf="submitted && !proveedorForm.prov_Telefono">*</small>
+            <input type="text" pInputText id="prov_Telefono"  maxlength="8"   [ngModelOptions]="{standalone: true}" [(ngModel)]="proveedorForm.prov_Telefono" required [ngClass]="{'ng-invalid ng-dirty' : submitted && !proveedorForm.prov_Telefono}" (keypress)="soloNumerosEnterosKeypress($event)"/>
+            <small class="ng-dirty ng-invalid" style="color: red !important;" *ngIf="submitted && !proveedorForm.prov_Telefono">El campo es requerido.</small>
+        </div>
+        <div class="field" [style]="{width: '49%'}">
+            <label for="prov_SegundoTelefono" style="display: inline-block;">Segundo Teléfono&nbsp;</label><small style="display: inline-block;" class="ng-dirty ng-invalid" style="color: red !important;" *ngIf="submitted && !proveedorForm.prov_SegundoTelefono">*</small>
+            <input type="text" pInputText id="prov_SegundoTelefono" maxlength="8"  [ngModelOptions]="{standalone: true}" [(ngModel)]="proveedorForm.prov_SegundoTelefono" [ngClass]="{'ng-invalid ng-dirty' : submitted && !proveedorForm.prov_SegundoTelefono}" (keypress)="soloNumerosEnterosKeypress($event)"/>
+            <small class="ng-dirty ng-invalid" style="color: red !important;" *ngIf="submitted && !proveedorForm.prov_SegundoTelefono">El campo es requerido.</small>
+        </div>
+
+       <!-- Pais DropDownList -->
+       <div class="field" [style]="{width: '49%'}" >
+        <label for="pais_Nombre" style="display: inline-block;">País&nbsp;</label><small style="display: inline-block;" class="ng-dirty ng-invalid" *ngIf="submitted && formPaises.controls['pais'].invalid"
+        style="color: red !important;">*</small>
+
+        <p-autoComplete
+        [suggestions]="filteredPaises"
+        (completeMethod)="searchPaises($event)"
+        formControlName="pais"
+        field="pais_Nombre"
+        (onSelect)="onEstadoCargar($event)"
+        placeholder="Seleccione un país"
+        [ngClass]="{'ng-invalid ng-dirty': submitted && formPaises.controls['pais'].invalid}"
+        [dropdown]="true"
+        appendTo="body"
+        ></p-autoComplete>
+
+
+        <small class="ng-dirty ng-invalid" *ngIf="submitted && formPaises.controls['pais'].invalid"
+        style="color: red !important;">{{Error_Pais}}</small>
+    </div>
+
+    <div class="field" [style]="{width: '49%'}">
+        <label for="esta_Nombre" style="display: inline-block;">Departamento o Estado&nbsp;</label><small style="display: inline-block;" class="ng-dirty ng-invalid" *ngIf="submitted && formPaises.controls['estado'].invalid"
+        style="color: red !important;">*</small>
+
+        <p-autoComplete
+        [suggestions]="filteredEstados"
+        (completeMethod)="searchEstados($event)"
+        formControlName="estado"
+        field="esta_Nombre"
+        placeholder="Seleccione un estado"
+        [ngClass]="{'ng-invalid ng-dirty' : submitted && formPaises.controls['estado'].invalid}"
+        (onSelect)="filtrarCiudades($event)"
+        [dropdown]="true"
+        appendTo="body"
+      ></p-autoComplete>
+
+        <small class="ng-dirty ng-invalid" *ngIf="submitted && formPaises.controls['estado'].invalid"
+        style="color: red !important;">{{Error_Estado}}</small>
+    </div>
+
+    <div class="field" [style]="{width: '49%'}">
+        <label for="ciud_Descripcion" style="display: inline-block;">Ciudad o Municipio&nbsp;</label><small  style="display: inline-block;" class="ng-dirty ng-invalid" *ngIf="submitted  && formPaises.controls['ciudad'].invalid" style="color: red !important;">*</small>
+
+        <p-autoComplete
+        [suggestions]="filteredCiudades"
+        (completeMethod)="searchCiudades($event)"
+        formControlName="ciudad"
+        field="ciud_Descripcion"
+        placeholder="Seleccione una ciudad"
+        [ngClass]="{'ng-invalid ng-dirty' : submitted && formPaises.controls['ciudad'].invalid}"
+        (onSelect)="ciudadOnchange($event)"
+        [dropdown]="true"
+        appendTo="body"
+      ></p-autoComplete>
+        <small class="ng-dirty ng-invalid" *ngIf="submitted  && formPaises.controls['ciudad'].invalid" style="color: red !important;">{{Error_Ciudad}}</small>
+    </div>
+    <div class="field" [style]="{width: '49%'}">
+        <label for="renta" style="display: inline-block;">Venta&nbsp;</label><small style="display: inline-block;" class="ng-dirty ng-invalid" *ngIf="submitted && !proveedorForm.prov_InsumoOMaquinariaOEquipoSeguridad && proveedorForm.prov_InsumoOMaquinariaOEquipoSeguridad != 0"
+        style="color: red !important;">*</small>
+        <div class="formgrid grid">
+            <div class="field-radiobutton col-3">
+                <p-radioButton
+                    id="venta"
+                    value="0"
+                    [ngModelOptions]="{standalone: true}"
+                    [ngClass]="{'ng-invalid ng-dirty': submitted && !proveedorForm.prov_InsumoOMaquinariaOEquipoSeguridad && proveedorForm.prov_InsumoOMaquinariaOEquipoSeguridad != 0}"
+                    [(ngModel)]="proveedorForm.prov_InsumoOMaquinariaOEquipoSeguridad"
+                ></p-radioButton>
+                <label for="venta">Maquinaria</label>
+            </div>
+            <div class="field-radiobutton col-3">
+                <p-radioButton
+                    id="venta"
+                    value="1"
+                    [ngModelOptions]="{standalone: true}"
+                    [ngClass]="{'ng-invalid ng-dirty': submitted && !proveedorForm.prov_InsumoOMaquinariaOEquipoSeguridad && proveedorForm.prov_InsumoOMaquinariaOEquipoSeguridad != 0}"
+                    [(ngModel)]="proveedorForm.prov_InsumoOMaquinariaOEquipoSeguridad"
+                ></p-radioButton>
+                <label for="venta">Insumos</label>
+            </div>
+            <div class="field-radiobutton col-3">
+                <p-radioButton
+                    id="venta"
+                    value="3"
+                    [ngModelOptions]="{standalone: true}"
+                    [ngClass]="{'ng-invalid ng-dirty': submitted && !proveedorForm.prov_InsumoOMaquinariaOEquipoSeguridad && proveedorForm.prov_InsumoOMaquinariaOEquipoSeguridad != 0}"
+                    [(ngModel)]="proveedorForm.prov_InsumoOMaquinariaOEquipoSeguridad"
+                ></p-radioButton>
+                <label for="venta">Todos</label>
+            </div>
+        </div>
+        <small class="ng-dirty ng-invalid" *ngIf="submitted && !proveedorForm.prov_InsumoOMaquinariaOEquipoSeguridad && proveedorForm.prov_InsumoOMaquinariaOEquipoSeguridad != 0"
+            style="color: red !important;">El campo es requerido.</small>
+    </div>
+  </form>
+
+    <!-- Botones -->
+    <div class="flex justify-content-end">
+        <div class="flex flex-row" style="gap: 10px; margin-right: 10px; ">
+            <button (click)="ModalCrearProveedor()" pButton pRipple type="button" label="Guardar" icon="pi pi-save"></button>
+            <button (click)="cerrarProveedor()" class="p-button-secondary" pButton pRipple type="button" label="Cancelar" icon="pi pi-times"></button>
+        </div>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+</div>
